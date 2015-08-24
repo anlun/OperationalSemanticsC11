@@ -55,7 +55,7 @@
         (nofuel defaultState)
         "repeatFuel-nofuel")
 
-   (--> ((in-hole E (cas SM FM ι μ-value_1 μ-value_2)) auxξ)
+   (--> ((in-hole E (cas SM FM ι-var μ-value_1 μ-value_2)) auxξ)
         (stuck defaultState)
         "cas-stuck"
         (side-condition

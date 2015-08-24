@@ -33,30 +33,52 @@
               rlxWriteRules
               relAcqWriteRules
               scRules))
-
+#|
 (test-->>∃ step
           (term (,testTerm0  defaultState))
           (term ((ret (0 0)) defaultState)))
 
-#|
+
 R1 = x_rlx || R2 = y_rlx
 y_rlx  = 1 || x_rlx  = 1
 
 With postponed reads it should be able to lead to R1 = R2 = 1.
-|#
+
 
 (test-->>∃ step
           (term (,testTerm01 defaultState))
           (term ((ret (1 1)) defaultState)))
-
+|#
 #|
 R1 = x_rlx || R2 = y_rlx
 y_sc   = 1 || x_sc   = 1
 
 With postponed reads it shouldn't be able to lead to R1 = R2 = 1, because of sc operations.
-|#
+
 (test-->> step
           (term (,testTerm03 defaultState))
           (term ((ret (0 0)) defaultState))
           (term ((ret (0 1)) defaultState))
           (term ((ret (1 0)) defaultState)))
+|#
+#|
+        c_rlx = 0
+        x_rlx = c
+a_rlx = 239; || b = x_acq;
+x_rel = a    || res = b_rlx
+          ret res
+|#
+(define testTerm10
+  (term ((write rlx "c"   0) >>= (λ x
+        ((write rlx "x" "a") >>= (λ x
+        ((spw
+          ((write rlx "a" 239) >>= (λ x
+           (write rel "x" "a")))
+          ((read  acq "x") >>= (λ b
+           (read  rlx b)))) >>= (λ res
+        (ret (proj2 res))))))))))
+
+;(test-->> step
+;          (term (,testTerm10 defaultState))
+;          (term ((ret 0) defaultState))
+;          (term ((ret 239) defaultState)))
