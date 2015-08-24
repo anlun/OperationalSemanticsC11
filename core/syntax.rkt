@@ -5,9 +5,9 @@
 (define-language syntax
   [AST (ret μ)
        (AST >>= K)       ; `let-in` construction can be emulated by (ret Expr) >>= (λ x AST). 
-       (read   RM ι    )
-       (write  WM ι μ  )
-       (cas SM FM ι μ μ)
+       (read   RM ι-var    )
+       (write  WM ι-var μ  )
+       (cas SM FM ι-var μ μ)
        ; Atomic read-modify-write operations shall always read the last value (in the modification order) written
        ; before the write associated with the read-modify-write operation.
        ; C++ Standard, 29.4-12, p.1101
@@ -26,7 +26,10 @@
 
   [μ Expr   ; Value
      (μ μ)
-     (projOp μ)]
+     (projOp μ)
+
+     ι-var]
+  
   [Expr vName
         number
         (op Expr Expr)]
@@ -37,12 +40,15 @@
           proj2]
 
   [μ-value number
-           (μ-value μ-value)]
+           (μ-value μ-value)
+           ι]
 
   [μ-subst μ-value
            vName]
   
   [ι string] ; Location. Can be used 'number' instead of 'string'
+  [ι-var ι
+         vName]
 
   [RM sc acq rlx na] ; TODO: add 'consume' semantics
   [WM sc rel rlx na]
@@ -76,9 +82,9 @@
       (μ EU)
       (projOp EU)
       (ret EU)
-      (write  WM ι EU)
-      (cas SM FM ι EU μ)
-      (cas SM FM ι μ EU)
+      (write  WM ι-var EU)
+      (cas SM FM ι-var EU μ)
+      (cas SM FM ι-var μ EU)
       (if EU AST AST)
       (par EU AST)
       (par AST EU)]
@@ -192,15 +198,22 @@
   [(pathEf (par ψ Ef)) (R (pathEf Ef))])
 
 (define-metafunction syntax
+  substι : vName μ ι-var -> ι-var
+  [(substι vName ι vName) ι]
+  [(substι vName μ ι-var) ι-var])
+
+(define-metafunction syntax
   subst : vName μ AST -> AST
   [(subst vName μ_1 (ret μ_2))
    (ret (substExpr vName μ_1 μ_2))]
   [(subst vName μ (AST >>= K))
    ((subst vName μ AST) >>= (substCont vName μ K))]
-  [(subst vName μ_1 (write WM ι μ_2))
-   (write WM ι (substExpr vName μ_1 μ_2))]
-  [(subst vName μ_1 (cas SM FM ι μ_2 μ_3))
-   (cas SM FM ι (substExpr vName μ_1 μ_2) (substExpr vName μ_1 μ_3))]
+  [(subst vName μ_1 (read RM ι-var))
+   (read RM (substι vName μ_1 ι-var))]
+  [(subst vName μ_1 (write WM ι-var μ_2))
+   (write WM (substι vName μ_1 ι-var) (substExpr vName μ_1 μ_2))]
+  [(subst vName μ_1 (cas SM FM ι-var μ_2 μ_3))
+   (cas SM FM (substι vName μ_1 ι-var) (substExpr vName μ_1 μ_2) (substExpr vName μ_1 μ_3))]
   [(subst vName μ (par AST_1 AST_2))
    (par (subst vName μ AST_1) (subst vName μ AST_2))]
   [(subst vName μ (spw AST_1 AST_2))
