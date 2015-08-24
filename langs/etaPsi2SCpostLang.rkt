@@ -3,7 +3,7 @@
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
-(require "../langs/postReadLang.rkt")
+(require "../rules/postReadRules.rkt")
 (require "../rules/rlxRules.rkt")
 (require "../rules/relAcqRules.rkt")
 (require "../rules/scRules.rkt")
