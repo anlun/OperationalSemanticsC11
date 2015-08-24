@@ -1,8 +1,12 @@
 #lang racket
 (require redex)
-(require "syntax.rkt")
-(require "coreLang.rkt")
-(require "coreUtils.rkt")
+(require "../core/syntax.rkt")
+(require "../core/coreLang.rkt")
+(require "../core/coreUtils.rkt")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Old version of full language. ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-extended-language lang coreLang
   ; State:
@@ -105,23 +109,6 @@
    ,(and
       (equal? (term (pathE E)) (term (pathEf Ef_1)))
       (equal? (term (pathE E)) (term (pathEf Ef_2))))])
-
-(define-relation lang
-  succCAScondition ⊆ ι × η × μ-value × SM × FM
-  [(succCAScondition ι η μ-value SM FM)
-   (nonNegativeτ (getLastTimestamp ι η))
-   ,(equal? (term μ-value)
-            (term (getValueByCorrectTimestamp ι (getLastTimestamp ι η) η)))
-   (casMO=>? SM FM)])
-
-(define-relation lang
-  failCAScondition ⊆ ι × η × μ-value × SM × FM
-  [(failCAScondition ι η μ-value SM FM)
-   (nonNegativeτ (getLastTimestamp ι η))
-   ,(not (equal?
-          (term μ-value)
-          (term (getValueByCorrectTimestamp ι (getLastTimestamp ι η) η))))
-   (casMO=>? SM FM)])
 
 (define-metafunction lang
   acqFailCASσReadNew : ι η σ -> σ

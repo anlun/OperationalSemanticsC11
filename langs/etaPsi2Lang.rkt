@@ -1,8 +1,8 @@
 #lang racket
 (require redex)
-(require "syntax.rkt")
-(require "coreLang.rkt")
-(require "coreUtils.rkt")
+(require "../core/syntax.rkt")
+(require "../core/coreLang.rkt")
+(require "../core/coreUtils.rkt")
 ;(require "rlxRules.rkt")
 (provide etaPsi2Lang coreStep defaultState)
 

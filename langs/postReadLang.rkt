@@ -1,10 +1,10 @@
 #lang racket
 (require redex)
-(require "syntax.rkt")
-(require "coreLang.rkt")
-(require "coreUtils.rkt")
-(require "rlxRules.rkt")
-(require "testTerms.rkt")
+(require "../core/syntax.rkt")
+(require "../core/coreLang.rkt")
+(require "../core/coreUtils.rkt")
+(require "../rules/rlxRules.rkt")
+(require "../tests/testTerms.rkt")
 (provide define-postponedReadRules)
 
 (define-extended-language postReadLang coreLang

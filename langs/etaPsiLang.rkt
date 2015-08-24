@@ -1,8 +1,8 @@
 #lang racket
 (require redex)
-(require "syntax.rkt")
-(require "coreLang.rkt")
-(require "coreUtils.rkt")
+(require "../core/syntax.rkt")
+(require "../core/coreLang.rkt")
+(require "../core/coreUtils.rkt")
 (provide etaPsiLang coreStep defaultState)
 
 (define-extended-language etaPsiLang coreLang

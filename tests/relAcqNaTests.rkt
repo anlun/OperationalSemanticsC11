@@ -1,10 +1,10 @@
 #lang racket
 (require redex)
-(require "syntax.rkt")
-(require "coreUtils.rkt")
-(require "etaPsiLang.rkt")
-(require "relAcqRules.rkt")
-(require "naRules.rkt")
+(require "../core/syntax.rkt")
+(require "../core/coreUtils.rkt")
+(require "../langs/etaPsiLang.rkt")
+(require "../rules/relAcqRules.rkt")
+(require "../rules/naRules.rkt")
 
 (define relAcqRules (define-relAcqRules etaPsiLang synchronizeWriteFront_id
                       isReadQueueEqualTo_t))

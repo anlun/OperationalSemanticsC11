@@ -1,12 +1,12 @@
 #lang racket
 (require redex)
-(require "syntax.rkt")
-(require "coreLang.rkt")
-(require "coreUtils.rkt")
-(require "rlxRules.rkt")
-(require "relAcqRules.rkt")
-(require "naRules.rkt")
-(require "scRules.rkt")
+(require "../core/syntax.rkt")
+(require "../core/coreLang.rkt")
+(require "../core/coreUtils.rkt")
+(require "../rules/rlxRules.rkt")
+(require "../rules/relAcqRules.rkt")
+(require "../rules/naRules.rkt")
+(require "../rules/scRules.rkt")
 
 (define-extended-language etaPsi2SCLang coreLang
   ; State:

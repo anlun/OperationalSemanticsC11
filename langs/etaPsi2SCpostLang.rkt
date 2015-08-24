@@ -1,13 +1,13 @@
 #lang racket
 (require redex)
-(require "syntax.rkt")
-(require "coreLang.rkt")
-(require "coreUtils.rkt")
-(require "postReadLang.rkt")
-(require "rlxRules.rkt")
-(require "relAcqRules.rkt")
-(require "scRules.rkt")
-(require "testTerms.rkt")
+(require "../core/syntax.rkt")
+(require "../core/coreLang.rkt")
+(require "../core/coreUtils.rkt")
+(require "../langs/postReadLang.rkt")
+(require "../rules/rlxRules.rkt")
+(require "../rules/relAcqRules.rkt")
+(require "../rules/scRules.rkt")
+(require "../tests/testTerms.rkt")
 
 (define-extended-language etaPsi2SCpostLang coreLang
   [auxξ (η (Read ψ) (Write ψ) (SC σ) (P φ))])

@@ -1,11 +1,11 @@
 #lang racket
 (require redex)
-(require "syntax.rkt")
-(require "coreUtils.rkt")
-(require "etaPsi2Lang.rkt")
-(require "rlxRules.rkt")
-(require "relAcqRules.rkt")
-(require "naRules.rkt")
+(require "../core/syntax.rkt")
+(require "../core/coreUtils.rkt")
+(require "../langs/etaPsi2Lang.rkt")
+(require "../rules/rlxRules.rkt")
+(require "../rules/relAcqRules.rkt")
+(require "../rules/naRules.rkt")
 
 (define rlxReadRules  (define-rlxReadRules  etaPsi2Lang))
 (define rlxWriteRules (define-rlxWriteRules etaPsi2Lang

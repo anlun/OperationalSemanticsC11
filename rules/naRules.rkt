@@ -1,11 +1,10 @@
 #lang racket
 (require redex)
-(require "syntax.rkt")
-(require "coreLang.rkt")
-(require "coreUtils.rkt")
-(require "etaPsiLang.rkt")
+(require "../core/syntax.rkt")
+(require "../core/coreLang.rkt")
+(require "../core/coreUtils.rkt")
+(require "../langs/etaPsiLang.rkt")
 (provide define-naRules define-naReadRules define-naWriteStuckRules)
-
 
 (define-syntax-rule (define-naReadRules lang)
   (begin
