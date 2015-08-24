@@ -6,6 +6,7 @@
 (require "../rules/relAcqRules.rkt")
 (require "../rules/naRules.rkt")
 (require "../rules/scRules.rkt")
+(require "../tests/testTerms.rkt")
 
 (define-extended-language etaPsiSCLang coreLang
   ; State:
@@ -25,7 +26,7 @@
 (define coreTest (define-coreTest coreStep defaultState))
 
 (define scRules (define-scRules etaPsiSCLang
-                  getReadσ updateReadσ synchronizeWriteFront isReadQueueEqualTo_t))
+                  getReadσ updateReadσ synchronizeWriteFront_id isReadQueueEqualTo_t))
 
 (define relAcqRules (define-relAcqRules etaPsiSCLang
                       synchronizeWriteFront isReadQueueEqualTo_t))
@@ -45,20 +46,9 @@ Example from: VafeiadisNarayan:OOPSLA13 "Relaxed Separation Logic: A Program Log
 
 It shouldn't get `stuck`.
 |#
-(define testTerm3
-         (term (((write sc "c" 0) >>= (λ x
-                    (spw
-                     ((write na "a" 7) >>= (λ x
-                      (write sc "c" 1)))
-                     ((repeat (read sc "c")) >>= (λ x
-                     ((read  na "a") >>= (λ x
-                      (write na "a" (+ 1 x))))
-                      ))
-                    )))
-                    >>= (λ x (read na "a")))))
 #|
 (test-->> step
-         (term (,testTerm3 defaultState))
+         (term (,testTerm3-2 defaultState))
          (term (stuck defaultState)))
 |#
-; (traces step (term (,testTerm3 defaultState)))
+; (traces step (term (,testTerm3-2 defaultState)))

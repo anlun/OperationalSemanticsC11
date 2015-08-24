@@ -117,7 +117,7 @@ a_na  = 7; || repeat (c_acq) end;
 c_rel = 1  || a_na = a_na + 1
        ret a_na
 
-Example from: VafeiadisNarayan:OOPSLA13 "Relaxed Separation Logic: A Program Logic for C11 Concurrency".
+Example from: Vafeiadis-Narayan:OOPSLA13 "Relaxed Separation Logic: A Program Logic for C11 Concurrency".
 It shouldn't get `stuck`.
 |#
 (define testTerm3
@@ -132,12 +132,75 @@ It shouldn't get `stuck`.
                     )))
                     >>= (λ x (read na "a")))))
 
+#|
+       c_rlx = 0;
+a_na  = 7; || repeat (c_rlx) end;
+c_rlx = 1  || a_na = a_na + 1
+       ret a_na
+
+Example from: Vafeiadis-Narayan:OOPSLA13 "Relaxed Separation Logic: A Program Logic for C11 Concurrency".
+It uses rlx writes and reads instead of rel/acq, and it leads to `stuck`.
+|#
+(define testTerm3-0
+         (term (((write rlx "c" 0) >>= (λ x
+                    (spw
+                     ((write na  "a" 7) >>= (λ x
+                      (write rlx "c" 1)))
+                     ((repeat (read rlx "c")) >>= (λ x
+                     ((read  na "a") >>= (λ x
+                      (write na "a" (+ 1 x))))
+                      ))
+                    )))
+                    >>= (λ x (read na "a")))))
+
+#|
+       c_rlx = 0;
+a_rlx = 7; || if (c_acq)
+c_rel = 1  ||   a_rlx = a_rlx + 1
+       ret a_rlx
+|#
+(define testTerm3-1
+         (term (((write rlx "c" 0) >>= (λ x
+                    (spw
+                     ((write rlx "a" 7) >>= (λ x
+                      (write rel "c" 1)))
+                     ((read acq "c") >>= (λ cond
+                     (if cond
+                       ((read  rlx "a") >>= (λ x
+                        (write rlx "a" (+ 1 x))))
+                       (ret 0))
+                      ))
+                    )))
+                    >>= (λ x (read rlx "a")))))
+
+#|
+       c_sc = 0;
+a_na  = 7; || repeat (c_sc) end;
+c_sc = 1   || a_na = a_na + 1
+       ret a_na
+
+Version with SC modifiers instead of Rel/Acq.
+Example from: VafeiadisNarayan:OOPSLA13 "Relaxed Separation Logic: A Program Logic for C11 Concurrency".
+
+It shouldn't get `stuck`.
+|#
+(define testTerm3-2
+         (term (((write sc "c" 0) >>= (λ x
+                    (spw
+                     ((write na "a" 7) >>= (λ x
+                      (write sc "c" 1)))
+                     ((repeat (read sc "c")) >>= (λ x
+                     ((read  na "a") >>= (λ x
+                      (write na "a" (+ 1 x))))
+                      ))
+                    )))
+                    >>= (λ x (read na "a")))))
 
 #|
 Dekker's lock doesn't work in weak memory settings (and in our model).
 
-               x_rlx = 0;
-               y_rlx = 0;
+               x_rel = 0;
+               y_rel = 0;
 x_rel = 1;         || y_rel = 1;
 if y_acq == 0 then || if x_acq == 0 then
   a_na = 239            a_na = 30
@@ -169,12 +232,11 @@ repeat y_acq end;      || repeat x_acq end;
 if x_acq == y_acq then || if x_acq != y_acq then
   a_na = 239           ||   a_na = 239
 
-
 Unfortunately, DrRacket can't find fixpoint in normal time in this case.
 |#
 (define testTerm5
-          (term ((write rlx "x" 0) >>= (λ x
-                ((write rlx "y" 0) >>= (λ x
+          (term ((write rel "x" 0) >>= (λ x
+                ((write rel "y" 0) >>= (λ x
                 ((spw
                    ((write rel "x" (choice 1 2))  >>= (λ x
                    ((repeatFuel 1 (read acq "y")) >>= (λ x
@@ -276,11 +338,11 @@ An example from VafeiadisNarayan:OOPSLA13. It shouldn't get `stuck`.
                     lock = 1
 a_na     = 2 || if (cas_acq_rlx lock 0 1) then || if (cas_acq_rlx lock 0 1)
 lock_rel = 0 ||    a_na = 3                    ||    a_na = 2
-                    ret a
+             || else (ret -1)                  || else (ret -1)
 |#
 
 (define testTerm9
-     (term ((write rlx "lock" 1) >>= (λ x
+     (term ((write rel "lock" 1) >>= (λ x
             (spw
              ((write na "a" 2) >>= (λ x
               (write rel "lock" 0)))
@@ -294,4 +356,3 @@ lock_rel = 0 ||    a_na = 3                    ||    a_na = 2
                    (write na "a" 2)
                    (ret -1))))
               ))))))
-

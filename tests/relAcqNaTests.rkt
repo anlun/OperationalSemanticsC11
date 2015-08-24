@@ -5,6 +5,7 @@
 (require "../langs/etaPsiLang.rkt")
 (require "../rules/relAcqRules.rkt")
 (require "../rules/naRules.rkt")
+(require "testTerms.rkt")
 
 (define relAcqRules (define-relAcqRules etaPsiLang synchronizeWriteFront_id
                       isReadQueueEqualTo_t))
@@ -19,26 +20,14 @@ c_rel = 1  || a_na = a_na + 1
        ret a_na
 
 Example from: VafeiadisNarayan:OOPSLA13 "Relaxed Separation Logic: A Program Logic for C11 Concurrency".
-
 It shouldn't get `stuck`.
 |#
-(define testTerm3
-         (term (((write rel "c" 0) >>= (λ x
-                    (spw
-                     ((write na  "a" 7) >>= (λ x
-                      (write rel "c" 1)))
-                     ((repeat (read acq "c")) >>= (λ x
-                     ((read  na "a") >>= (λ x
-                      (write na "a" (+ 1 x))))
-                      ))
-                    )))
-                    >>= (λ x (read na "a")))))
 #|
 (test-->> step
          (term (,testTerm3 defaultState))
          (term (stuck defaultState)))
 |#
-; (traces step (term (,testTerm3 defaultState)))
+;(traces step (term (,testTerm3 defaultState)))
 
 #|
 Dekker's lock doesn't work in weak memory settings (and in our model).
@@ -51,19 +40,6 @@ if y_acq == 0 then || if x_acq == 0 then
 
 It should get `stuck` because of concurrent non-atomic writes.
 |#
-(define testTerm4
-            (term ((write rel "x" 0) >>= (λ x
-                  ((write rel "y" 0) >>= (λ x
-                   (spw
-                    ((write rel "x" 1) >>= (λ x
-                    ((read  acq "y"  ) >>= (λ y
-                     (if (== 0 y) (write na "a" 239) (ret 0))))))
-                    ((write rel "y" 1) >>= (λ x
-                    ((read  acq "x"  ) >>= (λ x
-                     (if (== 0 x) (write na "a" 30 ) (ret 0))))))
-                    )
-                    )) ))))
-
 (test-->>∃ step
          (term (,testTerm4 defaultState))
          (term (stuck defaultState)))
@@ -72,8 +48,8 @@ It should get `stuck` because of concurrent non-atomic writes.
 Ernie Cohen's lock should work in weak memory settings.
 Described in Turon-al:OOPSLA14.
 
-                   x_rlx = 0;
-                   y_rlx = 0;
+                   x_rel = 0;
+                   y_rel = 0;
 x_rel = choice(1, 2);  || y_rel = choice(1, 2); 
 repeat y_acq end;      || repeat x_acq end;
 if x_acq == y_acq then || if x_acq != y_acq then
@@ -82,26 +58,8 @@ if x_acq == y_acq then || if x_acq != y_acq then
 
 Unfortunately, DrRacket can't find fixpoint in normal time in this case.
 |#
-(define testTerm5
-       (term (((((write rlx "x" 0) >>= (λ x
-                ((write rlx "y" 0) >>= (λ x
-                ((spw
-                   ((write rel "x" (choice 1 2))  >>= (λ x
-                   ((repeatFuel 1 (read acq "y")) >>= (λ x
-                   ((read acq "x") >>= (λ x
-                   ((read acq "y") >>= (λ y
-                    (if (== x y) (write na "a" 239) (ret 0))))))))))
-
-                   ((write rel "y" (choice 1 2))  >>= (λ x
-                   ((repeatFuel 1 (read acq "x")) >>= (λ x
-                   ((read acq "x") >>= (λ x
-                   ((read acq "y") >>= (λ y
-                    (if (!= x y) (write na "a" 239) (ret 0))))))))))
-                   
-                  ) >>= (λ x ((read na "a") >>= (λ x (ret x)))))))))
-                 () ()) ()) ())))
 #|
 (test-->> step
-         testTerm5
-         (term ((((ret 239) () ()) ()) ())))
+         (term (,testTerm5 defaultState))
+         (term ((ret 239) deafultState)))
 |#

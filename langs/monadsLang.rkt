@@ -341,84 +341,27 @@
 ;;;;;;;;;;;;;;;;;
 ; Tests
 ;;;;;;;;;;;;;;;;;
-(define testTerm-1
-         (term (((((spw (ret (+ 1 2)) (ret (+ 3 9))) >>= (λ v
-                   (ret v)))
-                   () ()) ()) ())))
-
-(test-->> step
-          testTerm-1
-          (term ((((ret (3 12)) () ()) ()) ())))
-
-#|
-y_rlx  = 1 || x_rlx = 1
-R1 = x_rlx || R2 = y_rlx
-
-Can lead to R1 = R2 = 0.
-|#
-(define testTerm0
-          (term (((((spw
-                   ((write rlx "y" 1) >>= (λ x (
-                    (read  rlx "x")   >>= (λ x
-                    (ret x)))))
-                   ((write rlx "x" 1) >>= (λ x (
-                    (read  rlx "y")   >>= (λ x
-                    (ret x))))))
-                  >>=
-                  (λ x (ret x)))
-
-                  (("x" ((0 0 (("x" 0))))) ("y" ((0 0 (("y" 0))))))
-                  (("x" 0) ("y" 0)))
-                  (("x" 0) ("y" 0)))
-                  () )))
-
-(test-->>∃ step
-          testTerm0
-          (term ((((ret (0 0)) () ()) ()) ())))
 
 #|
 y_rel  = 1 || x_rel = 1
 R1 = x_acq || R2 = y_acq
 
 Can lead to R1 = R2 = 0.
-|#
-(define testTerm1
-        (term (((((spw
-                   ((write rel "y" 1) >>= (λ x (
-                    (read  acq "x")   >>= (λ x
-                    (ret x)))))
-                   ((write rel "x" 1) >>= (λ x (
-                    (read  acq "y")   >>= (λ x
-                    (ret x))))))
-                  >>=
-                  (λ x (ret x)))
-                 
-                  (("x" ((0 0 (("x" 0))))) ("y" ((0 0 (("y" 0))))))
-                  (("x" 0) ("y" 0)))
-                  (("x" 0) ("y" 0)))
-                  () )))
 
 (test-->>∃ step
           testTerm1
           (term ((((ret (0 0)) () ()) ()) ())))
-
+|#
 #|
 x_na = 1 || x_na = 2
 
 It should get `stuck`.
-|#
-(define testTerm2
-        (term (((((spw
-                   ((write na "x" 1) >>= (λ x (ret 1)))
-                   ((write na "x" 2) >>= (λ x (ret 2))))
-                  >>=
-                  (λ x (ret x)))
-                  () ()) ()) ())))
 
 (test-->>∃ step
           testTerm2
           (term (((stuck () ()) ()) ())))
 
+|#
 #|
        c_rlx = 0;
 a_na  = 7; || repeat (c_acq) end;
@@ -426,21 +369,8 @@ c_rel = 1  || a_na = a_na + 1
        ret a_na
 
 Example from: VafeiadisNarayan:OOPSLA13 "Relaxed Separation Logic: A Program Logic for C11 Concurrency".
-
 It shouldn't get `stuck`.
 |#
-(define testTerm3
-         (term ((((((write rlx "c" 0) >>= (λ x
-                    (spw
-                     ((write na  "a" 7) >>= (λ x
-                      (write rel "c" 1)))
-                     ((repeat (read acq "c")) >>= (λ x
-                     ((read  na "a") >>= (λ x
-                      (write na "a" (+ 1 x))))
-                      ))
-                    )))
-                    >>= (λ x (read na "a")))
-                    () ()) ()) ())))
 
 ;(test-->> step
 ;         testTerm3
@@ -463,24 +393,11 @@ if y_acq == 0 then || if x_acq == 0 then
   a_na = 239            a_na = 30
 
 It should get `stuck` because of concurrent non-atomic writes.
-|#
-(define testTerm4
-         (term (((((write rlx "x" 0) >>= (λ x
-                  ((write rlx "y" 0) >>= (λ x
-                   (spw
-                    ((write rel "x" 1) >>= (λ x
-                    ((read  acq "y"  ) >>= (λ y
-                     (if (== 0 y) (write na "a" 239) (ret 0))))))
-                    ((write rel "y" 1) >>= (λ x
-                    ((read  acq "x"  ) >>= (λ x
-                     (if (== 0 x) (write na "a" 30 ) (ret 0))))))
-                    )
-                    )) ))
-                  () ()) ()) ())))
 
 (test-->>∃ step
            testTerm4
            (term (((stuck () ()) ()) ())))
+|#
 
 #|
 Ernie Cohen's lock should work in weak memory settings.
@@ -496,24 +413,7 @@ if x_acq == y_acq then || if x_acq != y_acq then
 
 Unfortunately, DrRacket can't find fixpoint in normal time in this case.
 |#
-(define testTerm5
-       (term (((((write rlx "x" 0) >>= (λ x
-                ((write rlx "y" 0) >>= (λ x
-                ((spw
-                   ((write rel "x" (choice 1 2))  >>= (λ x
-                   ((repeatFuel 1 (read acq "y")) >>= (λ x
-                   ((read acq "x") >>= (λ x
-                   ((read acq "y") >>= (λ y
-                    (if (== x y) (write na "a" 239) (ret 0))))))))))
 
-                   ((write rel "y" (choice 1 2))  >>= (λ x
-                   ((repeatFuel 1 (read acq "x")) >>= (λ x
-                   ((read acq "x") >>= (λ x
-                   ((read acq "y") >>= (λ y
-                    (if (!= x y) (write na "a" 239) (ret 0))))))))))
-                   
-                  ) >>= (λ x ((read na "a") >>= (λ x (ret x)))))))))
-                 () ()) ()) ())))
 #|
 (test-->> step
          testTerm5
@@ -528,21 +428,6 @@ x_rlx = 1 || x_rlx = 2 || a = x_rlx || c = x_rlx
 The execution a = d = 1 and b = c = 2 is invalid.
 Again I don't know how to say 'this can't be reduced to that' in tests, so this test should fail.
 |#
-(define testTerm6
-        (term (((((write rlx "x" 0) >>= (λ x
-                 ((spw
-                   (spw
-                    (write rlx "x" 1)
-                    (write rlx "x" 2))
-                   (spw
-                    ((read rlx "x") >>= (λ a
-                    ((read rlx "x") >>= (λ b (ret (a b))))))
-
-                    ((read rlx "x") >>= (λ c
-                    ((read rlx "x") >>= (λ d (ret (c d))))))                    
-                    )) >>= (λ x
-                 (ret (proj2 x))))))
-                () ()) ()) ())))
 #|
 (test-->>∃ step
           testTerm6
@@ -578,22 +463,6 @@ The test takes too many time to execute. Results are:
 
 The `ret ((1 0) (0 1))` shows that our model is more relaxed than x86-TSO [Sewell-al:CACM10].
 |#
-(define testTerm65
-        (term (((((write rlx "x" 0) >>= (λ x
-                 ((write rlx "y" 0) >>= (λ x
-                 ((spw
-                   (spw
-                    (write rlx "x" 1)
-                    (write rlx "y" 1))
-                   (spw
-                    ((read rlx "x") >>= (λ a
-                    ((read rlx "y") >>= (λ b (ret (a b))))))
-
-                    ((read rlx "y") >>= (λ c
-                    ((read rlx "x") >>= (λ d (ret (c d))))))                    
-                    )) >>= (λ x
-                 (ret (proj2 x))))))))
-                () ()) ()) ())))
 #|
 (test-->> step
           testTerm65
@@ -634,13 +503,11 @@ cas rlx sc "x" 1 0
 
 Leads to `stuck` state, because Compare-and-Set (Read-Modify-Write) operations in C11 are
 undefined if success modifier is weaker than fail modifier.
-|#
-(define testTerm8
-  (term ((((cas rlx sc "x" 1 0) () ()) ()) ())))
 
 (test-->> step
           testTerm8
           (term (((stuck () ()) ()) ())))
+|#
 
 
 #|
@@ -652,23 +519,6 @@ lock_rel = 0 ||    a_na = 3                    ||    a_na = 2
                     ret a
 |#
 
-(define testTerm9
-  (term (((((write rlx "lock" 1) >>= (λ x
-            (spw
-             ((write na "a" 2) >>= (λ x
-              (write rel "lock" 0)))
-             (spw
-              ((cas acq rlx "lock" 0 1) >>= (λ x
-               (if x
-                   (write na "a" 3)
-                   (ret -1))))
-              ((cas acq rlx "lock" 0 1) >>= (λ x
-               (if x
-                   (write na "a" 2)
-                   (ret -1))))
-              ))))
-            () ()) ()) ())))
-
 #|
   actual: '((ret (0 (-1 -1))) () (() ()) ())
   actual: '((ret (0 (-1 0))) () (() ()) ())
@@ -678,11 +528,3 @@ lock_rel = 0 ||    a_na = 3                    ||    a_na = 2
           testTerm9
           value?)
 |#
-
-(define term0
-  (term (((((spw
-             (ret (+ 1 2))
-             (ret (+ 3 9)))
-            >>=
-            (λ v (ret v))) () ()) ()) ())))
-;(traces step term1)

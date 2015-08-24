@@ -60,4 +60,3 @@ With postponed reads it shouldn't be able to lead to R1 = R2 = 1, because of sc 
           (term ((ret (0 0)) defaultState))
           (term ((ret (0 1)) defaultState))
           (term ((ret (1 0)) defaultState)))
-

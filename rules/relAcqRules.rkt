@@ -4,6 +4,7 @@
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
 (require "../langs/etaPsiLang.rkt")
+(require "../tests/testTerms.rkt")
 (provide define-relAcqRules define-acqReadRules define-relAcqWriteRules)
 
 (define-metafunction coreLang
@@ -158,23 +159,6 @@ R1 = x_acq || R2 = y_acq
 
 Can lead to R1 = R2 = 0.
 |#
-(define testTerm1
-        (term ((spw
-                   ((write rel "y" 1) >>= (λ x (
-                    (read  acq "x")   >>= (λ x
-                    (ret x)))))
-                   ((write rel "x" 1) >>= (λ x (
-                    (read  acq "y")   >>= (λ x
-                    (ret x))))))
-                  >>=
-                  (λ x (ret x)))))
-
-(define testTerm1-state
-  (term (
-         (("x" ((0 0 (("x" 0))))) ("y" ((0 0 (("y" 0))))))
-         (Read (("x" 0) ("y" 0)))
-         )))
-
 (test-->>∃ step
-          (term (,testTerm1 ,testTerm1-state))
+          (term (,testTerm1 defaultState))
           (term ((ret (0 0)) defaultState)))
