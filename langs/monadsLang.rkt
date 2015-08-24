@@ -17,7 +17,11 @@
   ; σ     -- front after last SC operation.
   ; Invariant: ψ-read >= ψ-write
   [ξ (((AST η ψ) ψ) σ)]
-  )
+
+  [Eξ hole
+      (((hole η ψ) ψ) σ)
+      (hole σ)
+      ((hole ψ) σ)])
 
 (define-metafunction lang
   sortξ : ξ -> ξ

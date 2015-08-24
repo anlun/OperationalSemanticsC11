@@ -61,12 +61,7 @@
   ; Scheduler fronts for threads
   [ψ σ
      (par ψ ψ)]
-  
-  [Eξ hole
-      (((hole η ψ) ψ) σ)
-      (hole σ)
-      ((hole ψ) σ)]
-  
+    
   [E hole
      (E >>= K)
      (par E AST)
