@@ -29,14 +29,14 @@
   (reduction-relation
    lang #:domain ξ
    
-   (--> ((in-hole E (read RM ι)) auxξ)
-        ((in-hole E (ret  x   )) auxξ_new)
+   (--> ((in-hole E (read RM ι-var)) auxξ)
+        ((in-hole E (ret  x       )) auxξ_new)
         "read-postponed"
         (fresh x)
         (where path     (pathE E))
         (where φ        (getφ auxξ))
         (where α        (getByPath path φ))
-        (where α_new    ,(append (term α) (term ((x ι RM)))))
+        (where α_new    ,(append (term α) (term ((x ι-var RM)))))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
 
@@ -57,7 +57,7 @@
         (where ψ_read_new (updateByFront path σ ψ_read))
         (where auxξ_upd_ψ (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
 
-        (where α_new      (elToList El_0))
+        (where α_new      (substμα vName μ-value (elToList El_0)))
         (where φ_new      (updateOnPath path α_new φ))
         (where auxξ_new   (updateState (P φ) (P φ_new) auxξ_upd_ψ))
 

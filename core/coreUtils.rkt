@@ -208,8 +208,9 @@
 
 (define-metafunction coreLang
   ιNotInα : ι α -> boolean
-  [(ιNotInα ι (any_0 ... (vName ι RM ) any_1 ...)) #f]
-  [(ιNotInα ι α)                                   #t])
+  [(ιNotInα ι (any_0 ... (vName         ι RM) any_1 ...)) #f]
+  [(ιNotInα ι (any_0 ... (vName_0 vName_1 RM) any_1 ...)) #f]
+  [(ιNotInα ι α)                                          #t])
 
 (define-metafunction coreLang
   ιNotInReadQueue : ι path auxξ -> boolean
@@ -222,6 +223,19 @@
 
 (define-metafunction coreLang
   isFirstRecord : vName ι α -> boolean
-  [(isFirstRecord vName_0 ι_0 ((vName_0 ι_0 RM ) any ...)) #t]
-  [(isFirstRecord vName_0 ι_0 ((vName_1 ι_1 acq) any ...)) #f]
-  [(isFirstRecord vName_0 ι_0 ((vName_1 ι_1 RM ) any ...)) (isFirstRecord vName_0 ι_0 (any ...))])
+  [(isFirstRecord vName_0 ι_0 ((vName_0 ι_0     RM ) any ...)) #t]
+  [(isFirstRecord vName_0 ι_0 ((vName_1 ι_1     acq) any ...)) #f]
+  [(isFirstRecord vName_0 ι   ((vName_1 vName_2 RM ) any ...)) #f]
+  [(isFirstRecord vName_0 ι_0 ((vName_1 ι_1     RM ) any ...)) (isFirstRecord vName_0 ι_0 (any ...))])
+
+(define-metafunction coreLang
+  substμα : vName μ-value α -> α
+  [(substμα vName ι       α) (substια vName ι α)]
+  [(substμα vName μ-value α) α])
+
+(define-metafunction coreLang
+  substια : vName ι α -> α
+  [(substια vName   ι ()) ()]
+  [(substια vName_0 ι ((vName_1 ι-var RM) any ...))
+   ,(cons (term (vName_1 (substι vName_0 ι ι-var) RM))
+          (term (substια vName_0 ι (any ...))))])

@@ -101,7 +101,7 @@
   ;; For postponed reads.
   [φ α
      (par φ φ)]
-  [α ((vName ι RM) ...)]
+  [α ((vName ι-var RM) ...)]
 
   [Ep hole
       (par Ep φ)
