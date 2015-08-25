@@ -70,7 +70,7 @@ x_rel = a    || res = b_rlx
 |#
 (define testTerm10
   (term ((write rlx "c"   0) >>= (λ x
-        ((write rlx "x" "a") >>= (λ x
+        ((write rlx "x" "c") >>= (λ x
         ((spw
           ((write rlx "a" 239) >>= (λ x
            (write rel "x" "a")))

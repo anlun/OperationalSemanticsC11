@@ -199,8 +199,8 @@
 
 (define-metafunction syntax
   substι : vName μ ι-var -> ι-var
-  [(substι vName ι vName) ι]
-  [(substι vName μ ι-var) ι-var])
+  [(substι vName ι-var vName) ι-var]
+  [(substι vName μ     ι-var) ι-var])
 
 (define-metafunction syntax
   subst : vName μ AST -> AST
@@ -386,5 +386,11 @@
                                 (("y" ((3 2 ()) (1 1 ()) (0 2 ()))) ("x" ((3 3 ()) (2 2 ()) (1 1 ()))))))
               (term (("x" ((4 239 ()) (3 3 ()) (2 2 ()) (1 1 ()))) ("y" ((3 2 ()) (1 1 ()) (0 2 ()))))))
 
+  (test-equal (term (subst b x (read rlx b)))
+              (term (read rlx x)))
+
+  (test-equal (term (substι b x b))
+              (term x))
+  
   (test-results))
 (metafunction-tests)
