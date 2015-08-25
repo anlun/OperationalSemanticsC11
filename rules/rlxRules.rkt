@@ -37,7 +37,7 @@
         ((in-hole E (ret 0))               auxξ_new)
         "write-rlx"
         (where η       (getη auxξ))
-        (where ψ_read  (getReadψ  auxξ))
+        (where ψ_read  (getReadψ auxξ))
         (where path    (pathE E))
 
         (where τ              (getNextTimestamp ι η))
@@ -91,8 +91,8 @@
    (define-rlxWriteRules lang getWriteσ isReadQueueEqualTo ιNotInReadQueue))
 ))
 
-(define rlxReadRules  (define-rlxReadRules  etaPsiLang))
-(define rlxRules      (define-rlxRules etaPsiLang
+(define rlxReadRules  (define-rlxReadRules etaPsiLang))
+(define rlxRules      (define-rlxRules     etaPsiLang
                         getWriteσ_nil isReadQueueEqualTo_t ιNotInReadQueue_t))
 (define step          (union-reduction-relations coreStep rlxRules))
 

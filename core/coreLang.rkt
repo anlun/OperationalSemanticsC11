@@ -8,7 +8,7 @@
   ; AST -- current state of program tree;
   ; θ   -- auxiliary state.
   [θ any]
-  [auxξ θ]
+  [auxξ (θ ... η θ ...)]
   [ξ (AST auxξ)])
 
 ; ST stands for `state transformer`.
@@ -57,9 +57,18 @@
 
    (--> ((in-hole E (cas SM FM ι-var μ-value_1 μ-value_2)) auxξ)
         (stuck defaultState)
-        "cas-stuck"
-        (side-condition
-         (not (term (casMO=>? SM FM)))))
+        "cas-stuck-wrong-modificators"
+        (side-condition (not (term (casMO=>? SM FM)))))
+
+   (--> ((in-hole E (cas SM FM ι-var μ-value_1 μ-value_2)) auxξ)
+        (stuck defaultState)
+        "cas-stuck-uninitialized"
+        (where #t (isLocationUninitialized ι-var auxξ)))
+
+   (--> ((in-hole E (read RM ι-var)) auxξ)
+        ((in-hole E stuck) defaultState)
+        "read-stuck"
+        (where #t (isLocationUninitialized ι-var auxξ)))
    
    (--> ((in-hole E (if 0 AST_1 AST_2)) auxξ)
         ((in-hole E AST_2             ) auxξ)
@@ -90,13 +99,13 @@
          (not (equal? (term auxξ) (term defaultState)))))
    )))
 
-(define-term defaultState ())
+(define-term defaultState (()))
 (define-metafunction coreLang
-  spwST : path θ -> θ
-  [(spwST path θ) (par θ θ)])
+  spwST : path auxξ -> auxξ
+  [(spwST path auxξ) auxξ])
 (define-metafunction coreLang
-  joinST : path θ -> θ
-  [(joinST path (par θ θ)) θ])
+  joinST : path auxξ -> auxξ
+  [(joinST path auxξ) auxξ])
 
 ;;;;;;;;;;;;;;;;;
 ; Tests macros

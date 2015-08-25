@@ -65,6 +65,20 @@
         (side-condition (not (empty? (term α))))
         (side-condition (term (correctτ τ ι σ_read)))
         (side-condition (term (isFirstRecord vName ι α))))
+
+   (--> (AST auxξ)
+        (stuck defaultState)
+        "read-resolve-stuck"
+        (where φ      (getφ auxξ))
+        (where η      (getη auxξ))
+        (where ψ_read (getReadψ auxξ))
+        (where (in-hole Ep α) (getφ auxξ))
+        (where (in-hole El_0 (vName ι RM)) α)
+        (side-condition (not (empty? (term α))))        
+        (side-condition (term (isFirstRecord vName ι α)))
+        
+        (side-condition (term (isLocationUninitialized ι auxξ))))
+
 )))
 
 (define postponedReadRules (define-postponedReadRules postReadLang))

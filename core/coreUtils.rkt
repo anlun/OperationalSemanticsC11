@@ -239,3 +239,9 @@
   [(substια vName_0 ι ((vName_1 ι-var RM) any ...))
    ,(cons (term (vName_1 (substι vName_0 ι ι-var) RM))
           (term (substια vName_0 ι (any ...))))])
+
+(define-metafunction coreLang
+  isLocationUninitialized : ι-var auxξ -> boolean
+  [(isLocationUninitialized ι auxξ) ,(equal? (term (getLastTimeStamp ι η)) (term -1))
+                                    (where η (getη auxξ))]
+  [(isLocationUninitialized vName auxξ) #f])
