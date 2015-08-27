@@ -13,3 +13,18 @@ int main() {
   return 0; }
 
 In [Batty-el:POPL11] cppmem `r1 = 1; r2 = 0` result is possible.
+
+
+int main() {
+  atomic_int x = 0; 
+  atomic_int y = 0;
+  {{{ { r1 = y.load(memory_order_relaxed);
+        x.store(1, memory_order_release); }
+  ||| { r2 = x.load(memory_order_relaxed);
+        y.store(1, memory_order_release); }
+  }}};
+  return 0; }
+}
+
+
+In [Batty-el:POPL11] cppmem `r1 = 1; r2 = 1` result is possible.
