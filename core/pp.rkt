@@ -1,21 +1,37 @@
 #lang racket
 (require redex)
+(require racket-pretty-printing-combinators)
 (require "syntax.rkt")
 (require "coreLang.rkt")
 (require "coreUtils.rkt")
 (require "../tests/testTerms.rkt")
+(provide pretty-printer)
+
+(current-page-width 150)
+(define tabstop (make-parameter 3))
 
 (define-metafunction coreLang
-  ppμ : μ -> string
+  ; ppExpr : Expr -> Doc
+  [(ppExpr vName ) ,(symbol->string (term vName ))]
+  [(ppExpr number) ,(number->string (term number))]
+  [(ppExpr (op Expr_0 Expr_1))
+   ,(beside* "(" (symbol->string (term op))
+             (term (ppExpr Expr_0))
+             " "
+             (term (ppExpr Expr_1))
+             ")")])
+
+(define-metafunction coreLang
+  ; ppμ : μ -> Doc
   [(ppμ ι-var) (ppι-var ι-var)]
   [(ppμ (μ_0 μ_1))
-   ,(string-append
-     "("
-     (term (ppμ μ_0))
-     " "
-     (term (ppμ μ_1))
-     ")")]
-  [(ppμ μ) "___"])
+   ,(beside*
+     "(" (term (ppμ μ_0)) " " (term (ppμ μ_1)) ")")]
+  [(ppμ Expr) (ppExpr Expr)]
+  [(ppμ (proj1 μ))
+   ,(beside (term (ppμ μ)) "_1")]
+  [(ppμ (proj2 μ))
+   ,(beside (term (ppμ μ)) "_2")])
 
 (define-metafunction coreLang
   isUsed : vName AST -> boolean
@@ -24,11 +40,18 @@
   [(isUsed vName AST) #t])
 
 (define-metafunction coreLang
-  ppWM : WM -> string
+  ; ppWM : WM -> Doc
   [(ppWM rlx) "rlx"]
   [(ppWM rel) "rel"]
   [(ppWM sc ) "sc "]
   [(ppWM na ) "na "])
+
+(define-metafunction coreLang
+  ; ppRM : RM -> Doc
+  [(ppRM rlx) "rlx"]
+  [(ppRM acq) "acq"]
+  [(ppRM sc ) "sc" ]
+  [(ppRM na ) "na" ])
 
 (define-metafunction coreLang
   ppι-var : ι-var -> string
@@ -36,46 +59,55 @@
   [(ppι-var vName) ,(symbol->string (term vName))])
 
 (define-metafunction coreLang
-  pp : AST -> string
+  ;pp : AST -> Doc
   
   [(pp (AST_0 >>= (λ vName AST_1)))
-   ,(string-append
-     (symbol->string (term vName))
-     " := "
-     (term (pp AST_0))
-     ";\n"
+   ,(above
+     (beside*
+       (symbol->string (term vName))
+       " := " (term (pp AST_0)) ";")
      (term (pp AST_1)))
    (side-condition (term (isUsed vName AST_1)))]
   [(pp (AST_0 >>= (λ vName AST_1)))
-   ,(string-append
-     (term (pp AST_0))
-     ";\n"
+   ,(above
+     (beside (term (pp AST_0)) ";")
      (term (pp AST_1)))
    (side-condition (not (term (isUsed vName AST_1))))]
   
   [(pp (write WM ι-var μ))
-   ,(string-append
-     (term (ppι-var ι-var))
-     "_"
-     (term (ppWM WM))
-     " := "
+   ,(beside*
+     (term (ppι-var ι-var)) "_"
+     (term (ppWM WM))       " := "
      (term (ppμ μ)))]
   
-  [(pp (spw AST_0 AST_1))
-   ,(string-append
-     "spw\n"
-     (term (pp AST_0))
-     "\n"
-     (term (pp AST_1)))]
+  [(pp (read RM ι-var))
+   ,(beside* (term (ppι-var ι-var)) "_"
+             (term (ppRM RM)))]
   
-  [(pp (ret μ)) ,(string-append
+  [(pp (spw AST_0 AST_1))
+   ,(above*
+     "spw"
+     (beside "{{{ " (term (pp AST_0)))
+     "\\\\\\"
+     (indent (string-length "{{{ ")
+             (beside (term (pp AST_1))" }}}")))]
+  
+  [(pp (spw AST_0 AST_1))
+   ,(above*
+     "par"
+     (beside "{{{ " (term (pp AST_0)))
+     "\\\\\\"
+     (indent (string-length "{{{ ")
+             (beside (term (pp AST_1))" }}}")))]
+  
+  [(pp (ret μ)) ,(beside
                   "return "
                   (term (ppμ μ)))]
   [(pp AST) "___"])
 
 (define pretty-printer
   (λ (t port w txt)
-    (write-string (term (pp ,(list-ref t 0))) port)))
+    (write-string (doc->string (term (pp ,(list-ref t 0)))) port)))
 
 (define-term defaultState (()))
 (define-metafunction coreLang
