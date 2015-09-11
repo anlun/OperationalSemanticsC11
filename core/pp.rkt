@@ -7,7 +7,7 @@
 (require "../tests/testTerms.rkt")
 (provide pretty-printer)
 
-(current-page-width 150)
+(current-page-width 1050)
 (define tabstop (make-parameter 3))
 
 (define-metafunction coreLang
@@ -93,7 +93,7 @@
      (indent (string-length "{{{ ")
              (beside (term (pp AST_1))" }}}")))]
   
-  [(pp (spw AST_0 AST_1))
+  [(pp (par AST_0 AST_1))
    ,(above*
      "par"
      (beside "{{{ " (term (pp AST_0)))
@@ -128,7 +128,7 @@
     (write-string
      (doc->string
       (above* (term (pp ,(list-ref t 0))) ""
-              (term (ppState ,(list-ref t 1)))))
+              "___")) ; (term (ppState ,(list-ref t 1)))))
      port)))
 
 (define-term defaultState (()))

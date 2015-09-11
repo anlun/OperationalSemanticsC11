@@ -6,6 +6,7 @@
 (require "../rules/relAcqRules.rkt")
 (require "../rules/naRules.rkt")
 (require "testTerms.rkt")
+(require "../core/pp.rkt")
 
 (define relAcqRules (define-relAcqRules etaPsiLang synchronizeWriteFront_id
                       isReadQueueEqualTo_t))
@@ -43,6 +44,9 @@ It should get `stuck` because of concurrent non-atomic writes.
 (test-->>∃ step
          (term (,testTerm4 defaultState))
          (term (stuck defaultState)))
+
+;(traces step (term (,testTerm4 defaultState)) #:pp pretty-printer)
+;(stepper step (term (,testTerm4 defaultState)) pretty-printer)
 
 #|
 Ernie Cohen's lock should work in weak memory settings.
