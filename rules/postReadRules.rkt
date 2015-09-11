@@ -5,6 +5,7 @@
 (require "../core/coreUtils.rkt")
 (require "../rules/rlxRules.rkt")
 (require "../tests/testTerms.rkt")
+(require "../core/pp.rkt")
 (provide define-postponedReadRules)
 
 (define-extended-language postReadLang coreLang
@@ -30,13 +31,13 @@
    lang #:domain ξ
    
    (--> ((in-hole E (read RM ι-var)) auxξ)
-        ((in-hole E (ret  x       )) auxξ_new)
+        ((in-hole E (ret  a       )) auxξ_new)
         "read-postponed"
-        (fresh x)
+        (fresh a)
         (where path     (pathE E))
         (where φ        (getφ auxξ))
         (where α        (getByPath path φ))
-        (where α_new    ,(append (term α) (term ((x ι-var RM)))))
+        (where α_new    ,(append (term α) (term ((a ι-var RM)))))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
 
@@ -96,6 +97,8 @@ y_rlx  = 1 || x_rlx  = 1
 
 With postponed reads it should be able to lead to R1 = R2 = 1.
 |#
+
+(traces step (term (,testTerm0 defaultState)) #:pp pretty-printer)
 
 (test-->>∃ step
           (term (,testTerm01 defaultState))

@@ -90,26 +90,17 @@
     (term (ppμ μ_1)))]
   
   [(pp (spw AST_0 AST_1))
-   ,(above*
-     "spw"
-     (beside "{{{ " (term (pp AST_0)))
-     "\\\\\\"
-     (indent (string-length "{{{ ")
-             (beside (term (pp AST_1))" }}}")))]
+   ,(pp-par "spw" (term (pp AST_0))
+                  (term (pp AST_1)))]
   
   [(pp (par AST_0 AST_1))
-   ,(above*
-     "par"
-     (beside "{{{ " (term (pp AST_0)))
-     "\\\\\\"
-     (indent (string-length "{{{ ")
-             (beside (term (pp AST_1))" }}}")))]
+   ,(pp-par "par" (term (pp AST_0))
+                  (term (pp AST_1)))]
   
   [(pp (if Expr AST_0 AST_1))
-   ,(above*
-    (beside "if " (term (ppExpr Expr)))
-    (beside "then " (term (pp AST_0)))
-    (beside "else " (term (pp AST_1))))]
+   ,(above* (beside "if "   (term (ppExpr Expr)))
+            (beside "then " (term (pp AST_0)))
+            (beside "else " (term (pp AST_1))))]
   
   [(pp (repeat AST))
    ,(beside "repeat " (term (pp AST)) " end")]
@@ -138,10 +129,8 @@
 (define-metafunction coreLang
   ; ppι-η-cell : (ι η-cell) -> Doc
   [(ppι-η-cell (ι η-cell))
-   ,(beside*/space
-     (term ι) "↦"
-     (term (ppη-cell η-cell)))]
-  )
+   ,(beside*/space (term ι) "↦"
+                   (term (ppη-cell η-cell)))])
 
 (define-metafunction coreLang
   ; ppσ : σ -> Doc
@@ -161,19 +150,67 @@
   ; ppψ : ψ -> Doc
   [(ppψ σ) (ppσ σ)]
   [(ppψ (par ψ_0 ψ_1))
-   ,(above*
-     "par"
-     (beside "{{{ " (term (ppψ ψ_0)))
-     "\\\\\\"
-     (indent (string-length "{{{ ")
-             (beside (term (ppψ ψ_1))" }}}")))])
+   ,(pp-par "par" (term (ppψ ψ_0))
+                  (term (ppψ ψ_1)))])
+
+(define-metafunction coreLang
+  ; ppα : α -> Doc
+  [(ppα α)
+   ,(above**
+     (map (λ (h)
+            (match h
+              [(list name l m)
+               (beside*/space (symbol->string name)
+                              (term (ppι-var ,l))
+                              (term (ppMod ,m)))]))
+          (term α)))])
+
+(define (pp-par label left right)
+  (above*
+   label
+   (beside "{{{ " left)
+   "\\\\\\"
+   (indent (string-length "{{{ ")
+           (beside right " }}}"))))
+
+(define-metafunction coreLang
+  ; ppφ : φ -> Doc
+  [(ppφ α) (ppα α)]
+  [(ppφ (par φ_0 φ_1))
+   ,(pp-par "par" (term (ppφ φ_0))
+                  (term (ppφ φ_1)))])
 
 (define-metafunction coreLang
   ;ppState : auxξ -> Doc ; TODO
   ;[(ppState auxξ) ,(pretty-format (term auxξ))]) ; #:max-width (state-width))])
+  [(ppState (θ_0 ... η θ_1 ... (Read ψ) θ_2 ... (SC σ) θ_3 ... (P φ) θ_4 ...))
+   ,(above* "--- η"
+            (term (ppη η))
+            "--- Read ψ"
+            (term (ppψ ψ))
+            "--- SC σ"
+            (term (ppσ σ))
+            "--- P φ"
+            (term (ppφ φ)))]
+  
+  [(ppState (θ_0 ... η θ_1 ... (Read ψ) θ_2 ... (P φ) θ_3 ...))
+   ,(above* "--- η"
+            (term (ppη η))
+            "--- Read ψ"
+            (term (ppψ ψ))
+            "--- P φ"
+            (term (ppφ φ)))]
+  [(ppState (θ_0 ... η θ_1 ... (Read ψ) θ_2 ... (SC σ) θ_3 ...))
+   ,(above* "--- η"
+            (term (ppη η))
+            "--- Read ψ"
+            (term (ppψ ψ))
+            "--- SC σ"
+            (term (ppσ σ)))]
   [(ppState (θ_0 ... η θ_1 ... (Read ψ) θ_2 ...))
-   ,(above* (term (ppη η))
-            "---"
+   ,(above* "--- η"
+            (term (ppη η))
+            "--- Read ψ"
             (term (ppψ ψ)))]
   [(ppState (θ_0 ... η θ_1 ...)) (ppη η)])
 
