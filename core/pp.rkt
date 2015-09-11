@@ -9,6 +9,10 @@
 
 (current-page-width 1050)
 (define tabstop (make-parameter 3))
+(define state-width (make-parameter 50))
+
+(define (above** xs)
+  (foldr above (empty-doc) xs))
 
 (define-metafunction coreLang
   ; ppExpr : Expr -> Doc
@@ -120,15 +124,65 @@
   [(pp AST) ,(~a (term AST))])
 
 (define-metafunction coreLang
+  ; ppη-cell : η-cell -> Doc
+  [(ppη-cell η-cell)
+   ,(above**
+     (map (λ (h)
+            (match h
+              [(list n_0 n_1 s)
+               (beside*/space "τ:" (number->string n_0)
+                              "μ:" (number->string n_1)
+                              (term (ppσ ,s)))]))
+          (term η-cell)))])
+
+(define-metafunction coreLang
+  ; ppι-η-cell : (ι η-cell) -> Doc
+  [(ppι-η-cell (ι η-cell))
+   ,(beside*/space
+     (term ι) "↦"
+     (term (ppη-cell η-cell)))]
+  )
+
+(define-metafunction coreLang
+  ; ppσ : σ -> Doc
+  [(ppσ σ) ,(above** (map
+                      (λ (h)
+                        (match h
+                          [(list l v)
+                           (beside* "(" l " τ≥ " (number->string v) ")")]))
+                      (term σ)))])
+
+(define-metafunction coreLang
+  ; ppη : η -> Doc
+  [(ppη η) ,(above** (map
+                      (λ (h) (term (ppι-η-cell ,h)))
+                      (term η)))])
+(define-metafunction coreLang
+  ; ppψ : ψ -> Doc
+  [(ppψ σ) (ppσ σ)]
+  [(ppψ (par ψ_0 ψ_1))
+   ,(above*
+     "par"
+     (beside "{{{ " (term (ppψ ψ_0)))
+     "\\\\\\"
+     (indent (string-length "{{{ ")
+             (beside (term (ppψ ψ_1))" }}}")))])
+
+(define-metafunction coreLang
   ;ppState : auxξ -> Doc ; TODO
-  [(ppState auxξ) ,(~a (term auxξ))])
+  ;[(ppState auxξ) ,(pretty-format (term auxξ))]) ; #:max-width (state-width))])
+  [(ppState (θ_0 ... η θ_1 ... (Read ψ) θ_2 ...))
+   ,(above* (term (ppη η))
+            "---"
+            (term (ppψ ψ)))]
+  [(ppState (θ_0 ... η θ_1 ...)) (ppη η)])
 
 (define pretty-printer
   (λ (t port w txt)
     (write-string
      (doc->string
       (above* (term (pp ,(list-ref t 0))) ""
-              "___")) ; (term (ppState ,(list-ref t 1)))))
+              (term (ppState ,(list-ref t 1)))))
      port)))
 
 (define-term defaultState (()))
