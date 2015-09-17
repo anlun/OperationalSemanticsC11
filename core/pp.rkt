@@ -38,12 +38,6 @@
    ,(beside (term (ppμ μ)) "_2")])
 
 (define-metafunction coreLang
-  isUsed : vName AST -> boolean
-  [(isUsed vName AST) #f
-                      (side-condition (equal? (term (subst vName 1 AST)) (term AST)))]
-  [(isUsed vName AST) #t])
-
-(define-metafunction coreLang
   ; ppMod : WM/RM/SM/FM -> Doc
   [(ppMod rlx   ) "rlx"]
   [(ppMod acq   ) "acq"]

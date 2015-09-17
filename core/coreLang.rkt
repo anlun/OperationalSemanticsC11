@@ -1,7 +1,7 @@
 #lang racket
 (require redex)
 (require "syntax.rkt")
-(provide coreLang define-coreStep define-coreTest normalize)
+(provide coreLang define-coreStep define-coreTest normalize isUsed)
 
 (define-extended-language coreLang syntax
   ; State:
@@ -12,10 +12,28 @@
   [ξ (AST auxξ)])
 
 (define-metafunction coreLang
+  isUsed : vName AST -> boolean
+  [(isUsed vName AST) #f
+                      (side-condition (equal? (term (subst vName 1 AST)) (term AST)))]
+  [(isUsed vName AST) #t])
+
+(define-metafunction coreLang
   normalize : ξ -> ξ
   [(normalize
-    ((in-hole E ((ret μ-subst) >>= (λ vName AST))) auxξ))
-    ((in-hole E (subst vName μ-subst AST))         auxξ)]
+     ((in-hole E ((ret μ-subst) >>= (λ vName AST))) auxξ))
+   (normalize
+     ((in-hole E (subst vName μ-subst AST))         auxξ))
+   (side-condition (not (term (isUsed vName AST))))]
+  
+  [(normalize
+     ((in-hole E (in-hole EU       (op number_1 number_2)))  auxξ))
+   (normalize
+     ((in-hole E (in-hole EU (calc (op number_1 number_2)))) auxξ))]
+  
+  [(normalize
+     ((in-hole E (in-hole EU           (projOp (μ_1 μ_2))))  auxξ))
+   (normalize
+     ((in-hole E (in-hole EU (projCalc (projOp (μ_1 μ_2))))) auxξ))]
   [(normalize ξ) ξ])
 
 ; ST stands for `state transformer`.
@@ -25,6 +43,11 @@
   (reduction-relation
    coreLang #:domain ξ
 
+   (-->  ((in-hole E ((ret μ-subst) >>= (λ vName AST))) auxξ)
+        (normalize
+         ((in-hole E (subst vName μ-subst AST))         auxξ))
+        ">>=-subst")
+   
    (-->  ((in-hole E (in-hole EU (choice number_1 number_2))) auxξ)
         (normalize
          ((in-hole E (in-hole EU         number_1          )) auxξ))
@@ -35,23 +58,6 @@
          ((in-hole E (in-hole EU                  number_2 )) auxξ))
         "num-choice-right")
   
-   (-->  ((in-hole E (in-hole EU       (op number_1 number_2)))  auxξ)
-        (normalize
-         ((in-hole E (in-hole EU (calc (op number_1 number_2)))) auxξ))
-        "num-expr-calc"
-        (side-condition
-         (not (equal? (term op) (term choice)))))
-
-   (-->  ((in-hole E (in-hole EU           (projOp (μ_1 μ_2))))  auxξ)
-        (normalize
-         ((in-hole E (in-hole EU (projCalc (projOp (μ_1 μ_2))))) auxξ))
-        "proj-calc")
-   
-   (-->  ((in-hole E ((ret μ-subst) >>= (λ vName AST))) auxξ)
-        (normalize
-         ((in-hole E (subst vName μ-subst AST))         auxξ))
-        ">>=-subst")
-
    (-->  ((in-hole E (                            repeat AST))    auxξ)
         (normalize
          ((in-hole E (AST >>= (λ x (if x (ret x) (repeat AST))))) auxξ))
