@@ -13,8 +13,9 @@
   (reduction-relation
    lang #:domain ξ
    
-   (--> ((in-hole E (read  rlx ι)) auxξ)
-        ((in-hole E (ret μ-value)) auxξ_new)
+   (-->  ((in-hole E (read  rlx ι)) auxξ)
+        (normalize
+         ((in-hole E (ret μ-value)) auxξ_new))
         "read-rlx"
         (where η      (getη auxξ))
         (where ψ      (getReadψ auxξ))
@@ -33,8 +34,9 @@
   (reduction-relation
    lang #:domain ξ
    
-   (--> ((in-hole E (write rlx ι μ-value)) auxξ)
-        ((in-hole E (ret 0))               auxξ_new)
+   (-->  ((in-hole E (write rlx ι μ-value)) auxξ)
+        (normalize
+         ((in-hole E (ret 0))               auxξ_new))
         "write-rlx"
         (where η       (getη auxξ))
         (where ψ_read  (getReadψ auxξ))
@@ -50,8 +52,9 @@
 
         (side-condition (term (ιNotInReadQueue_t ι path auxξ))))
 
-   (--> ((in-hole E (cas SM rlx ι μ-value_expected μ-value)) auxξ)
-        ((in-hole E (ret 0                                )) auxξ_new)
+   (-->  ((in-hole E (cas SM rlx ι μ-value_expected μ-value)) auxξ)
+        (normalize
+         ((in-hole E (ret 0                                )) auxξ_new))
         "cas-fail-rlx"
         (where η        (getη     auxξ))
         (where ψ_read   (getReadψ auxξ))
@@ -63,8 +66,9 @@
          (term (failCAScondition ι η μ-value_expected SM rlx)))
         (side-condition (term (isReadQueueEqualTo () path auxξ))))
 
-   (--> ((in-hole E (cas rlx FM ι μ-value_expected μ-value_new)) auxξ)
-        ((in-hole E (ret 1                                    )) auxξ_new)
+   (-->  ((in-hole E (cas rlx FM ι μ-value_expected μ-value_new)) auxξ)
+        (normalize
+         ((in-hole E (ret 1                                    )) auxξ_new))
         "cas-succ-rlx"
         (where η        (getη     auxξ))
         (where ψ_read   (getReadψ auxξ))

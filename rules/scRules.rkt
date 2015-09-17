@@ -35,8 +35,9 @@
   (reduction-relation
    lang #:domain ξ
 
-   (--> ((in-hole E (write sc ι μ-value)) auxξ)
-        ((in-hole E (ret 0))              auxξ_new)
+   (-->  ((in-hole E (write sc ι μ-value)) auxξ)
+        (normalize
+         ((in-hole E (ret 0))              auxξ_new))
         "write-sc"
         (where η      (getη   auxξ))
         (where τ      (getNextTimestamp ι η))
@@ -53,8 +54,9 @@
 
         (side-condition (term (isReadQueueEqualTo () path auxξ))))
       
-   (--> ((in-hole E (read   sc ι)) auxξ)
-        ((in-hole E (ret μ-value)) auxξ_new)
+   (-->  ((in-hole E (read   sc ι)) auxξ)
+        (normalize
+         ((in-hole E (ret μ-value)) auxξ_new))
         "read-sc"
         (where η (getη auxξ))
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
@@ -73,8 +75,9 @@
         (side-condition (term (correctτ τ ι σ_with_sc)))
         (side-condition (term (isReadQueueEqualTo () path auxξ))))
 
-   (--> ((in-hole E (cas SM sc ι μ-value_expected μ-value)) auxξ)
-        ((in-hole E (ret 0                               )) auxξ_new)
+   (-->  ((in-hole E (cas SM sc ι μ-value_expected μ-value)) auxξ)
+        (normalize
+         ((in-hole E (ret 0                               )) auxξ_new))
         "cas-fail-sc"
         (where η      (getη auxξ))
         (where σ_sc   (getσSC auxξ))
@@ -94,8 +97,9 @@
          (term (failCAScondition ι η μ-value_expected SM sc)))
         (side-condition (term (isReadQueueEqualTo () path auxξ))))
 
-   (--> ((in-hole E (cas sc FM ι μ-value_expected μ-value_new)) auxξ)
-        ((in-hole E (ret 1                                   )) auxξ_new)
+   (-->  ((in-hole E (cas sc FM ι μ-value_expected μ-value_new)) auxξ)
+        (normalize
+         ((in-hole E (ret 1                                   )) auxξ_new))
         "cas-succ-sc"
         (where η      (getη auxξ))
         (where σ_sc   (getσSC auxξ))

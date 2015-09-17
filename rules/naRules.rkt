@@ -13,8 +13,9 @@
   (reduction-relation
    lang #:domain ξ
 
-   (--> ((in-hole E (read   na ι)) auxξ)
-        ((in-hole E (ret μ-value)) auxξ)
+   (-->  ((in-hole E (read   na ι)) auxξ)
+        (normalize
+         ((in-hole E (ret μ-value)) auxξ))
         "read-na"
         (where η       (getη     auxξ))
         (where ψ       (getReadψ auxξ))
@@ -50,8 +51,9 @@
          (or (term (dontSeeLast ι η σ_read))
              (term (negativeτ (getLastTimestamp ι η))))))
 
-   (--> ((in-hole E (write na ι μ-value)) auxξ    )
-        ((in-hole E (ret 0))              auxξ_new)
+   (-->  ((in-hole E (write na ι μ-value)) auxξ    )
+        (normalize
+         ((in-hole E (ret 0))              auxξ_new))
         "write-na"
         (where η      (getη     auxξ))
         (where ψ      (getReadψ auxξ))

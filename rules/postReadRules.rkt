@@ -30,8 +30,9 @@
   (reduction-relation
    lang #:domain ξ
    
-   (--> ((in-hole E (read RM ι-var)) auxξ)
-        ((in-hole E (ret  a       )) auxξ_new)
+   (-->  ((in-hole E (read RM ι-var)) auxξ)
+        (normalize
+         ((in-hole E (ret  a       )) auxξ_new))
         "read-postponed"
         (fresh a)
         (where path     (pathE E))
@@ -43,8 +44,9 @@
 
         (side-condition (not (equal? (term sc) (term RM)))))
 
-   (--> (                     AST  auxξ)
-        ((subst vName μ-value AST) auxξ_new)
+   (-->  (                     AST  auxξ)
+        (normalize        
+         ((subst vName μ-value AST) auxξ_new))
         "read-resolve"
         (where φ      (getφ auxξ))
         (where η      (getη auxξ))
