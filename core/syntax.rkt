@@ -107,8 +107,25 @@
       (par Ep φ)
       (par φ Ep)]
   
-  [vName variable-not-otherwise-mentioned]
-  )
+  [Relation rf
+            sb
+            asw
+            sw
+            mo
+            sc]
+  [Action skip
+          (write WM ι μ-value)
+          (read  RM ι)]
+  
+  [Node (number Action)]
+  [Edge (number number Relation)]
+  [G    ((Node ...) (Edge ...))]
+  
+  ; GF saves a pointer to current node for every thread.
+  [GF number
+      (par GF GF)]
+  
+  [vName variable-not-otherwise-mentioned])
 
 ;  [SM sc relAcq acq rel rlx]
 ;  [FM sc acq rlx]
