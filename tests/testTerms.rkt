@@ -3,6 +3,14 @@
 (provide (all-defined-out))
 
 #|
+ret 5 || ret 239
+|#
+(define testTerm-1 (term
+                    (spw
+                      (ret 5)
+                      (ret 239))))
+
+#|
 y_rlx  = 1 || x_rlx  = 1
 R1 = x_rlx || R2 = y_rlx
 

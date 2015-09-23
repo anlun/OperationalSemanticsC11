@@ -115,11 +115,13 @@
             sc]
   [Action skip
           (write WM ι μ-value)
-          (read  RM ι)]
+          (read  RM ι μ-value)]
   
-  [Node (number Action)]
-  [Edge (number number Relation)]
-  [G    ((Node ...) (Edge ...))]
+  [Node  (number Action)]
+  [Nodes (Node ...)]
+  [Edge  (number number Relation)]
+  [Edges (Edge ...)]
+  [G    (Nodes Edges)]
   
   ; GF saves a pointer to current node for every thread.
   [GF number

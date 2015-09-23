@@ -21,6 +21,14 @@
   [(getσSC (θ_0 ... (SC σ) θ_1 ...)) σ])
 
 (define-metafunction coreLang
+  getGR : auxξ -> G
+  [(getGR (θ_0 ... (Graph G) θ_1 ...)) G])
+
+(define-metafunction coreLang
+  getGF : auxξ -> GF
+  [(getGF (θ_0 ... (GFront GF) θ_1 ...)) GF])
+
+(define-metafunction coreLang
   updateState : θ θ auxξ -> auxξ
   [(updateState θ_old θ_new (θ_0 ... θ_old θ_1 ...)) (θ_0 ... θ_new θ_1 ...)])
 
@@ -165,10 +173,10 @@
   [(pathEp (par φ Ep)) (R (pathEp Ep))])
 
 (define-metafunction coreLang
-  updateOnPath : path α φ -> φ
-  [(updateOnPath ()       α_new             φ)  α_new]
-  [(updateOnPath (L path) α_new (par φ_0 φ_1)) (par (updateOnPath path α_new φ_0) φ_1)]
-  [(updateOnPath (R path) α_new (par φ_0 φ_1)) (par φ_0 (updateOnPath path α_new φ_1))])
+  updateOnPath : path any any -> any
+  [(updateOnPath ()       any_new              any)  any_new]
+  [(updateOnPath (L path) any_new (par any_0 any_1)) (par (updateOnPath path any_new any_0) any_1)]
+  [(updateOnPath (R path) any_new (par any_0 any_1)) (par any_0 (updateOnPath path any_new any_1))])
 
 (define-metafunction coreLang
   spwST_readψ_φ : path auxξ -> auxξ
@@ -195,6 +203,62 @@
                            (where auxξ_2ψ (joinST_2ψ path auxξ))
                            (where φ_old   (getφ auxξ_2ψ))
                            (where φ_new   (updateOnPath path () φ_old))])
+
+(define (getLastNodeNumber nodes)
+      (apply max
+             (map (lambda (x)
+                    (match x [(list fst snd) fst]))
+             nodes)))
+
+(define (getLastNodeNumber_gr graph)
+  (match graph [(list nodes edges)
+      (getLastNodeNumber nodes)]))
+
+(define (getNextNodeNumber nodes)
+  (+ 1 (getLastNodeNumber nodes)))
+
+(define (getNextNodeNumber_gr graph)
+  (+ 1 (getLastNodeNumber_gr graph)))
+
+(define-metafunction coreLang
+  joinST_gr : path auxξ -> auxξ
+  [(joinST_gr path auxξ) (updateState (Graph G) (Graph G_new)
+                             (updateState (GFront GF) (GFront GF_new) auxξ))
+                         
+                         (where G (getGR auxξ))
+                         (where (Nodes Edges) G)
+                         (where number_new ,(getNextNodeNumber (term Nodes)))
+                         (where Node_join (number_new skip))
+                         
+                         (where GF (getGF auxξ))
+                         (where (par number_left number_right) (getByPath path GF))
+                         
+                         (where Nodes_new ,(cons   (term Node_join) (term Nodes)))
+                         (where Edges_new ,(append
+                                            (term
+                                             ((number_left  number_new asw)
+                                              (number_right number_new asw)))
+                                            (term Edges)))
+                         (where G_new (Nodes_new Edges_new))
+                         
+                         (where GF_new (updateOnPath path number_new GF))])
+
+(define-metafunction coreLang
+  spwST_gr : path auxξ -> auxξ
+  [(spwST_gr path auxξ) (updateState (Graph G) (Graph G_new)
+                            (updateState (GFront GF) (GFront GF_new) auxξ))
+                        
+                         (where G (getGR auxξ))
+                         (where (Nodes Edges) G)
+                         (where number_new ,(getNextNodeNumber (term Nodes)))
+                         (where Node_fork (number_new skip))
+                         
+                         (where GF (getGF auxξ))
+                         (where number_current (getByPath path GF))
+                         
+                         (where Nodes_new ,(cons (term Node_fork) (term Nodes)))
+                         (where G_new (Nodes_new Edges))
+                         (where GF_new (updateOnPath path (par number_new number_new) GF))])
 
 (define-metafunction coreLang
   isReadQueueEqualTo : φ path auxξ -> boolean
@@ -245,3 +309,20 @@
   [(isLocationUninitialized ι auxξ) ,(equal? (term (getLastTimeStamp ι η)) (term -1))
                                     (where η (getη auxξ))]
   [(isLocationUninitialized vName auxξ) #f])
+
+;;;;;;;;;;;;;;;;;
+; Tests
+;;;;;;;;;;;;;;;;;
+(define (coreUtils-tests)
+  (test-equal
+   (getLastNodeNumber_gr (term (((1 skip)) ())))
+   1)
+  (test-equal
+   (getLastNodeNumber_gr
+    (term (((1 skip) (4 (read rlx x 10)) (5 (write rlx y 34))) ())))
+   5)
+  
+  (test-equal
+   (term (spwST_gr () (() (Graph (((0 skip)) ())) (GFront 0))))
+   (term (() (Graph (((1 skip) (0 skip)) ())) (GFront (par 1 1))))))
+(coreUtils-tests)
