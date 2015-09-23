@@ -14,7 +14,9 @@
 (define relAcqRules   (define-relAcqRules   etaPsi2Lang synchronizeWriteFront
                         isReadQueueEqualTo_t))
 (define naRules       (define-naRules       etaPsi2Lang
-                        defaultState getWriteσ_2ψ ιNotInReadQueue_t))
+                        addReadNode_t
+                        defaultState getWriteσ_2ψ ιNotInReadQueue_t
+                        addWriteNode_t))
 (define step          (union-reduction-relations
                        coreStep rlxReadRules rlxWriteRules relAcqRules naRules))
 

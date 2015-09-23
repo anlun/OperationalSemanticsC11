@@ -32,7 +32,9 @@
 (define relAcqRules   (define-relAcqRules   etaPsi2SCLang
                         synchronizeWriteFront isReadQueueEqualTo_t))
 (define naRules       (define-naRules       etaPsi2SCLang
-                       defaultState getWriteσ_2ψ ιNotInReadQueue))
+                       addReadNode_t
+                       defaultState getWriteσ_2ψ ιNotInReadQueue
+                       addWriteNode_t))
 (define scRules       (define-scRules     etaPsi2SCLang
                        getReadσ updateReadσ synchronizeWriteFront isReadQueueEqualTo_t))
 (define step          (union-reduction-relations

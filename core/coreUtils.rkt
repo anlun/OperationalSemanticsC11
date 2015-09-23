@@ -261,6 +261,63 @@
                          (where GF_new (updateOnPath path (par number_new number_new) GF))])
 
 (define-metafunction coreLang
+  addReadNode_t : τ Action path auxξ -> auxξ
+  [(addReadNode_t τ Action path auxξ) auxξ])
+
+(define-metafunction coreLang
+  getWriteNumber : τ ι Nodes -> Maybe ;number
+  [(getWriteNumber τ ι ()) None]
+  [(getWriteNumber τ ι ((number (write WM ι μ-value τ)) Node ...))
+   (Just number)]
+  [(getWriteNumber τ ι ((number (write WM ι_0 μ-value τ_0)) Node ...))
+   (getWriteNumber τ ι (Node ...))])
+
+(define-metafunction coreLang
+  addReadNode : τ Action auxξ -> auxξ
+  [(addReadNode τ (read RM ι μ-value) auxξ)
+               (updateState (Graph G) (Graph G_new)
+                   (updateState (GFront GF) (GFront GF_new) auxξ))
+                   (where G  (getGR auxξ))
+                   (where (Nodes Edges) G)
+                   (where number_new ,(getNextNodeNumber (term Nodes)))
+                   (where Node_read (number_new (read RM ι μ-value)))
+
+                   (where GF (getGF auxξ))
+                   (where number_old (getByPath path GF))
+                   (where (Just number_write) (getWriteNumber τ ι Nodes))
+                   (where Nodes_new ,(cons (term Node_read) (term Nodes)))
+                   (where Edges_new ,(append
+                                      (term
+                                       ((number_old   number_new sb)
+                                        (number_write number_new rf)))
+                                      (term Edges)))
+                   (where G_new (Nodes_new Edges_new))                 
+                   (where GF_new (updateOnPath path number_new GF))])
+
+(define-metafunction coreLang
+  addWriteNode_t : Action path auxξ -> auxξ
+  [(addWriteNode_t Action path auxξ) auxξ])
+
+(define-metafunction coreLang
+  addWriteNode : Action path auxξ -> auxξ
+  [(addWriteNode (write WM ι μ-value τ) auxξ)
+                 (updateState (Graph G) (Graph G_new)
+                     (updateState (GFront GF) (GFront GF_new) auxξ))
+                     (where G (getGR auxξ))
+                     (where (Nodes Edges) G)
+                     (where number_new ,(getNextNodeNumber (term Nodes)))                   
+                     (where Node_write
+                            (number_new (write WM ι μ-value τ)))
+  
+                     (where GF (getGF auxξ))
+                     (where number_old (getByPath path GF))
+                     (where Nodes_new ,(cons (term Node_write) (term Nodes)))
+                     (where Edges_new ,(cons (term (number_old number_new sb))
+                                             (term Edges)))                                         
+                     (where G_new  (Nodes_new Edges_new))
+                     (where GF_new (updateOnPath path number_new GF))])
+
+(define-metafunction coreLang
   isReadQueueEqualTo : φ path auxξ -> boolean
   [(isReadQueueEqualTo φ path auxξ) ,(equal? (term φ) (term φ_path))
                                            (where φ_all (getφ auxξ))

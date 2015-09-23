@@ -11,7 +11,9 @@
 (define relAcqRules (define-relAcqRules etaPsiLang synchronizeWriteFront_id
                       isReadQueueEqualTo_t))
 (define naRules     (define-naRules     etaPsiLang
-                      defaultState getWriteσ_nil ιNotInReadQueue_t))
+                      addReadNode_t
+                      defaultState getWriteσ_nil ιNotInReadQueue_t
+                      addWriteNode_t))
 (define step        (union-reduction-relations coreStep relAcqRules naRules))
 
 #|

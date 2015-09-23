@@ -7,7 +7,7 @@
 (require "../tests/testTerms.rkt")
 (provide define-naRules define-naReadRules define-naWriteStuckRules)
 
-(define-syntax-rule (define-naReadRules lang)
+(define-syntax-rule (define-naReadRules lang addReadNode)
   (begin
 
   (reduction-relation
@@ -15,7 +15,7 @@
 
    (-->  ((in-hole E (read   na ι)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value)) auxξ))
+         ((in-hole E (ret μ-value)) auxξ_new))
         "read-na"
         (where η       (getη     auxξ))
         (where ψ       (getReadψ auxξ))
@@ -23,11 +23,14 @@
         (where τ       (getLastTimestamp ι η))
         (where μ-value (getValueByCorrectTimestamp ι τ η))
         
+        (where auxξ_new (addReadNode τ (read na ι μ-value) path auxξ))
+        
         (side-condition (term (seeLast ι η σ_read)))
         (side-condition (term (nonNegativeτ τ))))
 )))
 
-(define-syntax-rule (define-naWriteStuckRules lang defaultState getWriteσ ιNotInReadQueue)
+(define-syntax-rule (define-naWriteStuckRules lang
+                      defaultState getWriteσ ιNotInReadQueue addWriteNode)
   (begin
 
   (reduction-relation
@@ -65,23 +68,25 @@
         (where auxξ_upd_front (updateState (Read ψ) (Read ψ_new) auxξ))
         (where σ_write        (updateFront ι τ (getWriteσ path auxξ)))
         (where η_new          (updateCell  ι μ-value σ_write η))
-        (where auxξ_new       (updateState η η_new auxξ_upd_front))
+        (where auxξ_upd_η     (updateState η η_new auxξ_upd_front))
+        (where auxξ_new       (addWriteNode (write na ι μ-value τ) path auxξ_upd_η))
 
         (where σ_read   (getByPath path ψ))
         (side-condition (term (seeLast ι η σ_read)))
         (side-condition (term (ιNotInReadQueue ι path auxξ))))
 )))
 
-(define-syntax-rule (define-naRules lang defaultState getWriteσ ιNotInReadQueue)
+(define-syntax-rule (define-naRules lang
+                      addReadNode defaultState getWriteσ ιNotInReadQueue addWriteNode)
   (begin
 
   (union-reduction-relations
-   (define-naReadRules lang)
-   (define-naWriteStuckRules lang defaultState getWriteσ ιNotInReadQueue))
+   (define-naReadRules lang addReadNode)
+   (define-naWriteStuckRules lang defaultState getWriteσ ιNotInReadQueue addWriteNode))
 ))
 
 (define naRules
-  (define-naRules etaPsiLang defaultState getWriteσ_nil ιNotInReadQueue_t))
+  (define-naRules etaPsiLang addReadNode_t defaultState getWriteσ_nil ιNotInReadQueue_t addWriteNode_t))
 
 (define naStep
   (union-reduction-relations coreStep naRules))

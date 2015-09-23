@@ -31,7 +31,9 @@
 (define relAcqRules (define-relAcqRules etaPsiSCLang
                       synchronizeWriteFront isReadQueueEqualTo_t))
 (define naRules     (define-naRules     etaPsiSCLang
-                      defaultState getWriteσ_nil ιNotInReadQueue_t))
+                      addReadNode_t
+                      defaultState getWriteσ_nil ιNotInReadQueue_t
+                      addWriteNode_t))
 
 (define step (union-reduction-relations coreStep relAcqRules naRules scRules))
 

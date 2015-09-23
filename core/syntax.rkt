@@ -111,10 +111,9 @@
             sb
             asw
             sw
-            mo
             sc]
   [Action skip
-          (write WM ι μ-value)
+          (write WM ι μ-value τ) ; τ --- it's a timestamp of record in a history (η).
           (read  RM ι μ-value)]
   
   [Node  (number Action)]
