@@ -1,4 +1,4 @@
-#lang racket
+#lang racket/gui
 (require redex)
 (require racket-pretty-printing-combinators)
 (require "syntax.rkt")
@@ -208,13 +208,52 @@
             (term (ppψ ψ)))]
   [(ppState (θ_0 ... η θ_1 ...)) (ppη η)])
 
+(define (write-text-state t port)
+  (write-string
+    (doc->string
+     (above* (term (pp ,(list-ref t 0))) ""
+             (term (ppState ,(list-ref t 1)))))
+    port))
+
+(define (graph-to-graphviz g)
+  ; TODO
+  (string-append
+   "digraph {\n"
+   "  1 [label=\"Test\" width=.2 height=.2]\n"
+   "}\n"))
+
+(define (dot-graph-render g)
+  (define-values (dot-input-in  dot-input-out ) (make-pipe))
+  (define-values (dot-output-in dot-output-out) (make-pipe))
+  (thread (λ ()
+            (fprintf dot-input-out (graph-to-graphviz g))
+            (close-output-port dot-input-out)))
+  (thread (λ ()
+            (parameterize ([current-output-port dot-output-out]
+                           [current-input-port  dot-input-in])
+              (system "dot -T png"))
+            (close-output-port dot-output-out)))
+  (read-bitmap dot-output-in))
+
+(define (put-graph-image txt t)
+  (send txt insert (make-object image-snip% (dot-graph-render t))))
+
+(define-metafunction coreLang
+  has-graph : ξ -> boolean
+  [(has-graph (AST (θ_0 ... (Graph G) θ_1 ...))) #t]
+  [(has-graph ξ)                                 #f])
+
 (define pretty-printer
   (λ (t port w txt)
-    (write-string
-     (doc->string
-      (above* (term (pp ,(list-ref t 0))) ""
-              (term (ppState ,(list-ref t 1)))))
-     port)))
+    (if (term (has-graph ,t))
+        (put-graph-image txt t)
+        (write-text-state t port))))
+
+;    (write-string
+;     (doc->string
+;      (above* (term (pp ,(list-ref t 0))) ""
+;              (term (ppState ,(list-ref t 1)))))
+;     port)))
 
 (define-term defaultState (()))
 (define-metafunction coreLang
