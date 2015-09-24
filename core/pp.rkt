@@ -174,46 +174,47 @@
    ,(pp-par "par" (term (ppφ φ_0))
                   (term (ppφ φ_1)))])
 
+; -----
 (define-metafunction coreLang
-  ;ppState : auxξ -> Doc ; TODO
-  ;[(ppState auxξ) ,(pretty-format (term auxξ))]) ; #:max-width (state-width))])
-  [(ppState (θ_0 ... η θ_1 ... (Read ψ) θ_2 ... (SC σ) θ_3 ... (P φ) θ_4 ...))
-   ,(above* "--- η"
-            (term (ppη η))
-            "--- Read ψ"
-            (term (ppψ ψ))
-            "--- SC σ"
-            (term (ppσ σ))
-            "--- P φ"
-            (term (ppφ φ)))]
-  
-  [(ppState (θ_0 ... η θ_1 ... (Read ψ) θ_2 ... (P φ) θ_3 ...))
-   ,(above* "--- η"
-            (term (ppη η))
-            "--- Read ψ"
-            (term (ppψ ψ))
-            "--- P φ"
-            (term (ppφ φ)))]
-  [(ppState (θ_0 ... η θ_1 ... (Read ψ) θ_2 ... (SC σ) θ_3 ...))
-   ,(above* "--- η"
-            (term (ppη η))
-            "--- Read ψ"
-            (term (ppψ ψ))
-            "--- SC σ"
-            (term (ppσ σ)))]
-  [(ppState (θ_0 ... η θ_1 ... (Read ψ) θ_2 ...))
-   ,(above* "--- η"
-            (term (ppη η))
-            "--- Read ψ"
-            (term (ppψ ψ)))]
-  [(ppState (θ_0 ... η θ_1 ...)) (ppη η)])
+  ; ppStateη : auxξ -> Doc
+  [(ppStateη (θ_0 ... η θ_1 ...))
+   ,(above* "--- η" (term (ppη η)))]
+  [(ppStateη auxξ) ,(empty-doc)])
 
-(define (write-text-state t port)
-  (write-string
+(define-metafunction coreLang
+  ; ppStateψ : auxξ -> Doc
+  [(ppStateψ (θ_0 ... (Read ψ) θ_1 ...))
+   ,(above* "--- Read ψ" (term (ppψ ψ)))]
+  [(ppStateψ auxξ) ,(empty-doc)])
+
+(define-metafunction coreLang
+  ; ppStateσ : auxξ -> Doc
+  [(ppStateσ (θ_0 ... (SC σ) θ_1 ...))
+   ,(above* "--- SC σ" (term (ppσ σ)))]
+  [(ppStateσ auxξ) ,(empty-doc)])
+
+(define-metafunction coreLang
+  ; ppStateφ : auxξ -> Doc
+  [(ppStateφ (θ_0 ... (P φ) θ_1 ...))
+   ,(above* "--- P φ" (term (ppφ φ)))]
+  [(ppStateφ auxξ) ,(empty-doc)])
+
+(define-metafunction coreLang
+  ;ppState : auxξ -> Doc
+  [(ppState auxξ)
+   ,(above* (term (ppStateη auxξ))
+            (term (ppStateψ auxξ))
+            (term (ppStateσ auxξ))
+            (term (ppStateφ auxξ)))])
+
+(define (write-text-state t txt)
+  ;(write-string
+  (send txt insert
     (doc->string
      (above* (term (pp ,(list-ref t 0))) ""
              (term (ppState ,(list-ref t 1)))))
-    port))
+  ))
+    ;port))
 
 (define (graph-to-graphviz g)
   ; TODO
@@ -245,15 +246,13 @@
 
 (define pretty-printer
   (λ (t port w txt)
-    (if (term (has-graph ,t))
-        (put-graph-image txt t)
-        (write-text-state t port))))
-
-;    (write-string
-;     (doc->string
-;      (above* (term (pp ,(list-ref t 0))) ""
-;              (term (ppState ,(list-ref t 1)))))
-;     port)))
+    (if ;(not (term (has-graph ,t)))
+        (term (has-graph ,t))
+        (write-text-state t txt)
+        (begin
+         (write-text-state t txt)
+         (send txt insert "\n\n")
+         (put-graph-image txt t)))))
 
 (define-term defaultState (()))
 (define-metafunction coreLang
