@@ -7,7 +7,7 @@
 (require "../tests/testTerms.rkt")
 
 (define-extended-language graphLang coreLang
-  [auxξ (θ ... η θ ... (Graph G) (GFront GF) θ ...)])
+  [auxξ (η (Graph G) (GFront GF))])
 
 (define-term initialGraph  (Graph  (((0 skip)) ())))
 (define-term initialGFront (GFront 0))

@@ -21,7 +21,7 @@
    (updateFront ι τ (acqFailCASσReadNew ι η σ_read))
    (where τ (getNextTimestamp ι η))])
 
-(define-syntax-rule (define-acqReadRules lang)
+(define-syntax-rule (define-acqReadRules lang addReadNode)
   (begin
 
   (reduction-relation
@@ -36,13 +36,18 @@
         (where path   (pathE E))
 
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
-        (where auxξ_new (updateState (Read ψ) (Read (updateByFront path σ ψ)) auxξ))
+        (where auxξ_upd_front (updateState (Read ψ) (Read (updateByFront path σ ψ)) auxξ))
+        (where auxξ_new       (addReadNode τ (read acq ι μ-value) path auxξ_upd_front))
 
         (where σ_read   (getByPath path ψ))
         (side-condition (term (correctτ τ ι σ_read))))
 )))
 
-(define-syntax-rule (define-relAcqWriteRules lang synchronizeWriteFront isReadQueueEqualTo)
+(define-syntax-rule (define-relAcqWriteRules lang
+                      synchronizeWriteFront isReadQueueEqualTo
+                      ; TODO -> addReadNode -- add for fail    CAS
+                      ; TODO -> addRMWNode  -- add for success CAS
+                      addWriteNode)
   (begin
 
   (reduction-relation
@@ -64,7 +69,8 @@
         (where auxξ_upd_read  (updateState (Read ψ) (Read ψ_new) auxξ))
         (where auxξ_upd_write (synchronizeWriteFront path auxξ_upd_read))
         (where η_new          (updateCell ι μ-value σ_new η))
-        (where auxξ_new       (updateState η η_new auxξ_upd_write))
+        (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
+        (where auxξ_new       (addWriteNode (write rel ι μ-value τ) path auxξ_upd_η))
 
         (side-condition (term (isReadQueueEqualTo () path auxξ))))
    
@@ -146,16 +152,20 @@
         (side-condition (term (isReadQueueEqualTo () path auxξ))))
 )))
 
-(define-syntax-rule (define-relAcqRules lang synchronizeWriteFront isReadQueueEqualTo)
+(define-syntax-rule (define-relAcqRules lang
+                      addReadNode
+                      synchronizeWriteFront isReadQueueEqualTo
+                      addWriteNode)
   (begin
 
   (union-reduction-relations
-   (define-acqReadRules lang)
-   (define-relAcqWriteRules lang synchronizeWriteFront isReadQueueEqualTo))
+   (define-acqReadRules lang addReadNode)
+   (define-relAcqWriteRules lang synchronizeWriteFront isReadQueueEqualTo addWriteNode))
 ))
 
 (define relAcqRules
-  (define-relAcqRules etaPsiLang synchronizeWriteFront_id isReadQueueEqualTo_t))
+  (define-relAcqRules etaPsiLang addReadNode_t
+    synchronizeWriteFront_id isReadQueueEqualTo_t addWriteNode_t))
 (define step
   (union-reduction-relations coreStep relAcqRules))
 

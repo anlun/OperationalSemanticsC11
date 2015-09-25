@@ -8,8 +8,10 @@
 (require "testTerms.rkt")
 (require "../core/pp.rkt")
 
-(define relAcqRules (define-relAcqRules etaPsiLang synchronizeWriteFront_id
-                      isReadQueueEqualTo_t))
+(define relAcqRules (define-relAcqRules etaPsiLang
+                      addReadNode_t
+                      synchronizeWriteFront_id isReadQueueEqualTo_t
+                      addWriteNode_t))
 (define naRules     (define-naRules     etaPsiLang
                       addReadNode_t
                       defaultState getWriteσ_nil ιNotInReadQueue_t

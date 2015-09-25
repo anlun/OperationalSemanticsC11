@@ -254,11 +254,22 @@
                          (where Node_fork (number_new skip))
                          
                          (where GF (getGF auxξ))
-                         (where number_current (getByPath path GF))
+                         (where number_old (getByPath path GF))
+                         (where Edges_new ,(cons
+                                            (term (number_old number_new sb))
+                                            (term Edges)))
                          
                          (where Nodes_new ,(cons (term Node_fork) (term Nodes)))
-                         (where G_new (Nodes_new Edges))
+                         (where G_new (Nodes_new Edges_new))
                          (where GF_new (updateOnPath path (par number_new number_new) GF))])
+
+(define-metafunction coreLang
+  joinST_readψ_gr : path auxξ -> auxξ
+  [(joinST_readψ_gr path auxξ) (joinST_gr path (joinST_readψ path auxξ))])
+
+(define-metafunction coreLang
+  spwST_readψ_gr : path auxξ -> auxξ
+  [(spwST_readψ_gr path auxξ) (spwST_gr path (spwST_readψ path auxξ))])
 
 (define-metafunction coreLang
   addReadNode_t : τ Action path auxξ -> auxξ
@@ -269,12 +280,12 @@
   [(getWriteNumber τ ι ()) None]
   [(getWriteNumber τ ι ((number (write WM ι μ-value τ)) Node ...))
    (Just number)]
-  [(getWriteNumber τ ι ((number (write WM ι_0 μ-value τ_0)) Node ...))
+  [(getWriteNumber τ ι ((number Action) Node ...))
    (getWriteNumber τ ι (Node ...))])
 
 (define-metafunction coreLang
-  addReadNode : τ Action auxξ -> auxξ
-  [(addReadNode τ (read RM ι μ-value) auxξ)
+  addReadNode : τ Action path auxξ -> auxξ
+  [(addReadNode τ (read RM ι μ-value) path auxξ)
                (updateState (Graph G) (Graph G_new)
                    (updateState (GFront GF) (GFront GF_new) auxξ))
                    (where G  (getGR auxξ))
@@ -300,7 +311,7 @@
 
 (define-metafunction coreLang
   addWriteNode : Action path auxξ -> auxξ
-  [(addWriteNode (write WM ι μ-value τ) auxξ)
+  [(addWriteNode (write WM ι μ-value τ) path auxξ)
                  (updateState (Graph G) (Graph G_new)
                      (updateState (GFront GF) (GFront GF_new) auxξ))
                      (where G (getGR auxξ))
@@ -381,5 +392,5 @@
   
   (test-equal
    (term (spwST_gr () (() (Graph (((0 skip)) ())) (GFront 0))))
-   (term (() (Graph (((1 skip) (0 skip)) ())) (GFront (par 1 1))))))
+   (term (() (Graph (((1 skip) (0 skip)) ((0 1 sb)))) (GFront (par 1 1))))))
 (coreUtils-tests)
