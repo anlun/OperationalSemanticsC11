@@ -233,11 +233,11 @@
                          (where GF (getGF auxξ))
                          (where (par number_left number_right) (getByPath path GF))
                          
-                         (where Nodes_new ,(cons   (term Node_join) (term Nodes)))
+                         (where Nodes_new ,(cons (term Node_join) (term Nodes)))
                          (where Edges_new ,(append
                                             (term
-                                             ((number_left  number_new asw)
-                                              (number_right number_new asw)))
+                                             ((number_left  number_new sb)
+                                              (number_right number_new sb)))
                                             (term Edges)))
                          (where G_new (Nodes_new Edges_new))
                          

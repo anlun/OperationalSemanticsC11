@@ -109,12 +109,11 @@
   
   [Relation rf
             sb
-            asw
             sw
             sc]
   [Action skip
-          (write WM ι μ-value τ) ; τ --- it's a timestamp of record in a history (η).
-          (read  RM ι μ-value)]
+          (write WM ι     μ-value τ) ; τ --- it's a timestamp of record in a history (η).
+          (read  RM ι-var μ-value)]
   
   [Node  (number Action)]
   [Nodes (Node ...)]

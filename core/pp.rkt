@@ -208,26 +208,63 @@
             (term (ppStateφ auxξ)))])
 
 (define (write-text-state t txt)
-  ;(write-string
   (send txt insert
     (doc->string
      (above* (term (pp ,(list-ref t 0))) ""
-             (term (ppState ,(list-ref t 1)))))
-  ))
-    ;port))
+             (term (ppState ,(list-ref t 1)))))))
+
+(define (node-to-graphviz-doc node)
+  (match node
+    [`(,number skip)
+     (beside* (number->string number)
+              " [shape=plaintext] [label=\"skip\"];")]
+    [`(,number (read ,RM ,ι-var ,μ-value))
+     (beside* (number->string number)
+              " [shape=plaintext] [label=\"Read "
+              (term (ppMod ,RM)) " " (term (ppι-var ,ι-var)) " "
+              (term (ppμ ,μ-value)) "\"];")]
+    [`(,number (write ,WM ,ι ,μ-value ,τ))
+     (beside* (number->string number)
+              " [shape=plaintext] [label=\"Write "
+              (term (ppMod ,WM)) " " (term (ppι-var ,ι)) " "
+              (term (ppμ ,μ-value)) "\"];")]))
+  
+(define (nodes-to-graphviz-doc nodes)
+  (above** (map node-to-graphviz-doc nodes)))
+
+(define (relation-to-graphviz-label relation)
+  (match relation
+    [`sb "[label=<<font color=\"black\">sb</font>>, color=\"black\"];"]
+    [`rf "[label=<<font color=\"red\">rf</font>>, color=\"red\", constraint=\"false\"];"]
+    [`sw "[label=<<font color=\"green\">sw</font>>, color=\"green\", constraint=\"false\"];"]
+    [`sc "[label=<<font color=\"blue\">sc</font>>, color=\"blue\", constraint=\"false\"];"]))
+
+(define (edge-to-graphviz-doc edge)
+  (match edge
+    [`(,number_0 ,number_1 ,relation)
+     (beside* (number->string number_0) " -> " (number->string number_1) " "
+              (relation-to-graphviz-label relation))]))
+
+(define (edges-to-graphviz-doc edges)
+  (above** (map edge-to-graphviz-doc edges)))
 
 (define (graph-to-graphviz g)
-  ; TODO
-  (string-append
-   "digraph {\n"
-   "  1 [label=\"Test\" width=.2 height=.2]\n"
-   "}\n"))
-
+  (match g
+    [`(,nodes ,edges)
+     (doc->string
+      (above*
+       "digraph {"
+       (indent 2 (nodes-to-graphviz-doc nodes))
+       (indent 2 (edges-to-graphviz-doc edges))
+       "}"))]))
+  
 (define (dot-graph-render g)
   (define-values (dot-input-in  dot-input-out ) (make-pipe))
   (define-values (dot-output-in dot-output-out) (make-pipe))
   (thread (λ ()
             (fprintf dot-input-out (graph-to-graphviz g))
+            ;(fprintf (current-output-port) (graph-to-graphviz g))
+            ;(fprintf (current-output-port) "\n\n")
             (close-output-port dot-input-out)))
   (thread (λ ()
             (parameterize ([current-output-port dot-output-out]
@@ -237,7 +274,8 @@
   (read-bitmap dot-output-in))
 
 (define (put-graph-image txt t)
-  (send txt insert (make-object image-snip% (dot-graph-render t))))
+  (let [(g (term (getGR ,(list-ref t 1))))]
+   (send txt insert (make-object image-snip% (dot-graph-render g)))))
 
 (define-metafunction coreLang
   has-graph : ξ -> boolean
@@ -246,8 +284,7 @@
 
 (define pretty-printer
   (λ (t port w txt)
-    (if ;(not (term (has-graph ,t)))
-        (term (has-graph ,t))
+    (if (not (term (has-graph ,t)))
         (write-text-state t txt)
         (begin
          (write-text-state t txt)
