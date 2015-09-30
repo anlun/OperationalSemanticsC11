@@ -113,13 +113,14 @@
             sc]
   [Action skip
           (write WM ι     μ-value τ) ; τ --- it's a timestamp of record in a history (η).
+          (rmw   SM ι     μ-value μ-value τ)
           (read  RM ι-var μ-value)]
   
   [Node  (number Action)]
   [Nodes (Node ...)]
   [Edge  (number number Relation)]
   [Edges (Edge ...)]
-  [G    (Nodes Edges)]
+  [G     (Nodes Edges)]
   
   ; GF saves a pointer to current node for every thread.
   [GF number
