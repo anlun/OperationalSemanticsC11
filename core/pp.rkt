@@ -227,7 +227,8 @@
      (beside* (number->string number)
               " [shape=plaintext] [label=\"Write "
               (term (ppMod ,WM)) " " (term (ppι-var ,ι)) " "
-              (term (ppμ ,μ-value)) "\"];")]))
+              (term (ppμ ,μ-value)) " "
+              "(τ: " (number->string τ) ")" "\"];")]))
   
 (define (nodes-to-graphviz-doc nodes)
   (above** (map node-to-graphviz-doc nodes)))
@@ -254,6 +255,7 @@
      (doc->string
       (above*
        "digraph {"
+       "fontsize=10 label=\"\";"
        (indent 2 (nodes-to-graphviz-doc nodes))
        (indent 2 (edges-to-graphviz-doc edges))
        "}"))]))
