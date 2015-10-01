@@ -70,7 +70,7 @@
        (filter (λ (edge) (= (edgeRelation edge) relation))
                (getEdgesConnectedTo number edges))))
 
-(define (getNodesPointedByByRelation_num relation number edges)
+(define (getNodesPointedByRelation_num relation number edges)
   (map edgeFst
        (filter (λ (edge) (= (edgeRelation edge) relation))
                (getEdgesPointedBy number edges))))
@@ -88,6 +88,11 @@
 ;  connectedByRelation : Relation Node G -> Nodes
 ;  [])
 
+(define (prevNumsOnThread number edges)
+  (match (getNodesPointedByRelation_num 'sb number edges)
+    [`(,number_prev) (cons number_prev (prevNumsOnThread number_prev edges))]
+    [_ '()]))
+
 (define-metafunction coreLang
   tryAddSwEdge : number G -> G
   [(tryAddSwEdge number (Nodes Edges)) (Nodes Edges_new)
@@ -95,7 +100,6 @@
                                               (getActionByNumber Nodes))
                                        (where ((number_write (write WM ι μ-value τ)))
                                               (getNodesPointedByByRelation rf number Edges))
-                                       (where )
                                        
                                        ;(where Nodes_prev_writes
                                        ;       (getPreviousLocationWrites
