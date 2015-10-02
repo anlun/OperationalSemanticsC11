@@ -65,14 +65,18 @@
 (define (getNodesPointedBy_num number edges)
   (map edgeSnd (getEdgesPointedBy number edges)))
 
+
+(define (relFilter relation edges)
+  (filter (λ (edge) (equal? (edgeRelation edge) relation)) edges))
+
 (define (getNodesConnectedToByRelation_num relation number edges)
   (map edgeSnd
-       (filter (λ (edge) (= (edgeRelation edge) relation))
+       (relFilter relation
                (getEdgesConnectedTo number edges))))
 
 (define (getNodesPointedByRelation_num relation number edges)
   (map edgeFst
-       (filter (λ (edge) (= (edgeRelation edge) relation))
+       (relFilter relation
                (getEdgesPointedBy number edges))))
 
 ;(define connectedTo)
@@ -90,7 +94,9 @@
 
 (define (prevNumsOnThread number edges)
   (match (getNodesPointedByRelation_num 'sb number edges)
-    [`(,number_prev) (cons number_prev (prevNumsOnThread number_prev edges))]
+    [`(,number_prev) (match (getNodesConnectedToByRelation_num 'sb number_prev edges)
+                       [`(,a) (cons number_prev (prevNumsOnThread number_prev edges))]
+                       [_ '()])]
     [_ '()]))
 
 (define-metafunction coreLang
@@ -120,30 +126,25 @@
 ;;;;;;;;;;;;;;;;;
 ; Tests
 ;;;;;;;;;;;;;;;;;
+(define-term nodes0
+  ((0 (write rel "x" 1 0))
+   (1 skip)
+   (2 (write rel "x" 2 1))
+   (3 (write rlx "x" 3 2))
+   (4 (read  acq "x" 3))))
+
+(define-term edges0
+  ((0 1 sb)
+   (1 2 sb)
+   (1 4 sb)
+   (2 3 sb)
+   (3 4 rf)))
+
 (define-term testGraph0
-  (((0 (write rel "x" 1 0))
-    (1 skip)
-    (2 (write rel "x" 2 1))
-    (3 (write rlx "x" 3 2))
-    (4 (read  acq "x" 3)))
-   ((0 1 sb)
-    (1 2 sb)
-    (1 4 sb)
-    (2 3 sb)
-    (3 4 rf))))
+  (nodes0 edges0))
 
 (define-term testGraph0_with_sw
-  (((0 (write rel "x" 1 0))
-    (1 skip)
-    (2 (write rel "x" 2 1))
-    (3 (write rlx "x" 3 2))
-    (4 (read  acq "x" 3)))
-   ((2 4 sw)
-    (0 1 sb)
-    (1 2 sb)
-    (1 4 sb)
-    (2 3 sb)
-    (3 4 rf))))
+  (nodes0 ,(cons (term (2 4 sw)) (term edges0))))
 
 (define-term testGraph1
   (((0 (write rel "x" 1 0))
@@ -157,5 +158,6 @@
 
 (define (graphUtils-tests)
   (test-equal (term (tryAddSwEdge 4 testGraph0)) (term testGraph0_with_sw))
-  (test-equal (term (tryAddSwEdge 3 testGraph1)) (term testGraph1)))
+  (test-equal (term (tryAddSwEdge 3 testGraph1)) (term testGraph1))
+  (test-equal (prevNumsOnThread 3 (term edges0)) (term (2))))
 (graphUtils-tests) 
