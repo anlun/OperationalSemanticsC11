@@ -99,6 +99,9 @@
                        [_ '()])]
     [_ '()]))
 
+(define (getWriteToSW_num prevWrites threadOperations)
+  )
+
 (define-metafunction coreLang
   tryAddSwEdge : number G -> G
   [(tryAddSwEdge number (Nodes Edges)) (Nodes Edges_new)
