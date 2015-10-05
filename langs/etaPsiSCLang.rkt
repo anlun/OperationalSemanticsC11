@@ -29,7 +29,8 @@
                   getReadσ updateReadσ synchronizeWriteFront_id isReadQueueEqualTo_t))
 
 (define relAcqRules (define-relAcqRules etaPsiSCLang
-                      synchronizeWriteFront isReadQueueEqualTo_t))
+                      addReadNode_t addSWedges_t
+                      synchronizeWriteFront isReadQueueEqualTo_t addWriteNode_t))
 (define naRules     (define-naRules     etaPsiSCLang
                       addReadNode_t
                       defaultState getWriteσ_nil ιNotInReadQueue_t

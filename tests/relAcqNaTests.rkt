@@ -9,7 +9,7 @@
 (require "../core/pp.rkt")
 
 (define relAcqRules (define-relAcqRules etaPsiLang
-                      addReadNode_t
+                      addReadNode_t addSWedges_t
                       synchronizeWriteFront_id isReadQueueEqualTo_t
                       addWriteNode_t))
 (define naRules     (define-naRules     etaPsiLang

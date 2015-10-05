@@ -7,9 +7,10 @@
 (require "../rules/naRules.rkt")
 (require "testTerms.rkt")
 (require "../core/pp.rkt")
+(require "../core/graphUtils.rkt")
 
 (define relAcqRules (define-relAcqRules etaPsiGraphLang
-                      addReadNode
+                      addReadNode addSWedges
                       synchronizeWriteFront_id isReadQueueEqualTo_t
                       addWriteNode))
 (define naRules     (define-naRules     etaPsiGraphLang

@@ -272,8 +272,8 @@
   [(spwST_readψ_gr path auxξ) (spwST_gr path (spwST_readψ path auxξ))])
 
 (define-metafunction coreLang
-  addReadNode_t : τ Action path auxξ -> auxξ
-  [(addReadNode_t τ Action path auxξ) auxξ])
+  addReadNode_t : τ Action path auxξ -> (number auxξ)
+  [(addReadNode_t τ Action path auxξ) (0 auxξ)])
 
 (define-metafunction coreLang
   getWriteNumber : τ ι Nodes -> Maybe ;number
@@ -284,10 +284,11 @@
    (getWriteNumber τ ι (Node ...))])
 
 (define-metafunction coreLang
-  addReadNode : τ Action path auxξ -> auxξ
+  addReadNode : τ Action path auxξ -> (number auxξ)
   [(addReadNode τ (read RM ι μ-value) path auxξ)
-               (updateState (Graph G) (Graph G_new)
-                   (updateState (GFront GF) (GFront GF_new) auxξ))
+               (number_new
+                (updateState (Graph G) (Graph G_new)
+                             (updateState (GFront GF) (GFront GF_new) auxξ)))
                    (where G  (getGR auxξ))
                    (where (Nodes Edges) G)
                    (where number_new ,(getNextNodeNumber (term Nodes)))
@@ -377,6 +378,10 @@
   [(isLocationUninitialized ι auxξ) ,(equal? (term (getLastTimeStamp ι η)) (term -1))
                                     (where η (getη auxξ))]
   [(isLocationUninitialized vName auxξ) #f])
+
+(define-metafunction coreLang
+  addSWedges_t : number auxξ -> auxξ
+  [(addSWedges_t number auxξ) auxξ])
 
 ;;;;;;;;;;;;;;;;;
 ; Tests
