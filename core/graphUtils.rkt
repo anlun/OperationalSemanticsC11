@@ -18,17 +18,17 @@
 
 (define-metafunction coreLang
   isNodeτ≤τ : τ Node -> boolean
-  [(isNodeτ≤τ τ_0 (number Action)) ,(<= (term τ_0)
-                                        (term τ_1))
+  [(isNodeτ≤τ τ_0 (number Action)) ,(<= (term τ_1)
+                                        (term τ_0))
                                    (where (Just τ_1) (getTimestamp Action))])
 
-(define (getPreviousLocationWrites writeNode nodes)
-  (match writeNode
-    [`(write ,WM ,ι ,μ-value ,τ)
-     (filter (λ (node)
-               (and (term (isWriteToLocation ,ι ,node))
-                    (term (isNodeτ≤τ ,τ ,node))))
-             nodes)]))
+(define (getPrevιWrites_num ι τ nodes)
+   (map (λ (node) (match node
+                    [`(,number ,action) number]))
+        (filter (λ (node)
+                  (and (term (isWriteToLocation ,ι ,node))
+                       (term (isNodeτ≤τ ,τ ,node))))
+                nodes)))
 
 (define (getNodesByNumbers numbers nodes)
   (filter (λ (node) (match node
@@ -79,6 +79,12 @@
        (relFilter relation
                (getEdgesPointedBy number edges))))
 
+(define (getNodesPointedByRelation relation number nodes edges)
+  (map (λ (number_pointee)
+         (match (getActionByNumber number_pointee nodes)
+           [`(Just ,action) `(,number_pointee ,action)]))
+       (getNodesPointedByRelation_num relation number edges)))
+
 ;(define connectedTo)
 
 #|
@@ -92,39 +98,71 @@
 ;  connectedByRelation : Relation Node G -> Nodes
 ;  [])
 
-(define (prevNumsOnThread number edges)
+(define (prevNodesOnThread_num number edges)
   (match (getNodesPointedByRelation_num 'sb number edges)
     [`(,number_prev) (match (getNodesConnectedToByRelation_num 'sb number_prev edges)
-                       [`(,a) (cons number_prev (prevNumsOnThread number_prev edges))]
+                       [`(,a) (cons number_prev (prevNodesOnThread_num number_prev edges))]
                        [_ '()])]
     [_ '()]))
 
-(define (getWriteToSW_num prevWrites threadOperations)
-  )
+(define (getActionByNumber number nodes)
+  (match nodes
+    [`((,cur_number ,action) ,nodes_tail ...)
+     (if (equal? cur_number number)
+         `(Just ,action)
+         (getActionByNumber number nodes_tail))]
+    [_ 'None]))
+
+(define (getWritesToSW_num prevWrites threadOperations nodes)
+  (match prevWrites
+    [`(,prevWrite ,tail ...)
+     (match (getActionByNumber prevWrite nodes)
+       [`(Just (write ,WM ,ι ,μ-value ,τ))
+        (if (member prevWrite threadOperations)
+            (let [(tailResult (getWritesToSW_num tail threadOperations nodes))]
+              (if (mo=>? WM 'rel)
+                  (cons prevWrite tailResult)
+                  tailResult))
+            '())]
+       [`(Just (rmw ,SM ,ι ,μ-value ,τ))
+        (let [(tailResult (getWritesToSW_num tail threadOperations nodes))]
+          (if (mo=>? SM 'rel)
+              (cons prevWrite tailResult)
+              tailResult))]
+       ['None (getWritesToSW_num tail threadOperations nodes)])]
+    [_ '()]))
+
+(define (getSWedges number writesToSW)
+  (map (λ (write_num) `(,write_num ,number sw)) writesToSW))
 
 (define-metafunction coreLang
-  tryAddSwEdge : number G -> G
-  [(tryAddSwEdge number (Nodes Edges)) (Nodes Edges_new)
-                                       (where (read RM ι μ-value)
-                                              (getActionByNumber Nodes))
-                                       (where ((number_write (write WM ι μ-value τ)))
-                                              (getNodesPointedByByRelation rf number Edges))
-                                       
-                                       ;(where Nodes_prev_writes
-                                       ;       (getPreviousLocationWrites
-                                       ;        (term (write WM ι μ-value τ))
-                                       ;        (term Nodes)))
-                                       
-                                       ;(where Edges_new Edges) ; TODO                                     
-                                       ]
-  [(tryAddSwEdge number G) G])
-
-#|
-(define (tryAddSwEdge readAction graph)
-  (match (getNodesPointedByByRelation_num rf readAction edges)
-      [`a graph]
-      [_ (raise "More than one read-from nodes.")]))
-|#
+  addSWedges : number G -> G
+  [(addSWedges number (Nodes Edges)) (Nodes Edges_new)
+                                     (where (Just (read RM ι μ-value))
+                                            ,(getActionByNumber (term number) (term Nodes)))                                     
+                                     (where ((number_write (write WM ι μ-value τ)))
+                                            ,(getNodesPointedByRelation (term rf)
+                                                                        (term number)
+                                                                        (term Nodes)
+                                                                        (term Edges)))
+                                     (where (number_writes ...)
+                                            ,(sort (getPrevιWrites_num
+                                                    (term ι) (term τ) (term Nodes))
+                                                   (λ (x y) (>= x y))))                                     
+                                     (where (number_prevThreadOperations ...)
+                                            ,(prevNodesOnThread_num (term number_write)
+                                                                    (term Edges)))
+                                     (where (number_threadOperations ...)
+                                            ,(cons (term number_write)
+                                                   (term (number_prevThreadOperations ...))))
+                                     (where (number_writesToSW ...)
+                                            ,(getWritesToSW_num (term (number_writes ...))
+                                                                (term (number_threadOperations ...))
+                                                                (term Nodes)))
+                                     (where Edges_new
+                                            ,(append (getSWedges (term number) (term (number_writesToSW ...)))
+                                                     (term Edges)))]
+  [(addSWedges number G) G])
 
 ;;;;;;;;;;;;;;;;;
 ; Tests
@@ -160,7 +198,7 @@
     (2 3 rf))))
 
 (define (graphUtils-tests)
-  (test-equal (term (tryAddSwEdge 4 testGraph0)) (term testGraph0_with_sw))
-  (test-equal (term (tryAddSwEdge 3 testGraph1)) (term testGraph1))
-  (test-equal (prevNumsOnThread 3 (term edges0)) (term (2))))
-(graphUtils-tests) 
+  (test-equal (term (addSWedges 4 testGraph0)) (term testGraph0_with_sw))
+  (test-equal (term (addSWedges 3 testGraph1)) (term testGraph1))
+  (test-equal (prevNodesOnThread_num 3 (term edges0)) (term (2))))
+(graphUtils-tests)

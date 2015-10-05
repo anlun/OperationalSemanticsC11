@@ -143,6 +143,19 @@
   [(casMO=>? rlx    rlx) ,#t]
   [(casMO=>? SM     FM ) ,#f])
 
+(define (mo=>? mo1 mo2)
+  (match `(,mo1 ,mo2)
+    [`(,x     ,x) #t]
+    [`(sc     ,_) #t]
+    [`(,_     sc) #f]
+    [`(relAcq ,_) #t]
+    [`(,_ relAcq) #f]
+    [`(rel   acq) #f]
+    [`(rel    ,_) #t]
+    [`(acq   rel) #f]
+    [`(acq   ,_)  #t]
+    [_            #f]))
+
 (define (pair<? p q)
   (match (list p q)
     [(list (list p1 p2) (list q1 q2)) (string<? p1 q1)]))
