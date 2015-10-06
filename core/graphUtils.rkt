@@ -158,6 +158,16 @@
   [(addSWedges number G) G])
 
 (define-metafunction coreLang
+  getWriteNumber : τ ι Nodes -> Maybe ;number
+  [(getWriteNumber τ ι ()) None]
+  [(getWriteNumber τ ι ((number (write WM ι μ-value τ)) Node ...))
+   (Just number)]
+  [(getWriteNumber τ ι ((number (rmw SM ι μ-value_0 μ-value_1 τ)) Node ...))
+   (Just number)]
+  [(getWriteNumber τ ι ((number Action) Node ...))
+   (getWriteNumber τ ι (Node ...))])
+
+(define-metafunction coreLang
   addReadNode : τ Action path auxξ -> (number auxξ)
   [(addReadNode τ (read RM ι μ-value) path auxξ)
                (number_new

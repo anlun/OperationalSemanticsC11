@@ -36,10 +36,9 @@
         (where path   (pathE E))
 
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
-        (where auxξ_upd_front (updateState (Read ψ) (Read (updateByFront path σ ψ)) auxξ))
+        (where auxξ_upd_ψ (updateState (Read ψ) (Read (updateByFront path σ ψ)) auxξ))
         (where (number_node auxξ_new)
-               (addReadNode τ (read acq ι μ-value) (pathE E) auxξ_upd_front))        
-
+               (addReadNode τ (read acq ι μ-value) (pathE E) auxξ_upd_ψ))
         (where σ_read   (getByPath path ψ))
         (side-condition (term (correctτ τ ι σ_read))))
 )))
@@ -74,22 +73,49 @@
         (where auxξ_new       (addWriteNode (write rel ι μ-value τ) path auxξ_upd_η))
 
         (side-condition (term (isReadQueueEqualTo () path auxξ))))
-   
-   (-->  ((in-hole E (cas SM acq ι μ-value_expected μ-value)) auxξ)
+
+#|
+   (-->  ((in-hole E (read  acq ι)) auxξ)
         (normalize
-         ((in-hole E (ret 0                                )) auxξ_new))
+         ((in-hole E (ret μ-value)) auxξ_new))
+        "read-acq"
+        (where η      (getη auxξ))
+        (where ψ      (getReadψ auxξ))
+        (where path   (pathE E))
+
+        (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
+        (where auxξ_upd_ψ (updateState (Read ψ) (Read (updateByFront path σ ψ)) auxξ))
+        (where (number_node auxξ_new)
+               (addReadNode τ (read acq ι μ-value) (pathE E) auxξ_upd_ψ))
+        (where σ_read   (getByPath path ψ))
+        (side-condition (term (correctτ τ ι σ_read))))
+|#
+   
+   (-->  ((in-hole E (cas SM acq ι μ-value_expected μ-value_to_write)) auxξ)
+        (normalize
+         ((in-hole E (ret μ-value                                   )) auxξ_new))
         "cas-fail-acq"
         (where η        (getη     auxξ))
         (where ψ_read   (getReadψ auxξ))
         (where path     (pathE E))
+        (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
 
-        (where σ_read_new (acqFailCASσReadNew ι η (getReadσ path auxξ)))
+        (where σ_read   (getReadσ path auxξ))
+
+        (side-condition ))
+        
+#|
+        (where σ_read_new (acqFailCASσReadNew ι η σ_read))
         (where ψ_read_new (updateByFront path σ_read_new ψ_read))
-        (where auxξ_new   (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
+        (where auxξ_upd_ψ (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
+        (where (number_node auxξ_new)
+               (addReadNode τ (read acq ι μ-value) (pathE E) auxξ_upd_ψ)) 
 
         (side-condition
          (term (failCAScondition ι η μ-value_expected SM acq)))
-        (side-condition (term (isReadQueueEqualTo () path auxξ))))
+        (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (term (correctτ τ ι σ_read))))
+   |#
 
    (-->  ((in-hole E (cas rel FM ι μ-value_expected μ-value_new)) auxξ)
         (normalize

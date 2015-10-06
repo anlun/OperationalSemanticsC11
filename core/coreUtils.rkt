@@ -276,14 +276,6 @@
   [(addReadNode_t τ Action path auxξ) (0 auxξ)])
 
 (define-metafunction coreLang
-  getWriteNumber : τ ι Nodes -> Maybe ;number
-  [(getWriteNumber τ ι ()) None]
-  [(getWriteNumber τ ι ((number (write WM ι μ-value τ)) Node ...))
-   (Just number)]
-  [(getWriteNumber τ ι ((number Action) Node ...))
-   (getWriteNumber τ ι (Node ...))])
-
-(define-metafunction coreLang
   addWriteNode_t : Action path auxξ -> auxξ
   [(addWriteNode_t Action path auxξ) auxξ])
 
