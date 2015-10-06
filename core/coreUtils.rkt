@@ -284,29 +284,6 @@
    (getWriteNumber τ ι (Node ...))])
 
 (define-metafunction coreLang
-  addReadNode : τ Action path auxξ -> (number auxξ)
-  [(addReadNode τ (read RM ι μ-value) path auxξ)
-               (number_new
-                (updateState (Graph G) (Graph G_new)
-                             (updateState (GFront GF) (GFront GF_new) auxξ)))
-                   (where G  (getGR auxξ))
-                   (where (Nodes Edges) G)
-                   (where number_new ,(getNextNodeNumber (term Nodes)))
-                   (where Node_read (number_new (read RM ι μ-value)))
-
-                   (where GF (getGF auxξ))
-                   (where number_old (getByPath path GF))
-                   (where (Just number_write) (getWriteNumber τ ι Nodes))
-                   (where Nodes_new ,(cons (term Node_read) (term Nodes)))
-                   (where Edges_new ,(append
-                                      (term
-                                       ((number_old   number_new sb)
-                                        (number_write number_new rf)))
-                                      (term Edges)))
-                   (where G_new (Nodes_new Edges_new))                 
-                   (where GF_new (updateOnPath path number_new GF))])
-
-(define-metafunction coreLang
   addWriteNode_t : Action path auxξ -> auxξ
   [(addWriteNode_t Action path auxξ) auxξ])
 
@@ -378,10 +355,6 @@
   [(isLocationUninitialized ι auxξ) ,(equal? (term (getLastTimeStamp ι η)) (term -1))
                                     (where η (getη auxξ))]
   [(isLocationUninitialized vName auxξ) #f])
-
-(define-metafunction coreLang
-  addSWedges_t : number auxξ -> auxξ
-  [(addSWedges_t number auxξ) auxξ])
 
 ;;;;;;;;;;;;;;;;;
 ; Tests

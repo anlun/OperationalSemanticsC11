@@ -12,7 +12,7 @@
 (define rlxWriteRules (define-rlxWriteRules etaPsi2Lang
                         getWriteσ_2ψ isReadQueueEqualTo_t ιNotInReadQueue_t))
 (define relAcqRules   (define-relAcqRules   etaPsi2Lang
-                        addReadNode_t addSWedges_t
+                        addReadNode_t
                         synchronizeWriteFront isReadQueueEqualTo_t addWriteNode_t))
 (define naRules       (define-naRules       etaPsi2Lang
                         addReadNode_t

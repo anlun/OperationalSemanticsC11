@@ -3,7 +3,7 @@
 (require "syntax.rkt")
 (require "coreLang.rkt")
 (require "coreUtils.rkt")
-(provide addSWedges)
+(provide addReadNode)
 
 (define-metafunction coreLang
   getTimestamp : Action -> Maybe ;\tau
@@ -86,19 +86,6 @@
            [`(Just ,action) `(,number_pointee ,action)]))
        (getNodesPointedByRelation_num relation number edges)))
 
-;(define connectedTo)
-
-#|
-(define-metafunction coreLang
-  connectedTo : Node G -> Nodes
-  [(connectedTo (number Action) (Nodes Edges))
-   ,(getNodesByNumbers (term numbers) (term Nodes))
-   (where numbers ,(filter (λ (x) #f #| TODO |#) (term Edges)))])
-|#
-;(define-metafunction coreLang
-;  connectedByRelation : Relation Node G -> Nodes
-;  [])
-
 (define (prevNodesOnThread_num number edges nodes)
   (match (getActionByNumber number nodes)
     ['skip '()]
@@ -139,8 +126,8 @@
   (map (λ (write_num) `(,write_num ,number sw)) writesToSW))
 
 (define-metafunction coreLang
-  addSWedges_graph : number G -> G
-  [(addSWedges_graph number (Nodes Edges)) (Nodes Edges_new)
+  addSWedges : number G -> G
+  [(addSWedges number (Nodes Edges)) (Nodes Edges_new)
                                      (where (Just (read RM ι μ-value))
                                             ,(getActionByNumber (term number) (term Nodes)))                                     
                                      (where ((number_write (write WM ι μ-value τ)))
@@ -165,14 +152,35 @@
                                                                 (term Nodes)))
                                      (where Edges_new
                                             ,(append (getSWedges (term number) (term (number_writesToSW ...)))
-                                                     (term Edges)))]
-  [(addSWedges_graph number G) G])
+                                                     (term Edges)))
+
+                                     (side-condition (term (mo<=? acq RM)))]
+  [(addSWedges number G) G])
 
 (define-metafunction coreLang
-  addSWedges : number auxξ -> auxξ
-  [(addSWedges number auxξ) (updateState (Graph G) (Graph G_new) auxξ)
-                            (where G (getGR auxξ))
-                            (where G_new (addSWedges_graph number G))])
+  addReadNode : τ Action path auxξ -> (number auxξ)
+  [(addReadNode τ (read RM ι μ-value) path auxξ)
+               (number_new
+                (updateState (Graph G) (Graph G_new)
+                             (updateState (GFront GF) (GFront GF_new) auxξ)))
+                   (where G  (getGR auxξ))
+                   (where (Nodes Edges) G)
+                   (where number_new ,(getNextNodeNumber (term Nodes)))
+                   (where Node_read (number_new (read RM ι μ-value)))
+
+                   (where GF (getGF auxξ))
+                   (where number_old (getByPath path GF))
+                   (where (Just number_write) (getWriteNumber τ ι Nodes))
+                   (where Nodes_new ,(cons (term Node_read) (term Nodes)))
+                   (where Edges_rf  ,(append
+                                      (term
+                                       ((number_old   number_new sb)
+                                        (number_write number_new rf)))
+                                      (term Edges)))
+
+                   (where G_rf   (Nodes_new Edges_rf))
+                   (where G_new  (addSWedges number_new G_rf))
+                   (where GF_new (updateOnPath path number_new GF))])
 
 ;;;;;;;;;;;;;;;;;
 ; Tests
@@ -208,7 +216,7 @@
     (2 3 rf))))
 
 (define (graphUtils-tests)
-  (test-equal (term (addSWedges_graph 4 testGraph0)) (term testGraph0_with_sw))
-  (test-equal (term (addSWedges_graph 3 testGraph1)) (term testGraph1))
+  (test-equal (term (addSWedges 4 testGraph0)) (term testGraph0_with_sw))
+  (test-equal (term (addSWedges 3 testGraph1)) (term testGraph1))
   (test-equal (prevNodesOnThread_num 3 (term edges0) (term nodes0)) (term (2))))
 (graphUtils-tests)

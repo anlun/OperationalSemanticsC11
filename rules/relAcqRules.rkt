@@ -21,7 +21,7 @@
    (updateFront ι τ (acqFailCASσReadNew ι η σ_read))
    (where τ (getNextTimestamp ι η))])
 
-(define-syntax-rule (define-acqReadRules lang addReadNode addSWedges)
+(define-syntax-rule (define-acqReadRules lang addReadNode)
   (begin
 
   (reduction-relation
@@ -37,9 +37,8 @@
 
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
         (where auxξ_upd_front (updateState (Read ψ) (Read (updateByFront path σ ψ)) auxξ))
-        (where (number_node auxξ_with_node)
-               (addReadNode τ (read acq ι μ-value) (pathE E) auxξ_upd_front))
-        (where auxξ_new       (addSWedges number_node auxξ_with_node))
+        (where (number_node auxξ_new)
+               (addReadNode τ (read acq ι μ-value) (pathE E) auxξ_upd_front))        
 
         (where σ_read   (getByPath path ψ))
         (side-condition (term (correctτ τ ι σ_read))))
@@ -48,7 +47,7 @@
 (define-syntax-rule (define-relAcqWriteRules lang
                       synchronizeWriteFront isReadQueueEqualTo
                       ; TODO -> addReadNode -- add for fail    CAS
-                      ; TODO -> addRMWNode  -- add for success CAS
+                      ; TODO -> addRMWnode  -- add for success CAS
                       addWriteNode)
   (begin
 
@@ -155,18 +154,18 @@
 )))
 
 (define-syntax-rule (define-relAcqRules lang
-                      addReadNode addSWedges
+                      addReadNode
                       synchronizeWriteFront isReadQueueEqualTo
                       addWriteNode)
   (begin
 
   (union-reduction-relations
-   (define-acqReadRules lang addReadNode addSWedges)
+   (define-acqReadRules lang addReadNode)
    (define-relAcqWriteRules lang synchronizeWriteFront isReadQueueEqualTo addWriteNode))
 ))
 
 (define relAcqRules
-  (define-relAcqRules etaPsiLang addReadNode_t addSWedges_t
+  (define-relAcqRules etaPsiLang addReadNode_t
     synchronizeWriteFront_id isReadQueueEqualTo_t addWriteNode_t))
 (define step
   (union-reduction-relations coreStep relAcqRules))

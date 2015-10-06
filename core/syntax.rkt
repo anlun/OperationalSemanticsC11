@@ -156,6 +156,9 @@
     [`(acq   ,_)  #t]
     [_            #f]))
 
+(define (mo<=? mo1 mo2)
+  (mo=>? mo2 mo1))
+
 (define (pair<? p q)
   (match (list p q)
     [(list (list p1 p2) (list q1 q2)) (string<? p1 q1)]))

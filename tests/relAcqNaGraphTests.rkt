@@ -10,7 +10,7 @@
 (require "../core/graphUtils.rkt")
 
 (define relAcqRules (define-relAcqRules etaPsiGraphLang
-                      addReadNode addSWedges
+                      addReadNode
                       synchronizeWriteFront_id isReadQueueEqualTo_t
                       addWriteNode))
 (define naRules     (define-naRules     etaPsiGraphLang
