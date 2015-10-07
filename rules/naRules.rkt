@@ -24,7 +24,7 @@
         (where μ-value (getValueByCorrectTimestamp ι τ η))
 
         (where path (pathE E))
-        (where (number_node auxξ_new) (addReadNode τ (read na ι μ-value) path auxξ))
+        (where auxξ_new (addReadNode τ (read na ι μ-value) path auxξ))
         
         (side-condition (term (seeLast ι η σ_read)))
         (side-condition (term (nonNegativeτ τ))))

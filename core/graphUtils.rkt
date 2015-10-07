@@ -126,10 +126,31 @@
   (map (λ (write_num) `(,write_num ,number sw)) writesToSW))
 
 (define-metafunction coreLang
+  getι : Action -> ι
+  [(getι (read  RM ι μ-value              )) ι]
+  [(getι (write WM ι μ-value             τ)) ι]
+  [(getι (rmw   SM ι μ-value_0 μ-value_1 τ)) ι])
+
+(define-metafunction coreLang
+  getμ-value : Action -> μ-value
+  [(getμ-value (read  RM ι μ-value              )) μ-value]
+  [(getμ-value (write WM ι μ-value             τ)) μ-value]
+  [(getμ-value (rmw   SM ι μ-value_0 μ-value_1 τ)) μ-value])
+
+(define-metafunction coreLang
+  ;getMO : Action -> RM, WM, SM 
+  [(getMO (read  RM ι μ-value              )) RM]
+  [(getMO (write WM ι μ-value             τ)) WM]
+  [(getMO (rmw   SM ι μ-value_0 μ-value_1 τ)) SM])
+
+(define-metafunction coreLang
   addSWedges : number G -> G
   [(addSWedges number (Nodes Edges)) (Nodes Edges_new)
-                                     (where (Just (read RM ι μ-value))
-                                            ,(getActionByNumber (term number) (term Nodes)))                                     
+                                     (where (Just Action)
+                                            ,(getActionByNumber (term number) (term Nodes)))
+                                     (where ι       (getι       Action))
+                                     (where μ-value (getμ-value Action))
+                                     ; TODO -- add case then read from a 'rmw' action
                                      (where ((number_write (write WM ι μ-value τ)))
                                             ,(getNodesPointedByRelation (term rf)
                                                                         (term number)
@@ -154,7 +175,7 @@
                                             ,(append (getSWedges (term number) (term (number_writesToSW ...)))
                                                      (term Edges)))
 
-                                     (side-condition (term (mo<=? acq RM)))]
+                                     (side-condition (term (mo<=? acq (getMO Action))))]
   [(addSWedges number G) G])
 
 (define-metafunction coreLang
@@ -167,20 +188,28 @@
   [(getWriteNumber τ ι ((number Action) Node ...))
    (getWriteNumber τ ι (Node ...))])
 
+#|
+(define (addReadNode τ action path auxξ)
+  (let [(G (term (getGR ,auxξ)))]
+    (match G [`(,nodes ,edges)
+       (let [(number_new (getNextNodeNumber nodes))]
+       (let [(node_read `(,number_new ,action))]
+       (let [()])))])))
+|#
+
 (define-metafunction coreLang
-  addReadNode : τ Action path auxξ -> (number auxξ)
-  [(addReadNode τ (read RM ι μ-value) path auxξ)
-               (number_new
+  addReadNode : τ Action path auxξ -> auxξ
+  [(addReadNode τ Action path auxξ)
                 (updateState (Graph G) (Graph G_new)
-                             (updateState (GFront GF) (GFront GF_new) auxξ)))
+                             (updateState (GFront GF) (GFront GF_new) auxξ))
                    (where G  (getGR auxξ))
                    (where (Nodes Edges) G)
                    (where number_new ,(getNextNodeNumber (term Nodes)))
-                   (where Node_read (number_new (read RM ι μ-value)))
+                   (where Node_read (number_new Action))
 
                    (where GF (getGF auxξ))
                    (where number_old (getByPath path GF))
-                   (where (Just number_write) (getWriteNumber τ ι Nodes))
+                   (where (Just number_write) (getWriteNumber τ (getι Action) Nodes))
                    (where Nodes_new ,(cons (term Node_read) (term Nodes)))
                    (where Edges_rf  ,(append
                                       (term

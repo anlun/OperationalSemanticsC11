@@ -272,8 +272,8 @@
   [(spwST_readψ_gr path auxξ) (spwST_gr path (spwST_readψ path auxξ))])
 
 (define-metafunction coreLang
-  addReadNode_t : τ Action path auxξ -> (number auxξ)
-  [(addReadNode_t τ Action path auxξ) (0 auxξ)])
+  addReadNode_t : τ Action path auxξ -> auxξ
+  [(addReadNode_t τ Action path auxξ) auxξ])
 
 (define-metafunction coreLang
   addWriteNode_t : Action path auxξ -> auxξ
