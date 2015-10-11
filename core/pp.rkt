@@ -97,7 +97,7 @@
             (beside "else " (term (pp AST_1))))]
   
   [(pp (repeat AST))
-   ,(beside "repeat " (term (pp AST)) " end")]
+   ,(beside* "repeat " (term (pp AST)) " end")]
 
   [(pp (repeatFuel number AST))
    ,(beside* "repeatFuel " (number->string (term number))
@@ -271,7 +271,7 @@
   (thread (λ ()
             (parameterize ([current-output-port dot-output-out]
                            [current-input-port  dot-input-in])
-              (system "dot -T png"))
+              (system "dot  -Gdpi=75 -T png"))              
             (close-output-port dot-output-out)))
   (read-bitmap dot-output-in))
 
