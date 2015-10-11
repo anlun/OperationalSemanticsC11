@@ -100,7 +100,7 @@ y_rlx  = 1 || x_rlx  = 1
 With postponed reads it should be able to lead to R1 = R2 = 1.
 |#
 
-(traces step (term (,testTerm0 defaultState)) #:pp pretty-printer)
+;(traces step (term (,testTerm0 defaultState)) #:pp pretty-printer)
 
 (test-->>∃ step
           (term (,testTerm01 defaultState))

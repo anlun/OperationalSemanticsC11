@@ -24,7 +24,9 @@
 (define rlxWriteRules      (define-rlxWriteRules      etaPsi2SCpostLang
                              getWriteσ_2ψ isReadQueueEqualTo ιNotInReadQueue))
 (define relAcqWriteRules   (define-relAcqWriteRules etaPsi2SCpostLang
-                             synchronizeWriteFront isReadQueueEqualTo))
+                             addReadNode_t
+                             synchronizeWriteFront isReadQueueEqualTo
+                             addWriteNode_t))
 (define scRules            (define-scRules            etaPsi2SCpostLang
                              getReadσ updateReadσ synchronizeWriteFront isReadQueueEqualTo))
 (define step (union-reduction-relations
