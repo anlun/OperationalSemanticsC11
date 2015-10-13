@@ -205,6 +205,28 @@ It shouldn't get `stuck`.
                     >>= (λ x (read na "a")))))
 
 #|
+         f_rel = 0;
+         d_na  = 0'
+d_na  = 239; || repeat (f_acq) end;
+f_rel = 1    || r1 = d_na
+           ret r1
+
+Example from: Vafeiadis-Narayan:OOPSLA13 "Relaxed Separation Logic: A Program Logic for C11 Concurrency".
+It shouldn't get `stuck`.
+|#
+(define testTerm3-3
+         (term (((write rel "f" 0) >>= (λ x
+                ((write rel "d" 0) >>= (λ x
+                    (spw
+                     ((write na  "d" 239) >>= (λ x
+                      (write rel "f" 1)))
+                     ((repeat (read acq "f")) >>= (λ x
+                      (read  na "d")))
+                    )))))
+                    >>= (λ x (ret (proj2 x))))))
+
+
+#|
 Dekker's lock doesn't work in weak memory settings (and in our model).
 
                x_rel = 0;
