@@ -57,7 +57,7 @@
 
    (-->  ((in-hole E (write na ι μ-value)) auxξ    )
         (normalize
-         ((in-hole E (ret 0))              auxξ_new))
+         ((in-hole E (ret μ-value))        auxξ_new))
         "write-na"
         (where η      (getη     auxξ))
         (where ψ      (getReadψ auxξ))
