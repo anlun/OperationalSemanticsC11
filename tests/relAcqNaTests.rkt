@@ -1,5 +1,5 @@
 #lang racket
-(require redex)
+(require redex/reduction-semantics)
 (require "../core/syntax.rkt")
 (require "../core/coreUtils.rkt")
 (require "../langs/etaPsiLang.rkt")

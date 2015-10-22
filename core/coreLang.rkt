@@ -1,5 +1,5 @@
 #lang racket
-(require redex)
+(require redex/reduction-semantics)
 (require "syntax.rkt")
 (provide coreLang define-coreStep define-coreTest normalize isUsed)
 

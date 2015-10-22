@@ -1,5 +1,5 @@
 #lang racket
-(require redex)
+(require redex/reduction-semantics)
 (require "syntax.rkt")
 (require "coreLang.rkt")
 (provide (all-defined-out))

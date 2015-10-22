@@ -1,5 +1,5 @@
 #lang racket ;/gui
-(require redex)
+(require redex/reduction-semantics)
 (require racket-pretty-printing-combinators)
 (require "syntax.rkt")
 (require "coreLang.rkt")
