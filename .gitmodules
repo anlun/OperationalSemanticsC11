@@ -1,3 +1,0 @@
-[submodule "racket-pretty-printing-combinators"]
-	path = racket-pretty-printing-combinators
-	url = git@github.com:tonyg/racket-pretty-printing-combinators.git
