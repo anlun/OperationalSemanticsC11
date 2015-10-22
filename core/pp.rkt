@@ -279,6 +279,10 @@
   (let [(g (term (getGR ,(list-ref t 1))))]
    (send txt insert (make-object image-snip% (dot-graph-render g)))))
 
+(define (put-graph-text txt t)
+  (let [(g (term (getGR ,(list-ref t 1))))]
+   (send txt insert (graph-to-graphviz g))))
+
 (define-metafunction coreLang
   has-graph : ξ -> boolean
   [(has-graph (AST (θ_0 ... (Graph G) θ_1 ...))) #t]
@@ -291,7 +295,9 @@
         (begin
          (write-text-state t txt)
          (send txt insert "\n\n")
-         (put-graph-image txt t)))))
+         (put-graph-image txt t)
+         ;(put-graph-text txt t)
+         ))))
 
 (define-term defaultState (()))
 (define-metafunction coreLang
