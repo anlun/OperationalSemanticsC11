@@ -1,3 +1,3 @@
 all:
-	#raco pkg remove OperationalSemanticsC11
-	raco pkg install
+	raco pkg install --deps search-auto 
+	raco test .
