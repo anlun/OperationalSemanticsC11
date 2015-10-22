@@ -366,9 +366,11 @@ undefined if success modifier is weaker than fail modifier.
 An example from VafeiadisNarayan:OOPSLA13. It shouldn't get `stuck`.
 
                     lock = 1
-a_na     = 2 || if (cas_acq_rlx lock 0 1) then || if (cas_acq_rlx lock 0 1)
-lock_rel = 0 ||    a_na = 3                    ||    a_na = 2
-             || else (ret -1)                  || else (ret -1)
+a_na     = 2 || if ((cas_acq_rlx lock 0 1) || if ((cas_acq_rlx lock 0 1)
+lock_rel = 0 ||     == 0)                  ||     == 0)
+             || then                       ||
+             ||    a_na = 3                ||    a_na = 2
+             || else (ret -1)              || else (ret -1)
 |#
 
 (define testTerm9
@@ -378,11 +380,11 @@ lock_rel = 0 ||    a_na = 3                    ||    a_na = 2
               (write rel "lock" 0)))
              (spw
               ((cas acq rlx "lock" 0 1) >>= (λ x
-               (if x
+               (if (== x 0)
                    (write na "a" 3)
                    (ret -1))))
               ((cas acq rlx "lock" 0 1) >>= (λ x
-               (if x
+               (if (== x 0)
                    (write na "a" 2)
                    (ret -1))))
               ))))))

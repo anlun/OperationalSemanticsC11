@@ -36,4 +36,4 @@ It should get `stuck` because of concurrent non-atomic writes.
 
 ;(traces step (term (,testTerm4 defaultState)) #:pp pretty-printer)
 ;(stepper step (term (,testTerm4 defaultState)) pretty-printer)
-(stepper step (term (,testTerm3-3 defaultState)) pretty-printer)
+;(stepper step (term (,testTerm3-3 defaultState)) pretty-printer)

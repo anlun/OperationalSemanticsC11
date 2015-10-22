@@ -1,2 +1,3 @@
 all:
-	raco pkg install git://github.com/tonyg/racket-pretty-printing-combinators
+	#raco pkg remove OperationalSemanticsC11
+	raco pkg install

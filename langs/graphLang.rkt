@@ -17,4 +17,4 @@
 (define coreStep (define-coreStep defaultState spwST_gr joinST_gr isReadQueueEqualTo_t))
 (define coreTest (define-coreTest coreStep defaultState))
 
-(traces coreStep (term (,testTerm-1 defaultState)) #:pp pretty-printer)
+;(traces coreStep (term (,testTerm-1 defaultState)) #:pp pretty-printer)

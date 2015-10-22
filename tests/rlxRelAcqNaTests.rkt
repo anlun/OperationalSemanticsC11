@@ -49,9 +49,11 @@ c_rel = 1  ||   a_rlx = a_rlx + 1
 An example from Vafeiadis-Narayan:OOPSLA13. It shouldn't get `stuck`.
 
                     lock = 1
-a_na     = 2 || if (cas_acq_rlx lock 0 1) then || if (cas_acq_rlx lock 0 1)
-lock_rel = 0 ||    a_na = 3                    ||    a_na = 2
-             || else (ret -1)                  || else (ret -1)                    
+a_na     = 2 || if ((cas_acq_rlx lock 0 1) || if ((cas_acq_rlx lock 0 1)
+lock_rel = 0 ||     == 0)                  ||     == 0)
+             || then                       ||
+             ||    a_na = 3                ||    a_na = 2
+             || else (ret -1)              || else (ret -1)
 |#
 #|
   actual: '((ret (0 (-1 -1))) (() (Read ()) (Write ())))
@@ -62,5 +64,5 @@ lock_rel = 0 ||    a_na = 3                    ||    a_na = 2
 (test-->> step
           (term (,testTerm9 defaultState))
           (term ((ret (0 (-1 -1))) defaultState))
-          (term ((ret (0 (-1  0))) defaultState))
-          (term ((ret (0 ( 0 -1))) defaultState)))
+          (term ((ret (0 (-1  2))) defaultState))
+          (term ((ret (0 ( 3 -1))) defaultState)))

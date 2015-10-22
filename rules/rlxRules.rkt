@@ -54,21 +54,24 @@
 
    (-->  ((in-hole E (cas SM rlx ι μ-value_expected μ-value)) auxξ)
         (normalize
-         ((in-hole E (ret 0                                )) auxξ_new))
+         ((in-hole E (ret μ-value                          )) auxξ_new))
         "cas-fail-rlx"
         (where η        (getη     auxξ))
         (where ψ_read   (getReadψ auxξ))
         (where path     (pathE E))
-        (where τ        (getLastTimestamp ι η))
+        (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
         (where auxξ_new (updateState (Read ψ_read) (Read (updateByFront path ((ι τ)) ψ_read)) auxξ))
 
-        (side-condition
-         (term (failCAScondition ι η μ-value_expected SM rlx)))
+        (where σ_read   (getReadσ path auxξ))
+        (side-condition (equal? (term τ) (term (getLastTimestamp ι η))))
+        ;(side-condition (term (correctτ τ ι σ_read))) ; <- Previous condition implies it.
+        (side-condition (not (equal? (term μ-value)
+                                     (term μ-value_expected))))
         (side-condition (term (isReadQueueEqualTo () path auxξ))))
-
+   
    (-->  ((in-hole E (cas rlx FM ι μ-value_expected μ-value_new)) auxξ)
         (normalize
-         ((in-hole E (ret 1                                    )) auxξ_new))
+         ((in-hole E (ret μ-value_expected                     )) auxξ_new))
         "cas-succ-rlx"
         (where η        (getη     auxξ))
         (where ψ_read   (getReadψ auxξ))
