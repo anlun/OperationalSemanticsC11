@@ -1,4 +1,4 @@
-#lang racket/gui
+#lang racket ;/gui
 (require redex)
 (require racket-pretty-printing-combinators)
 (require "syntax.rkt")
@@ -259,7 +259,8 @@
        (indent 2 (nodes-to-graphviz-doc nodes))
        (indent 2 (edges-to-graphviz-doc edges))
        "}"))]))
-  
+
+#|
 (define (dot-graph-render g)
   (define-values (dot-input-in  dot-input-out ) (make-pipe))
   (define-values (dot-output-in dot-output-out) (make-pipe))
@@ -278,6 +279,7 @@
 (define (put-graph-image txt t)
   (let [(g (term (getGR ,(list-ref t 1))))]
    (send txt insert (make-object image-snip% (dot-graph-render g)))))
+|#
 
 (define (put-graph-text txt t)
   (let [(g (term (getGR ,(list-ref t 1))))]
@@ -295,8 +297,8 @@
         (begin
          (write-text-state t txt)
          (send txt insert "\n\n")
-         (put-graph-image txt t)
-         ;(put-graph-text txt t)
+         ;(put-graph-image txt t)
+         (put-graph-text txt t)
          ))))
 
 (define-term defaultState (()))
