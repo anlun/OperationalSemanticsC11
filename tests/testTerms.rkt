@@ -407,3 +407,53 @@ In Batty-al:POPL11 it's possible to get r1 = 0 /\ r2 = 0.
              ((write rel "y" 5) >>= (λ r
              ((write sc  "b" 0) >>= (λ r
               (read  acq "x"))))))))))))
+
+
+
+(define (testTerm12_gen mod0 mod1 mod2 mod3)
+  (term ((write rel "x" 0) >>= (λ r
+        ((write rel "y" 0) >>= (λ r
+        (spw ((write ,mod0 "x" 1) >>= (λ r
+              (read  ,mod1 "y")))
+             ((write ,mod2 "y" 1) >>= (λ r
+              (read  ,mod3 "x"))))))))))
+
+#|
+  x_rel = 0; y_rel = 0
+x_sc  = 1  || y_sc  = 1
+r1 = y_sc  || r2 = x_sc
+       ret r1 r2
+|#
+(define testTerm12-0 (testTerm12_gen 'sc 'sc 'sc 'sc))
+
+#|
+  x_rel = 0; y_rel = 0
+x_rel  = 1  || y_sc  = 1
+r1 = y_sc  || r2 = x_sc
+       ret r1 r2
+|#
+(define testTerm12-1 (testTerm12_gen 'rel 'sc 'sc 'sc))
+
+#|
+  x_rel = 0; y_rel = 0
+x_sc  = 1  || y_sc  = 1
+r1 = y_acq  || r2 = x_sc
+       ret r1acq2
+|#
+(define testTerm12-2 (testTerm12_gen 'sc 'acq 'sc 'sc))
+
+#|
+  x_rel = 0; y_rel = 0
+x_sc  = 1  || y_rel  = 1
+r1 = y_sc  || r2 = x_sc
+       ret r1 r2
+|#
+(define testTerm12-3 (testTerm12_gen 'sc 'sc 'rel 'sc))
+
+#|
+  x_rel = 0; y_rel = 0
+x_sc  = 1  || y_sc  = 1
+r1 = y_sc  || r2 = x_acq
+       ret r1 r2
+|#
+(define testTerm12-4 (testTerm12_gen 'sc 'sc 'sc 'acq))
