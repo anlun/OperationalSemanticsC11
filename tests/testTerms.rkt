@@ -388,3 +388,22 @@ lock_rel = 0 ||     == 0)                  ||     == 0)
                    (write na "a" 2)
                    (ret -1))))
               ))))))
+
+#|
+  x_rel = 0; y_rel = 0
+x_rel = 5  || y_rel = 5
+a_sc  = 0  || b_sc  = 0
+r1 = y_acq || r2 = x_acq
+       ret r1 r2
+
+In Batty-al:POPL11 it's possible to get r1 = 0 /\ r2 = 0.
+|#
+(define testTerm10
+  (term ((write rel "x" 0) >>= (λ r
+        ((write rel "y" 0) >>= (λ r
+        (spw ((write rel "x" 5) >>= (λ r
+             ((write sc  "a" 0) >>= (λ r
+              (read  acq "y")))))
+             ((write rel "y" 5) >>= (λ r
+             ((write sc  "b" 0) >>= (λ r
+              (read  acq "x"))))))))))))

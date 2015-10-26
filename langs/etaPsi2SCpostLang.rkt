@@ -70,7 +70,7 @@ a_rlx = 239; || b = x_acq;
 x_rel = a    || res = b_rlx
           ret res
 |#
-(define testTerm10
+(define testTerm11
   (term ((write rlx "c"   0) >>= (λ x
         ((write rlx "x" "c") >>= (λ x
         ((spw
@@ -81,7 +81,7 @@ x_rel = a    || res = b_rlx
         (ret (proj2 res))))))))))
 #|
 (test-->> step
-          (term (,testTerm10 defaultState))
+          (term (,testTerm11 defaultState))
           (term ((ret 0) defaultState))
           (term ((ret 239) defaultState)))
 |#

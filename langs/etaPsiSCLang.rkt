@@ -30,7 +30,7 @@
 
 (define relAcqRules (define-relAcqRules etaPsiSCLang
                       addReadNode_t
-                      synchronizeWriteFront isReadQueueEqualTo_t addWriteNode_t))
+                      synchronizeWriteFront_id isReadQueueEqualTo_t addWriteNode_t))
 (define naRules     (define-naRules     etaPsiSCLang
                       addReadNode_t
                       defaultState getWriteσ_nil ιNotInReadQueue_t
@@ -55,3 +55,17 @@ It shouldn't get `stuck`.
          (term (stuck defaultState)))
 |#
 ; (traces step (term (,testTerm3-2 defaultState)))
+
+#|
+  x_rel = 0; y_rel = 0
+x_rel = 5  || y_rel = 5
+a_sc  = 0  || b_sc  = 0
+r1 = y_acq || r2 = x_acq
+       ret r1 r2
+
+In Batty-al:POPL11 it's possible to get r1 = 0 /\ r2 = 0.
+|#
+
+(test-->>∃ step
+           (term (,testTerm10 defaultState))
+           (term ((ret (0 0)) defaultState)))
