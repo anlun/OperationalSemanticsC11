@@ -2,15 +2,17 @@
 (require redex/reduction-semantics)
 (require "../core/coreUtils.rkt")
 (require "../langs/etaPsiLang.rkt")
-(require "../tests/testTerms.rkt")
-(require "naRules.rkt")
-(require "relAcqRules.rkt")
-(require "scRules.rkt")
-(require "rlxRules.rkt")
+(require "../langs/postReadLang.rkt")
+(require "testTerms.rkt")
+(require "../rules/naRules.rkt")
+(require "../rules/relAcqRules.rkt")
+(require "../rules/scRules.rkt")
+(require "../rules/rlxRules.rkt")
+(require "../rules/postReadRules.rkt")
 
-;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;
 ; NA
-;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;
 
 (define naRules
   (define-naRules etaPsiLang addReadNode_t defaultState getWriteσ_nil ιNotInReadQueue_t addWriteNode_t))
@@ -27,9 +29,9 @@ It should get `stuck`.
           (term (,testTerm2 defaultState))
           (term (stuck defaultState)))
 
-;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;
 ; Rel/Acq
-;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;
 
 (define relAcqRules
   (define-relAcqRules etaPsiLang addReadNode_t
@@ -47,9 +49,9 @@ Can lead to R1 = R2 = 0.
           (term (,testTerm1 defaultState))
           (term ((ret (0 0)) defaultState)))
 
-;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;
 ; Rlx
-;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;
 
 (define rlxReadRules  (define-rlxReadRules etaPsiLang))
 (define rlxRules      (define-rlxRules     etaPsiLang
@@ -128,3 +130,28 @@ In TSO a = 1 and b = 0 is forbidden outcome. But not in our semantics.
 (test-->>∃ rlxStep
            (term (,testTerm7 defaultState))
            (term ((ret (1 0)) defaultState)))
+
+
+;;;;;;;;;;;;;;;;;;
+; Postponed Reads
+;;;;;;;;;;;;;;;;;;
+
+(define postponedReadRules (define-postponedReadRules postReadLang))
+(define rlxWriteRules      (define-rlxWriteRules      postReadLang
+                             getWriteσ_nil isReadQueueEqualTo ιNotInReadQueue))
+(define postponedReadStep  (union-reduction-relations postponedReadCoreStep rlxWriteRules postponedReadRules))
+
+(test-->>∃ postponedReadStep
+          (term (,testTerm0  postponedReadDefaultState))
+          (term ((ret (0 0)) postponedReadDefaultState)))
+
+#|
+R1 = x_rlx || R2 = y_rlx
+y_rlx  = 1 || x_rlx  = 1
+
+With postponed reads it should be able to lead to R1 = R2 = 1.
+|#
+
+(test-->>∃ postponedReadStep
+          (term (,testTerm01 postponedReadDefaultState))
+          (term ((ret (1 1)) postponedReadDefaultState)))

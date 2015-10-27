@@ -3,26 +3,8 @@
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
-(require "../rules/rlxRules.rkt")
-(require "../tests/testTerms.rkt")
-(require "../core/pp.rkt")
-(provide define-postponedReadRules)
-
-(define-extended-language postReadLang coreLang
-  ; State:
-  ; AST      -- current state of program tree;
-  ; η        -- current heap history;
-  ; (Read ψ) -- current threads read fronts;
-  ; φ        -- component for postponed reads;
-  ; θ        -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ... (P φ) θ ...)])
-
-(define-term defaultState (() (Read ()) (P ())))
-(define coreStep
-  (extend-reduction-relation
-   (define-coreStep defaultState spwST_readψ_φ joinST_readψ_φ isReadQueueEqualTo)
-   postReadLang #:domain ξ))
-(define coreTest (define-coreTest coreStep defaultState))
+;(require "../rules/rlxRules.rkt")
+(provide define-postponedReadRules) 
 
 (define-syntax-rule (define-postponedReadRules lang)
   (begin
@@ -80,28 +62,4 @@
         (side-condition (not (empty? (term α))))        
         (side-condition (term (isFirstRecord vName ι α)))
         
-        (side-condition (term (isLocationUninitialized ι auxξ))))
-
-)))
-
-(define postponedReadRules (define-postponedReadRules postReadLang))
-(define rlxWriteRules      (define-rlxWriteRules      postReadLang
-                             getWriteσ_nil isReadQueueEqualTo ιNotInReadQueue))
-(define step               (union-reduction-relations coreStep rlxWriteRules postponedReadRules))
-
-(test-->>∃ step
-          (term (,testTerm0  defaultState))
-          (term ((ret (0 0)) defaultState)))
-
-#|
-R1 = x_rlx || R2 = y_rlx
-y_rlx  = 1 || x_rlx  = 1
-
-With postponed reads it should be able to lead to R1 = R2 = 1.
-|#
-
-;(traces step (term (,testTerm0 defaultState)) #:pp pretty-printer)
-
-(test-->>∃ step
-          (term (,testTerm01 defaultState))
-          (term ((ret (1 1)) defaultState)))
+        (side-condition (term (isLocationUninitialized ι auxξ)))))))

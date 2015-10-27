@@ -3,8 +3,6 @@
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
-(require "../langs/etaPsiLang.rkt")
-(require "../tests/testTerms.rkt")
 (provide define-relAcqRules define-acqReadRules define-relAcqWriteRules)
 
 (define-metafunction coreLang
@@ -177,4 +175,3 @@
   (union-reduction-relations
    (define-acqReadRules     lang addReadNode)
    (define-relAcqWriteRules lang addReadNode synchronizeWriteFront isReadQueueEqualTo addWriteNode))))
-

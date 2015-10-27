@@ -3,8 +3,6 @@
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
-(require "../langs/etaPsiLang.rkt")
-(require "../tests/testTerms.rkt")
 (provide define-rlxRules define-rlxReadRules define-rlxWriteRules)
 
 (define-syntax-rule (define-rlxReadRules lang)
