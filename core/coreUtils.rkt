@@ -347,20 +347,3 @@
   [(isLocationUninitialized ι auxξ) ,(equal? (term (getLastTimeStamp ι η)) (term -1))
                                     (where η (getη auxξ))]
   [(isLocationUninitialized vName auxξ) #f])
-
-;;;;;;;;;;;;;;;;;
-; Tests
-;;;;;;;;;;;;;;;;;
-(define (coreUtils-tests)
-  (test-equal
-   (getLastNodeNumber_gr (term (((1 skip)) ())))
-   1)
-  (test-equal
-   (getLastNodeNumber_gr
-    (term (((1 skip) (4 (read rlx x 10)) (5 (write rlx y 34))) ())))
-   5)
-  
-  (test-equal
-   (term (spwST_gr () (() (Graph (((0 skip)) ())) (GFront 0))))
-   (term (() (Graph (((1 skip) (0 skip)) ((0 1 sb)))) (GFront (par 1 1))))))
-(coreUtils-tests)

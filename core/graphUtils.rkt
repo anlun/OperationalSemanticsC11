@@ -3,7 +3,10 @@
 (require "syntax.rkt")
 (require "coreLang.rkt")
 (require "coreUtils.rkt")
-(provide addReadNode)
+(provide addReadNode
+         ; only for testing
+         prevNodesOnThread_num addSWedges
+)
 
 (define-metafunction coreLang
   getTimestamp : Action -> Maybe ;\tau
@@ -220,42 +223,3 @@
                    (where G_rf   (Nodes_new Edges_rf))
                    (where G_new  (addSWedges number_new G_rf))
                    (where GF_new (updateOnPath path number_new GF))])
-
-;;;;;;;;;;;;;;;;;
-; Tests
-;;;;;;;;;;;;;;;;;
-(define-term nodes0
-  ((0 (write rel "x" 1 0))
-   (1 skip)
-   (2 (write rel "x" 2 1))
-   (3 (write rlx "x" 3 2))
-   (4 (read  acq "x" 3))))
-
-(define-term edges0
-  ((0 1 sb)
-   (1 2 sb)
-   (1 4 sb)
-   (2 3 sb)
-   (3 4 rf)))
-
-(define-term testGraph0
-  (nodes0 edges0))
-
-(define-term testGraph0_with_sw
-  (nodes0 ,(cons (term (2 4 sw)) (term edges0))))
-
-(define-term testGraph1
-  (((0 (write rel "x" 1 0))
-    (1 skip)
-    (2 (write rlx "x" 2 1))
-    (3 (read  acq "x" 2)))
-   ((0 1 sb)
-    (1 2 sb)
-    (1 3 sb)
-    (2 3 rf))))
-
-(define (graphUtils-tests)
-  (test-equal (term (addSWedges 4 testGraph0)) (term testGraph0_with_sw))
-  (test-equal (term (addSWedges 3 testGraph1)) (term testGraph1))
-  (test-equal (prevNodesOnThread_num 3 (term edges0) (term nodes0)) (term (2))))
-(graphUtils-tests)

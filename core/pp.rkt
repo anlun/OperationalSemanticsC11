@@ -300,15 +300,3 @@
          ;(put-graph-image txt t)
          (put-graph-text txt t)
          ))))
-
-(define-term defaultState (()))
-(define-metafunction coreLang
-  spwST : path auxξ -> auxξ
-  [(spwST path auxξ) auxξ])
-(define-metafunction coreLang
-  joinST : path auxξ -> auxξ
-  [(joinST path auxξ) auxξ])
-
-(define step (define-coreStep defaultState spwST joinST isReadQueueEqualTo_t))
-;(traces step (term (,testTerm5 defaultState))
-;        #:pp pretty-printer)

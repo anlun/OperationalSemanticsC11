@@ -124,17 +124,9 @@
          (not (equal? (term auxξ) (term defaultState)))))
    )))
 
-(define-term defaultState (()))
-(define-metafunction coreLang
-  spwST : path auxξ -> auxξ
-  [(spwST path auxξ) auxξ])
-(define-metafunction coreLang
-  joinST : path auxξ -> auxξ
-  [(joinST path auxξ) auxξ])
-
-;;;;;;;;;;;;;;;;;
-; Tests macros
-;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
+; Test macros
+;;;;;;;;;;;;;;;;
 
 (define testTerm-1
   (term ((spw (ret (+ 1 2)) (ret (+ 3 9))) >>= (λ v
@@ -144,12 +136,4 @@
   (begin
 (test-->> step
           (term (,testTerm-1 defaultState))
-          (term ((ret (3 12)) defaultState)))
-))
-
-;;;;;;;;;;;;;;;;;
-; Tests execution
-;;;;;;;;;;;;;;;;;
-
-(define step (define-coreStep defaultState spwST joinST isReadQueueEqualTo_t))
-(define test (define-coreTest step defaultState))
+          (term ((ret (3 12)) defaultState)))))

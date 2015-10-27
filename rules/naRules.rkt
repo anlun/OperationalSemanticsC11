@@ -3,8 +3,6 @@
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
-(require "../langs/etaPsiLang.rkt")
-(require "../tests/testTerms.rkt")
 (provide define-naRules define-naReadRules define-naWriteStuckRules)
 
 (define-syntax-rule (define-naReadRules lang addReadNode)
@@ -27,8 +25,7 @@
         (where auxξ_new (addReadNode τ (read na ι μ-value) path auxξ))
         
         (side-condition (term (seeLast ι η σ_read)))
-        (side-condition (term (nonNegativeτ τ))))
-)))
+        (side-condition (term (nonNegativeτ τ)))))))
 
 (define-syntax-rule (define-naWriteStuckRules lang
                       defaultState getWriteσ ιNotInReadQueue addWriteNode)
@@ -74,8 +71,7 @@
 
         (where σ_read   (getByPath path ψ))
         (side-condition (term (seeLast ι η σ_read)))
-        (side-condition (term (ιNotInReadQueue ι path auxξ))))
-)))
+        (side-condition (term (ιNotInReadQueue ι path auxξ)))))))
 
 (define-syntax-rule (define-naRules lang
                       addReadNode defaultState getWriteσ ιNotInReadQueue addWriteNode)
@@ -83,20 +79,4 @@
 
   (union-reduction-relations
    (define-naReadRules lang addReadNode)
-   (define-naWriteStuckRules lang defaultState getWriteσ ιNotInReadQueue addWriteNode))
-))
-
-(define naRules
-  (define-naRules etaPsiLang addReadNode_t defaultState getWriteσ_nil ιNotInReadQueue_t addWriteNode_t))
-
-(define naStep
-  (union-reduction-relations coreStep naRules))
-
-#|
-x_na = 1 || x_na = 2
-
-It should get `stuck`.
-|#
-(test-->>∃ naStep
-          (term (,testTerm2 defaultState))
-          (term (stuck defaultState)))
+   (define-naWriteStuckRules lang defaultState getWriteσ ιNotInReadQueue addWriteNode))))
