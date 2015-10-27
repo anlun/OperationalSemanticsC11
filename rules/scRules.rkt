@@ -13,22 +13,6 @@
   ; θ      -- extension point for auxilirary state.
   [auxξ (θ ... η θ ... (SC σ) θ ...)])
 
-(define-term defaultState (() (SC ())))
-
-(define-metafunction scLang
-  spwST : path auxξ -> auxξ
-  [(spwST path auxξ) auxξ])
-
-(define-metafunction scLang
-  joinST : path auxξ -> auxξ
-  [(joinST path auxξ) auxξ])
-
-(define coreStep
-  (extend-reduction-relation
-   (define-coreStep defaultState spwST joinST isReadQueueEqualTo_t)
-   scLang #:domain ξ))
-(define coreTest (define-coreTest coreStep defaultState))
-
 (define-syntax-rule (define-scRules lang getReadσ updateReadσ synchronizeWriteFront isReadQueueEqualTo)
   (begin
   
@@ -120,16 +104,4 @@
 
         (side-condition
          (term (succCAScondition ι η μ-value_expected sc FM)))
-        (side-condition (term (isReadQueueEqualTo () path auxξ))))
-)
-  ))
-
-(define-metafunction scLang
-  getReadσ_emp : path auxξ -> σ
-  [(getReadσ_emp path auxξ) ()])
-
-(define-metafunction scLang
-  updateReadσ_id : path σ auxξ -> auxξ
-  [(updateReadσ_id path σ auxξ) auxξ])
-
-(define scRules (define-scRules scLang getReadσ_emp updateReadσ_id synchronizeWriteFront_id isReadQueueEqualTo_t))
+        (side-condition (term (isReadQueueEqualTo () path auxξ)))))))

@@ -166,8 +166,7 @@
         
         (side-condition
          (term (succCAScondition ι η μ-value_expected relAcq FM)))
-        (side-condition (term (isReadQueueEqualTo () path auxξ))))
-)))
+        (side-condition (term (isReadQueueEqualTo () path auxξ)))))))
 
 (define-syntax-rule (define-relAcqRules lang
                       addReadNode
@@ -177,21 +176,5 @@
 
   (union-reduction-relations
    (define-acqReadRules     lang addReadNode)
-   (define-relAcqWriteRules lang addReadNode synchronizeWriteFront isReadQueueEqualTo addWriteNode))
-))
+   (define-relAcqWriteRules lang addReadNode synchronizeWriteFront isReadQueueEqualTo addWriteNode))))
 
-(define relAcqRules
-  (define-relAcqRules etaPsiLang addReadNode_t
-    synchronizeWriteFront_id isReadQueueEqualTo_t addWriteNode_t))
-(define step
-  (union-reduction-relations coreStep relAcqRules))
-
-#|
-y_rel  = 1 || x_rel = 1
-R1 = x_acq || R2 = y_acq
-
-Can lead to R1 = R2 = 0.
-|#
-(test-->>∃ step
-          (term (,testTerm1 defaultState))
-          (term ((ret (0 0)) defaultState)))

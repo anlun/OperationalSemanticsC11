@@ -25,8 +25,7 @@
         (where auxξ_new (updateState (Read ψ) (Read (updateByFront path ((ι τ)) ψ)) auxξ))
 
         (where σ_read   (getByPath path ψ))
-        (side-condition (term (correctτ τ ι σ_read))))
-   )))
+        (side-condition (term (correctτ τ ι σ_read)))))))
 
 (define-syntax-rule (define-rlxWriteRules lang getWriteσ isReadQueueEqualTo ιNotInReadQueue)
   (begin
@@ -87,95 +86,11 @@
 
         (side-condition
          (term (succCAScondition ι η μ-value_expected rlx FM)))
-        (side-condition (term (ιNotInReadQueue ι path auxξ))))
-)))
+        (side-condition (term (ιNotInReadQueue ι path auxξ)))))))
 
 (define-syntax-rule (define-rlxRules lang getWriteσ isReadQueueEqualTo_t ιNotInReadQueue)
   (begin
 
   (union-reduction-relations
    (define-rlxReadRules lang)
-   (define-rlxWriteRules lang getWriteσ isReadQueueEqualTo ιNotInReadQueue))
-))
-
-(define rlxReadRules  (define-rlxReadRules etaPsiLang))
-(define rlxRules      (define-rlxRules     etaPsiLang
-                        getWriteσ_nil isReadQueueEqualTo_t ιNotInReadQueue_t))
-(define step          (union-reduction-relations coreStep rlxRules))
-
-;;;;;;;;;;;;;;;;;
-; Tests
-;;;;;;;;;;;;;;;;;
-
-#|
-y_rlx  = 1 || x_rlx  = 1
-R1 = x_rlx || R2 = y_rlx
-
-Can lead to R1 = R2 = 0.
-|#
-(test-->>∃ step
-          (term (,testTerm0  defaultState))
-          (term ((ret (0 0)) defaultState)))
-
-#|
-                     x_rlx = 0
-x_rlx = 1 || x_rlx = 2 || a = x_rlx || c = x_rlx
-          ||           || b = x_rlx || d = x_rlx
-
-The execution a = d = 1 and b = c = 2 is invalid.
-I don't know how to say 'this can't be reduced to that' in tests, so this test should fail.
-|#
-#|
-(test-->>∃ step
-          (term (,testTerm0  defaultState))
-          (term ((ret ((1 2) (2 1))) defaultState)))
-|#
-
-#|
-IRIW. Anti-TSO example.
-
-                     x_rlx = 0
-                     y_rlx = 0
-x_rlx = 1 || y_rlx = 1 || a = x_rlx || c = y_rlx
-          ||           || b = y_rlx || d = x_rlx
-
-The test takes too many time to execute. Results are:
-
-  actual: '((ret ((0 0) (0 0))) (() (Read ())))
-  actual: '((ret ((0 0) (0 1))) (() (Read ())))
-  actual: '((ret ((0 0) (1 0))) (() (Read ())))
-  actual: '((ret ((0 0) (1 1))) (() (Read ())))
-  actual: '((ret ((0 1) (0 0))) (() (Read ())))
-  actual: '((ret ((0 1) (0 1))) (() (Read ())))
-  actual: '((ret ((0 1) (1 0))) (() (Read ())))
-  actual: '((ret ((0 1) (1 1))) (() (Read ())))
-  actual: '((ret ((1 0) (0 0))) (() (Read ())))
-  actual: '((ret ((1 0) (0 1))) (() (Read ())))
-  actual: '((ret ((1 0) (1 0))) (() (Read ())))
-  actual: '((ret ((1 0) (1 1))) (() (Read ())))
-  actual: '((ret ((1 1) (0 0))) (() (Read ())))
-  actual: '((ret ((1 1) (0 1))) (() (Read ())))
-  actual: '((ret ((1 1) (1 0))) (() (Read ())))
-  actual: '((ret ((1 1) (1 1))) (() (Read ())))
-
-The `ret ((1 0) (0 1))` shows that our model is more relaxed than x86-TSO [Sewell-al:CACM10].
-|#
-#|
-(test-->> step
-          (term (,testTerm65 defaultState))
-          (term ((ret ((1 0) (1 0))) defaultState)))
-|#
-
-#|
-Anti-TSO example.
-It shows why our model isn't TSO.
-
-      x = 0; y = 0
-x_rlx = 1; || a = y_rlx;
-y_rlx = 1  || b = x_rlx
-
-In TSO a = 1 and b = 0 is forbidden outcome. But not in our semantics.
-|#
-(test-->>∃ step
-           (term (,testTerm7 defaultState))
-           (term ((ret (1 0)) defaultState)))
+   (define-rlxWriteRules lang getWriteσ isReadQueueEqualTo ιNotInReadQueue))))

@@ -4,6 +4,13 @@
 (require "../langs/etaPsiLang.rkt")
 (require "../tests/testTerms.rkt")
 (require "naRules.rkt")
+(require "relAcqRules.rkt")
+(require "scRules.rkt")
+(require "rlxRules.rkt")
+
+;;;;;;;;;;;
+; NA
+;;;;;;;;;;;
 
 (define naRules
   (define-naRules etaPsiLang addReadNode_t defaultState getWriteσ_nil ιNotInReadQueue_t addWriteNode_t))
@@ -19,3 +26,105 @@ It should get `stuck`.
 (test-->>∃ naStep
           (term (,testTerm2 defaultState))
           (term (stuck defaultState)))
+
+;;;;;;;;;;;
+; Rel/Acq
+;;;;;;;;;;;
+
+(define relAcqRules
+  (define-relAcqRules etaPsiLang addReadNode_t
+    synchronizeWriteFront_id isReadQueueEqualTo_t addWriteNode_t))
+(define relAcqStep
+  (union-reduction-relations coreStep relAcqRules))
+
+#|
+y_rel  = 1 || x_rel = 1
+R1 = x_acq || R2 = y_acq
+
+Can lead to R1 = R2 = 0.
+|#
+(test-->>∃ relAcqStep
+          (term (,testTerm1 defaultState))
+          (term ((ret (0 0)) defaultState)))
+
+;;;;;;;;;;;
+; Rlx
+;;;;;;;;;;;
+
+(define rlxReadRules  (define-rlxReadRules etaPsiLang))
+(define rlxRules      (define-rlxRules     etaPsiLang
+                        getWriteσ_nil isReadQueueEqualTo_t ιNotInReadQueue_t))
+(define rlxStep       (union-reduction-relations coreStep rlxRules))
+
+#|
+y_rlx  = 1 || x_rlx  = 1
+R1 = x_rlx || R2 = y_rlx
+
+Can lead to R1 = R2 = 0.
+|#
+(test-->>∃ rlxStep
+          (term (,testTerm0  defaultState))
+          (term ((ret (0 0)) defaultState)))
+
+#|
+                     x_rlx = 0
+x_rlx = 1 || x_rlx = 2 || a = x_rlx || c = x_rlx
+          ||           || b = x_rlx || d = x_rlx
+
+The execution a = d = 1 and b = c = 2 is invalid.
+I don't know how to say 'this can't be reduced to that' in tests, so this test should fail.
+|#
+#|
+(test-->>∃ rlxStep
+          (term (,testTerm0  defaultState))
+          (term ((ret ((1 2) (2 1))) defaultState)))
+|#
+
+#|
+IRIW. Anti-TSO example.
+
+                     x_rlx = 0
+                     y_rlx = 0
+x_rlx = 1 || y_rlx = 1 || a = x_rlx || c = y_rlx
+          ||           || b = y_rlx || d = x_rlx
+
+The test takes too many time to execute. Results are:
+
+  actual: '((ret ((0 0) (0 0))) (() (Read ())))
+  actual: '((ret ((0 0) (0 1))) (() (Read ())))
+  actual: '((ret ((0 0) (1 0))) (() (Read ())))
+  actual: '((ret ((0 0) (1 1))) (() (Read ())))
+  actual: '((ret ((0 1) (0 0))) (() (Read ())))
+  actual: '((ret ((0 1) (0 1))) (() (Read ())))
+  actual: '((ret ((0 1) (1 0))) (() (Read ())))
+  actual: '((ret ((0 1) (1 1))) (() (Read ())))
+  actual: '((ret ((1 0) (0 0))) (() (Read ())))
+  actual: '((ret ((1 0) (0 1))) (() (Read ())))
+  actual: '((ret ((1 0) (1 0))) (() (Read ())))
+  actual: '((ret ((1 0) (1 1))) (() (Read ())))
+  actual: '((ret ((1 1) (0 0))) (() (Read ())))
+  actual: '((ret ((1 1) (0 1))) (() (Read ())))
+  actual: '((ret ((1 1) (1 0))) (() (Read ())))
+  actual: '((ret ((1 1) (1 1))) (() (Read ())))
+
+The `ret ((1 0) (0 1))` shows that our model is more relaxed than x86-TSO [Sewell-al:CACM10].
+|#
+#|
+(test-->> rlxStep
+          (term (,testTerm65 defaultState))
+          (term ((ret ((1 0) (1 0))) defaultState)))
+|#
+
+#|
+Anti-TSO example.
+It shows why our model isn't TSO.
+
+      x = 0; y = 0
+x_rlx = 1; || a = y_rlx;
+y_rlx = 1  || b = x_rlx
+
+In TSO a = 1 and b = 0 is forbidden outcome. But not in our semantics.
+|#
+(test-->>∃ rlxStep
+           (term (,testTerm7 defaultState))
+           (term ((ret (1 0)) defaultState)))
