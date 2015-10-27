@@ -1,12 +1,23 @@
 #lang racket
 (require redex/reduction-semantics)
 (require "../core/syntax.rkt")
+(require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
-(require "../langs/etaPsi2Lang.rkt")
+(require "../langs/postReadLang.rkt")
 (require "../rules/rlxRules.rkt")
 (require "../rules/relAcqRules.rkt")
 (require "../rules/naRules.rkt")
 (require "testTerms.rkt")
+
+(define-term defaultState (() (Read ()) (Write ())))
+
+(define coreStep
+  (extend-reduction-relation
+   (define-coreStep defaultState spwST_2ψ joinST_2ψ isReadQueueEqualTo_t)
+   etaPsi2Lang #:domain ξ))
+
+(define coreTest (define-coreTest coreStep defaultState))
+
 
 (define rlxReadRules  (define-rlxReadRules  etaPsi2Lang))
 (define rlxWriteRules (define-rlxWriteRules etaPsi2Lang

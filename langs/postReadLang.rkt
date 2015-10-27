@@ -5,10 +5,10 @@
 (require "../core/coreUtils.rkt")
 (provide etaPsiLang etaPsiCoreStep etaPsiCoreStep etaPsiDefaultState 
          postReadLang postponedReadCoreStep postponedReadDefaultState
-         
-         etaPsi2SCLang
-         etaPsi2SCpostLang graphLang
-         etaPsiGraphLang)
+
+         etaPsi2Lang
+         etaPsiSCLang etaPsi2SCLang etaPsi2SCpostLang
+         graphLang etaPsiGraphLang)
 
 (define-extended-language etaPsiLang coreLang
   ; State:
@@ -25,6 +25,24 @@
    (define-coreStep etaPsiDefaultState spwST_readψ joinST_readψ isReadQueueEqualTo_t)
    etaPsiLang #:domain ξ))
 (define etaPsiCoreTest (define-coreTest etaPsiCoreStep etaPsiDefaultState))
+
+(define-extended-language etaPsiSCLang coreLang
+  ; State:
+  ; AST      -- current state of program tree;
+  ; η        -- current heap history;
+  ; (Read ψ) -- current threads read fronts;  
+  ; (SC σ)   -- front after last SC operation;
+  ; θ        -- extension point for auxilirary state.
+  [auxξ (θ ... η θ ... (Read ψ) θ ... (SC σ) θ ...)])
+
+(define-extended-language etaPsi2Lang coreLang
+  ; State:
+  ; AST       -- current state of program tree;
+  ; η         -- current heap history;
+  ; (Read  ψ) -- current threads read  fronts;
+  ; (Write ψ) -- current threads write fronts;
+  ; θ         -- extension point for auxilirary state.
+  [auxξ (θ ... η θ ... (Read ψ) θ ... (Write ψ) θ ...)])
 
 (define-extended-language etaPsi2SCLang coreLang
   ; State:
