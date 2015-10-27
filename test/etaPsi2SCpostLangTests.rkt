@@ -7,7 +7,7 @@
 (require "../rules/rlxRules.rkt")
 (require "../rules/relAcqRules.rkt")
 (require "../rules/scRules.rkt")
-(require "../tests/testTerms.rkt")
+(require "testTerms.rkt")
 (require "../core/langs.rkt")
 
 (define-term defaultState (() (Read ()) (Write ()) (SC ()) (P ())))

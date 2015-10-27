@@ -4,7 +4,6 @@
 (require "syntax.rkt")
 (require "coreLang.rkt")
 (require "coreUtils.rkt")
-(require "../tests/testTerms.rkt")
 (provide pretty-printer)
 
 (current-page-width 1050)
