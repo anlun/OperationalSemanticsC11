@@ -6,7 +6,7 @@
 (require "../rules/naRules.rkt")
 (require "testTerms.rkt")
 (require "../core/pp.rkt")
-(require "../langs/postReadLang.rkt")
+(require "../core/langs.rkt")
 
 (define relAcqRules (define-relAcqRules etaPsiLang
                       addReadNode_t

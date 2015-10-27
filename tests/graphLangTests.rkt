@@ -5,7 +5,7 @@
 (require "../core/coreUtils.rkt")
 (require "../core/pp.rkt")
 (require "../tests/testTerms.rkt")
-(require "../langs/postReadLang.rkt")
+(require "../core/langs.rkt")
 
 (define-term initialGraph  (Graph  (((0 skip)) ())))
 (define-term initialGFront (GFront 0))

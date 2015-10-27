@@ -7,7 +7,7 @@
 (require "../rules/naRules.rkt")
 (require "../rules/scRules.rkt")
 (require "../tests/testTerms.rkt")
-(require "../langs/postReadLang.rkt")
+(require "../core/langs.rkt")
 
 (define-term defaultState (() (Read ()) (SC ())))
 

@@ -1,7 +1,7 @@
 #lang racket
 (require redex/reduction-semantics)
 (require "../core/coreUtils.rkt")
-(require "../langs/postReadLang.rkt")
+(require "../core/langs.rkt")
 (require "testTerms.rkt")
 (require "../rules/naRules.rkt")
 (require "../rules/relAcqRules.rkt")
