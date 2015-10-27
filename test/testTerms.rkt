@@ -11,23 +11,61 @@ ret 5 || ret 239
                       (ret 239))))
 
 #|
+  x_imod0 = 0; y_imod1 = 0
+y_mod0  = 1 || x_mod2  = 1
+R1 = x_mod1 || R2 = y_mod3
+|#
+(define (testTerm0_gen imod0 imod1 mod0 mod1 mod2 mod3)
+  (term
+   ((write ,imod0 "x" 0) >>= (λ z
+   ((write ,imod1 "y" 0) >>= (λ z
+   ((spw
+     ((write ,mod0 "y" 1) >>= (λ z
+     ((read  ,mod1 "x")   >>= (λ x
+      (ret x)))))
+     ((write ,mod2 "x" 1) >>= (λ z
+     ((read  ,mod3 "y")   >>= (λ y
+      (ret y))))))
+   >>=
+   (λ z (ret z)))))))))
+
+#|
+  x_rlx = 0; y_rlx = 0
 y_rlx  = 1 || x_rlx  = 1
 R1 = x_rlx || R2 = y_rlx
 
 Can lead to R1 = R2 = 0.
 |#
-(define testTerm0 (term
-                  ((write rlx "x" 0) >>= (λ z
-                  ((write rlx "y" 0) >>= (λ z
-                  ((spw
-                   ((write rlx "y" 1) >>= (λ z
-                   ((read  rlx "x")   >>= (λ x
-                    (ret x)))))
-                   ((write rlx "x" 1) >>= (λ z
-                   ((read  rlx "y")   >>= (λ y
-                    (ret y))))))
-                  >>=
-                  (λ z (ret z)))))))))
+(define testTerm0 (testTerm0_gen 'rlx 'rlx 'rlx 'rlx 'rlx 'rlx))
+
+#|
+  x_rel = 0; y_rel = 0
+y_rel  = 1 || x_rel = 1
+R1 = x_acq || R2 = y_acq
+
+Can lead to R1 = R2 = 0.
+|#
+(define testTerm1 (testTerm0_gen 'rel 'rel 'rel 'acq 'rel 'acq))
+
+
+#| Litmus generator
+R1 = x_mod0 || R2 = y_mod2
+y_mod1  = 1 || x_mod3  = 1
+|#
+(define (testTerm01_gen mod0 mod1 mod2 mod3)
+  (term
+   ((write rlx "x" 0) >>= (λ z
+   ((write rlx "y" 0) >>= (λ z
+   ((spw
+     ((read  ,mod0 "x")   >>= (λ x
+     ((write ,mod1 "y" 1) >>= (λ z
+      (ret x)))))
+     ((read  ,mod2 "y")   >>= (λ y
+     ((write ,mod3 "x" 1) >>= (λ z
+      (ret y))))))
+     >>=
+     (λ x (ret x)))))))))
+
 
 #|
 R1 = x_rlx || R2 = y_rlx
@@ -35,77 +73,25 @@ y_rlx  = 1 || x_rlx  = 1
 
 With postponed reads it should be able to lead to R1 = R2 = 1.
 |#
-(define testTerm01 (term
-                  ((write rlx "x" 0) >>= (λ z
-                  ((write rlx "y" 0) >>= (λ z
-                  ((spw
-                   ((read  rlx "x")   >>= (λ x
-                   ((write rlx "y" 1) >>= (λ z
-                    (ret x)))))
-                   ((read  rlx "y")   >>= (λ y
-                   ((write rlx "x" 1) >>= (λ z
-                    (ret y))))))
-                  >>=
-                  (λ x (ret x)))))))))
+(define testTerm01 (testTerm01_gen 'rlx 'rlx 'rlx 'rlx)) 
+
+#|
+R1 = x_rlx  || R2 = y_rlx
+y_rel   = 1 || x_rel   = 1
+
+With postponed reads it should be able to lead to R1 = R2 = 1. 
+SC modificators solve nothing here.
+|#
+(define testTerm02 (testTerm01_gen 'rlx 'rel 'rlx 'rel))
 
 #|
 R1 = x_rlx || R2 = y_rlx
 y_sc   = 1 || x_sc   = 1
 
-With postponed reads it shouldn't be able to lead to R1 = R2 = 1, because of sc operations.
+With postponed reads it should be able to lead to R1 = R2 = 1. 
+SC modificators solve nothing here.
 |#
-(define testTerm02 (term
-                  ((write rlx "x" 0) >>= (λ z
-                  ((write rlx "y" 0) >>= (λ z
-                  ((spw
-                   ((read  rlx "x")   >>= (λ x
-                   ((write sc  "y" 1) >>= (λ z
-                    (ret x)))))
-                   ((read  rlx "y")   >>= (λ y
-                   ((write sc  "x" 1) >>= (λ z
-                    (ret y))))))
-                  >>=
-                  (λ x (ret x)))))))))
-
-#|
-R1 = x_rlx || R2 = y_rlx
-y_rel  = 1 || x_rel  = 1
-
-With postponed reads it shouldn't be able to lead to R1 = R2 = 1, because of rel operations.
-|#
-(define testTerm03 (term
-                  ((write rlx "x" 0) >>= (λ z
-                  ((write rlx "y" 0) >>= (λ z
-                  ((spw
-                   ((read  rlx "x")   >>= (λ x
-                   ((write rel "y" 1) >>= (λ z
-                    (ret x)))))
-                   ((read  rlx "y")   >>= (λ y
-                   ((write rel "x" 1) >>= (λ z
-                    (ret y))))))
-                  >>=
-                  (λ x (ret x)))))))))
-
-
-#|
-y_rel  = 1 || x_rel = 1
-R1 = x_acq || R2 = y_acq
-
-Can lead to R1 = R2 = 0.
-|#
-(define testTerm1
-        (term ((write rel "x" 0) >>= (λ x
-              ((write rel "y" 0) >>= (λ x
-              ((spw
-                   ((write rel "y" 1) >>= (λ x
-                   ((read  acq "x")   >>= (λ x
-                    (ret x)))))
-                   ((write rel "x" 1) >>= (λ x
-                   ((read  acq "y")   >>= (λ x
-                    (ret x))))))
-                  >>=
-                  (λ x (ret x)))))))))
-
+(define testTerm03 (testTerm01_gen 'rlx 'sc 'rlx 'sc))
 
 #|
 x_na = 1 || x_na = 2
@@ -335,9 +321,9 @@ The `ret ((1 0) (0 1))` shows that our model is more relaxed than x86-TSO [Sewel
 Anti-TSO example.
 It shows why our model isn't TSO.
 
-      x = 0; y = 0
-x_rlx = 1; || a = y_rlx;
-y_rlx = 1  || b = x_rlx
+     x = 0; y = 0
+x_rlx = 1 || a = y_rlx
+y_rlx = 1 || b = x_rlx
 
 In TSO a = 1 and b = 0 is forbidden outcome. But not in our semantics.
 |#
@@ -409,7 +395,6 @@ In Batty-al:POPL11 it's possible to get r1 = 0 /\ r2 = 0.
               (read  acq "x"))))))))))))
 
 
-
 (define (testTerm12_gen mod0 mod1 mod2 mod3)
   (term ((write rel "x" 0) >>= (λ r
         ((write rel "y" 0) >>= (λ r
@@ -428,7 +413,7 @@ r1 = y_sc  || r2 = x_sc
 
 #|
   x_rel = 0; y_rel = 0
-x_rel  = 1  || y_sc  = 1
+x_rel  = 1 || y_sc  = 1
 r1 = y_sc  || r2 = x_sc
        ret r1 r2
 |#
@@ -437,7 +422,7 @@ r1 = y_sc  || r2 = x_sc
 #|
   x_rel = 0; y_rel = 0
 x_sc  = 1  || y_sc  = 1
-r1 = y_acq  || r2 = x_sc
+r1 = y_acq || r2 = x_sc
        ret r1acq2
 |#
 (define testTerm12-2 (testTerm12_gen 'sc 'acq 'sc 'sc))
