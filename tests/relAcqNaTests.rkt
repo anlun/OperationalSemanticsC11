@@ -2,11 +2,11 @@
 (require redex/reduction-semantics)
 (require "../core/syntax.rkt")
 (require "../core/coreUtils.rkt")
-(require "../langs/etaPsiLang.rkt")
 (require "../rules/relAcqRules.rkt")
 (require "../rules/naRules.rkt")
 (require "testTerms.rkt")
 (require "../core/pp.rkt")
+(require "../langs/postReadLang.rkt")
 
 (define relAcqRules (define-relAcqRules etaPsiLang
                       addReadNode_t
@@ -14,9 +14,9 @@
                       addWriteNode_t))
 (define naRules     (define-naRules     etaPsiLang
                       addReadNode_t
-                      defaultState getWriteσ_nil ιNotInReadQueue_t
+                      etaPsiDefaultState getWriteσ_nil ιNotInReadQueue_t
                       addWriteNode_t))
-(define step        (union-reduction-relations coreStep relAcqRules naRules))
+(define step        (union-reduction-relations etaPsiCoreStep relAcqRules naRules))
 
 #|
        c_rel = 0;
@@ -29,10 +29,10 @@ It shouldn't get `stuck`.
 |#
 #|
 (test-->> step
-         (term (,testTerm3 defaultState))
-         (term (stuck defaultState)))
+         (term (,testTerm3 etaPsiDefaultState))
+         (term (stuck etaPsiDefaultState)))
 |#
-;(traces step (term (,testTerm3 defaultState)))
+;(traces step (term (,testTerm3 etaPsiDefaultState)))
 
 #|
 Dekker's lock doesn't work in weak memory settings (and in our model).
@@ -46,11 +46,11 @@ if y_acq == 0 then || if x_acq == 0 then
 It should get `stuck` because of concurrent non-atomic writes.
 |#
 (test-->>∃ step
-         (term (,testTerm4 defaultState))
-         (term (stuck defaultState)))
+         (term (,testTerm4 etaPsiDefaultState))
+         (term (stuck etaPsiDefaultState)))
 
-;(traces step (term (,testTerm4 defaultState)) #:pp pretty-printer)
-;(stepper step (term (,testTerm4 defaultState)) pretty-printer)
+;(traces step (term (,testTerm4 etaPsiDefaultState)) #:pp pretty-printer)
+;(stepper step (term (,testTerm4 etaPsiDefaultState)) pretty-printer)
 
 #|
 Ernie Cohen's lock should work in weak memory settings.
@@ -68,6 +68,6 @@ Unfortunately, DrRacket can't find fixpoint in normal time in this case.
 |#
 #|
 (test-->> step
-         (term (,testTerm5 defaultState))
+         (term (,testTerm5 etaPsiDefaultState))
          (term ((ret 239) deafultState)))
 |#

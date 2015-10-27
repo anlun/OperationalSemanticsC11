@@ -8,9 +8,7 @@
 (require "../rules/relAcqRules.rkt")
 (require "../rules/scRules.rkt")
 (require "../tests/testTerms.rkt")
-
-(define-extended-language etaPsi2SCpostLang coreLang
-  [auxξ (η (Read ψ) (Write ψ) (SC σ) (P φ))])
+(require "../langs/postReadLang.rkt")
 
 (define-term defaultState (() (Read ()) (Write ()) (SC ()) (P ())))
 (define coreStep
@@ -18,7 +16,6 @@
    (define-coreStep defaultState spwST_2ψ_φ joinST_2ψ_φ isReadQueueEqualTo)
    etaPsi2SCpostLang #:domain ξ))
 (define coreTest (define-coreTest coreStep defaultState))
-
 
 (define postponedReadRules (define-postponedReadRules etaPsi2SCpostLang))
 (define rlxWriteRules      (define-rlxWriteRules      etaPsi2SCpostLang

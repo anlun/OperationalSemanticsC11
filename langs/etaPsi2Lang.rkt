@@ -3,7 +3,6 @@
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
-;(require "rlxRules.rkt")
 (provide etaPsi2Lang coreStep defaultState)
 
 (define-extended-language etaPsi2Lang coreLang

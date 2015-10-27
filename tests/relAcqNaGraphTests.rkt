@@ -1,13 +1,25 @@
 #lang racket
 (require redex/reduction-semantics)
 (require "../core/syntax.rkt")
+(require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
-(require "../langs/etaPsiGraphLang.rkt")
 (require "../rules/relAcqRules.rkt")
 (require "../rules/naRules.rkt")
 (require "testTerms.rkt")
 (require "../core/pp.rkt")
 (require "../core/graphUtils.rkt")
+(require "../langs/postReadLang.rkt")
+
+(define-term initialGraph  (Graph  (((0 skip)) ())))
+(define-term initialGFront (GFront 0))
+
+(define-term defaultState (() (Read ()) initialGraph initialGFront))
+
+(define coreStep
+  (extend-reduction-relation
+   (define-coreStep defaultState spwST_readψ_gr joinST_readψ_gr isReadQueueEqualTo_t)
+   etaPsiGraphLang #:domain ξ))
+(define coreTest (define-coreTest coreStep defaultState))
 
 (define relAcqRules (define-relAcqRules etaPsiGraphLang
                       addReadNode

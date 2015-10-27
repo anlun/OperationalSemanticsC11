@@ -7,16 +7,7 @@
 (require "../rules/relAcqRules.rkt")
 (require "../rules/naRules.rkt")
 (require "../rules/scRules.rkt")
-
-(define-extended-language etaPsi2SCLang coreLang
-  ; State:
-  ; AST       -- current state of program tree;
-  ; η         -- current heap history;
-  ; (Read  ψ) -- current threads read  fronts;
-  ; (Write ψ) -- current threads write fronts;
-  ; (SC σ)    -- front after last SC operation;
-  ; θ         -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ... (Write ψ) θ ... (SC σ) θ ...)])
+(require "../langs/postReadLang.rkt")
 
 (define-term defaultState (() (Read ()) (Write ()) (SC ())))
 

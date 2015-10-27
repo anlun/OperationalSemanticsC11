@@ -1,9 +1,9 @@
 #lang racket
 (require redex/reduction-semantics)
-(require "syntax.rkt")
-(require "coreLang.rkt")
-(require "coreUtils.rkt")
-(require "graphUtils.rkt")
+(require "../core/syntax.rkt")
+(require "../core/coreLang.rkt")
+(require "../core/coreUtils.rkt")
+(require "../core/graphUtils.rkt")
 
 ;;;;;;;;;;;;;;;;;
 ; syntax
