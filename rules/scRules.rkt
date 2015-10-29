@@ -23,17 +23,18 @@
         (normalize
          ((in-hole E (ret μ-value))        auxξ_new))
         "write-sc"
-        (where η      (getη   auxξ))
-        (where τ      (getNextTimestamp ι η))
-        (where σ_sc   (getσSC auxξ))
-        (where path   (pathE E))
-        (where σ_read (getReadσ path auxξ))
-        (where σ_new  (updateFront ι τ (frontMerge σ_sc σ_read)))
-        
-        (where auxξ_upd_sc    (updateState (SC σ_sc) (SC σ_new) auxξ))
-        (where auxξ_upd_read  (updateReadσ path σ_new auxξ_upd_sc))
+        (where η          (getη   auxξ))
+        (where τ          (getNextTimestamp ι η))
+        (where path       (pathE E))
+        (where σ_read     (getReadσ path auxξ))
+        (where σ_read_new (updateFront ι τ σ_read))
+        (where σ_sc       (getσSC auxξ))
+        (where σ_sc_new   (updateFront ι τ σ_sc))
+
+        (where auxξ_upd_sc    (updateState (SC σ_sc) (SC σ_sc_new) auxξ))
+        (where auxξ_upd_read  (updateReadσ path σ_read_new auxξ_upd_sc))
         (where auxξ_upd_write (synchronizeWriteFront path auxξ_upd_read))
-        (where η_new          (updateCell  ι μ-value σ_new η))
+        (where η_new          (updateCell  ι μ-value σ_read_new η))
         (where auxξ_new       (updateState η η_new auxξ_upd_write))
 
         (side-condition (term (isReadQueueEqualTo () path auxξ))))
@@ -45,45 +46,43 @@
         (where η (getη auxξ))
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
 
-        (where σ_sc   (getσSC auxξ))
         (where path   (pathE E))
         (where σ_read (getReadσ path auxξ))
         
-        (where σ_with_sc      (frontMerge σ_read σ_sc))
-        (where σ_new          (frontMerge σ_with_sc σ))
-        (where auxξ_upd_sc    (updateState (SC σ_sc) (SC σ_new) auxξ))
-        (where auxξ_upd_read  (updateReadσ path σ_new auxξ_upd_sc))
+        (where σ_new          (updateFront ι τ (frontMerge σ_read σ)))
+        (where auxξ_upd_read  (updateReadσ path σ_new auxξ))
         (where auxξ_upd_write (synchronizeWriteFront path auxξ_upd_read))
         (where auxξ_new       auxξ_upd_write)
         
-        (side-condition (term (correctτ τ ι σ_with_sc)))
+        (where σ_sc     (getσSC auxξ))
+        (side-condition (term (correctτ τ ι (frontMerge σ_read σ_sc))))
         (side-condition (term (isReadQueueEqualTo () path auxξ))))
 
-   (-->  ((in-hole E (cas SM sc ι μ-value_expected μ-value)) auxξ)
+   (-->  ((in-hole E (cas SM sc ι μ-value_expected μ-value_new)) auxξ)
         (normalize
-         ((in-hole E (ret 0                               )) auxξ_new))
+         ((in-hole E (ret μ-value                             )) auxξ_new))
         "cas-fail-sc"
-        (where η      (getη auxξ))
-        (where σ_sc   (getσSC auxξ))
+        (where η (getη auxξ))
+        (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
+
         (where path   (pathE E))
         (where σ_read (getReadσ path auxξ))
-
-        (where τ              (getLastTimestamp ι η))
-        (where σ_record_front (fromMaybe () (getFrontByTimestamp ι τ η)))
-        (where σ_read_sync    (frontMerge σ_read σ_record_front))
-        (where σ_new          (frontMerge σ_read_sync σ_sc))
-        (where auxξ_upd_sc    (updateState (SC σ_sc) (SC σ_new) auxξ))
-        (where auxξ_upd_read  (updateReadσ path σ_new auxξ_upd_sc))
+        
+        (where σ_new          (updateFront ι τ (frontMerge σ_read σ)))
+        (where auxξ_upd_read  (updateReadσ path σ_new auxξ))
         (where auxξ_upd_write (synchronizeWriteFront path auxξ_upd_read))
         (where auxξ_new       auxξ_upd_write)
+        
+        (where σ_sc     (getσSC auxξ))
+        (side-condition (term (correctτ τ ι (frontMerge σ_read σ_sc))))
+        (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (not (equal? (term μ-value) (term μ-value_expected)))))
 
-        (side-condition
-         (term (failCAScondition ι η μ-value_expected SM sc)))
-        (side-condition (term (isReadQueueEqualTo () path auxξ))))
+#| TODO: rewrite and add tests for it.
 
    (-->  ((in-hole E (cas sc FM ι μ-value_expected μ-value_new)) auxξ)
         (normalize
-         ((in-hole E (ret 1                                   )) auxξ_new))
+         ((in-hole E (ret μ-value_expected                    )) auxξ_new))
         "cas-succ-sc"
         (where η      (getη auxξ))
         (where σ_sc   (getσSC auxξ))
@@ -104,4 +103,6 @@
 
         (side-condition
          (term (succCAScondition ι η μ-value_expected sc FM)))
-        (side-condition (term (isReadQueueEqualTo () path auxξ)))))))
+        (side-condition (term (isReadQueueEqualTo () path auxξ))))
+|#
+)))
