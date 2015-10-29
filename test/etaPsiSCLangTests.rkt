@@ -9,9 +9,6 @@
 (require "testTerms.rkt")
 (require "../core/langs.rkt")
 
-(require redex)
-(require "../core/pp.rkt")
-
 (define-term defaultState (() (Read ()) (SC ())))
 
 (define coreStep
@@ -64,8 +61,6 @@ In Batty-al:POPL11 it's possible to get r1 = 0 /\ r2 = 0.
 (test-->>∃ step
            (term (,testTerm10 defaultState))
            (term ((ret (0 0)) defaultState)))
-
-(stepper step (term (,testTerm10 defaultState)) pretty-printer)
 
 #|
   x_rel = 0; y_rel = 0
