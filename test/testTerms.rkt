@@ -15,7 +15,7 @@ ret 5 || ret 239
 y_mod0  = 1 || x_mod2  = 1
 R1 = x_mod1 || R2 = y_mod3
 |#
-(define (testTerm0_gen imod0 imod1 mod0 mod1 mod2 mod3)
+(define (term_WR_WR_gen imod0 imod1 mod0 mod1 mod2 mod3)
   (term
    ((write ,imod0 "x" 0) >>= (λ z
    ((write ,imod1 "y" 0) >>= (λ z
@@ -36,7 +36,7 @@ R1 = x_rlx || R2 = y_rlx
 
 Can lead to R1 = R2 = 0.
 |#
-(define testTerm0 (testTerm0_gen 'rlx 'rlx 'rlx 'rlx 'rlx 'rlx))
+(define term_WrlxRrlx_WrlxRrlx (term_WR_WR_gen 'rlx 'rlx 'rlx 'rlx 'rlx 'rlx))
 
 #|
   x_rel = 0; y_rel = 0
@@ -45,7 +45,7 @@ R1 = x_acq || R2 = y_acq
 
 Can lead to R1 = R2 = 0.
 |#
-(define testTerm1 (testTerm0_gen 'rel 'rel 'rel 'acq 'rel 'acq))
+(define testTerm1 (term_WR_WR_gen 'rel 'rel 'rel 'acq 'rel 'acq))
 
 
 #| Litmus generator

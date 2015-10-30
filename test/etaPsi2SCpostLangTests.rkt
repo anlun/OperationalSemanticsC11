@@ -39,75 +39,38 @@ R1 = x_rlx || R2 = y_rlx
 Can lead to R1 = R2 = 0.
 |#
 (test-->>∃ step
-          (term (,testTerm0  defaultState))
+          (term (,term_WrlxRrlx_WrlxRrlx  defaultState))
           (term ((ret (0 0)) defaultState)))
 
 #|
-R1 = x_rlx || R2 = y_rlx
-y_rlx  = 1 || x_rlx  = 1
+R1 = x_rlx            || R2 = y_rlx
+y_{sc, rel, rlx}  = 1 || x_{sc, rel, rlx}  = 1
 
 With postponed reads it should be able to lead to R1 = R2 = 1.
 |#
-(test-->>∃ step
-          (term (,term_RrlxWrlx_RrlxWrlx defaultState))
-          (term ((ret (1 1)) defaultState)))
-#|
-R1 = x_rlx || R2 = y_rlx
-y_rel  = 1 || x_rel   = 1
-
-With postponed reads it should be able to lead to R1 = R2 = 1. 
-Release modificators solve nothing here.
-|#
-(test-->>∃ step
-          (term (,term_RrlxWrel_RrlxWrel defaultState))
-          (term ((ret (1 1)) defaultState)))
+(define (test_RW_RW_11 curTerm)
+  (test-->>∃ step
+          (term (,curTerm defaultState))
+          (term ((ret (1 1)) defaultState))))
+(test_RW_RW_11 term_RrlxWrlx_RrlxWrlx)
+(test_RW_RW_11 term_RrlxWrel_RrlxWrel)
+(test_RW_RW_11 term_RrlxWsc_RrlxWsc)
 
 #|
-R1 = x_acq || R2 = y_rlx
-y_rel  = 1 || x_rel   = 1
+R1 = x_{acq,rlx}  || R2 = y_{acq,rlx} 
+y_rel  = 1        || x_rel  = 1
 
-It's impossible to get R1 = R2 = 1.
+Without rlx/rlx combination it's impossible to get R1 = R2 = 1.
 |#
-(test-->> step
-          (term (,term_RacqWrel_RrlxWrel defaultState))
+(define (test_RW_RW_n11 curTerm)
+  (test-->> step
+          (term (,curTerm defaultState))
           (term ((ret (0 0)) defaultState))
           (term ((ret (1 0)) defaultState))
-          (term ((ret (0 1)) defaultState)))
-
-#|
-R1 = x_rlx || R2 = y_acq
-y_rel  = 1 || x_rel   = 1
-
-It's impossible to get R1 = R2 = 1.
-|#
-(test-->> step
-          (term (,term_RrlxWrel_RacqWrel defaultState))
-          (term ((ret (0 0)) defaultState))
-          (term ((ret (1 0)) defaultState))
-          (term ((ret (0 1)) defaultState)))
-
-#|
-R1 = x_acq || R2 = y_acq
-y_rel  = 1 || x_rel   = 1
-
-It's impossible to get R1 = R2 = 1.
-|#
-(test-->> step
-          (term (,term_RacqWrel_RacqWrel defaultState))
-          (term ((ret (0 0)) defaultState))
-          (term ((ret (1 0)) defaultState))
-          (term ((ret (0 1)) defaultState)))
-
-#|
-R1 = x_rlx || R2 = y_rlx
-y_sc   = 1 || x_sc   = 1
-
-With postponed reads it should be able to lead to R1 = R2 = 1. 
-SC modificators solve nothing here.
-|#
-(test-->>∃ step
-          (term (,term_RrlxWsc_RrlxWsc defaultState))
-          (term ((ret (1 1)) defaultState)))
+          (term ((ret (0 1)) defaultState))))
+(test_RW_RW_n11 term_RacqWrel_RrlxWrel)
+(test_RW_RW_n11 term_RrlxWrel_RacqWrel)
+(test_RW_RW_n11 term_RacqWrel_RacqWrel)
 
 #|
         c_rlx = 0

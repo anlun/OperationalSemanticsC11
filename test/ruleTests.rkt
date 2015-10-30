@@ -64,7 +64,7 @@ R1 = x_rlx || R2 = y_rlx
 Can lead to R1 = R2 = 0.
 |#
 (test-->>∃ rlxStep
-          (term (,testTerm0  etaPsiDefaultState))
+          (term (,term_WrlxRrlx_WrlxRrlx  etaPsiDefaultState))
           (term ((ret (0 0)) etaPsiDefaultState)))
 
 #|
@@ -77,7 +77,7 @@ I don't know how to say 'this can't be reduced to that' in tests, so this test s
 |#
 #|
 (test-->>∃ rlxStep
-          (term (,testTerm0  etaPsiDefaultState))
+          (term (,term_WrlxRrlx_WrlxRrlx  etaPsiDefaultState))
           (term ((ret ((1 2) (2 1))) etaPsiDefaultState)))
 |#
 
@@ -141,7 +141,7 @@ In TSO a = 1 and b = 0 is forbidden outcome. But not in our semantics.
 (define postponedReadStep  (union-reduction-relations postponedReadCoreStep rlxWriteRules postponedReadRules))
 
 (test-->>∃ postponedReadStep
-          (term (,testTerm0  postponedReadDefaultState))
+          (term (,term_WrlxRrlx_WrlxRrlx  postponedReadDefaultState))
           (term ((ret (0 0)) postponedReadDefaultState)))
 
 #|
