@@ -80,7 +80,6 @@ r1 = y_sc  || r2 = x_sc
            (term ((ret (0 1)) defaultState))
            (term ((ret (1 0)) defaultState))
            (term ((ret (1 1)) defaultState))))
-
 (runTestTerm12 testTerm12-1)
 (runTestTerm12 testTerm12-2)
 (runTestTerm12 testTerm12-3)

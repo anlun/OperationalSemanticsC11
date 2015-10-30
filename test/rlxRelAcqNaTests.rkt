@@ -62,16 +62,10 @@ An example from Vafeiadis-Narayan:OOPSLA13. It shouldn't get `stuck`.
                     lock = 1
 a_na     = 2 || if ((cas_acq_rlx lock 0 1) || if ((cas_acq_rlx lock 0 1)
 lock_rel = 0 ||     == 0)                  ||     == 0)
-             || then                       ||
+             || then                       || then
              ||    a_na = 3                ||    a_na = 2
              || else (ret -1)              || else (ret -1)
 |#
-#|
-  actual: '((ret (0 (-1 -1))) (() (Read ()) (Write ())))
-  actual: '((ret (0 (-1 0))) (() (Read ()) (Write ())))
-  actual: '((ret (0 (0 -1))) (() (Read ()) (Write ())))
-|#
-
 (test-->> step
           (term (,testTerm9 defaultState))
           (term ((ret (0 (-1 -1))) defaultState))

@@ -20,7 +20,7 @@
 (define postponedReadRules (define-postponedReadRules etaPsi2SCpostLang))
 (define rlxWriteRules      (define-rlxWriteRules      etaPsi2SCpostLang
                              getWriteσ_2ψ isReadQueueEqualTo ιNotInReadQueue))
-(define relAcqWriteRules   (define-relAcqWriteRules etaPsi2SCpostLang
+(define relAcqWriteRules   (define-relAcqWriteRules   etaPsi2SCpostLang
                              addReadNode_t
                              synchronizeWriteFront isReadQueueEqualTo
                              addWriteNode_t))
