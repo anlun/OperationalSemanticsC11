@@ -33,14 +33,17 @@
               relAcqWriteRules
               scRules))
 #|
-y_rlx  = 1 || x_rlx  = 1
-R1 = x_rlx || R2 = y_rlx
+y_{rel,rlx}  = 1 || x_{rel,rlx}  = 1
+R1 = x_{acq,rlx} || R2 = y_{acq,rlx}
 
 Can lead to R1 = R2 = 0.
 |#
-(test-->>∃ step
+(define (test_WR_WR_00 curTerm)
+  (test-->>∃ step
           (term (,term_WrlxRrlx_WrlxRrlx  defaultState))
-          (term ((ret (0 0)) defaultState)))
+          (term ((ret (0 0)) defaultState))))
+(test_WR_WR_00 term_WrlxRrlx_WrlxRrlx)
+(test_WR_WR_00 term_WrelRacq_WrelRacq)
 
 #|
 R1 = x_rlx            || R2 = y_rlx
@@ -72,6 +75,20 @@ Without rlx/rlx combination it's impossible to get R1 = R2 = 1.
 (test_RW_RW_n11 term_RrlxWrel_RacqWrel)
 (test_RW_RW_n11 term_RacqWrel_RacqWrel)
 
+#|
+          x_rlx = 0; y_rlx = 0
+     y_rlx = 1     || if (x_acq == 2) {
+     x_rel = 1     ||    r1 = y_rlx 
+x_rlx = 2 || ret 0 || } else {
+                   ||    r1 = 0 }             
+
+According to Batty-al:POPL11 it's possible to get r1 = 0, because
+there is no release sequence between x_rel = 1 and x_rlx = 2.
+(test-->>∃ step
+           (term (,term_Wrel_Wrlx_Racq default))
+           (term ((ret 0) defaultState)))
+|#
+ 
 #|
         c_rlx = 0
         x_rlx = c

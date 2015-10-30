@@ -45,7 +45,7 @@ R1 = x_acq || R2 = y_acq
 Can lead to R1 = R2 = 0.
 |#
 (test-->>∃ relAcqStep
-          (term (,testTerm1 etaPsiDefaultState))
+          (term (,term_WrelRacq_WrelRacq etaPsiDefaultState))
           (term ((ret (0 0)) etaPsiDefaultState)))
 
 ;;;;;;;;;;;;;;;;;;

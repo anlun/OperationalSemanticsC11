@@ -5,10 +5,7 @@
 #|
 ret 5 || ret 239
 |#
-(define testTerm-1 (term
-                    (spw
-                      (ret 5)
-                      (ret 239))))
+(define testTerm-1 (term (spw (ret 5) (ret 239))))
 
 #|
   x_imod0 = 0; y_imod1 = 0
@@ -45,10 +42,29 @@ R1 = x_acq || R2 = y_acq
 
 Can lead to R1 = R2 = 0.
 |#
-(define testTerm1 (term_WR_WR_gen 'rel 'rel 'rel 'acq 'rel 'acq))
+(define term_WrelRacq_WrelRacq (term_WR_WR_gen 'rel 'rel 'rel 'acq 'rel 'acq))
 
+#|
+  x_rel = 0; y_rel = 0
+x_sc  = 1  || y_sc  = 1
+r1 = y_sc  || r2 = x_sc
+       ret r1 r2
+|#
+(define term_WscRsc_WscRsc (term_WR_WR_gen 'rel 'rel 'sc 'sc 'sc 'sc))
 
-#| Litmus generator
+#|
+       x_rel = 0; y_rel = 0
+x_{sc,rel}  = 1 || y_{sc,rel}  = 1
+r1 = y_{sc,rel} || r2 = x_{sc,rel}
+            ret r1 r2
+|#
+(define term_WrelRsc_WscRsc (term_WR_WR_gen 'rel 'rel 'rel 'sc 'sc 'sc))
+(define term_WscRacq_WscRsc (term_WR_WR_gen 'rel 'rel 'sc 'acq 'sc 'sc))
+(define term_WscRsc_WrelRsc (term_WR_WR_gen 'rel 'rel 'sc 'sc 'rel 'sc))
+(define term_WscRsc_WscRacq (term_WR_WR_gen 'rel 'rel 'sc 'sc 'sc 'acq))
+
+#|
+   x_rlx = 0; y_rlx = 0;
 R1 = x_mod0 || R2 = y_mod2
 y_mod1  = 1 || x_mod3  = 1
 |#
@@ -135,7 +151,8 @@ a_na  = 7; || repeat (c_acq) end;
 c_rel = 1  || a_na = a_na + 1
        ret a_na
 
-Example from: Vafeiadis-Narayan:OOPSLA13 "Relaxed Separation Logic: A Program Logic for C11 Concurrency".
+Example from: Vafeiadis-Narayan:OOPSLA13
+"Relaxed Separation Logic: A Program Logic for C11 Concurrency".
 It shouldn't get `stuck`.
 |#
 (define testTerm3
@@ -156,7 +173,8 @@ a_na  = 7; || repeat (c_rlx) end;
 c_rlx = 1  || a_na = a_na + 1
        ret a_na
 
-Example from: Vafeiadis-Narayan:OOPSLA13 "Relaxed Separation Logic: A Program Logic for C11 Concurrency".
+Example from: Vafeiadis-Narayan:OOPSLA13
+"Relaxed Separation Logic: A Program Logic for C11 Concurrency".
 It uses rlx writes and reads instead of rel/acq, and it leads to `stuck`.
 |#
 (define testTerm3-0
@@ -198,7 +216,8 @@ c_sc = 1   || a_na = a_na + 1
        ret a_na
 
 Version with SC modifiers instead of Rel/Acq.
-Example from: VafeiadisNarayan:OOPSLA13 "Relaxed Separation Logic: A Program Logic for C11 Concurrency".
+Example from: VafeiadisNarayan:OOPSLA13
+"Relaxed Separation Logic: A Program Logic for C11 Concurrency".
 
 It shouldn't get `stuck`.
 |#
@@ -221,7 +240,8 @@ d_na  = 239; || repeat (f_acq) end;
 f_rel = 1    || r1 = d_na
            ret r1
 
-Example from: Vafeiadis-Narayan:OOPSLA13 "Relaxed Separation Logic: A Program Logic for C11 Concurrency".
+Example from: Vafeiadis-Narayan:OOPSLA13
+"Relaxed Separation Logic: A Program Logic for C11 Concurrency".
 It shouldn't get `stuck`.
 |#
 (define testTerm3-3
@@ -323,7 +343,8 @@ IRIW. Anti-TSO example.
 x_rlx = 1 || y_rlx = 1 || a = x_rlx || c = y_rlx
           ||           || b = y_rlx || d = x_rlx
 
-The `ret ((1 0) (0 1))` shows that our model is more relaxed than x86-TSO [Sewell-al:CACM10].
+The `ret ((1 0) (0 1))` shows that our model is more relaxed
+than x86-TSO [Sewell-al:CACM10].
 |#
 (define testTerm65
            (term ((write rlx "x" 0) >>= (λ x
@@ -418,51 +439,24 @@ In Batty-al:POPL11 it's possible to get r1 = 0 /\ r2 = 0.
              ((write sc  "b" 0) >>= (λ r
               (read  acq "x"))))))))))))
 
-
-(define (testTerm12_gen mod0 mod1 mod2 mod3)
-  (term ((write rel "x" 0) >>= (λ r
-        ((write rel "y" 0) >>= (λ r
-        (spw ((write ,mod0 "x" 1) >>= (λ r
-              (read  ,mod1 "y")))
-             ((write ,mod2 "y" 1) >>= (λ r
-              (read  ,mod3 "x"))))))))))
-
 #|
-  x_rel = 0; y_rel = 0
-x_sc  = 1  || y_sc  = 1
-r1 = y_sc  || r2 = x_sc
-       ret r1 r2
-|#
-(define testTerm12-0 (testTerm12_gen 'sc 'sc 'sc 'sc))
+          x_rlx = 0; y_rlx = 0
+     y_rlx = 1     || if (x_acq == 2) {
+     x_rel = 1     ||    r1 = y_rlx 
+x_rlx = 2 || ret 0 || } else {
+                   ||    r1 = 0 }             
 
-#|
-  x_rel = 0; y_rel = 0
-x_rel  = 1 || y_sc  = 1
-r1 = y_sc  || r2 = x_sc
-       ret r1 r2
+According to Batty-al:POPL11 it's possible to get r1 = 0, because
+there is no release sequence between x_rel = 1 and x_rlx = 2.
 |#
-(define testTerm12-1 (testTerm12_gen 'rel 'sc 'sc 'sc))
-
-#|
-  x_rel = 0; y_rel = 0
-x_sc  = 1  || y_sc  = 1
-r1 = y_acq || r2 = x_sc
-       ret r1acq2
-|#
-(define testTerm12-2 (testTerm12_gen 'sc 'acq 'sc 'sc))
-
-#|
-  x_rel = 0; y_rel = 0
-x_sc  = 1  || y_rel  = 1
-r1 = y_sc  || r2 = x_sc
-       ret r1 r2
-|#
-(define testTerm12-3 (testTerm12_gen 'sc 'sc 'rel 'sc))
-
-#|
-  x_rel = 0; y_rel = 0
-x_sc  = 1  || y_sc  = 1
-r1 = y_sc  || r2 = x_acq
-       ret r1 r2
-|#
-(define testTerm12-4 (testTerm12_gen 'sc 'sc 'sc 'acq))
+(define term_Wrel_Wrlx_Racq
+  (term ((write rlx "x" 0) >>= (λ r
+        ((write rlx "y" 0) >>= (λ r
+        ((spw ((write rlx "y" 1) >>= (λ r
+              ((write rel "x" 1) >>= (λ r
+               (spw (write rlx "x" 2)
+                    (ret 0))))))
+              ((read acq "x") >>= (λ v
+               (if v (read rlx "y")
+                     (ret 0)))))
+        >>= (λ r (proj2 r)))))))))

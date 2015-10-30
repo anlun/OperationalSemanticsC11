@@ -57,7 +57,6 @@ r1 = y_acq || r2 = x_acq
 
 In Batty-al:POPL11 it's possible to get r1 = 0 /\ r2 = 0.
 |#
-
 (test-->>∃ step
            (term (,testTerm10 defaultState))
            (term ((ret (0 0)) defaultState)))
@@ -68,9 +67,8 @@ x_sc  = 1  || y_sc  = 1
 r1 = y_sc  || r2 = x_sc
        ret r1 r2
 |#
-
 (test-->>∃ step
-           (term (,testTerm12-0 defaultState))
+           (term (,term_WscRsc_WscRsc defaultState))
            (term ((ret (1 1)) defaultState)))
 
 (define (runTestTerm12 termToTest)
@@ -80,7 +78,7 @@ r1 = y_sc  || r2 = x_sc
            (term ((ret (0 1)) defaultState))
            (term ((ret (1 0)) defaultState))
            (term ((ret (1 1)) defaultState))))
-(runTestTerm12 testTerm12-1)
-(runTestTerm12 testTerm12-2)
-(runTestTerm12 testTerm12-3)
-(runTestTerm12 testTerm12-4)
+(runTestTerm12 term_WrelRsc_WscRsc)
+(runTestTerm12 term_WscRacq_WscRsc)
+(runTestTerm12 term_WscRsc_WrelRsc)
+(runTestTerm12 term_WscRsc_WscRacq)
