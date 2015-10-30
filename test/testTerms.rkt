@@ -52,7 +52,7 @@ Can lead to R1 = R2 = 0.
 R1 = x_mod0 || R2 = y_mod2
 y_mod1  = 1 || x_mod3  = 1
 |#
-(define (testTerm01_gen mod0 mod1 mod2 mod3)
+(define (term_RW_RW_gen mod0 mod1 mod2 mod3)
   (term
    ((write rlx "x" 0) >>= (λ z
    ((write rlx "y" 0) >>= (λ z
@@ -73,16 +73,40 @@ y_rlx  = 1 || x_rlx  = 1
 
 With postponed reads it should be able to lead to R1 = R2 = 1.
 |#
-(define testTerm01 (testTerm01_gen 'rlx 'rlx 'rlx 'rlx)) 
+(define term_RrlxWrlx_RrlxWrlx (term_RW_RW_gen 'rlx 'rlx 'rlx 'rlx)) 
 
 #|
 R1 = x_rlx  || R2 = y_rlx
 y_rel   = 1 || x_rel   = 1
 
 With postponed reads it should be able to lead to R1 = R2 = 1. 
-SC modificators solve nothing here.
+Rel modificators solve nothing here.
 |#
-(define testTerm02 (testTerm01_gen 'rlx 'rel 'rlx 'rel))
+(define term_RrlxWrel_RrlxWrel (term_RW_RW_gen 'rlx 'rel 'rlx 'rel))
+
+#|
+R1 = x_acq  || R2 = y_rlx
+y_rel   = 1 || x_rel   = 1
+
+It's impossible to get R1 = R2 = 1.
+|#
+(define term_RacqWrel_RrlxWrel (term_RW_RW_gen 'acq 'rel 'rlx 'rel))
+
+#|
+R1 = x_rlx  || R2 = y_acq
+y_rel   = 1 || x_rel   = 1
+
+It's impossible to get R1 = R2 = 1.
+|#
+(define term_RrlxWrel_RacqWrel (term_RW_RW_gen 'rlx 'rel 'acq 'rel))
+
+#|
+R1 = x_acq  || R2 = y_acq
+y_rel   = 1 || x_rel   = 1
+
+It's impossible to get R1 = R2 = 1.
+|#
+(define term_RacqWrel_RacqWrel (term_RW_RW_gen 'acq 'rel 'acq 'rel))
 
 #|
 R1 = x_rlx || R2 = y_rlx
@@ -91,7 +115,7 @@ y_sc   = 1 || x_sc   = 1
 With postponed reads it should be able to lead to R1 = R2 = 1. 
 SC modificators solve nothing here.
 |#
-(define testTerm03 (testTerm01_gen 'rlx 'sc 'rlx 'sc))
+(define term_RrlxWsc_RrlxWsc (term_RW_RW_gen 'rlx 'sc 'rlx 'sc))
 
 #|
 x_na = 1 || x_na = 2

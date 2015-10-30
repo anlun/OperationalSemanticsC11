@@ -152,5 +152,5 @@ With postponed reads it should be able to lead to R1 = R2 = 1.
 |#
 
 (test-->>∃ postponedReadStep
-          (term (,testTerm01 postponedReadDefaultState))
+          (term (,term_RrlxWrlx_RrlxWrlx postponedReadDefaultState))
           (term ((ret (1 1)) postponedReadDefaultState)))

@@ -47,7 +47,7 @@
         (where η_new      (updateCell ι μ-value σ_write η))
         (where auxξ_new   (updateState η η_new auxξ_upd_front))
 
-        (side-condition (term (ιNotInReadQueue_t ι path auxξ))))
+        (side-condition (term (ιNotInReadQueue ι path auxξ))))
 
    (-->  ((in-hole E (cas SM rlx ι μ-value_expected μ-value)) auxξ)
         (normalize
