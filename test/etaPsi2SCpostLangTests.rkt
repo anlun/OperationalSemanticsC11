@@ -80,14 +80,14 @@ Without rlx/rlx combination it's impossible to get R1 = R2 = 1.
      y_rlx = 1     || if (x_acq == 2) {
      x_rel = 1     ||    r1 = y_rlx 
 x_rlx = 2 || ret 0 || } else {
-                   ||    r1 = 0 }             
+                   ||    r1 = 1 }             
 
 According to Batty-al:POPL11 it's possible to get r1 = 0, because
 there is no release sequence between x_rel = 1 and x_rlx = 2.
-(test-->>∃ step
-           (term (,term_Wrel_Wrlx_Racq default))
-           (term ((ret 0) defaultState)))
 |#
+(test-->>∃ step
+           (term (,term_Wrel_Wrlx_Racq defaultState))
+           (term ((ret 0) defaultState)))
  
 #|
         c_rlx = 0

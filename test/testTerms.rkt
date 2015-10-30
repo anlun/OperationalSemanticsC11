@@ -251,8 +251,7 @@ It shouldn't get `stuck`.
                      ((write na  "d" 239) >>= (λ x
                       (write rel "f" 1)))
                      ((repeat (read acq "f")) >>= (λ x
-                      (read  na "d")))
-                    )))))
+                      (read  na "d"))))))))
                     >>= (λ x (ret (proj2 x))))))
 
 
@@ -458,5 +457,5 @@ there is no release sequence between x_rel = 1 and x_rlx = 2.
                     (ret 0))))))
               ((read acq "x") >>= (λ v
                (if v (read rlx "y")
-                     (ret 0)))))
-        >>= (λ r (proj2 r)))))))))
+                     (ret 1)))))
+        >>= (λ r (ret (proj2 r))))))))))
