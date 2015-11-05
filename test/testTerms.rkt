@@ -459,3 +459,24 @@ there is no release sequence between x_rel = 1 and x_rlx = 2.
                (if v (read rlx "y")
                      (ret 1)))))
         >>= (λ r (ret (proj2 r))))))))))
+
+#|
+(test-->> step
+         (term (,testTerm5 etaPsiDefaultState))
+         (term ((ret 239) deafultState)))
+|#
+
+#|
+      x_rel = 0
+x_rel = 1 || r = x_acq
+x_na  = 2 ||
+
+Should lead to `stuck` because of VafeiadisNarayan:OOPSLA (ConsistentRFna) ---
+`x_na = 2` and `r = x_acq` aren't happens-before ordered.
+|#
+(define term_WrelWna_Racq
+  (term ((write rel "x" 0) >>= (λ r
+         (spw ((write rel "x" 1) >>= (λ r
+               (write na  "x" 2)))
+              (read acq "x"))))))
+

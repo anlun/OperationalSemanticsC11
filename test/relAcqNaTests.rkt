@@ -66,8 +66,21 @@ if x_acq == y_acq then || if x_acq != y_acq then
 
 Unfortunately, DrRacket can't find fixpoint in normal time in this case.
 |#
+
 #|
 (test-->> step
          (term (,testTerm5 etaPsiDefaultState))
          (term ((ret 239) deafultState)))
 |#
+
+#|
+      x_rel = 0
+x_rel = 1 || r = x_acq
+x_na  = 2 ||
+
+Should lead to `stuck` because of VafeiadisNarayan:OOPSLA (ConsistentRFna) ---
+`x_na = 2` and `r = x_acq` aren't happens-before ordered.
+|#
+(test-->>∃ step
+           (term (,term_WrelWna_Racq etaPsiDefaultState))
+           (term (stuck etaPsiDefaultState)))
