@@ -43,8 +43,9 @@
         (where ψ_read_new     (updateByFront path ((ι τ)) ψ_read))
         (where auxξ_upd_front (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
 
-        (where σ_write    (updateFront ι τ (getWriteσ path auxξ)))
-        (where η_new      (updateCell ι μ-value σ_write η))
+        (where σ_write    (getWriteσ path auxξ))
+        (where σ_ToWrite  (updateFront ι τ (getσToWrite σ_write ι η)))
+        (where η_new      (updateCell  ι μ-value σ_ToWrite η))
         (where auxξ_new   (updateState η η_new auxξ_upd_front))
 
         (side-condition (term (ιNotInReadQueue ι path auxξ))))
@@ -84,7 +85,8 @@
 
         (side-condition
          (term (succCAScondition ι η μ-value_expected rlx FM)))
-        (side-condition (term (ιNotInReadQueue ι path auxξ)))))))
+        (side-condition (term (ιNotInReadQueue ι path auxξ))))
+)))
 
 (define-syntax-rule (define-rlxRules lang getWriteσ isReadQueueEqualTo_t ιNotInReadQueue)
   (begin

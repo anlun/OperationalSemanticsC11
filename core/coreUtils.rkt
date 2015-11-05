@@ -357,3 +357,10 @@
   [(isLocationUninitialized ι auxξ) ,(equal? (term (getLastTimeStamp ι η)) (term -1))
                                     (where η (getη auxξ))]
   [(isLocationUninitialized vName auxξ) #f])
+
+(define-metafunction coreLang
+  getσToWrite : σ ι η -> σ
+  [(getσToWrite σ_write ι η) σ
+                               (where ((ι_0 τ_0) ... (ι τ) (ι_1 τ_1) ...) σ_write)
+                               (where ((τ μ-value σ)) (getCellHistory ι η))]
+  [(getσToWrite σ_write ι η) ()])
