@@ -9,7 +9,7 @@
 (require "../rules/naRules.rkt")
 (require "testTerms.rkt")
 
-(define-term defaultState (() (Read ()) (Write ())))
+(define-term defaultState (() (Read ()) (NA ()) (Write ())))
 
 (define coreStep
   (extend-reduction-relation

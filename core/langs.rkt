@@ -15,10 +15,11 @@
   ; AST      -- current state of program tree;
   ; η        -- current heap history;
   ; (Read ψ) -- current threads read fronts;
+  ; (NA   σ) -- location -> last NA write on it;
   ; θ        -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ...)])
+  [auxξ (θ ... η θ ... (Read ψ) θ ... (NA σ) θ ...)])
 
-(define-term etaPsiDefaultState (() (Read ())))
+(define-term etaPsiDefaultState (() (Read ()) (NA ())))
 
 (define etaPsiCoreStep
   (extend-reduction-relation
@@ -31,39 +32,43 @@
   ; AST      -- current state of program tree;
   ; η        -- current heap history;
   ; (Read ψ) -- current threads read fronts;  
+  ; (NA   σ) -- location -> last NA write on it;
   ; (SC σ)   -- front after last SC operation;
   ; θ        -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ... (SC σ) θ ...)])
+  [auxξ (θ ... η θ ... (Read ψ) θ ... (NA σ) θ ... (SC σ) θ ...)])
 
 (define-extended-language etaPsi2Lang coreLang
   ; State:
   ; AST       -- current state of program tree;
   ; η         -- current heap history;
   ; (Read  ψ) -- current threads read  fronts;
+  ; (NA    σ) -- location -> last NA write on it;
   ; (Write ψ) -- current threads write fronts;
   ; θ         -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ... (Write ψ) θ ...)])
+  [auxξ (θ ... η θ ... (Read ψ) θ ... (NA σ) θ ... (Write ψ) θ ...)])
 
 (define-extended-language etaPsi2SCLang coreLang
   ; State:
   ; AST       -- current state of program tree;
   ; η         -- current heap history;
   ; (Read  ψ) -- current threads read  fronts;
+  ; (NA    σ) -- location -> last NA write on it;
   ; (Write ψ) -- current threads write fronts;
   ; (SC σ)    -- front after last SC operation;
   ; θ         -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ... (Write ψ) θ ... (SC σ) θ ...)])
+  [auxξ (θ ... η θ ... (Read ψ) θ ... (NA σ) θ ... (Write ψ) θ ... (SC σ) θ ...)])
 
 (define-extended-language postReadLang coreLang
   ; State:
   ; AST      -- current state of program tree;
   ; η        -- current heap history;
   ; (Read ψ) -- current threads read fronts;
+  ; (NA   σ) -- location -> last NA write on it;
   ; φ        -- component for postponed reads;
   ; θ        -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ... (P φ) θ ...)])
+  [auxξ (θ ... η θ ... (Read ψ) θ ... (NA σ) θ ... (P φ) θ ...)])
 
-(define-term postponedReadDefaultState (() (Read ()) (P ())))
+(define-term postponedReadDefaultState (() (Read ()) (NA ()) (P ())))
 (define postponedReadCoreStep
   (extend-reduction-relation
    (define-coreStep postponedReadDefaultState spwST_readψ_φ joinST_readψ_φ isReadQueueEqualTo)
@@ -71,7 +76,7 @@
 (define postponedReadCoreTest (define-coreTest postponedReadCoreStep postponedReadDefaultState))
 
 (define-extended-language etaPsi2SCpostLang coreLang
-  [auxξ (η (Read ψ) (Write ψ) (SC σ) (P φ))])
+  [auxξ (η (Read ψ) (NA ()) (Write ψ) (SC σ) (P φ))])
 
 (define-extended-language graphLang coreLang
   [auxξ (η (Graph G) (GFront GF))])
@@ -81,7 +86,8 @@
   ; AST         -- current state of program tree;
   ; η           -- current heap history;
   ; (Read ψ)    -- current threads read fronts;
+  ; (NA   σ)    -- location -> last NA write on it;
   ; (Graph G)   -- current graph of memory actions;
   ; (GFront GF) -- thread positions in the graph;
   ; θ           -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ... (Graph G) (GFront GF) θ ...)])
+  [auxξ (θ ... η θ ... (Read ψ) (NA σ) θ ... θ ... (Graph G) (GFront GF) θ ...)])

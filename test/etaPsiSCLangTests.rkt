@@ -9,7 +9,7 @@
 (require "testTerms.rkt")
 (require "../core/langs.rkt")
 
-(define-term defaultState (() (Read ()) (SC ())))
+(define-term defaultState (() (Read ()) (NA ()) (SC ())))
 
 (define coreStep
   (extend-reduction-relation

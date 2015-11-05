@@ -13,7 +13,7 @@
 (define-term initialGraph  (Graph  (((0 skip)) ())))
 (define-term initialGFront (GFront 0))
 
-(define-term defaultState (() (Read ()) initialGraph initialGFront))
+(define-term defaultState (() (Read ()) (NA ()) initialGraph initialGFront))
 
 (define coreStep
   (extend-reduction-relation

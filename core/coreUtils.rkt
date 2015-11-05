@@ -27,6 +27,10 @@
   [(getσSC (θ_0 ... (SC σ) θ_1 ...)) σ])
 
 (define-metafunction coreLang
+  getσNA : auxξ -> σ
+  [(getσNA (θ_0 ... (NA σ) θ_1 ...)) σ])
+
+(define-metafunction coreLang
   getGR : auxξ -> G
   [(getGR (θ_0 ... (Graph G) θ_1 ...)) G])
 
