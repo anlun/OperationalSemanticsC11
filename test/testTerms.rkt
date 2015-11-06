@@ -139,11 +139,8 @@ x_na = 1 || x_na = 2
 It should get `stuck`.
 |#
 (define testTerm2
-        (term ((spw
-                   ((write na "x" 1) >>= (λ x (ret 1)))
-                   ((write na "x" 2) >>= (λ x (ret 2))))
-                  >>=
-                  (λ x (ret x)))))
+        (term (spw (write na "x" 1)
+                   (write na "x" 2))))
 
 #|
        c_rel = 0;
