@@ -41,7 +41,7 @@
         (where σ_read (getReadσ path auxξ))
         (where σ_na   (getσNA auxξ))
 
-        (where τ_cur  (fromMaybe  0 (lookup ι σ_read)))
+        (where τ_cur  (fromMaybe -1 (lookup ι σ_read)))
         (where τ_na   (fromMaybe -1 (lookup ι σ_na)))
         (side-condition (< (term τ_cur) (term τ_na))))
         #|
