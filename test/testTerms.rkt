@@ -401,7 +401,7 @@ lock_rel = 0 ||     == 0)                  ||     == 0)
 |#
 
 (define testTerm9
-     (term ((write rel "lock" 1) >>= (λ x
+    (term (((write rel "lock" 1) >>= (λ x
             (spw
              ((write na "a" 2) >>= (λ x
               (write rel "lock" 0)))
@@ -414,7 +414,8 @@ lock_rel = 0 ||     == 0)                  ||     == 0)
                (if (== x 0)
                    (write na "a" 2)
                    (ret -1))))
-              ))))))
+              ))))
+          >>= (λ x (ret (proj2 x))))))
 
 #|
   x_rel = 0; y_rel = 0

@@ -68,9 +68,9 @@ lock_rel = 0 ||     == 0)                  ||     == 0)
 |#
 (test-->> step
           (term (,testTerm9 defaultState))
-          (term ((ret (0 (-1 -1))) defaultState))
-          (term ((ret (0 (-1  2))) defaultState))
-          (term ((ret (0 ( 3 -1))) defaultState)))
+          (term ((ret (-1 -1)) defaultState))
+          (term ((ret (-1  2)) defaultState))
+          (term ((ret ( 3 -1)) defaultState)))
 
 #|
      x = 0; y = 0
@@ -93,4 +93,4 @@ It's possible to get r0 = 1 /\ r1 = 0 in Batty-al:POPL11.
 
 (test-->>∃ step
           (term (,term_Wrel0Wrlx1_Racq1Rrlx0 defaultState))
-          (term (ret (1 0))))
+          (term ((ret (1 0))                 defaultState)))
