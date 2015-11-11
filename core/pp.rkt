@@ -199,10 +199,18 @@
   [(ppStateφ auxξ) ,(empty-doc)])
 
 (define-metafunction coreLang
+  ; ppStateψ : auxξ -> Doc
+  [(ppStateψWrite (θ_0 ... (Write ψ) θ_1 ...))
+   ,(above* "--- Write ψ" (term (ppψ ψ)))]
+  [(ppStateψWrite auxξ) ,(empty-doc)])
+
+
+(define-metafunction coreLang
   ;ppState : auxξ -> Doc
   [(ppState auxξ)
    ,(above* (term (ppStateη auxξ))
             (term (ppStateψ auxξ))
+            (term (ppStateψWrite auxξ))
             (term (ppStateσ auxξ))
             (term (ppStateφ auxξ)))])
 

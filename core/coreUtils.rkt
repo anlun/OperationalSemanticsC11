@@ -143,12 +143,16 @@
 
 (define-metafunction coreLang
   spwST_writeψ : path auxξ -> auxξ
-  [(spwST_writeψ path auxξ) (updateState (Write ψ_old) (Write (dup path ψ_old)) auxξ)
+  [(spwST_writeψ path auxξ) (updateState (Write ψ_old)
+                                         (Write (updateOnPath path (par () ()) ψ_old))
+                                         auxξ)
                             (where ψ_old (getWriteψ auxξ))])
 
 (define-metafunction coreLang
   joinST_writeψ : path auxξ -> auxξ
-  [(joinST_writeψ path auxξ) (updateState (Write ψ_old) (Write (join path ψ_old)) auxξ)
+  [(joinST_writeψ path auxξ) (updateState (Write ψ_old)
+                                          (Write (updateOnPath path () ψ_old))
+                                          auxξ)
                              (where ψ_old (getWriteψ auxξ))])
 
 (define-metafunction coreLang
