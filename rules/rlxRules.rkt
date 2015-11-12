@@ -88,7 +88,7 @@
         (side-condition (term (ιNotInReadQueue ι path auxξ))))
 )))
 
-(define-syntax-rule (define-rlxRules lang getWriteσ isReadQueueEqualTo_t ιNotInReadQueue)
+(define-syntax-rule (define-rlxRules lang getWriteσ isReadQueueEqualTo ιNotInReadQueue)
   (begin
 
   (union-reduction-relations
