@@ -32,6 +32,7 @@
               rlxWriteRules
               relAcqWriteRules
               scRules))
+
 #|
 y_{rel,rlx}  = 1 || x_{rel,rlx}  = 1
 R1 = x_{acq,rlx} || R2 = y_{acq,rlx}
