@@ -78,7 +78,19 @@
   
   (test-equal
    (term (spwST_gr () (() (Graph (((0 skip)) ())) (GFront 0))))
-   (term (() (Graph (((1 skip) (0 skip)) ((0 1 sb)))) (GFront (par 1 1))))))
+   (term (() (Graph (((1 skip) (0 skip)) ((0 1 sb)))) (GFront (par 1 1)))))
+
+  (test-equal
+   (term (are∀PostReadsRlx () (() (P ((x "x" rlx))))))
+   #t)
+
+  (test-equal
+   (term (are∀PostReadsRlx () (() (P ((x "x" acq) (y "y" rlx))))))
+   #f)
+
+  (test-equal
+   (term (are∀PostReadsRlx () (())))
+  #t))
 (coreUtils-tests)
 
 ;;;;;;;;;;;;;;;;;

@@ -22,7 +22,7 @@
                         getWriteσ_2ψ isReadQueueEqualTo_t ιNotInReadQueue_t))
 (define relAcqRules   (define-relAcqRules   etaPsi2SCLang
                         addReadNode_t
-                        synchronizeWriteFront isReadQueueEqualTo_t addWriteNode_t))
+                        synchronizeWriteFront isReadQueueEqualTo_t are∀PostReadsRlx addWriteNode_t))
 (define naRules       (define-naRules       etaPsi2SCLang
                        addReadNode_t
                        defaultState getWriteσ_2ψ ιNotInReadQueue

@@ -322,6 +322,19 @@
   isReadQueueEqualTo_t : φ path auxξ -> boolean
   [(isReadQueueEqualTo_t φ path auxξ) #t])
 
+
+(define-metafunction coreLang
+  isRlxPostRead : any -> boolean
+  [(isRlxPostRead (vName ι-var rlx)) #t]
+  [(isRlxPostRead any)               #f])
+
+(define-metafunction coreLang
+  are∀PostReadsRlx : path auxξ -> boolean
+  [(are∀PostReadsRlx path (θ_0 ... (P φ_all) θ_1 ...))
+                            ,(andmap (λ (x) (term (isRlxPostRead ,x))) (term φ_path))
+                            (where φ_path (getByPath path φ_all))]
+  [(are∀PostReadsRlx path auxξ) #t])
+
 (define-metafunction coreLang
   ιNotInα : ι α -> boolean
   [(ιNotInα ι (any_0 ... (vName         ι RM) any_1 ...)) #f]

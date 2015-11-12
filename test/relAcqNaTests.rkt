@@ -11,6 +11,7 @@
 (define relAcqRules (define-relAcqRules etaPsiLang
                       addReadNode_t
                       synchronizeWriteFront_id isReadQueueEqualTo_t
+                      are∀PostReadsRlx
                       addWriteNode_t))
 (define naRules     (define-naRules     etaPsiLang
                       addReadNode_t

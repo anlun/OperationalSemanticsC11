@@ -43,6 +43,7 @@
 (define-syntax-rule (define-relAcqWriteRules lang
                       addReadNode
                       synchronizeWriteFront isReadQueueEqualTo
+                      are∀PostReadsRlx
                       ; TODO -> addRMWnode  -- add for success CAS
                       addWriteNode)
   (begin
@@ -69,7 +70,8 @@
         (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
         (where auxξ_new       (addWriteNode (write rel ι μ-value τ) path auxξ_upd_η))
 
-        (side-condition (term (isReadQueueEqualTo () path auxξ))))
+        ;(side-condition (term (isReadQueueEqualTo () path auxξ))))
+        (side-condition (term (are∀PostReadsRlx path auxξ))))
    
    (-->  ((in-hole E (cas SM acq ι μ-value_expected μ-value_to_write)) auxξ)
         (normalize
@@ -169,9 +171,11 @@
 (define-syntax-rule (define-relAcqRules lang
                       addReadNode
                       synchronizeWriteFront isReadQueueEqualTo
+                      are∀PostReadsRlx
                       addWriteNode)
   (begin
 
   (union-reduction-relations
    (define-acqReadRules     lang addReadNode)
-   (define-relAcqWriteRules lang addReadNode synchronizeWriteFront isReadQueueEqualTo addWriteNode))))
+   (define-relAcqWriteRules lang addReadNode synchronizeWriteFront
+     isReadQueueEqualTo are∀PostReadsRlx addWriteNode))))
