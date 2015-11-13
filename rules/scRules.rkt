@@ -13,7 +13,7 @@
   ; θ      -- extension point for auxilirary state.
   [auxξ (θ ... η θ ... (SC σ) θ ...)])
 
-(define-syntax-rule (define-scRules lang getReadσ updateReadσ synchronizeWriteFront isReadQueueEqualTo)
+(define-syntax-rule (define-scRules lang getReadσ updateReadσ synchronizeWriteFront isReadQueueEqualTo are∀postReadsRlx ιNotInReadQueue)
   (begin
   
   (reduction-relation
@@ -35,9 +35,13 @@
         (where auxξ_upd_read  (updateReadσ path σ_read_new auxξ_upd_sc))
         (where auxξ_upd_write (synchronizeWriteFront path auxξ_upd_read))
         (where η_new          (updateCell  ι μ-value σ_read_new η))
-        (where auxξ_new       (updateState η η_new auxξ_upd_write))
+        (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
+        (where auxξ_upd_γ     (addPostReadsToγ path ι τ auxξ_upd_η))
+        (where auxξ_new       auxξ_upd_γ)
 
-        (side-condition (term (isReadQueueEqualTo () path auxξ))))
+        ;(side-condition (term (isReadQueueEqualTo () path auxξ))))
+        (side-condition (term (are∀PostReadsRlx  path auxξ)))
+        (side-condition (term (ιNotInReadQueue ι path auxξ))))
       
    (-->  ((in-hole E (read   sc ι)) auxξ)
         (normalize
