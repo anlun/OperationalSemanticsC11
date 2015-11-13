@@ -53,7 +53,7 @@
 
    (-->  ((in-hole E (write rel ι μ-value)) auxξ)
         (normalize
-         ((in-hole E (ret 0))               auxξ_new))
+         ((in-hole E (ret μ-value))         auxξ_new))
         "write-rel"
         (where η      (getη auxξ))
         (where ψ      (getReadψ auxξ))
