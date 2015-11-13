@@ -173,6 +173,17 @@
    ,(pp-par "par" (term (ppφ φ_0))
                   (term (ppφ φ_1)))])
 
+(define-metafunction coreLang
+  ; ppγ : γ -> Doc
+  [(ppγ γ) ,(above**
+             (map (λ (h)
+                    (match h
+                      [(list l t name)
+                       (beside*/space (term (ppι-var ,l))
+                                      (number->string t)
+                                      (symbol->string name))]))
+                  (term γ)))])
+
 ; -----
 (define-metafunction coreLang
   ; ppStateη : auxξ -> Doc
@@ -199,6 +210,12 @@
   [(ppStateφ auxξ) ,(empty-doc)])
 
 (define-metafunction coreLang
+  ; ppStateγ : auxξ -> Doc
+  [(ppStateγ (θ_0 ... (R γ) θ_1 ...))
+   ,(above* "--- R γ" (term (ppγ γ)))]
+  [(ppStateγ auxξ) ,(empty-doc)])
+
+(define-metafunction coreLang
   ; ppStateψ : auxξ -> Doc
   [(ppStateψWrite (θ_0 ... (Write ψ) θ_1 ...))
    ,(above* "--- Write ψ" (term (ppψ ψ)))]
@@ -212,7 +229,8 @@
             (term (ppStateψ auxξ))
             (term (ppStateψWrite auxξ))
             (term (ppStateσ auxξ))
-            (term (ppStateφ auxξ)))])
+            (term (ppStateφ auxξ))
+            (term (ppStateγ auxξ)))])
 
 (define (write-text-state t txt)
   (send txt insert
