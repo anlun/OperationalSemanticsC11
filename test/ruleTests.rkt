@@ -14,7 +14,7 @@
 ;;;;;;;;;;;;;;;;;;
 
 (define naRules
-  (define-naRules etaPsiLang addReadNode_t etaPsiDefaultState getWriteσ_nil ιNotInReadQueue_t addWriteNode_t))
+  (define-naRules etaPsiLang addReadNode_t etaPsiDefaultState getWriteσ_nil ιNotInReadQueue addWriteNode_t))
 
 (define naStep
   (union-reduction-relations etaPsiCoreStep naRules))
@@ -54,7 +54,7 @@ Can lead to R1 = R2 = 0.
 
 (define rlxReadRules  (define-rlxReadRules etaPsiLang))
 (define rlxRules      (define-rlxRules     etaPsiLang
-                        getWriteσ_nil isReadQueueEqualTo_t ιNotInReadQueue_t))
+                        getWriteσ_nil isReadQueueEqualTo_t ιNotInReadQueue))
 (define rlxStep       (union-reduction-relations etaPsiCoreStep rlxRules))
 
 #|
