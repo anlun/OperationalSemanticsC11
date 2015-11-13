@@ -68,7 +68,8 @@
         (where auxξ_upd_write (synchronizeWriteFront path auxξ_upd_read))
         (where η_new          (updateCell ι μ-value σ_new η))
         (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
-        (where auxξ_new       (addWriteNode (write rel ι μ-value τ) path auxξ_upd_η))
+        (where auxξ_upd_γ     (addPostReadsToγ path ι τ auxξ_upd_η))
+        (where auxξ_new       (addWriteNode (write rel ι μ-value τ) path auxξ_upd_γ))
 
         ;(side-condition (term (isReadQueueEqualTo () path auxξ))))
         (side-condition (term (are∀PostReadsRlx  path auxξ)))
