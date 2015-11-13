@@ -64,11 +64,12 @@
   ; η        -- current heap history;
   ; (Read ψ) -- current threads read fronts;
   ; (NA   σ) -- location -> last NA write on it;
-  ; φ        -- component for postponed reads;
+  ; (P    φ) -- component with thread-specific information about postponed reads;
+  ; (R    γ) -- component with restiction on a resolve order for postponed reads;
   ; θ        -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ... (NA σ) θ ... (P φ) θ ...)])
+  [auxξ (θ ... η θ ... (Read ψ) θ ... (NA σ) θ ... (P φ) θ ... (R γ) θ ...)])
 
-(define-term postponedReadDefaultState (() (Read ()) (NA ()) (P ())))
+(define-term postponedReadDefaultState (() (Read ()) (NA ()) (P ()) (R ())))
 (define postponedReadCoreStep
   (extend-reduction-relation
    (define-coreStep postponedReadDefaultState spwST_readψ_φ joinST_readψ_φ isReadQueueEqualTo)
@@ -76,7 +77,7 @@
 (define postponedReadCoreTest (define-coreTest postponedReadCoreStep postponedReadDefaultState))
 
 (define-extended-language etaPsi2SCpostLang coreLang
-  [auxξ (η (Read ψ) (NA ()) (Write ψ) (SC σ) (P φ))])
+  [auxξ (η (Read ψ) (NA σ) (Write ψ) (SC σ) (P φ) (R γ))])
 
 (define-extended-language graphLang coreLang
   [auxξ (η (Graph G) (GFront GF))])

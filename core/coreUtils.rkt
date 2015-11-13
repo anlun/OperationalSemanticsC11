@@ -181,6 +181,10 @@
   [(getφ (θ_0 ... (P φ) θ_1 ...)) φ])
 
 (define-metafunction coreLang
+  getγ : auxξ -> γ
+  [(getγ (θ_0 ... (R γ) θ_1 ...)) γ])
+
+(define-metafunction coreLang
   pathEp : Ep -> path
   [(pathEp hole) ()]
   [(pathEp (par Ep φ)) (L (pathEp Ep))]
@@ -347,6 +351,22 @@
                                  (ιNotInα ι α)
                                  (where α (getByPath path φ))]
   [(ιNotInReadQueue ι path auxξ) #t])
+
+
+(define-metafunction coreLang
+  αToγRecords : ι τ α -> γ
+  [(αToγRecords ι τ α) ,(map
+                         (λ (x) (match x [(list vName locvar mod)
+                                          (list (term ι) (term τ) vName)]))
+                         (term α))])
+
+(define-metafunction coreLang
+  addPostReadsToγ : path ι τ auxξ -> auxξ
+  [(addPostReadsToγ path ι τ (θ_0 ... (P φ) θ_1 ... (R γ) θ_2 ...))
+   (θ_0 ... (P φ) θ_1 ... (R γ_new) θ_2 ...)
+   (where α (getByPath path φ))
+   (where γ_new ,(append (term (αToγRecords ι τ α)) (term γ)))]
+  [(addPostReadsToγ path ι τ auxξ) auxξ])
 
 (define-metafunction coreLang
   isFirstRecord : vName ι α -> boolean

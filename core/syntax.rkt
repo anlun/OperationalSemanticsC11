@@ -102,6 +102,7 @@
   [φ α
      (par φ φ)]
   [α ((vName ι-var RM) ...)]
+  [γ ((ι τ vName) ...)]
 
   [Ep hole
       (par Ep φ)

@@ -10,7 +10,7 @@
 (require "testTerms.rkt")
 (require "../core/langs.rkt")
 
-(define-term defaultState (() (Read ()) (NA ()) (Write ()) (SC ()) (P ())))
+(define-term defaultState (() (Read ()) (NA ()) (Write ()) (SC ()) (P ()) (R ())))
 (define coreStep
   (extend-reduction-relation
    (define-coreStep defaultState spwST_2ψ_φ joinST_2ψ_φ isReadQueueEqualTo)
