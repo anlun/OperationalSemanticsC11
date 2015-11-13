@@ -27,7 +27,7 @@
                       addWriteNode))
 (define naRules     (define-naRules     etaPsiGraphLang
                       addReadNode
-                      defaultState getWriteσ_nil ιNotInReadQueue_t
+                      defaultState getWriteσ_nil ιNotInReadQueue
                       addWriteNode))
 (define step        (union-reduction-relations coreStep relAcqRules naRules))
 

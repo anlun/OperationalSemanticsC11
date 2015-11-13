@@ -326,12 +326,10 @@
 
 (define-metafunction coreLang
   ιNotInReadQueue : ι path auxξ -> boolean
-  [(ιNotInReadQueue ι path auxξ) (ιNotInα ι α)
-                                 (where φ (getφ auxξ))
-                                 (where α (getByPath path φ))])
-(define-metafunction coreLang
-  ιNotInReadQueue_t : ι path auxξ -> boolean
-  [(ιNotInReadQueue_t ι path auxξ) #t])
+  [(ιNotInReadQueue ι path (θ_0 ... (P φ) θ_1 ...))
+                                 (ιNotInα ι α)
+                                 (where α (getByPath path φ))]
+  [(ιNotInReadQueue ι path auxξ) #t])
 
 (define-metafunction coreLang
   isFirstRecord : vName ι α -> boolean
