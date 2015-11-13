@@ -396,6 +396,29 @@
 (define-metafunction coreLang
   getσToWrite : σ ι η -> σ
   [(getσToWrite σ_write ι η) σ
-                               (where ((ι_0 τ_0) ... (ι τ) (ι_1 τ_1) ...) σ_write)
-                               (where ((τ μ-value σ)) (getCellHistory ι η))]
+                               (where (Just τ) (lookup ι σ_write))
+                               (where (Just (μ-value σ)) (lookup2 τ (getCellHistory ι η)))]
   [(getσToWrite σ_write ι η) ()])
+
+(define-metafunction coreLang
+  dupγ : ι τ τ γ -> γ
+  [(dupγ ι τ_new τ_old γ)
+   ,(append (term γ_dup) (term γ))
+   (where γ_filtered ,(filter (λ (x)
+                                (match x
+                                  [(list loc t vName)
+                                   (and (equal? loc (term ι))
+                                        (equal? t   (term τ_old)))]))
+                              (term γ)))
+   (where γ_dup ,(map (λ (x) (match x
+                               [(list loc t vName)
+                                (list loc (term τ_new) vName)]))
+                      (term γ_filtered)))])
+
+(define-metafunction coreLang
+  dupRelWriteRestrictions : ι τ σ auxξ -> auxξ
+  [(dupRelWriteRestrictions ι τ_rlx σ_write (θ_0 ... (R γ) θ_1 ...))
+   (θ_0 ... (R γ_new) θ_1 ...)
+   (where (Just τ_rel) (lookup ι σ_write))
+   (where γ_new (dupγ ι τ_rlx τ_rel γ))]
+  [(dupRelWriteRestrictions ι τ σ_write auxξ) auxξ])

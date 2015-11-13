@@ -7,7 +7,7 @@
 
 (define-metafunction coreLang
   isRestrictedByγ : ι τ RM γ -> boolean
-  [(isRestrictedByγ ι τ RM (any ... (ι τ vName) any ...)) #t
+  [(isRestrictedByγ ι τ RM (any_0 ... (ι τ vName) any_1 ...)) #t
    (side-condition (mo<=? (term acq) (term RM)))]
   [(isRestrictedByγ ι τ RM γ) #f])
 

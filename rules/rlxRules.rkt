@@ -46,8 +46,12 @@
         (where σ_write    (getWriteσ path auxξ))
         (where σ_ToWrite  (updateFront ι τ (getσToWrite σ_write ι η)))
         (where η_new      (updateCell  ι μ-value σ_ToWrite η))
-        (where auxξ_new   (updateState η η_new auxξ_upd_front))
+        (where auxξ_upd_η (updateState η η_new auxξ_upd_front))
 
+        (where auxξ_upd_γ (dupRelWriteRestrictions ι τ σ_write auxξ_upd_η))
+        (where auxξ_new   auxξ_upd_γ)
+
+        (side-condition (term (are∀PostReadsRlx  path auxξ)))
         (side-condition (term (ιNotInReadQueue ι path auxξ))))
 
    (-->  ((in-hole E (cas SM rlx ι μ-value_expected μ-value)) auxξ)
