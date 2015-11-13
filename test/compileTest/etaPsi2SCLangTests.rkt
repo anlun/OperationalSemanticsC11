@@ -30,6 +30,7 @@
                        defaultState getWriteσ_2ψ ιNotInReadQueue
                        addWriteNode_t))
 (define scRules       (define-scRules     etaPsi2SCLang
-                       getReadσ updateReadσ synchronizeWriteFront isReadQueueEqualTo_t))
+                       getReadσ updateReadσ synchronizeWriteFront isReadQueueEqualTo_t
+                       are∀PostReadsRlx ιNotInReadQueue))
 (define step          (union-reduction-relations
                        coreStep rlxReadRules rlxWriteRules relAcqRules naRules scRules))

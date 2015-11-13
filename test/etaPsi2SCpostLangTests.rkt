@@ -26,7 +26,8 @@
                              are∀PostReadsRlx ιNotInReadQueue 
                              addWriteNode_t))
 (define scRules            (define-scRules            etaPsi2SCpostLang
-                             getReadσ updateReadσ synchronizeWriteFront isReadQueueEqualTo))
+                             getReadσ updateReadσ synchronizeWriteFront isReadQueueEqualTo
+                             are∀PostReadsRlx ιNotInReadQueue))
 (define step (union-reduction-relations
               coreStep
               postponedReadRules
