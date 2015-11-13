@@ -478,3 +478,43 @@ Should lead to `stuck` because of VafeiadisNarayan:OOPSLA (ConsistentRFna) ---
                (write na  "x" 2)))
               (read acq "x"))))))
 
+#|
+   x_rlx = 0; y_rlx = 0;
+R1 = x_mod0 || R2 = y_mod2
+y_mod1  = 1 || x_mod3  = 1
+            || x_mod4  = 2
+|#
+(define (term_RW_RWW_gen mod0 mod1 mod2 mod3 mod4)
+  (term
+   ((write rlx "x" 0) >>= (λ z
+   ((write rlx "y" 0) >>= (λ z
+   ((spw
+     ((read  ,mod0 "x")   >>= (λ x
+     ((write ,mod1 "y" 1) >>= (λ z
+      (ret x)))))
+     ((read  ,mod2 "y")   >>= (λ y
+     ((write ,mod3 "x" 1) >>= (λ z
+     ((write ,mod4 "x" 2) >>= (λ z
+      (ret y))))))))
+     >>=
+     (λ x (ret x)))))))))
+
+#|
+   x_rlx = 0; y_rlx = 0;
+R1 = x_rlx || R2 = y_rlx
+y_rlx  = 1 || x_rlx  = 1
+           || x_rlx  = 2
+
+With postponed reads it should be able to lead to R1 = 2; R1 = 1.
+|#
+(define term_RrlxWrlx_RrlxWrlxWrlx (term_RW_RWW_gen 'rlx 'rlx 'rlx 'rlx 'rlx)) 
+
+#|
+   x_rlx = 0; y_rlx = 0;
+R1 = x_acq || R2 = y_rlx
+y_rlx  = 1 || x_rel  = 1
+           || x_rlx  = 2
+
+With postponed reads it shouldn't lead to R1 = 2; R1 = 1.
+|#
+(define term_RacqWrlx_RrlxWrelWrlx (term_RW_RWW_gen 'acq 'rlx 'rlx 'rel 'rlx)) 

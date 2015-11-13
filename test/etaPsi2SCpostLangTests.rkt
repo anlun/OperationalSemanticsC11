@@ -113,3 +113,18 @@ x_rel = a    || res = b_rlx
           (term (,testTerm11 defaultState))
           (term ((ret 0) defaultState))
           (term ((ret 239) defaultState)))
+
+#|
+   x_rlx = 0; y_rlx = 0;
+R1 = x_acq || R2 = y_rlx
+y_rlx  = 1 || x_rel  = 1
+           || x_rlx  = 2
+
+With postponed reads it shouldn't lead to R1 = 2; R1 = 1.
+|#
+(test-->> step
+          (term (,term_RacqWrlx_RrlxWrelWrlx defaultState))
+          (term ((ret (0 0)) defaultState))
+          (term ((ret (1 0)) defaultState))
+          (term ((ret (2 0)) defaultState))
+          (term ((ret (0 1)) defaultState)))
