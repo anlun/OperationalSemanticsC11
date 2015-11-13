@@ -5,6 +5,19 @@
 (require "../core/coreUtils.rkt")
 (provide define-postponedReadRules) 
 
+(define-metafunction coreLang
+  isRestrictedByγ : ι τ RM γ -> boolean
+  [(isRestrictedByγ ι τ RM (any ... (ι τ vName) any ...)) #t
+   (side-condition (mo<=? (term acq) (term RM)))]
+  [(isRestrictedByγ ι τ RM γ) #f])
+
+(define-metafunction coreLang
+  removeγRestrictionsByVName : vName γ -> γ
+  [(removeγRestrictionsByVName vName γ)
+   ,(filter (λ (x) (match x [(list loc t name)
+                             (not (equal? name (term vName)))]))
+            (term γ))])
+
 (define-syntax-rule (define-postponedReadRules lang)
   (begin
 
@@ -43,12 +56,18 @@
 
         (where α_new      (substμα vName μ-value (elToList El_0)))
         (where φ_new      (updateOnPath path α_new φ))
-        (where auxξ_new   (updateState (P φ) (P φ_new) auxξ_upd_ψ))
+        (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ_upd_ψ))
+
+        (where γ          (getγ auxξ))
+        (where γ_new      (removeγRestrictionsByVName vName γ))
+        (where auxξ_new   (updateState (R γ) (R γ_new) auxξ_upd_φ))
 
         (where σ_read   (getByPath path ψ_read))
         (side-condition (not (empty? (term α))))
         (side-condition (term (correctτ τ ι σ_read)))
-        (side-condition (term (isFirstRecord vName ι α))))
+        (side-condition (term (isFirstRecord vName ι α)))
+
+        (side-condition (not (term (isRestrictedByγ ι τ RM γ)))))
 
    (--> (AST auxξ)
         (stuck defaultState)
