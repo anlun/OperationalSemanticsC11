@@ -19,10 +19,12 @@
 
 (define rlxReadRules  (define-rlxReadRules  etaPsi2SCLang))
 (define rlxWriteRules (define-rlxWriteRules etaPsi2SCLang
-                        getWriteσ_2ψ isReadQueueEqualTo_t ιNotInReadQueue_t))
+                        getWriteσ_2ψ isReadQueueEqualTo_t ιNotInReadQueue))
 (define relAcqRules   (define-relAcqRules   etaPsi2SCLang
                         addReadNode_t
-                        synchronizeWriteFront isReadQueueEqualTo_t are∀PostReadsRlx addWriteNode_t))
+                        synchronizeWriteFront isReadQueueEqualTo_t
+                        are∀PostReadsRlx ιNotInReadQueue
+                        addWriteNode_t))
 (define naRules       (define-naRules       etaPsi2SCLang
                        addReadNode_t
                        defaultState getWriteσ_2ψ ιNotInReadQueue

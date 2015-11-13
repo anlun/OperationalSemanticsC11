@@ -71,8 +71,8 @@
         (where auxξ_new       (addWriteNode (write rel ι μ-value τ) path auxξ_upd_η))
 
         ;(side-condition (term (isReadQueueEqualTo () path auxξ))))
-        (side-condition (term (are∀PostReadsRlx path auxξ))))
-        (side-condition (term (ιNotInReadQueue ιpath auxξ))))
+        (side-condition (term (are∀PostReadsRlx  path auxξ)))
+        (side-condition (term (ιNotInReadQueue ι path auxξ))))
    
    (-->  ((in-hole E (cas SM acq ι μ-value_expected μ-value_to_write)) auxξ)
         (normalize
@@ -167,7 +167,7 @@
         
         (side-condition
          (term (succCAScondition ι η μ-value_expected relAcq FM)))
-        (side-condition (term (isReadQueueEqualTo () path auxξ))))))
+        (side-condition (term (isReadQueueEqualTo () path auxξ)))))))
 
 (define-syntax-rule (define-relAcqRules lang
                       addReadNode

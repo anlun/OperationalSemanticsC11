@@ -23,7 +23,7 @@
 (define relAcqWriteRules   (define-relAcqWriteRules   etaPsi2SCpostLang
                              addReadNode_t
                              synchronizeWriteFront isReadQueueEqualTo
-                             are∀PostReadsRlx 
+                             are∀PostReadsRlx ιNotInReadQueue 
                              addWriteNode_t))
 (define scRules            (define-scRules            etaPsi2SCpostLang
                              getReadσ updateReadσ synchronizeWriteFront isReadQueueEqualTo))

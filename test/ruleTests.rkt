@@ -34,7 +34,9 @@ It should get `stuck`.
 
 (define relAcqRules
   (define-relAcqRules etaPsiLang addReadNode_t
-    synchronizeWriteFront_id isReadQueueEqualTo_t are∀PostReadsRlx addWriteNode_t))
+    synchronizeWriteFront_id isReadQueueEqualTo_t
+    are∀PostReadsRlx ιNotInReadQueue
+    addWriteNode_t))
 (define relAcqStep
   (union-reduction-relations etaPsiCoreStep relAcqRules))
 
