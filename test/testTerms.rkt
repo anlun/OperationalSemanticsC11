@@ -576,3 +576,27 @@ R1 = y_rlx || ret 0 || R2 = x_acq || ret 0
                ret (R1 R2)
 |#
 (define term_Rrlx-Wrel_Racq-Wrel (term_R-W_R-W_gen 'rlx 'rel 'acq 'rel))
+
+#|
+
+             x_rlx = 0; y_rlx = 0
+y_rlx = 1 || cas_rlx,rlx(x, 1, 2) || r1 = x_acq
+x_rel = 1 ||                      || r2 = y_rlx
+
+It's impossible to get r1 = 2; r2 = 0, due to synchronization through
+RMW (cas) operation.
+|#
+(define term_WrlxWrel_RMWrlxrlx_RacqRrlx
+  (term
+   ((write rlx "x" 0) >>= (λ z
+   ((write rlx "y" 0) >>= (λ z
+   ((spw
+     (spw
+       ((write rlx "y" 1) >>= (λ z
+        (write rel "x" 1)))
+       (cas rlx rlx "x" 1 2))
+     ((read acq "x") >>= (λ x
+     ((read rlx "y") >>= (λ y
+      (ret (x y)))))))
+     >>=
+    (λ x (ret (proj2 x))))))))))

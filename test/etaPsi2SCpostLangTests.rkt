@@ -145,7 +145,6 @@ If there is no Rel-Acq pair, then R1 = R2 = 1 should be possible.
 (test_R-W_R-W_11 term_Racq-Wrlx_Racq-Wrlx)
 (test_R-W_R-W_11 term_Rrlx-Wrel_Rrlx-Wrel)
 
-
 (define (test_R-W_R-W_n11 curTerm)
   (test-->> step
           (term (,curTerm defaultState))
@@ -153,3 +152,19 @@ If there is no Rel-Acq pair, then R1 = R2 = 1 should be possible.
           (term ((ret (1 0)) defaultState))
           (term ((ret (0 1)) defaultState))))
 (test_R-W_R-W_n11 term_Rrlx-Wrel_Racq-Wrel)
+
+#|
+
+             x_rlx = 0; y_rlx = 0
+y_rlx = 1 || cas_rlx,rlx(x, 1, 2) || r1 = x_acq
+x_rel = 1 ||                      || r2 = y_rlx
+
+It's impossible to get r1 = 2; r2 = 0, due to synchronization through
+RMW (cas) operation.
+|#
+(test-->> step
+          (term (,term_WrlxWrel_RMWrlxrlx_RacqRrlx defaultState))
+          (term ((ret (0 0)) defaultState))
+          (term ((ret (0 1)) defaultState))
+          (term ((ret (1 1)) defaultState))
+          (term ((ret (2 1)) defaultState)))
