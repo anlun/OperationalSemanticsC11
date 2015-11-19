@@ -34,7 +34,6 @@
               rlxWriteRules
               relAcqWriteRules
               scRules))
-
 #|
 y_{rel,rlx}  = 1 || x_{rel,rlx}  = 1
 R1 = x_{acq,rlx} || R2 = y_{acq,rlx}
@@ -43,7 +42,7 @@ Can lead to R1 = R2 = 0.
 |#
 (define (test_WR_WR_00 curTerm)
   (test-->>∃ step
-          (term (,term_WrlxRrlx_WrlxRrlx  defaultState))
+          (term (,curTerm  defaultState))
           (term ((ret (0 0)) defaultState))))
 (test_WR_WR_00 term_WrlxRrlx_WrlxRrlx)
 (test_WR_WR_00 term_WrelRacq_WrelRacq)
@@ -168,3 +167,34 @@ RMW (cas) operation.
           (term ((ret (0 1)) defaultState))
           (term ((ret (1 1)) defaultState))
           (term ((ret (2 1)) defaultState)))
+
+#|
+   x_rlx = 0; y_rlx = 1
+x_mod0 = 1  || y_mod2 = 2
+r1 = y_mod1 || r2 = x_mod3
+       ret (r1 r2)
+|#
+(define (test_W1R_W2R curTerm)
+  (test-->>∃ step
+           (term (,curTerm defaultState))
+           (term ((ret (1 0)) defaultState))))
+
+(test_W1R_W2R term_W1rlxRrlx_W2rlxRrlx)
+(test_W1R_W2R term_W1relRrlx_W2relRrlx)
+(test_W1R_W2R term_W1relRacq_W2relRacq)
+
+#|
+   x_rlx = 0; y_rlx = 1
+x_sc = 1  || y_rel = 2
+r1 = y_sc || r2 = x_acq
+       ret (r1 r2)
+|#
+(test_W1R_W2R term_W1scRsc_W2relRacq)
+
+#|
+   x_rlx = 0; y_rlx = 1
+x_sc = 1  || y_sc = 2
+r1 = y_sc || r2 = x_acq
+       ret (r1 r2)
+|#
+(test_W1R_W2R term_W1scRsc_W2scRacq)

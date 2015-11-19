@@ -600,3 +600,27 @@ RMW (cas) operation.
       (ret (x y)))))))
      >>=
     (λ x (ret (proj2 x))))))))))
+
+
+#|
+   x_rlx = 0; y_rlx = 1
+x_mod0 = 1  || y_mod2 = 2
+r1 = y_mod1 || r2 = x_mod3
+       ret (r1 r2)
+|#
+(define (term_W1R_W2R_gen mod0 mod1 mod2 mod3)
+  (term
+   ((write rlx "x" 0) >>= (λ z
+   ((write rlx "y" 0) >>= (λ z
+    (spw
+     ((write ,mod0 "x" 1) >>= (λ z
+      (read  ,mod1 "y")))
+     ((write ,mod2 "y" 1) >>= (λ z
+      (read  ,mod3 "x"))))))))))
+
+(define term_W1rlxRrlx_W2rlxRrlx (term_W1R_W2R_gen 'rlx 'rlx 'rlx 'rlx))
+(define term_W1relRrlx_W2relRrlx (term_W1R_W2R_gen 'rel 'rlx 'rel 'rlx))
+(define term_W1relRacq_W2relRacq (term_W1R_W2R_gen 'rel 'acq 'rel 'acq))
+(define term_W1scRsc_W2relRacq   (term_W1R_W2R_gen 'sc  'sc  'rel 'acq))
+(define term_W1scRsc_W2scRacq    (term_W1R_W2R_gen 'sc  'sc  'sc  'acq))
+(define term_W1scRsc_W2scRsc     (term_W1R_W2R_gen 'sc  'sc  'sc  'sc ))
