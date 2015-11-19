@@ -84,7 +84,7 @@
         (where auxξ_upd_read (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
 
         (where σ_write    (updateFront ι τ (getWriteσ path auxξ)))
-        (where η_new      (updateCell  ι μ-value σ_write η))
+        (where η_new      (updateCell  ι μ-value_new σ_write η))
         (where auxξ_new   (updateState η η_new auxξ_upd_read))
 
         (side-condition
