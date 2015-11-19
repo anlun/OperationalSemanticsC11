@@ -128,3 +128,28 @@ With postponed reads it shouldn't lead to R1 = 2; R1 = 1.
           (term ((ret (1 0)) defaultState))
           (term ((ret (2 0)) defaultState))
           (term ((ret (0 1)) defaultState)))
+
+#|
+            x_rlx = 0; y_rlx = 0
+R1 = y_mod0 || ret 0 || R2 = x_mod2 || ret 0
+     x_mod1 = 1      ||      y_mod3 = 1
+                ret (R1 R2)
+
+If there is no Rel-Acq pair, then R1 = R2 = 1 should be possible.
+|#
+(define (test_R-W_R-W_11 curTerm)
+  (test-->>∃ step
+          (term (,curTerm defaultState))
+          (term ((ret (1 1)) defaultState))))
+(test_R-W_R-W_11 term_Rrlx-Wrlx_Rrlx-Wrlx)
+(test_R-W_R-W_11 term_Racq-Wrlx_Racq-Wrlx)
+(test_R-W_R-W_11 term_Rrlx-Wrel_Rrlx-Wrel)
+
+
+(define (test_R-W_R-W_n11 curTerm)
+  (test-->> step
+          (term (,curTerm defaultState))
+          (term ((ret (0 0)) defaultState))
+          (term ((ret (1 0)) defaultState))
+          (term ((ret (0 1)) defaultState))))
+(test_R-W_R-W_n11 term_Rrlx-Wrel_Racq-Wrel)

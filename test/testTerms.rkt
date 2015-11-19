@@ -500,7 +500,7 @@ y_mod1  = 1 || x_mod3  = 1
      (λ x (ret x)))))))))
 
 #|
-   x_rlx = 0; y_rlx = 0;
+   x_rlx = 0; y_rlx = 0
 R1 = x_rlx || R2 = y_rlx
 y_rlx  = 1 || x_rlx  = 1
            || x_rlx  = 2
@@ -510,7 +510,7 @@ With postponed reads it should be able to lead to R1 = 2; R1 = 1.
 (define term_RrlxWrlx_RrlxWrlxWrlx (term_RW_RWW_gen 'rlx 'rlx 'rlx 'rlx 'rlx)) 
 
 #|
-   x_rlx = 0; y_rlx = 0;
+   x_rlx = 0; y_rlx = 0
 R1 = x_acq || R2 = y_rlx
 y_rlx  = 1 || x_rel  = 1
            || x_rlx  = 2
@@ -518,3 +518,61 @@ y_rlx  = 1 || x_rel  = 1
 With postponed reads it shouldn't lead to R1 = 2; R1 = 1.
 |#
 (define term_RacqWrlx_RrlxWrelWrlx (term_RW_RWW_gen 'acq 'rlx 'rlx 'rel 'rlx)) 
+
+#|
+            x_rlx = 0; y_rlx = 0
+R1 = y_mod0 || ret 0 || R2 = x_mod2 || ret 0
+     x_mod1 = 1      ||      y_mod3 = 1
+                ret (R1 R2)
+|#
+(define (term_R-W_R-W_gen mod0 mod1 mod2 mod3)
+  (term
+   ((write rlx "x" 0) >>= (λ z
+   ((write rlx "y" 0) >>= (λ z
+   ((spw
+     ((spw
+       (read  ,mod0 "y")
+       (ret 0))
+      >>= (λ y
+      ((write ,mod1 "x" 1) >>= (λ z
+       (ret (proj1 y))))))
+     ((spw
+       (read  ,mod2 "x")
+       (ret 0))
+      >>= (λ x
+      ((write ,mod3 "y" 1) >>= (λ z
+       (ret (proj1 x)))))))
+    >>=
+    (λ x (ret x)))))))))
+
+#|
+           x_rlx = 0; y_rlx = 0
+R1 = y_rlx || ret 0 || R2 = x_rlx || ret 0
+     x_rlx = 1      ||      y_rlx = 1
+               ret (R1 R2)
+|#
+(define term_Rrlx-Wrlx_Rrlx-Wrlx (term_R-W_R-W_gen 'rlx 'rlx 'rlx 'rlx))
+
+#|
+           x_rlx = 0; y_rlx = 0
+R1 = y_acq || ret 0 || R2 = x_acq || ret 0
+     x_rlx = 1      ||      y_rlx = 1
+               ret (R1 R2)
+|#
+(define term_Racq-Wrlx_Racq-Wrlx (term_R-W_R-W_gen 'acq 'rlx 'acq 'rlx))
+
+#|
+           x_rlx = 0; y_rlx = 0
+R1 = y_rlx || ret 0 || R2 = x_rlx || ret 0
+     x_rel = 1      ||      y_rel = 1
+               ret (R1 R2)
+|#
+(define term_Rrlx-Wrel_Rrlx-Wrel (term_R-W_R-W_gen 'rlx 'rel 'rlx 'rel))
+
+#|
+           x_rlx = 0; y_rlx = 0
+R1 = y_rlx || ret 0 || R2 = x_acq || ret 0
+     x_rel = 1      ||      y_rel = 1
+               ret (R1 R2)
+|#
+(define term_Rrlx-Wrel_Racq-Wrel (term_R-W_R-W_gen 'rlx 'rel 'acq 'rel))
