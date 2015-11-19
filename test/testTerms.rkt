@@ -64,7 +64,7 @@ r1 = y_{sc,rel} || r2 = x_{sc,rel}
 (define term_WscRsc_WscRacq (term_WR_WR_gen 'rel 'rel 'sc 'sc 'sc 'acq))
 
 #|
-   x_rlx = 0; y_rlx = 0;
+   x_rlx = 0; y_rlx = 0
 R1 = x_mod0 || R2 = y_mod2
 y_mod1  = 1 || x_mod3  = 1
 |#
@@ -143,9 +143,9 @@ It should get `stuck`.
                    (write na "x" 2))))
 
 #|
-       c_rel = 0;
-a_na  = 7; || repeat (c_acq) end;
-c_rel = 1  || a_na = a_na + 1
+       c_rel = 0
+a_na  = 7 || repeat (c_acq) end
+c_rel = 1 || a_na = a_na + 1
        ret a_na
 
 Example from: Vafeiadis-Narayan:OOPSLA13
@@ -165,9 +165,9 @@ It shouldn't get `stuck`.
                     >>= (λ x (read na "a")))))
 
 #|
-       c_rlx = 0;
-a_na  = 7; || repeat (c_rlx) end;
-c_rlx = 1  || a_na = a_na + 1
+       c_rlx = 0
+a_na  = 7 || repeat (c_rlx) end
+c_rlx = 1 || a_na = a_na + 1
        ret a_na
 
 Example from: Vafeiadis-Narayan:OOPSLA13
@@ -187,9 +187,9 @@ It uses rlx writes and reads instead of rel/acq, and it leads to `stuck`.
                     >>= (λ x (read na "a")))))
 
 #|
-       c_rlx = 0;
-a_rlx = 7; || if (c_acq)
-c_rel = 1  ||   a_rlx = a_rlx + 1
+       c_rlx = 0
+a_rlx = 7 || if (c_acq)
+c_rel = 1 ||   a_rlx = a_rlx + 1
        ret a_rlx
 |#
 (define testTerm3-1
@@ -207,9 +207,9 @@ c_rel = 1  ||   a_rlx = a_rlx + 1
                     >>= (λ x (read rlx "a")))))
 
 #|
-       c_sc = 0;
-a_na  = 7; || repeat (c_sc) end;
-c_sc = 1   || a_na = a_na + 1
+       c_sc = 0
+a_na  = 7 || repeat (c_sc) end
+c_sc = 1  || a_na = a_na + 1
        ret a_na
 
 Version with SC modifiers instead of Rel/Acq.
@@ -231,10 +231,10 @@ It shouldn't get `stuck`.
                     >>= (λ x (read na "a")))))
 
 #|
-         f_rel = 0;
-         d_na  = 0'
-d_na  = 239; || repeat (f_acq) end;
-f_rel = 1    || r1 = d_na
+        f_rel = 0
+        d_na  = 0'
+d_na  = 239 || repeat (f_acq) end
+f_rel = 1   || r1 = d_na
            ret r1
 
 Example from: Vafeiadis-Narayan:OOPSLA13
@@ -255,9 +255,9 @@ It shouldn't get `stuck`.
 #|
 Dekker's lock doesn't work in weak memory settings (and in our model).
 
-               x_rel = 0;
-               y_rel = 0;
-x_rel = 1;         || y_rel = 1;
+               x_rel = 0
+               y_rel = 0
+x_rel = 1          || y_rel = 1
 if y_acq == 0 then || if x_acq == 0 then
   a_na = 239            a_na = 30
 
@@ -281,10 +281,10 @@ It should get `stuck` because of concurrent non-atomic writes.
 Ernie Cohen's lock should work in weak memory settings.
 Described in Turon-al:OOPSLA14.
 
-                   x_rel = 0;
-                   y_rel = 0;
-x_rel = choice(1, 2);  || y_rel = choice(1, 2); 
-repeat y_acq end;      || repeat x_acq end;
+                  x_rel = 0
+                  y_rel = 0
+x_rel = choice(1, 2)  || y_rel = choice(1, 2) 
+repeat y_acq end      || repeat x_acq end
 if x_acq == y_acq then || if x_acq != y_acq then
   a_na = 239           ||   a_na = 239
 
@@ -479,7 +479,7 @@ Should lead to `stuck` because of VafeiadisNarayan:OOPSLA (ConsistentRFna) ---
               (read acq "x"))))))
 
 #|
-   x_rlx = 0; y_rlx = 0;
+   x_rlx = 0; y_rlx = 0
 R1 = x_mod0 || R2 = y_mod2
 y_mod1  = 1 || x_mod3  = 1
             || x_mod4  = 2
