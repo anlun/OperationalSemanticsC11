@@ -33,7 +33,7 @@
    
    (-->  ((in-hole E (write rlx ι μ-value)) auxξ)
         (normalize
-         ((in-hole E (ret 0))               auxξ_new))
+         ((in-hole E (ret μ-value))         auxξ_new))
         "write-rlx"
         (where η       (getη auxξ))
         (where ψ_read  (getReadψ auxξ))
@@ -54,9 +54,9 @@
         (side-condition (term (are∀PostReadsRlx  path auxξ)))
         (side-condition (term (ιNotInReadQueue ι path auxξ))))
 
-   (-->  ((in-hole E (cas SM rlx ι μ-value_expected μ-value)) auxξ)
+   (-->  ((in-hole E (cas SM rlx ι μ-value_expected μ-value_new)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value                          )) auxξ_new))
+         ((in-hole E (ret μ-value                              )) auxξ_new))
         "cas-fail-rlx"
         (where η        (getη     auxξ))
         (where ψ_read   (getReadψ auxξ))
