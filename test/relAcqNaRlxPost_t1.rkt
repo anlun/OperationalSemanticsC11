@@ -42,6 +42,7 @@ rX | rA | rB
       >>= (λ x (ret (proj2 x)))))
     >>= (λ x (ret (proj2 x))))))))))))
 
+#|
 (test-->> step
           (term (,term_WW_WRMW_W_RRR defaultState))
           (term (ret (0 (0 0))))
@@ -56,3 +57,4 @@ rX | rA | rB
 
           (term (ret (3 (0 1))))
           (term (ret (3 (1 1)))))
+|#
