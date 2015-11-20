@@ -603,15 +603,15 @@ RMW (cas) operation.
 
 
 #|
-   x_rlx = 0; y_rlx = 1
+   x_rel = 0; y_rel = 1
 x_mod0 = 1  || y_mod2 = 2
 r1 = y_mod1 || r2 = x_mod3
        ret (r1 r2)
 |#
 (define (term_W1R_W2R_gen mod0 mod1 mod2 mod3)
   (term
-   ((write rlx "x" 0) >>= (λ z
-   ((write rlx "y" 1) >>= (λ z
+   ((write rel "x" 0) >>= (λ z
+   ((write rel "y" 1) >>= (λ z
     (spw
      ((write ,mod0 "x" 1) >>= (λ z
       (read  ,mod1 "y")))

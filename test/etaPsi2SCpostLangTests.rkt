@@ -169,7 +169,7 @@ RMW (cas) operation.
           (term ((ret (2 1)) defaultState)))
 
 #|
-   x_rlx = 0; y_rlx = 1
+   x_rel = 0; y_rel = 1
 x_mod0 = 1  || y_mod2 = 2
 r1 = y_mod1 || r2 = x_mod3
        ret (r1 r2)
@@ -184,7 +184,7 @@ r1 = y_mod1 || r2 = x_mod3
 (test_W1R_W2R term_W1relRacq_W2relRacq)
 
 #|
-   x_rlx = 0; y_rlx = 1
+   x_rel = 0; y_rel = 1
 x_sc = 1  || y_rel = 2
 r1 = y_sc || r2 = x_acq
        ret (r1 r2)
@@ -192,7 +192,7 @@ r1 = y_sc || r2 = x_acq
 (test_W1R_W2R term_W1scRsc_W2relRacq)
 
 #|
-   x_rlx = 0; y_rlx = 1
+   x_rel = 0; y_rel = 1
 x_sc = 1  || y_sc = 2
 r1 = y_sc || r2 = x_acq
        ret (r1 r2)
