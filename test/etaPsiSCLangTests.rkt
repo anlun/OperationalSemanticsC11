@@ -85,3 +85,32 @@ r1 = y_sc  || r2 = x_sc
 (runTestTerm12 term_WscRacq_WscRsc)
 (runTestTerm12 term_WscRsc_WrelRsc)
 (runTestTerm12 term_WscRsc_WscRacq)
+
+#|
+   x_rel = 0; y_rel = 1
+x_mod0 = 1  || y_mod2 = 2
+r1 = y_mod1 || r2 = x_mod3
+       ret (r1 r2)
+|#
+(define (test_W1R_W2R curTerm)
+  (test-->>∃ step
+           (term (,curTerm defaultState))
+           (term ((ret (1 0)) defaultState))))
+
+(test_W1R_W2R term_W1relRacq_W2relRacq)
+
+#|
+   x_rel = 0; y_rel = 1
+x_sc = 1  || y_rel = 2
+r1 = y_sc || r2 = x_acq
+       ret (r1 r2)
+|#
+(test_W1R_W2R term_W1scRsc_W2relRacq)
+
+#|
+   x_rel = 0; y_rel = 1
+x_sc = 1  || y_sc = 2
+r1 = y_sc || r2 = x_acq
+       ret (r1 r2)
+|#
+(test_W1R_W2R term_W1scRsc_W2scRacq)
