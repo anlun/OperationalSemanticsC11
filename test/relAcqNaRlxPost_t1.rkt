@@ -1,7 +1,7 @@
 #lang racket
-;(require redex/reduction-semantics)
-(require redex)
-(require "../core/pp.rkt")
+(require redex/reduction-semantics)
+;(require redex)
+;(require "../core/pp.rkt")
 (require "../steps/relAcqNaRlxPost.rkt")
 (require "testTerms.rkt")
 
