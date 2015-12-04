@@ -1,5 +1,7 @@
 #lang racket
-(require redex/reduction-semantics)
+;(require redex/reduction-semantics)
+(require redex)
+(require "../core/pp.rkt")
 (require "../steps/relAcqNaRlxPost.rkt")
 (require "testTerms.rkt")
 
@@ -11,7 +13,7 @@ x_rel = 1 || cas_rel,rlx(x, 1, 2) ||   x_rlx = 3      || rA = a_rlx
                           ret (rX (rA rB))
 
 Possible outcomes according to Batty-al:POPL11:
-rX | rA | rB
+rX |rA  |rB
 -------------
 0  |0,1 |0,1
 1  |1   |0,1
@@ -42,6 +44,23 @@ rX | rA | rB
       >>= (λ x (ret (proj2 x)))))
     >>= (λ x (ret (proj2 x))))))))))))
 
+(define term_Big
+  (term
+   ((write rlx "x" 0) >>= (λ z
+    (spw
+     (spw
+      (write rlx "x" 1)
+      (write rlx "x" 2))
+     (spw
+      (read rlx "x")
+      (read rlx "x")))))))
+
+;(test-->> step
+;          (term (,term_Big defaultState))
+;          (term ((ret 0) defaultState)))
+
+;(traces step (term (,term_Big defaultState)) #:pp pretty-printer)
+
 #|
 (test-->> step
           (term (,term_WW_WRMW_W_RRR defaultState))
@@ -58,3 +77,5 @@ rX | rA | rB
           (term (ret (3 (0 1))))
           (term (ret (3 (1 1)))))
 |#
+
+;(traces step (term (,term_WW_WRMW_W_RRR defaultState)))
