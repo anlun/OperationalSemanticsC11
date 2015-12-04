@@ -57,7 +57,7 @@ rX |rA  |rB
 
 ;(test-->> step
 ;          (term (,term_Big defaultState))
-;          (term (term ((ret 0) defaultState))))
+;          (term ((ret 0) defaultState)))
 
 ;(traces step (term (,term_Big defaultState)) #:pp pretty-printer)
 
