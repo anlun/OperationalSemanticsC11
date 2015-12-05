@@ -384,3 +384,5 @@
 (define-metafunction syntax
   elToList : El -> any
   [(elToList (any_0 ... hole any_1 ...)) (any_0 ... any_1 ...)])
+
+(current-cache-all? #t)
