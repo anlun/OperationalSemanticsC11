@@ -29,7 +29,7 @@
   [(ppμ ι-var) (ppι-var ι-var)]
   [(ppμ (μ_0 μ_1))
    ,(beside*
-     "(" (term (ppμ μ_0)) " " (term (ppμ μ_1)) ")")]
+     "[" (term (ppμ μ_0)) " " (term (ppμ μ_1)) "]")]
   [(ppμ Expr) (ppExpr Expr)]
   [(ppμ (proj1 μ))
    ,(beside (term (ppμ μ)) "_1")]
@@ -103,7 +103,7 @@
              " " (term (pp AST)) " end")]  
   
   [(pp (ret μ)) ,(beside
-                  "return "
+                  "ret "
                   (term (ppμ μ)))]
   [(pp AST) ,(~a (term AST))])
 

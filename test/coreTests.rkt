@@ -131,3 +131,49 @@
   (test-equal (term (addSWedges 3 testGraph1)) (term testGraph1))
   (test-equal (prevNodesOnThread_num 3 (term edges0) (term nodes0)) (term (2))))
 (graphUtils-tests)
+
+
+;;;;;;;;;;;;;;;;;
+; Parser
+;;;;;;;;;;;;;;;;;
+(let ((input (open-input-string "ret 3 - 3 * 6")))
+  (lang-parser (lex-this lang-lexer input)))
+
+(let ((input (open-input-string "ret 3 + 3 * 6 == 21")))
+  (lang-parser (lex-this lang-lexer input)))
+
+(let ((input (open-input-string "ret [3 3]_2")))
+  (lang-parser (lex-this lang-lexer input)))
+
+(let ((input (open-input-string "ret [r1 6]")))
+  (lang-parser (lex-this lang-lexer input)))
+
+(let ((input (open-input-string "ret [x 6]")))
+  (lang-parser (lex-this lang-lexer input)))
+
+(let ((input (open-input-string "x_rel := 5")))
+  (lang-parser (lex-this lang-lexer input)))
+
+(let ((input (open-input-string "x_acq")))
+  (lang-parser (lex-this lang-lexer input)))
+
+(let ((input (open-input-string "cas_rel_rlx(x, 1, 2)")))
+  (lang-parser (lex-this lang-lexer input)))
+
+(let ((input (open-input-string "if r1 then ret 1 else ret 2")))
+  (lang-parser (lex-this lang-lexer input)))
+
+(let ((input (open-input-string "repeat x_acq end")))
+  (lang-parser (lex-this lang-lexer input)))
+
+(let ((input (open-input-string "r1 := ret 2; ret 3")))
+  (lang-parser (lex-this lang-lexer input)))
+
+(let ((input (open-input-string "spw {{{ ret 2 \\\\\\ ret 3 }}}")))
+  (lang-parser (lex-this lang-lexer input)))
+
+(let ((input (open-input-string "stuck")))
+  (lang-parser (lex-this lang-lexer input)))
+
+(let ((input (open-input-string "ret choice 3 (3 + 6)")))
+  (lang-parser (lex-this lang-lexer input)))
