@@ -4,6 +4,7 @@
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
 (require "../core/graphUtils.rkt")
+(require "../core/parser.rkt")
 
 ;;;;;;;;;;;;;;;;;
 ; syntax
@@ -132,48 +133,36 @@
   (test-equal (prevNodesOnThread_num 3 (term edges0) (term nodes0)) (term (2))))
 (graphUtils-tests)
 
-
 ;;;;;;;;;;;;;;;;;
 ; Parser
 ;;;;;;;;;;;;;;;;;
-(let ((input (open-input-string "ret 3 - 3 * 6")))
-  (lang-parser (lex-this lang-lexer input)))
-
-(let ((input (open-input-string "ret 3 + 3 * 6 == 21")))
-  (lang-parser (lex-this lang-lexer input)))
-
-(let ((input (open-input-string "ret [3 3]_2")))
-  (lang-parser (lex-this lang-lexer input)))
-
-(let ((input (open-input-string "ret [r1 6]")))
-  (lang-parser (lex-this lang-lexer input)))
-
-(let ((input (open-input-string "ret [x 6]")))
-  (lang-parser (lex-this lang-lexer input)))
-
-(let ((input (open-input-string "x_rel := 5")))
-  (lang-parser (lex-this lang-lexer input)))
-
-(let ((input (open-input-string "x_acq")))
-  (lang-parser (lex-this lang-lexer input)))
-
-(let ((input (open-input-string "cas_rel_rlx(x, 1, 2)")))
-  (lang-parser (lex-this lang-lexer input)))
-
-(let ((input (open-input-string "if r1 then ret 1 else ret 2")))
-  (lang-parser (lex-this lang-lexer input)))
-
-(let ((input (open-input-string "repeat x_acq end")))
-  (lang-parser (lex-this lang-lexer input)))
-
-(let ((input (open-input-string "r1 := ret 2; ret 3")))
-  (lang-parser (lex-this lang-lexer input)))
-
-(let ((input (open-input-string "spw {{{ ret 2 \\\\\\ ret 3 }}}")))
-  (lang-parser (lex-this lang-lexer input)))
-
-(let ((input (open-input-string "stuck")))
-  (lang-parser (lex-this lang-lexer input)))
-
-(let ((input (open-input-string "ret choice 3 (3 + 6)")))
-  (lang-parser (lex-this lang-lexer input)))
+(define (parser-tests)
+  (test-equal (parse "ret 3 - 3 * 6")
+              '(ret (- 3 (* 3 6))))
+  (test-equal (parse "ret 3 + 3 * 6 == 21")
+              '(ret (== (+ 3 (* 3 6)) 21)))
+  (test-equal (parse "ret [3 3]_2")
+              '(ret (proj2 (3 3))))
+  (test-equal (parse "ret [r1 6]")
+              '(ret (r1 6)))
+  (test-equal (parse "ret [x 6]")
+              '(ret ("x" 6)))
+  (test-equal (parse "x_rel := 5")
+              '(write rel "x" 5))
+  (test-equal (parse "x_acq")
+              '(read acq "x"))
+  (test-equal (parse "cas_rel_rlx(x, 1, 2)")
+              '(cas rel rlx "x" 1 2))
+  (test-equal (parse "if r1 then ret 1 else ret 2")
+              '(if r1 (ret 1) (ret 2)))
+  (test-equal (parse "repeat x_acq end")
+              '(repeat (read acq "x")))
+  (test-equal (parse "r1 := ret 2; ret 3")
+              '((ret 2) >>= (λ r1 (ret 3))))
+  (test-equal (parse "spw {{{ ret 2 \\\\\\ ret 3 }}}")
+              '(spw (ret 2) (ret 3)))
+  (test-equal (parse "stuck")
+              'stuck)
+  (test-equal (parse "ret choice 3 (3 + 6)")
+              '(ret (choice 3 (+ 3 6)))))
+(parser-tests)

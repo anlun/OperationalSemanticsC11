@@ -2,7 +2,7 @@
 (require parser-tools/lex
          (prefix-in re- parser-tools/lex-sre)
          parser-tools/yacc)
-(provide parse lang-parser lang-lexer lex-this)
+(provide parse)
 
 (define-tokens       a (NUM VAR LOC
                         MM))
