@@ -44,24 +44,6 @@ rX |rA  |rB
       >>= (λ x (ret (proj2 x)))))
     >>= (λ x (ret (proj2 x))))))))))))
 
-(define term_Big
-  (term
-   ((write rlx "x" 0) >>= (λ z
-    (spw
-     (spw
-      (write rlx "x" 1)
-      (write rlx "x" 2))
-     (spw
-      (read rlx "x")
-      (read rlx "x")))))))
-
-;(test-->> step
-;          (term (,term_Big defaultState))
-;          (term ((ret 0) defaultState)))
-
-;(traces step (term (,term_Big defaultState)) #:pp pretty-printer)
-
-#|
 (test-->> step
           (term (,term_WW_WRMW_W_RRR defaultState))
           (term (ret (0 (0 0))))
@@ -76,6 +58,5 @@ rX |rA  |rB
 
           (term (ret (3 (0 1))))
           (term (ret (3 (1 1)))))
-|#
 
 ;(traces step (term (,term_WW_WRMW_W_RRR defaultState)))
