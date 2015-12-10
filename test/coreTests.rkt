@@ -214,6 +214,13 @@
                ((write rlx "y" 0) >>= (λ r-1
                ((spw (ret 3) (ret 5)) >>= (λ ra
                 (ret ra)))))))))
+
+; TODO: solve parsing problem
+;  (test-equal @prog{r1 := if 0
+;                          then ret 0
+;                          else ret 0;
+;                    ret r1}
+;              '(ret 0))
 (parser-tests)
 
 (define (pp-parser-test term)
