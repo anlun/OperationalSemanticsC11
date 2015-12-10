@@ -222,5 +222,4 @@
 
 (define (pp-parser-tests)
   (pp-parser-test testTerm-1)
-  ;(pp-parser-test term_WrlxRrlx_WrlxRrlx)
-)
+  (pp-parser-test term_WrlxRrlx_WrlxRrlx))

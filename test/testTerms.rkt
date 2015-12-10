@@ -1,6 +1,8 @@
-#lang racket
+#lang at-exp racket
 (require redex/reduction-semantics)
 (provide (all-defined-out))
+(require racket/string)
+(require "../core/parser.rkt")
 
 #|
 ret 5 || ret 239
@@ -12,19 +14,20 @@ ret 5 || ret 239
 y_mod0  = 1 || x_mod2  = 1
 R1 = x_mod1 || R2 = y_mod3
 |#
-(define (term_WR_WR_gen imod0 imod1 mod0 mod1 mod2 mod3)
-  (term
-   ((write ,imod0 "x" 0) >>= (λ z
-   ((write ,imod1 "y" 0) >>= (λ z
-   ((spw
-     ((write ,mod0 "y" 1) >>= (λ z
-     ((read  ,mod1 "x")   >>= (λ x
-      (ret x)))))
-     ((write ,mod2 "x" 1) >>= (λ z
-     ((read  ,mod3 "y")   >>= (λ y
-      (ret y))))))
-   >>=
-   (λ z (ret z)))))))))
+(define (abst_WR_WR imod0 imod1 mod0 mod1 mod2 mod3)
+  @prog{x_@imod0 := 0;
+        y_@imod1 := 0;
+        spw
+        {{{ y_@mod0 := 1;
+            r1 := x_@mod1;
+            ret r1
+        \\\ x_@mod2 := 1;
+            r2 := y_@mod3;
+            ret r2
+        }}} })
+
+(define (concretize generator parameterString)
+  (apply generator (string-split parameterString)))
 
 #|
   x_rlx = 0; y_rlx = 0
@@ -33,7 +36,7 @@ R1 = x_rlx || R2 = y_rlx
 
 Can lead to R1 = R2 = 0.
 |#
-(define term_WrlxRrlx_WrlxRrlx (term_WR_WR_gen 'rlx 'rlx 'rlx 'rlx 'rlx 'rlx))
+(define term_WrlxRrlx_WrlxRrlx (concretize abst_WR_WR "rlx rlx rlx rlx rlx rlx"))
 
 #|
   x_rel = 0; y_rel = 0
@@ -42,7 +45,7 @@ R1 = x_acq || R2 = y_acq
 
 Can lead to R1 = R2 = 0.
 |#
-(define term_WrelRacq_WrelRacq (term_WR_WR_gen 'rel 'rel 'rel 'acq 'rel 'acq))
+(define term_WrelRacq_WrelRacq (concretize abst_WR_WR "rel rel rel acq rel acq"))
 
 #|
   x_rel = 0; y_rel = 0
@@ -50,7 +53,7 @@ x_sc  = 1  || y_sc  = 1
 r1 = y_sc  || r2 = x_sc
        ret r1 r2
 |#
-(define term_WscRsc_WscRsc (term_WR_WR_gen 'rel 'rel 'sc 'sc 'sc 'sc))
+(define term_WscRsc_WscRsc (concretize abst_WR_WR "rel rel sc sc sc sc"))
 
 #|
        x_rel = 0; y_rel = 0
@@ -58,30 +61,27 @@ x_{sc,rel}  = 1 || y_{sc,rel}  = 1
 r1 = y_{sc,rel} || r2 = x_{sc,rel}
             ret r1 r2
 |#
-(define term_WrelRsc_WscRsc (term_WR_WR_gen 'rel 'rel 'rel 'sc 'sc 'sc))
-(define term_WscRacq_WscRsc (term_WR_WR_gen 'rel 'rel 'sc 'acq 'sc 'sc))
-(define term_WscRsc_WrelRsc (term_WR_WR_gen 'rel 'rel 'sc 'sc 'rel 'sc))
-(define term_WscRsc_WscRacq (term_WR_WR_gen 'rel 'rel 'sc 'sc 'sc 'acq))
+(define term_WrelRsc_WscRsc (concretize abst_WR_WR "rel rel rel sc sc sc"))
+(define term_WscRacq_WscRsc (concretize abst_WR_WR "rel rel sc acq sc sc"))
+(define term_WscRsc_WrelRsc (concretize abst_WR_WR "rel rel sc sc rel sc"))
+(define term_WscRsc_WscRacq (concretize abst_WR_WR "rel rel sc sc sc acq"))
 
 #|
    x_rlx = 0; y_rlx = 0
 R1 = x_mod0 || R2 = y_mod2
 y_mod1  = 1 || x_mod3  = 1
 |#
-(define (term_RW_RW_gen mod0 mod1 mod2 mod3)
-  (term
-   ((write rlx "x" 0) >>= (λ z
-   ((write rlx "y" 0) >>= (λ z
-   ((spw
-     ((read  ,mod0 "x")   >>= (λ x
-     ((write ,mod1 "y" 1) >>= (λ z
-      (ret x)))))
-     ((read  ,mod2 "y")   >>= (λ y
-     ((write ,mod3 "x" 1) >>= (λ z
-      (ret y))))))
-     >>=
-     (λ x (ret x)))))))))
-
+(define (abst_RW_RW mod0 mod1 mod2 mod3)
+  @prog{x_rlx := 0;
+        y_rlx := 0;
+        spw
+        {{{ r1 := x_@mod0;
+            y_@mod1 := 1;
+            ret r1
+        \\\ r2 := y_@mod2;
+            x_@mod3 := 1;
+            ret r2
+        }}} })
 
 #|
 R1 = x_rlx || R2 = y_rlx
@@ -89,7 +89,7 @@ y_rlx  = 1 || x_rlx  = 1
 
 With postponed reads it should be able to lead to R1 = R2 = 1.
 |#
-(define term_RrlxWrlx_RrlxWrlx (term_RW_RW_gen 'rlx 'rlx 'rlx 'rlx)) 
+(define term_RrlxWrlx_RrlxWrlx (concretize abst_RW_RW "rlx rlx rlx rlx")) 
 
 #|
 R1 = x_rlx  || R2 = y_rlx
@@ -98,7 +98,7 @@ y_rel   = 1 || x_rel   = 1
 With postponed reads it should be able to lead to R1 = R2 = 1. 
 Rel modificators solve nothing here.
 |#
-(define term_RrlxWrel_RrlxWrel (term_RW_RW_gen 'rlx 'rel 'rlx 'rel))
+(define term_RrlxWrel_RrlxWrel (concretize abst_RW_RW "rlx rel rlx rel"))
 
 #|
 R1 = x_acq  || R2 = y_rlx
@@ -106,7 +106,7 @@ y_rel   = 1 || x_rel   = 1
 
 It's impossible to get R1 = R2 = 1.
 |#
-(define term_RacqWrel_RrlxWrel (term_RW_RW_gen 'acq 'rel 'rlx 'rel))
+(define term_RacqWrel_RrlxWrel (concretize abst_RW_RW "acq rel rlx rel"))
 
 #|
 R1 = x_rlx  || R2 = y_acq
@@ -114,7 +114,7 @@ y_rel   = 1 || x_rel   = 1
 
 It's impossible to get R1 = R2 = 1.
 |#
-(define term_RrlxWrel_RacqWrel (term_RW_RW_gen 'rlx 'rel 'acq 'rel))
+(define term_RrlxWrel_RacqWrel (concretize abst_RW_RW "rlx rel acq rel"))
 
 #|
 R1 = x_acq  || R2 = y_acq
@@ -122,7 +122,7 @@ y_rel   = 1 || x_rel   = 1
 
 It's impossible to get R1 = R2 = 1.
 |#
-(define term_RacqWrel_RacqWrel (term_RW_RW_gen 'acq 'rel 'acq 'rel))
+(define term_RacqWrel_RacqWrel (concretize abst_RW_RW "acq rel acq rel"))
 
 #|
 R1 = x_rlx || R2 = y_rlx
@@ -131,7 +131,7 @@ y_sc   = 1 || x_sc   = 1
 With postponed reads it should be able to lead to R1 = R2 = 1. 
 SC modificators solve nothing here.
 |#
-(define term_RrlxWsc_RrlxWsc (term_RW_RW_gen 'rlx 'sc 'rlx 'sc))
+(define term_RrlxWsc_RrlxWsc (concretize abst_RW_RW "rlx sc rlx sc"))
 
 #|
 x_na = 1 || x_na = 2
@@ -139,8 +139,9 @@ x_na = 1 || x_na = 2
 It should get `stuck`.
 |#
 (define testTerm2
-        (term (spw (write na "x" 1)
-                   (write na "x" 2))))
+        @prog{spw
+              {{{ x_na := 1
+              \\\ x_na := 2 }}} })
 
 #|
        c_rel = 0
@@ -473,10 +474,18 @@ Should lead to `stuck` because of VafeiadisNarayan:OOPSLA (ConsistentRFna) ---
 `x_na = 2` and `r = x_acq` aren't happens-before ordered.
 |#
 (define term_WrelWna_Racq
+  @prog{x_rel := 0;
+        spw
+        {{{ x_rel := 1;
+            x_na  := 2
+        \\\ r0 := x_acq;
+            ret r0 }}} })
+  #|
   (term ((write rel "x" 0) >>= (λ r
          (spw ((write rel "x" 1) >>= (λ r
                (write na  "x" 2)))
               (read acq "x"))))))
+|#
 
 #|
    x_rlx = 0; y_rlx = 0
@@ -484,20 +493,17 @@ R1 = x_mod0 || R2 = y_mod2
 y_mod1  = 1 || x_mod3  = 1
             || x_mod4  = 2
 |#
-(define (term_RW_RWW_gen mod0 mod1 mod2 mod3 mod4)
-  (term
-   ((write rlx "x" 0) >>= (λ z
-   ((write rlx "y" 0) >>= (λ z
-   ((spw
-     ((read  ,mod0 "x")   >>= (λ x
-     ((write ,mod1 "y" 1) >>= (λ z
-      (ret x)))))
-     ((read  ,mod2 "y")   >>= (λ y
-     ((write ,mod3 "x" 1) >>= (λ z
-     ((write ,mod4 "x" 2) >>= (λ z
-      (ret y))))))))
-     >>=
-     (λ x (ret x)))))))))
+(define (abst_RW_RWW mod0 mod1 mod2 mod3 mod4)
+  @prog{x_rlx := 0;
+        y_rlx := 0;
+        spw
+        {{{ r1 := x_@mod0;
+            y_@mod1 := 1;
+            ret r1
+        \\\ r2 := y_@mod2;
+            x_@mod3 := 1;
+            x_@mod4 := 2;
+            ret r2 }}} }) 
 
 #|
    x_rlx = 0; y_rlx = 0
@@ -507,7 +513,7 @@ y_rlx  = 1 || x_rlx  = 1
 
 With postponed reads it should be able to lead to R1 = 2; R1 = 1.
 |#
-(define term_RrlxWrlx_RrlxWrlxWrlx (term_RW_RWW_gen 'rlx 'rlx 'rlx 'rlx 'rlx)) 
+(define term_RrlxWrlx_RrlxWrlxWrlx (concretize abst_RW_RWW "rlx rlx rlx rlx rlx")) 
 
 #|
    x_rlx = 0; y_rlx = 0
@@ -517,7 +523,7 @@ y_rlx  = 1 || x_rel  = 1
 
 With postponed reads it shouldn't lead to R1 = 2; R1 = 1.
 |#
-(define term_RacqWrlx_RrlxWrelWrlx (term_RW_RWW_gen 'acq 'rlx 'rlx 'rel 'rlx)) 
+(define term_RacqWrlx_RrlxWrelWrlx (concretize abst_RW_RWW "acq rlx rlx rel rlx")) 
 
 #|
             x_rlx = 0; y_rlx = 0
@@ -525,25 +531,22 @@ R1 = y_mod0 || ret 0 || R2 = x_mod2 || ret 0
      x_mod1 = 1      ||      y_mod3 = 1
                 ret (R1 R2)
 |#
-(define (term_R-W_R-W_gen mod0 mod1 mod2 mod3)
-  (term
-   ((write rlx "x" 0) >>= (λ z
-   ((write rlx "y" 0) >>= (λ z
-   ((spw
-     ((spw
-       (read  ,mod0 "y")
-       (ret 0))
-      >>= (λ y
-      ((write ,mod1 "x" 1) >>= (λ z
-       (ret (proj1 y))))))
-     ((spw
-       (read  ,mod2 "x")
-       (ret 0))
-      >>= (λ x
-      ((write ,mod3 "y" 1) >>= (λ z
-       (ret (proj1 x)))))))
-    >>=
-    (λ x (ret x)))))))))
+(define (abst_R-W_R-W mod0 mod1 mod2 mod3)
+  @prog{x_rlx := 0;
+        y_rlx := 0;
+        spw
+        {{{ r10 := spw
+                   {{{ r1 := y_@mod0;
+                       ret r1
+                   \\\ ret 0 }}};
+            x_@mod1 := 1;
+            ret r10_1
+        \\\ r20 := spw
+                   {{{ r2 := x_@mod2;
+                       ret r2
+                   \\\ ret 0 }}};
+            y_@mod3 := 1;
+            ret r20_1 }}} })
 
 #|
            x_rlx = 0; y_rlx = 0
@@ -551,7 +554,7 @@ R1 = y_rlx || ret 0 || R2 = x_rlx || ret 0
      x_rlx = 1      ||      y_rlx = 1
                ret (R1 R2)
 |#
-(define term_Rrlx-Wrlx_Rrlx-Wrlx (term_R-W_R-W_gen 'rlx 'rlx 'rlx 'rlx))
+(define term_Rrlx-Wrlx_Rrlx-Wrlx (concretize abst_R-W_R-W "rlx rlx rlx rlx"))
 
 #|
            x_rlx = 0; y_rlx = 0
@@ -559,7 +562,7 @@ R1 = y_acq || ret 0 || R2 = x_acq || ret 0
      x_rlx = 1      ||      y_rlx = 1
                ret (R1 R2)
 |#
-(define term_Racq-Wrlx_Racq-Wrlx (term_R-W_R-W_gen 'acq 'rlx 'acq 'rlx))
+(define term_Racq-Wrlx_Racq-Wrlx (concretize abst_R-W_R-W "acq rlx acq rlx"))
 
 #|
            x_rlx = 0; y_rlx = 0
@@ -567,7 +570,7 @@ R1 = y_rlx || ret 0 || R2 = x_rlx || ret 0
      x_rel = 1      ||      y_rel = 1
                ret (R1 R2)
 |#
-(define term_Rrlx-Wrel_Rrlx-Wrel (term_R-W_R-W_gen 'rlx 'rel 'rlx 'rel))
+(define term_Rrlx-Wrel_Rrlx-Wrel (concretize abst_R-W_R-W "rlx rel rlx rel"))
 
 #|
            x_rlx = 0; y_rlx = 0
@@ -575,7 +578,7 @@ R1 = y_rlx || ret 0 || R2 = x_acq || ret 0
      x_rel = 1      ||      y_rel = 1
                ret (R1 R2)
 |#
-(define term_Rrlx-Wrel_Racq-Wrel (term_R-W_R-W_gen 'rlx 'rel 'acq 'rel))
+(define term_Rrlx-Wrel_Racq-Wrel (concretize abst_R-W_R-W "rlx rel acq rel"))
 
 #|
 
@@ -587,40 +590,40 @@ It's impossible to get r1 = 2; r2 = 0, due to synchronization through
 RMW (cas) operation.
 |#
 (define term_WrlxWrel_RMWrlxrlx_RacqRrlx
-  (term
-   ((write rlx "x" 0) >>= (λ z
-   ((write rlx "y" 0) >>= (λ z
-   ((spw
-     (spw
-       ((write rlx "y" 1) >>= (λ z
-        (write rel "x" 1)))
-       (cas rlx rlx "x" 1 2))
-     ((read acq "x") >>= (λ x
-     ((read rlx "y") >>= (λ y
-      (ret (x y)))))))
-     >>=
-    (λ x (ret (proj2 x))))))))))
-
-
+  @prog{x_rlx := 0;
+        y_rlx := 0;
+        r012 := spw
+                {{{ spw 
+                    {{{ y_rlx := 1;
+                        x_rel := 1
+                    \\\ cas_rlx_rlx(x, 1, 2)
+                    }}}
+                \\\ r1 := x_acq;
+                    r2 := y_rlx;
+                    ret [r1 r2]
+                }}};
+        ret r012_2 })
+  
 #|
    x_rel = 0; y_rel = 1
 x_mod0 = 1  || y_mod2 = 2
 r1 = y_mod1 || r2 = x_mod3
        ret (r1 r2)
 |#
-(define (term_W1R_W2R_gen mod0 mod1 mod2 mod3)
-  (term
-   ((write rel "x" 0) >>= (λ z
-   ((write rel "y" 1) >>= (λ z
-    (spw
-     ((write ,mod0 "x" 1) >>= (λ z
-      (read  ,mod1 "y")))
-     ((write ,mod2 "y" 2) >>= (λ z
-      (read  ,mod3 "x"))))))))))
+(define (abst_W1R_W2R mod0 mod1 mod2 mod3)
+  @prog{x_rel := 0;
+        y_rel := 1;
+        spw
+        {{{ x_@mod0 := 1;
+            r1 := y_@mod1;
+            ret r1
+        \\\ y_@mod2 := 2;
+            r2 := x_@mod3;
+            ret r2}}} })
 
-(define term_W1rlxRrlx_W2rlxRrlx (term_W1R_W2R_gen 'rlx 'rlx 'rlx 'rlx))
-(define term_W1relRrlx_W2relRrlx (term_W1R_W2R_gen 'rel 'rlx 'rel 'rlx))
-(define term_W1relRacq_W2relRacq (term_W1R_W2R_gen 'rel 'acq 'rel 'acq))
-(define term_W1scRsc_W2relRacq   (term_W1R_W2R_gen 'sc  'sc  'rel 'acq))
-(define term_W1scRsc_W2scRacq    (term_W1R_W2R_gen 'sc  'sc  'sc  'acq))
-(define term_W1scRsc_W2scRsc     (term_W1R_W2R_gen 'sc  'sc  'sc  'sc ))
+(define term_W1rlxRrlx_W2rlxRrlx (concretize abst_W1R_W2R "rlx rlx rlx rlx"))
+(define term_W1relRrlx_W2relRrlx (concretize abst_W1R_W2R "rel rlx rel rlx"))
+(define term_W1relRacq_W2relRacq (concretize abst_W1R_W2R "rel acq rel acq"))
+(define term_W1scRsc_W2relRacq   (concretize abst_W1R_W2R "sc  sc  rel acq"))
+(define term_W1scRsc_W2scRacq    (concretize abst_W1R_W2R "sc  sc  sc  acq"))
+(define term_W1scRsc_W2scRsc     (concretize abst_W1R_W2R "sc  sc  sc  sc "))
