@@ -5,6 +5,8 @@
 (require "../core/coreUtils.rkt")
 (require "../core/graphUtils.rkt")
 (require "../core/parser.rkt")
+(require "../core/pp.rkt")
+(require "../test/testTerms.rkt")
 
 ;;;;;;;;;;;;;;;;;
 ; syntax
@@ -166,3 +168,12 @@
   (test-equal (parse "ret choice 3 (3 + 6)")
               '(ret (choice 3 (+ 3 6)))))
 (parser-tests)
+
+(define (pp-parser-test term)
+  (test-equal (parse (ast-print term))
+              term))
+
+(define (pp-parser-tests)
+  (pp-parser-test testTerm-1)
+  ;(pp-parser-test term_WrlxRrlx_WrlxRrlx)
+)

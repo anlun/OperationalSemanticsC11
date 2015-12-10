@@ -4,7 +4,7 @@
 (require "syntax.rkt")
 (require "coreLang.rkt")
 (require "coreUtils.rkt")
-(provide pretty-printer)
+(provide pretty-printer ast-print)
 
 (current-page-width 1050)
 (define tabstop (make-parameter 3))
@@ -237,6 +237,9 @@
     (doc->string
      (above* (term (pp ,(list-ref t 0))) ""
              (term (ppState ,(list-ref t 1)))))))
+
+(define (ast-print ast)
+  (doc->string (term (pp ,ast))))
 
 (define (node-to-graphviz-doc node)
   (match node
