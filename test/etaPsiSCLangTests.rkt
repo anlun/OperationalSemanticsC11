@@ -44,12 +44,9 @@ Example from: VafeiadisNarayan:OOPSLA13 "Relaxed Separation Logic: A Program Log
 
 It shouldn't get `stuck`.
 |#
-#|
 (test-->> step
          (term (,testTerm3-2 defaultState))
-         (term (stuck defaultState)))
-|#
-; (traces step (term (,testTerm3-2 defaultState)))
+         (term ((ret 8) defaultState)))
 
 #|
   x_rel = 0; y_rel = 0

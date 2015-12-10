@@ -283,8 +283,6 @@ x_rel = choice(1, 2)  || y_rel = choice(1, 2)
 repeat y_acq end      || repeat x_acq end
 if x_acq == y_acq then || if x_acq != y_acq then
   a_na = 239           ||   a_na = 239
-
-Unfortunately, DrRacket can't find fixpoint in normal time in this case.
 |#
 (define testTerm5
   @prog{x_rel := 0;
@@ -458,12 +456,6 @@ there is no release sequence between x_rel = 1 and x_rlx = 2.
                   then y_rlx
                   else ret 0 }}};
         ret r0_2 })
-
-#|
-(test-->> step
-         (term (,testTerm5 etaPsiDefaultState))
-         (term ((ret 239) deafultState)))
-|#
 
 #|
       x_rel = 0

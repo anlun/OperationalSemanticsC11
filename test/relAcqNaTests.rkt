@@ -28,11 +28,10 @@ c_rel = 1  || a_na = a_na + 1
 Example from: VafeiadisNarayan:OOPSLA13 "Relaxed Separation Logic: A Program Logic for C11 Concurrency".
 It shouldn't get `stuck`.
 |#
-#|
 (test-->> step
          (term (,testTerm3 etaPsiDefaultState))
-         (term (stuck etaPsiDefaultState)))
-|#
+         (term ((ret 8) etaPsiDefaultState)))
+
 ;(traces step (term (,testTerm3 etaPsiDefaultState)))
 
 #|
@@ -64,15 +63,11 @@ repeat y_acq end;      || repeat x_acq end;
 if x_acq == y_acq then || if x_acq != y_acq then
   a_na = 239           ||   a_na = 239
 
-
-Unfortunately, DrRacket can't find fixpoint in normal time in this case.
 |#
-
-#|
 (test-->> step
          (term (,testTerm5 etaPsiDefaultState))
-         (term ((ret 239) deafultState)))
-|#
+         (term ((ret (0 239)) etaPsiDefaultState))
+         (term ((ret (239 0)) etaPsiDefaultState)))
 
 #|
       x_rel = 0

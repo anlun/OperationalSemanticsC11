@@ -1,7 +1,8 @@
-#lang racket
+#lang at-exp racket
 (require redex/reduction-semantics)
 (require "../steps/relAcqNaRlxPost.rkt")
 (require "testTerms.rkt")
+(require "../core/parser.rkt")
 
 #|
 y_{rel,rlx}  = 1 || x_{rel,rlx}  = 1
@@ -68,14 +69,14 @@ x_rel = a    || res = b_rlx
           ret res
 |#
 (define testTerm11
-  (term ((write rlx "c"   0) >>= (λ x
-        ((write rlx "x" "c") >>= (λ x
-        ((spw
-          ((write rlx "a" 239) >>= (λ x
-           (write rel "x" "a")))
-          ((read  acq "x") >>= (λ b
-           (read  rlx b)))) >>= (λ res
-        (ret (proj2 res))))))))))
+  @prog{c_rlx := 0;
+        x_rlx := c;
+        r0 := spw
+              {{{ a_rlx := 239;
+                  x_rel := a
+              \\\ r1 := x_acq;
+                  r1_rlx }}};
+        ret r0_2 })
 
 (test-->> step
           (term (,testTerm11 defaultState))
