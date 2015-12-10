@@ -84,13 +84,14 @@
    (end EOF)
    (error void)
    (tokens a b)
-   (precs (left == !=) (left - +) (left *))
+   (precs (left == !=) (left - +) (left *) (right SEMICOLON))
    (grammar
     (locvar ((LOC) $1)
             ((VAR) $1))
     (stmt ((RET exp) (list 'ret $2))
           ((STUCK)   'stuck)
           ((VAR ASSIGN stmt SEMICOLON stmt) (list $3 '>>= (list 'λ $1 $5)))
+          ((stmt SEMICOLON stmt)            (list $1 '>>= (list 'λ 'r-1 $3)))
           ((locvar UNDERSCORE MM ASSIGN exp) (list 'write $3 $1 $5))
           ((locvar UNDERSCORE MM)            (list 'read  $3 $1))
           ((CAS MM UNDERSCORE MM
