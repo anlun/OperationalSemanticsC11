@@ -138,10 +138,6 @@
 ;;;;;;;;;;;;;;;;;
 ; Parser
 ;;;;;;;;;;;;;;;;;
-
-(define (prog . args)
-  (parse (apply string-append args)))
-
 (define (parser-tests)
   (test-equal @prog{ret 3 - 3 * 6}
               '(ret (- 3 (* 3 6))))

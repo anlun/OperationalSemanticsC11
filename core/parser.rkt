@@ -2,7 +2,7 @@
 (require parser-tools/lex
          (prefix-in re- parser-tools/lex-sre)
          parser-tools/yacc)
-(provide parse)
+(provide parse prog)
 
 (define-tokens       a (NUM VAR LOC
                         MM))
@@ -121,3 +121,6 @@
 
 (define (parse input)
   (lang-parser (lex-this lang-lexer (open-input-string input))))
+
+(define (prog . args)
+  (parse (apply string-append args)))
