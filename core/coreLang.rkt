@@ -28,7 +28,8 @@
   [(normalize
      ((in-hole E (in-hole EU       (op number_1 number_2)))  auxξ))
    (normalize
-     ((in-hole E (in-hole EU (calc (op number_1 number_2)))) auxξ))]
+     ((in-hole E (in-hole EU (calc (op number_1 number_2)))) auxξ))
+   (side-condition (not (equal? (term op) 'choice)))]
   
   [(normalize
      ((in-hole E (in-hole EU           (projOp (μ_1 μ_2))))  auxξ))
