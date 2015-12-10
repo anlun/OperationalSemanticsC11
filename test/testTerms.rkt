@@ -23,8 +23,7 @@ R1 = x_mod1 || R2 = y_mod3
             ret r1
         \\\ x_@mod2 := 1;
             r2 := y_@mod3;
-            ret r2
-        }}} })
+            ret r2 }}} })
 
 (define (concretize generator parameterString)
   (apply generator (string-split parameterString)))
@@ -80,8 +79,7 @@ y_mod1  = 1 || x_mod3  = 1
             ret r1
         \\\ r2 := y_@mod2;
             x_@mod3 := 1;
-            ret r2
-        }}} })
+            ret r2 }}} })
 
 #|
 R1 = x_rlx || R2 = y_rlx
@@ -154,16 +152,15 @@ Example from: Vafeiadis-Narayan:OOPSLA13
 It shouldn't get `stuck`.
 |#
 (define testTerm3
-         (term (((write rel "c" 0) >>= (λ x
-                    (spw
-                     ((write na  "a" 7) >>= (λ x
-                      (write rel "c" 1)))
-                     ((repeat (read acq "c")) >>= (λ x
-                     ((read  na "a") >>= (λ x
-                      (write na "a" (+ 1 x))))
-                      ))
-                    )))
-                    >>= (λ x (read na "a")))))
+  @prog{c_rel := 0;
+        spw
+        {{{ a_na  := 7;
+            c_rel := 1
+        \\\ repeat c_acq end;
+            r1 := a_na;
+            a_na := r1 + 1 }}};
+        r0 := a_na;
+        ret r0 })
 
 #|
        c_rlx = 0
@@ -176,16 +173,15 @@ Example from: Vafeiadis-Narayan:OOPSLA13
 It uses rlx writes and reads instead of rel/acq, and it leads to `stuck`.
 |#
 (define testTerm3-0
-         (term (((write rlx "c" 0) >>= (λ x
-                    (spw
-                     ((write na  "a" 7) >>= (λ x
-                      (write rlx "c" 1)))
-                     ((repeat (read rlx "c")) >>= (λ x
-                     ((read  na "a") >>= (λ x
-                      (write na "a" (+ 1 x))))
-                      ))
-                    )))
-                    >>= (λ x (read na "a")))))
+  @prog{c_rlx := 0;
+        spw
+        {{{ a_na  := 7;
+            c_rlx := 1
+        \\\ repeat c_rlx end;
+            r1 := a_na;
+            a_na := r1 + 1 }}};
+        r0 := a_na;
+        ret r0 })
 
 #|
        c_rlx = 0
@@ -194,18 +190,17 @@ c_rel = 1 ||   a_rlx = a_rlx + 1
        ret a_rlx
 |#
 (define testTerm3-1
-         (term (((write rlx "c" 0) >>= (λ x
-                    (spw
-                     ((write rlx "a" 7) >>= (λ x
-                      (write rel "c" 1)))
-                     ((read acq "c") >>= (λ cond
-                     (if cond
-                       ((read  rlx "a") >>= (λ x
-                        (write rlx "a" (+ 1 x))))
-                       (ret 0))
-                      ))
-                    )))
-                    >>= (λ x (read rlx "a")))))
+  @prog{c_rlx := 0;
+        spw
+        {{{ a_rlx := 7;
+            c_rel := 1
+        \\\ r2 := c_acq;
+            if r2
+            then r1 := a_rlx;
+                 a_rlx := r1 + 1
+            else ret 0 }}};
+        r0 := a_rlx;
+        ret r0 })
 
 #|
        c_sc = 0
@@ -220,20 +215,19 @@ Example from: VafeiadisNarayan:OOPSLA13
 It shouldn't get `stuck`.
 |#
 (define testTerm3-2
-         (term (((write sc "c" 0) >>= (λ x
-                    (spw
-                     ((write na "a" 7) >>= (λ x
-                      (write sc "c" 1)))
-                     ((repeat (read sc "c")) >>= (λ x
-                     ((read  na "a") >>= (λ x
-                      (write na "a" (+ 1 x))))
-                      ))
-                    )))
-                    >>= (λ x (read na "a")))))
+  @prog{c_sc := 0;
+        spw
+        {{{ a_na := 7;
+            c_sc := 1
+        \\\ repeat c_sc end;
+            r1 := a_na;
+            a_na := r1 + 1 }}};
+        r0 := a_na;
+        ret r0 })
 
 #|
         f_rel = 0
-        d_na  = 0'
+        d_na  = 0
 d_na  = 239 || repeat (f_acq) end
 f_rel = 1   || r1 = d_na
            ret r1
@@ -243,15 +237,15 @@ Example from: Vafeiadis-Narayan:OOPSLA13
 It shouldn't get `stuck`.
 |#
 (define testTerm3-3
-         (term (((write rel "f" 0) >>= (λ x
-                ((write rel "d" 0) >>= (λ x
-                    (spw
-                     ((write na  "d" 239) >>= (λ x
-                      (write rel "f" 1)))
-                     ((repeat (read acq "f")) >>= (λ x
-                      (read  na "d"))))))))
-                    >>= (λ x (ret (proj2 x))))))
-
+  @prog{f_rel := 0;
+        d_na  := 0;
+        r01 := spw
+               {{{ d_na  := 239;
+                   f_rel := 1
+               \\\ repeat f_acq end;
+                   r1 := d_na;
+                   ret r1 }}};
+        ret r01_2 })
 
 #|
 Dekker's lock doesn't work in weak memory settings (and in our model).
@@ -265,18 +259,19 @@ if y_acq == 0 then || if x_acq == 0 then
 It should get `stuck` because of concurrent non-atomic writes.
 |#
 (define testTerm4
-            (term ((write rel "x" 0) >>= (λ x
-                  ((write rel "y" 0) >>= (λ x
-                   (spw
-                    ((write rel "x" 1) >>= (λ x
-                    ((read  acq "y"  ) >>= (λ y
-                     (if (== 0 y) (write na "a" 239) (ret 0))))))
-                    ((write rel "y" 1) >>= (λ x
-                    ((read  acq "x"  ) >>= (λ x
-                     (if (== 0 x) (write na "a" 30 ) (ret 0))))))
-                    )
-                    )) ))))
-
+  @prog{x_rel := 0;
+        y_rel := 0;
+        spw
+        {{{ x_rel := 1;
+            r0 := y_acq;
+            if r0 == 0
+            then a_na := 239
+            else ret 0
+        \\\ y_rel := 1;
+            r1 := x_acq;
+            if r1 == 0
+            then a_na := 30
+            else ret 0 }}} })
 
 #|
 Ernie Cohen's lock should work in weak memory settings.
@@ -292,23 +287,23 @@ if x_acq == y_acq then || if x_acq != y_acq then
 Unfortunately, DrRacket can't find fixpoint in normal time in this case.
 |#
 (define testTerm5
-          (term ((write rel "x" 0) >>= (λ x
-                ((write rel "y" 0) >>= (λ x
-                ((spw
-                   ((write rel "x" (choice 1 2))  >>= (λ x
-                   ((repeatFuel 1 (read acq "y")) >>= (λ x
-                   ((read acq "x") >>= (λ x
-                   ((read acq "y") >>= (λ y
-                    (if (== x y) (write na "a" 239) (ret 0))))))))))
-
-                   ((write rel "y" (choice 1 2))  >>= (λ x
-                   ((repeatFuel 1 (read acq "x")) >>= (λ x
-                   ((read acq "x") >>= (λ x
-                   ((read acq "y") >>= (λ y
-                    (if (!= x y) (write na "a" 239) (ret 0))))))))))
-                   
-                  ) >>= (λ x ((read na "a") >>= (λ x (ret x)))))))))))
-
+  @prog{x_rel := 0;
+        y_rel := 0;
+        spw
+        {{{ x_rel := choice 1 2;
+            repeat y_acq end;
+            r0 := x_acq;
+            r1 := y_acq;
+            if r0 == r1
+            then a_na := 239
+            else ret 0
+        \\\ y_rel := choice 1 2;
+            repeat x_acq end;
+            r2 := x_acq;
+            r3 := y_acq;
+            if r2 != r3
+            then a_na := 239
+            else ret 0 }}} })
 
 #|
                      x_rlx = 0
@@ -318,19 +313,19 @@ x_rlx = 1 || x_rlx = 2 || a = x_rlx || c = x_rlx
 The execution a = d = 1 and b = c = 2 should be invalid.
 |#
 (define testTerm6
-           (term ((write rlx "x" 0) >>= (λ x
-                 ((spw
-                   (spw
-                    (write rlx "x" 1)
-                    (write rlx "x" 2))
-                   (spw
-                    ((read rlx "x") >>= (λ a
-                    ((read rlx "x") >>= (λ b (ret (a b))))))
-
-                    ((read rlx "x") >>= (λ c
-                    ((read rlx "x") >>= (λ d (ret (c d))))))                    
-                    )) >>= (λ x
-                 (ret (proj2 x))))))))
+  @prog{x_rlx := 0;
+        rABCD := spw
+                 {{{ spw
+                     {{{ x_rlx := 1
+                     \\\ x_rlx := 2 }}}
+                 \\\ spw
+                     {{{ rA := x_rlx;
+                         rB := x_rlx;
+                         ret [rA rB]
+                     \\\ rC := x_rlx;
+                         rD := x_rlx;
+                         ret [rC rD] }}} }}};
+        ret rABCD_2})
 
 #|
 IRIW. Anti-TSO example.
@@ -344,20 +339,20 @@ The `ret ((1 0) (0 1))` shows that our model is more relaxed
 than x86-TSO [Sewell-al:CACM10].
 |#
 (define testTerm65
-           (term ((write rlx "x" 0) >>= (λ x
-                 ((write rlx "y" 0) >>= (λ x
-                 ((spw
-                   (spw
-                    (write rlx "x" 1)
-                    (write rlx "y" 1))
-                   (spw
-                    ((read rlx "x") >>= (λ a
-                    ((read rlx "y") >>= (λ b (ret (a b))))))
-
-                    ((read rlx "y") >>= (λ c
-                    ((read rlx "x") >>= (λ d (ret (c d))))))                    
-                    )) >>= (λ x
-                 (ret (proj2 x))))))))))
+  @prog{x_rlx := 0;
+        y_rlx := 0;
+        rABCD := spw
+                 {{{ spw
+                     {{{ x_rlx := 1
+                     \\\ y_rlx := 1 }}}
+                 \\\ spw
+                     {{{ rA := x_rlx;
+                         rB := y_rlx;
+                         ret [rA rB]
+                     \\\ rC := y_rlx;
+                         rD := x_rlx;
+                         ret [rC rD] }}} }}};
+        ret rABCD_2})
 
 #|
 Anti-TSO example.
@@ -368,18 +363,18 @@ x_rlx = 1 || a = y_rlx
 y_rlx = 1 || b = x_rlx
 
 In TSO a = 1 and b = 0 is forbidden outcome. But not in our semantics.
+
 |#
 (define testTerm7
-     (term ((write rlx "x" 0) >>= (λ x
-           ((write rlx "y" 0) >>= (λ x
-           ((spw
-            ((write rlx "x" 1) >>= (λ x
-             (write rlx "y" 1)))
-            ((read rlx "y") >>= (λ a
-            ((read rlx "x") >>= (λ b
-             (ret (a b))))))
-            ) >>= (λ x
-            (ret (proj2 x))))))))))
+  @prog{x_rlx := 0;
+        y_rlx := 0;
+        rAB := spw
+               {{{ x_rlx := 1;
+                   y_rlx := 1
+               \\\ rA := y_rlx;
+                   rB := x_rlx;
+                   ret [rA rB] }}};
+        ret rAB_2})
 
 #|
 cas rlx sc "x" 1 0
@@ -400,23 +395,21 @@ lock_rel = 0 ||     == 0)                  ||     == 0)
              ||    a_na = 3                ||    a_na = 2
              || else (ret -1)              || else (ret -1)
 |#
-
 (define testTerm9
-    (term (((write rel "lock" 1) >>= (λ x
-            (spw
-             ((write na "a" 2) >>= (λ x
-              (write rel "lock" 0)))
-             (spw
-              ((cas acq rlx "lock" 0 1) >>= (λ x
-               (if (== x 0)
-                   (write na "a" 3)
-                   (ret -1))))
-              ((cas acq rlx "lock" 0 1) >>= (λ x
-               (if (== x 0)
-                   (write na "a" 2)
-                   (ret -1))))
-              ))))
-          >>= (λ x (ret (proj2 x))))))
+  @prog{lock_rel := 1;
+        r2 := spw
+              {{{ a_na := 2;
+                  lock_rel := 0
+              \\\ spw
+                  {{{ r0 := cas_acq_rlx(lock, 0, 1);
+                      if r0 == 0
+                      then a_na := 3
+                      else ret 0 - 1
+                  \\\ r1 := cas_acq_rlx(lock, 0, 1);
+                      if r1 == 0
+                      then a_na := 2
+                      else ret 0 - 1 }}} }}};
+        ret r2_2})
 
 #|
   x_rel = 0; y_rel = 0
@@ -428,14 +421,18 @@ r1 = y_acq || r2 = x_acq
 In Batty-al:POPL11 it's possible to get r1 = 0 /\ r2 = 0.
 |#
 (define testTerm10
-  (term ((write rel "x" 0) >>= (λ r
-        ((write rel "y" 0) >>= (λ r
-        (spw ((write rel "x" 5) >>= (λ r
-             ((write sc  "a" 0) >>= (λ r
-              (read  acq "y")))))
-             ((write rel "y" 5) >>= (λ r
-             ((write sc  "b" 0) >>= (λ r
-              (read  acq "x"))))))))))))
+  @prog{x_rel := 0;
+        y_rel := 0;
+        r0 := spw
+              {{{ x_rel := 5;
+                  a_sc  := 0;
+                  r1 := y_acq;
+                  ret r1
+              \\\ y_rel := 5;
+                  b_sc  := 0;
+                  r2 := x_acq;
+                  ret r2 }}};
+        ret r0})
 
 #|
           x_rlx = 0; y_rlx = 0
@@ -448,16 +445,19 @@ According to Batty-al:POPL11 it's possible to get r1 = 0, because
 there is no release sequence between x_rel = 1 and x_rlx = 2.
 |#
 (define term_Wrel_Wrlx_Racq
-  (term ((write rlx "x" 0) >>= (λ r
-        ((write rlx "y" 0) >>= (λ r
-        ((spw ((write rlx "y" 1) >>= (λ r
-              ((write rel "x" 1) >>= (λ r
-               (spw (write rlx "x" 2)
-                    (ret 0))))))
-              ((read acq "x") >>= (λ v
-               (if v (read rlx "y")
-                     (ret 1)))))
-        >>= (λ r (ret (proj2 r))))))))))
+  @prog{x_rlx := 0;
+        y_rlx := 0;
+        r0 := spw
+              {{{ y_rlx := 1;
+                  x_rel := 1;
+                  spw
+                  {{{ x_rlx := 2
+                  \\\ ret 0 }}}
+              \\\ r2 := x_acq;
+                  if r2 == 2
+                  then y_rlx
+                  else ret 0 }}};
+        ret r0_2 })
 
 #|
 (test-->> step
@@ -480,12 +480,6 @@ Should lead to `stuck` because of VafeiadisNarayan:OOPSLA (ConsistentRFna) ---
             x_na  := 2
         \\\ r0 := x_acq;
             ret r0 }}} })
-  #|
-  (term ((write rel "x" 0) >>= (λ r
-         (spw ((write rel "x" 1) >>= (λ r
-               (write na  "x" 2)))
-              (read acq "x"))))))
-|#
 
 #|
    x_rlx = 0; y_rlx = 0
@@ -600,8 +594,7 @@ RMW (cas) operation.
                     }}}
                 \\\ r1 := x_acq;
                     r2 := y_rlx;
-                    ret [r1 r2]
-                }}};
+                    ret [r1 r2] }}};
         ret r012_2 })
   
 #|
@@ -619,7 +612,7 @@ r1 = y_mod1 || r2 = x_mod3
             ret r1
         \\\ y_@mod2 := 2;
             r2 := x_@mod3;
-            ret r2}}} })
+            ret r2 }}} })
 
 (define term_W1rlxRrlx_W2rlxRrlx (concretize abst_W1R_W2R "rlx rlx rlx rlx"))
 (define term_W1relRrlx_W2relRrlx (concretize abst_W1R_W2R "rel rlx rel rlx"))
