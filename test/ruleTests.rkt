@@ -75,13 +75,21 @@ x_rlx = 1 || x_rlx = 2 || a = x_rlx || c = x_rlx
           ||           || b = x_rlx || d = x_rlx
 
 The execution a = d = 1 and b = c = 2 is invalid.
+As well as a = d = 2 and b = c = 1.
 I don't know how to say 'this can't be reduced to that' in tests, so this test should fail.
 |#
-#|
-(test-->>∃ rlxStep
-          (term (,term_WrlxRrlx_WrlxRrlx  etaPsiDefaultState))
-          (term ((ret ((1 2) (2 1))) etaPsiDefaultState)))
-|#
+(define (not1221 b)
+  (not (or (equal? (term ((ret ((1 2) (2 1))) etaPsiDefaultState))
+                   b)
+           (equal? (term ((ret ((2 1) (1 2))) etaPsiDefaultState))
+                   b))))
+
+;(test-->> rlxStep
+;          (term (,testTerm6  etaPsiDefaultState))
+;          )
+
+;          (term ((ret ((1 2) (2 1))) etaPsiDefaultState))
+;          (term ((ret ((2 1) (1 2))) etaPsiDefaultState)))
 
 #|
 IRIW. Anti-TSO example.
@@ -91,32 +99,12 @@ IRIW. Anti-TSO example.
 x_rlx = 1 || y_rlx = 1 || a = x_rlx || c = y_rlx
           ||           || b = y_rlx || d = x_rlx
 
-The test takes too many time to execute. Results are:
-
-  actual: '((ret ((0 0) (0 0))) (() (Read ())))
-  actual: '((ret ((0 0) (0 1))) (() (Read ())))
-  actual: '((ret ((0 0) (1 0))) (() (Read ())))
-  actual: '((ret ((0 0) (1 1))) (() (Read ())))
-  actual: '((ret ((0 1) (0 0))) (() (Read ())))
-  actual: '((ret ((0 1) (0 1))) (() (Read ())))
-  actual: '((ret ((0 1) (1 0))) (() (Read ())))
-  actual: '((ret ((0 1) (1 1))) (() (Read ())))
-  actual: '((ret ((1 0) (0 0))) (() (Read ())))
-  actual: '((ret ((1 0) (0 1))) (() (Read ())))
-  actual: '((ret ((1 0) (1 0))) (() (Read ())))
-  actual: '((ret ((1 0) (1 1))) (() (Read ())))
-  actual: '((ret ((1 1) (0 0))) (() (Read ())))
-  actual: '((ret ((1 1) (0 1))) (() (Read ())))
-  actual: '((ret ((1 1) (1 0))) (() (Read ())))
-  actual: '((ret ((1 1) (1 1))) (() (Read ())))
-
-The `ret ((1 0) (0 1))` shows that our model is more relaxed than x86-TSO [Sewell-al:CACM10].
+The `ret ((1 0) (0 1))` shows that our model is more relaxed
+than x86-TSO [Sewell-al:CACM10].
 |#
-#|
-(test-->> rlxStep
+(test-->>∃ rlxStep
           (term (,testTerm65 etaPsiDefaultState))
-          (term ((ret ((1 0) (1 0))) etaPsiDefaultState)))
-|#
+          (term ((ret ((1 0) (0 1))) etaPsiDefaultState)))
 
 #|
 Anti-TSO example.

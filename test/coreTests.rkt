@@ -48,9 +48,7 @@
               (term (read rlx x)))
 
   (test-equal (term (substι b x b))
-              (term x))
-  
-  (test-results))
+              (term x)))
 (metafunction-tests)
 
 ;;;;;;;;;;;;;;;;;
