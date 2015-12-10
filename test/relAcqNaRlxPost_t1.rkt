@@ -46,17 +46,17 @@ rX |rA  |rB
 
 (test-->> step
           (term (,term_WW_WRMW_W_RRR defaultState))
-          (term (ret (0 (0 0))))
-          (term (ret (0 (0 1))))
-          (term (ret (0 (1 0))))
-          (term (ret (0 (1 1))))
+          (term ((ret (0 (0 0))) defaultState))
+          (term ((ret (0 (0 1))) defaultState))
+          (term ((ret (0 (1 0))) defaultState))
+          (term ((ret (0 (1 1))) defaultState))
 
-          (term (ret (1 (1 0))))
-          (term (ret (1 (1 1))))
+          (term ((ret (1 (1 0))) defaultState))
+          (term ((ret (1 (1 1))) defaultState))
           
-          (term (ret (2 (1 1))))
+          (term ((ret (2 (1 1))) defaultState))
 
-          (term (ret (3 (0 1))))
-          (term (ret (3 (1 1)))))
-
+          (term ((ret (3 (0 1))) defaultState))
+          (term ((ret (3 (1 1))) defaultState)))
 ;(traces step (term (,term_WW_WRMW_W_RRR defaultState)))
+
