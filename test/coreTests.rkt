@@ -1,4 +1,4 @@
-#lang racket
+#lang at-exp racket
 (require redex/reduction-semantics)
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
@@ -138,35 +138,86 @@
 ;;;;;;;;;;;;;;;;;
 ; Parser
 ;;;;;;;;;;;;;;;;;
+
+(define (prog . args)
+  (parse (apply string-append args)))
+
 (define (parser-tests)
-  (test-equal (parse "ret 3 - 3 * 6")
+  (test-equal @prog{ret 3 - 3 * 6}
               '(ret (- 3 (* 3 6))))
-  (test-equal (parse "ret 3 + 3 * 6 == 21")
+
+  (test-equal @prog{ret 3 + 3 * 6 == 21}
               '(ret (== (+ 3 (* 3 6)) 21)))
-  (test-equal (parse "ret [3 3]_2")
+
+  (test-equal @prog{ret [3 3]_2}
               '(ret (proj2 (3 3))))
-  (test-equal (parse "ret [r1 6]")
+
+  (test-equal @prog{ret [r1 6]}
               '(ret (r1 6)))
-  (test-equal (parse "ret [x 6]")
+
+  (test-equal @prog{ret [x 6]}
               '(ret ("x" 6)))
-  (test-equal (parse "x_rel := 5")
+
+  (test-equal @prog{x_rel := 5}
               '(write rel "x" 5))
-  (test-equal (parse "x_acq")
+
+  (test-equal @prog{x_acq}
               '(read acq "x"))
-  (test-equal (parse "cas_rel_rlx(x, 1, 2)")
+
+  (test-equal @prog{cas_rel_rlx(x, 1, 2)}
               '(cas rel rlx "x" 1 2))
-  (test-equal (parse "if r1 then ret 1 else ret 2")
+
+  (test-equal @prog{if r1
+                    then ret 1
+                    else ret 2}
               '(if r1 (ret 1) (ret 2)))
-  (test-equal (parse "repeat x_acq end")
+
+  (test-equal @prog{repeat x_acq end}
               '(repeat (read acq "x")))
-  (test-equal (parse "r1 := ret 2; ret 3")
+
+  (test-equal @prog{r1 := ret 2;
+                    ret 3}
               '((ret 2) >>= (λ r1 (ret 3))))
-  (test-equal (parse "spw {{{ ret 2 \\\\\\ ret 3 }}}")
+
+  (test-equal @prog{spw {{{ ret 2
+                        \\\ ret 3 }}} }
               '(spw (ret 2) (ret 3)))
-  (test-equal (parse "stuck")
+
+  (test-equal @prog{stuck}
               'stuck)
-  (test-equal (parse "ret choice 3 (3 + 6)")
-              '(ret (choice 3 (+ 3 6)))))
+
+  (test-equal @prog{ret choice 3 (3 + 6)}
+              '(ret (choice 3 (+ 3 6))))
+
+  (test-equal @prog{ret 3;
+                    ret 4}
+              '((ret 3) >>= (λ r-1 (ret 4))))
+
+  (test-equal @prog{x_rlx := 0;
+                    y_rlx := 0}
+              '((write rlx "x" 0) >>= (λ r-1
+                (write rlx "y" 0))))
+
+  (test-equal @prog{x_rlx := 0;
+                    y_rlx := 0;
+                    ra := ret 5;
+                    ret ra}
+              '((write rlx "x" 0) >>= (λ r-1
+               ((write rlx "y" 0) >>= (λ r-1
+               ((ret 5) >>= (λ ra
+                (ret ra))))))))
+
+  (test-equal @prog{x_rlx := 0;
+                    y_rlx := 0;
+                    ra := spw
+                          {{{ ret 3
+                          \\\
+                              ret 5 }}};
+                    ret ra}
+              '((write rlx "x" 0) >>= (λ r-1
+               ((write rlx "y" 0) >>= (λ r-1
+               ((spw (ret 3) (ret 5)) >>= (λ ra
+                (ret ra)))))))))
 (parser-tests)
 
 (define (pp-parser-test term)
