@@ -363,7 +363,7 @@ than x86-TSO [Sewell-al:CACM10].
 Anti-TSO example.
 It shows why our model isn't TSO.
 
-     x = 0; y = 0
+ x_rlx = 0; y_rlx = 0
 x_rlx = 1 || a = y_rlx
 y_rlx = 1 || b = x_rlx
 

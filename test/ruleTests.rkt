@@ -122,7 +122,7 @@ The `ret ((1 0) (0 1))` shows that our model is more relaxed than x86-TSO [Sewel
 Anti-TSO example.
 It shows why our model isn't TSO.
 
-      x = 0; y = 0
+  x_rlx = 0; y_rlx = 0
 x_rlx = 1; || a = y_rlx;
 y_rlx = 1  || b = x_rlx
 
