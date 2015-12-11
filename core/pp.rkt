@@ -76,11 +76,11 @@
              (term (ppMod RM)))]
   
   [(pp (cas SM FM ι-var μ_0 μ_1))
-   (beside*
-    (beside* "cas_" (term (ppMod SM)) "_" (term (ppMod FM)) "(")
-    (term (ppι-var ι-var)) ", "
-    (term (ppμ μ_0)) ", "
-    (term (ppμ μ_1)))]
+   ,(beside*
+     (beside* "cas_" (term (ppMod SM)) "_" (term (ppMod FM)) "(")
+     (term (ppι-var ι-var)) ", "
+     (term (ppμ μ_0)) ", "
+     (term (ppμ μ_1)) ")")]
   
   [(pp (spw AST_0 AST_1))
    ,(pp-par "spw" (term (pp AST_0))
