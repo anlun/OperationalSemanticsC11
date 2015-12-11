@@ -1,4 +1,4 @@
-#lang racket
+#lang at-exp racket
 (require redex/reduction-semantics)
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
@@ -8,6 +8,7 @@
 (require "../rules/relAcqRules.rkt")
 (require "../rules/naRules.rkt")
 (require "testTerms.rkt")
+(require "../core/parser.rkt")
 
 (define-term defaultState (() (Read ()) (NA ()) (Write ())))
 
@@ -75,7 +76,7 @@ lock_rel = 0 ||     == 0)                  ||     == 0)
           (term ((ret ( 3 -1)) defaultState)))
 
 #|
-     x = 0; y = 0
+     x_rel = 0; y_rel = 0
 x_rel = 5 || r0 = y_acq
 y_rlx = 1 || r1 = x_rlx
      ret (r0 r1)
@@ -83,15 +84,15 @@ y_rlx = 1 || r1 = x_rlx
 It's possible to get r0 = 1 /\ r1 = 0 in Batty-al:POPL11.
 |#
 (define term_Wrel0Wrlx1_Racq1Rrlx0
-  (term
-   ((write rel "x" 0) >>= (λ r
-   ((write rel "y" 0) >>= (λ r
-   ((spw ((write rel "x" 5) >>= (λ r
-          (write rlx "y" 1)))
-         ((read  acq "y")   >>= (λ r0
-         ((read  rlx "x")   >>= (λ r1
-          (ret (r0 r1)))))))
-   >>= (λ r (ret (proj2 r))))))))))
+  @prog{x_rel := 0;
+        y_rel := 0;
+        r01 := spw
+               {{{ x_rel := 5;
+                   y_rlx := 1
+               \\\ r0 := y_acq;
+                   r1 := x_rlx;
+                   ret [r0 r1] }}};
+        ret r01_2 })
 
 (test-->>∃ step
           (term (,term_Wrel0Wrlx1_Racq1Rrlx0 defaultState))
