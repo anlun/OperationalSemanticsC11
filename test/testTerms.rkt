@@ -198,7 +198,8 @@ c_rel = 1 ||   a_rlx = a_rlx + 1
             if r2
             then r1 := a_rlx;
                  a_rlx := r1 + 1
-            else ret 0 }}};
+            else ret 0
+            fi }}};
         r0 := a_rlx;
         ret r0 })
 
@@ -267,11 +268,13 @@ It should get `stuck` because of concurrent non-atomic writes.
             if r0 == 0
             then a_na := 239
             else ret 0
+            fi
         \\\ y_rel := 1;
             r1 := x_acq;
             if r1 == 0
             then a_na := 30
-            else ret 0 }}} })
+            else ret 0
+            fi }}} })
 
 #|
 Ernie Cohen's lock should work in weak memory settings.
@@ -279,8 +282,8 @@ Described in Turon-al:OOPSLA14.
 
                   x_rel = 0
                   y_rel = 0
-x_rel = choice(1, 2)  || y_rel = choice(1, 2) 
-repeat y_acq end      || repeat x_acq end
+x_rel = choice(1, 2)   || y_rel = choice(1, 2) 
+repeat y_acq end       || repeat x_acq end
 if x_acq == y_acq then || if x_acq != y_acq then
   a_na = 239           ||   a_na = 239
 |#
@@ -295,13 +298,15 @@ if x_acq == y_acq then || if x_acq != y_acq then
             if r0 == r1
             then a_na := 239
             else ret 0
+            fi
         \\\ y_rel := choice 1 2;
             repeat x_acq end;
             r2 := x_acq;
             r3 := y_acq;
             if r2 != r3
             then a_na := 239
-            else ret 0 }}} })
+            else ret 0
+            fi }}} })
 
 #|
                      x_rlx = 0
@@ -403,10 +408,12 @@ lock_rel = 0 ||     == 0)                  ||     == 0)
                       if r0 == 0
                       then a_na := 3
                       else ret 0 - 1
+                      fi
                   \\\ r1 := cas_acq_rlx(lock, 0, 1);
                       if r1 == 0
                       then a_na := 2
-                      else ret 0 - 1 }}} }}};
+                      else ret 0 - 1
+                      fi }}} }}};
         ret r2_2})
 
 #|
@@ -454,7 +461,8 @@ there is no release sequence between x_rel = 1 and x_rlx = 2.
               \\\ r2 := x_acq;
                   if r2 == 2
                   then y_rlx
-                  else ret 0 }}};
+                  else ret 0
+                  fi }}};
         ret r0_2 })
 
 #|

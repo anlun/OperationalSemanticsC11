@@ -11,7 +11,7 @@
                         PROJ1 PROJ2
                         POPEN PCLOSE
                         BOPEN BCLOSE
-                        IF THEN ELSE
+                        IF THEN ELSE FI
                         REPEAT REPEATFUEL END
                         SPW TOPEN TSEP TCLOSE
                         COMMA SEMICOLON
@@ -59,6 +59,7 @@
    ("if"     (token-IF))
    ("then"   (token-THEN))
    ("else"   (token-ELSE))
+   ("fi"     (token-FI))
    ("repeat" (token-REPEAT))
    ("end"    (token-END))
    ("repeatFuel" (token-REPEATFUEL))
@@ -99,7 +100,7 @@
                 locvar COMMA exp COMMA exp
                 PCLOSE)
            (list 'cas  $2 $4 $6 $8 $10))
-          ((IF exp THEN stmt ELSE stmt) (list 'if $2 $4 $6))
+          ((IF exp THEN stmt ELSE stmt FI) (list 'if $2 $4 $6))
           ((REPEAT stmt END)            (list 'repeat $2))
           ((REPEATFUEL NUM stmt END)    (list 'repeatFuel $2 $3))
           ((SPW TOPEN stmt TSEP stmt TCLOSE)

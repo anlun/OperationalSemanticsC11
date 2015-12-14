@@ -93,7 +93,8 @@
   [(pp (if Expr AST_0 AST_1))
    ,(above* (beside "if "   (term (ppExpr Expr)))
             (beside "then " (term (pp AST_0)))
-            (beside "else " (term (pp AST_1))))]
+            (beside "else " (term (pp AST_1)))
+            "if")]
   
   [(pp (repeat AST))
    ,(beside* "repeat " (term (pp AST)) " end")]

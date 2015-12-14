@@ -163,7 +163,8 @@
 
   (test-equal @prog{if r1
                     then ret 1
-                    else ret 2}
+                    else ret 2
+                    fi}
               '(if r1 (ret 1) (ret 2)))
 
   (test-equal @prog{repeat x_acq end}
@@ -213,12 +214,13 @@
                ((spw (ret 3) (ret 5)) >>= (λ ra
                 (ret ra)))))))))
 
-; TODO: solve parsing problem
-;  (test-equal @prog{r1 := if 0
-;                          then ret 0
-;                          else ret 0;
-;                    ret r1}
-;              '(ret 0))
+  (test-equal @prog{r1 := if 0
+                          then ret 0
+                          else ret 0
+                          fi;
+                    ret r1}
+              '((if 0 (ret 0) (ret 0)) >>= (λ r1
+                (ret r1))))
 (parser-tests)
 
 (define (pp-parser-test term)

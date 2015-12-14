@@ -37,6 +37,7 @@ rX |rA  |rB
                       if r1 == 2
                       then x_rlx := 3
                       else ret 0
+                      fi
                   \\\ rX := x_acq;
                       rA := a_rlx;
                       rB := b_rlx;
