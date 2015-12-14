@@ -163,7 +163,7 @@
   (above*
    label
    (beside "{{{ " left)
-   "\\\\\\"
+   "|||"
    (indent (string-length "{{{ ")
            (beside right " }}}"))))
 

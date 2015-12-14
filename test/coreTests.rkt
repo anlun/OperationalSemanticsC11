@@ -175,7 +175,7 @@
               '((ret 2) >>= (λ r1 (ret 3))))
 
   (test-equal @prog{spw {{{ ret 2
-                        \\\ ret 3 }}} }
+                        ||| ret 3 }}} }
               '(spw (ret 2) (ret 3)))
 
   (test-equal @prog{stuck}
@@ -206,7 +206,7 @@
                     y_rlx := 0;
                     ra := spw
                           {{{ ret 3
-                          \\\
+                          |||
                               ret 5 }}};
                     ret ra}
               '((write rlx "x" 0) >>= (λ r-1

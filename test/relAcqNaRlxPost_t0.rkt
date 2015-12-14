@@ -74,7 +74,7 @@ x_rel = a    || res = b_rlx
         r0 := spw
               {{{ a_rlx := 239;
                   x_rel := a
-              \\\ r1 := x_acq;
+              ||| r1 := x_acq;
                   r1_rlx }}};
         ret r0_2 })
 

@@ -21,7 +21,7 @@ R1 = x_mod1 || R2 = y_mod3
         {{{ y_@mod0 := 1;
             r1 := x_@mod1;
             ret r1
-        \\\ x_@mod2 := 1;
+        ||| x_@mod2 := 1;
             r2 := y_@mod3;
             ret r2 }}} })
 
@@ -77,7 +77,7 @@ y_mod1  = 1 || x_mod3  = 1
         {{{ r1 := x_@mod0;
             y_@mod1 := 1;
             ret r1
-        \\\ r2 := y_@mod2;
+        ||| r2 := y_@mod2;
             x_@mod3 := 1;
             ret r2 }}} })
 
@@ -139,7 +139,7 @@ It should get `stuck`.
 (define testTerm2
         @prog{spw
               {{{ x_na := 1
-              \\\ x_na := 2 }}} })
+              ||| x_na := 2 }}} })
 
 #|
        c_rel = 0
@@ -156,7 +156,7 @@ It shouldn't get `stuck`.
         spw
         {{{ a_na  := 7;
             c_rel := 1
-        \\\ repeat c_acq end;
+        ||| repeat c_acq end;
             r1 := a_na;
             a_na := r1 + 1 }}};
         r0 := a_na;
@@ -177,7 +177,7 @@ It uses rlx writes and reads instead of rel/acq, and it leads to `stuck`.
         spw
         {{{ a_na  := 7;
             c_rlx := 1
-        \\\ repeat c_rlx end;
+        ||| repeat c_rlx end;
             r1 := a_na;
             a_na := r1 + 1 }}};
         r0 := a_na;
@@ -194,7 +194,7 @@ c_rel = 1 ||   a_rlx = a_rlx + 1
         spw
         {{{ a_rlx := 7;
             c_rel := 1
-        \\\ r2 := c_acq;
+        ||| r2 := c_acq;
             if r2
             then r1 := a_rlx;
                  a_rlx := r1 + 1
@@ -220,7 +220,7 @@ It shouldn't get `stuck`.
         spw
         {{{ a_na := 7;
             c_sc := 1
-        \\\ repeat c_sc end;
+        ||| repeat c_sc end;
             r1 := a_na;
             a_na := r1 + 1 }}};
         r0 := a_na;
@@ -243,7 +243,7 @@ It shouldn't get `stuck`.
         r01 := spw
                {{{ d_na  := 239;
                    f_rel := 1
-               \\\ repeat f_acq end;
+               ||| repeat f_acq end;
                    r1 := d_na;
                    ret r1 }}};
         ret r01_2 })
@@ -269,7 +269,7 @@ It should get `stuck` because of concurrent non-atomic writes.
             then a_na := 239
             else ret 0
             fi
-        \\\ y_rel := 1;
+        ||| y_rel := 1;
             r1 := x_acq;
             if r1 == 0
             then a_na := 30
@@ -299,7 +299,7 @@ if x_acq == y_acq then || if x_acq != y_acq then
             then a_na := 239
             else ret 0
             fi
-        \\\ y_rel := choice 1 2;
+        ||| y_rel := choice 1 2;
             repeat x_acq end;
             r2 := x_acq;
             r3 := y_acq;
@@ -320,12 +320,12 @@ The execution a = d = 1 and b = c = 2 should be invalid.
         rABCD := spw
                  {{{ spw
                      {{{ x_rlx := 1
-                     \\\ x_rlx := 2 }}}
-                 \\\ spw
+                     ||| x_rlx := 2 }}}
+                 ||| spw
                      {{{ rA := x_rlx;
                          rB := x_rlx;
                          ret [rA rB]
-                     \\\ rC := x_rlx;
+                     ||| rC := x_rlx;
                          rD := x_rlx;
                          ret [rC rD] }}} }}};
         ret rABCD_2})
@@ -347,12 +347,12 @@ than x86-TSO [Sewell-al:CACM10].
         rABCD := spw
                  {{{ spw
                      {{{ x_rlx := 1
-                     \\\ y_rlx := 1 }}}
-                 \\\ spw
+                     ||| y_rlx := 1 }}}
+                 ||| spw
                      {{{ rA := x_rlx;
                          rB := y_rlx;
                          ret [rA rB]
-                     \\\ rC := y_rlx;
+                     ||| rC := y_rlx;
                          rD := x_rlx;
                          ret [rC rD] }}} }}};
         ret rABCD_2})
@@ -374,7 +374,7 @@ In TSO a = 1 and b = 0 is forbidden outcome. But not in our semantics.
         rAB := spw
                {{{ x_rlx := 1;
                    y_rlx := 1
-               \\\ rA := y_rlx;
+               ||| rA := y_rlx;
                    rB := x_rlx;
                    ret [rA rB] }}};
         ret rAB_2})
@@ -403,13 +403,13 @@ lock_rel = 0 ||     == 0)                  ||     == 0)
         r2 := spw
               {{{ a_na := 2;
                   lock_rel := 0
-              \\\ spw
+              ||| spw
                   {{{ r0 := cas_acq_rlx(lock, 0, 1);
                       if r0 == 0
                       then a_na := 3
                       else ret 0 - 1
                       fi
-                  \\\ r1 := cas_acq_rlx(lock, 0, 1);
+                  ||| r1 := cas_acq_rlx(lock, 0, 1);
                       if r1 == 0
                       then a_na := 2
                       else ret 0 - 1
@@ -433,7 +433,7 @@ In Batty-al:POPL11 it's possible to get r1 = 0 /\ r2 = 0.
                   a_sc  := 0;
                   r1 := y_acq;
                   ret r1
-              \\\ y_rel := 5;
+              ||| y_rel := 5;
                   b_sc  := 0;
                   r2 := x_acq;
                   ret r2 }}};
@@ -457,8 +457,8 @@ there is no release sequence between x_rel = 1 and x_rlx = 2.
                   x_rel := 1;
                   spw
                   {{{ x_rlx := 2
-                  \\\ ret 0 }}}
-              \\\ r2 := x_acq;
+                  ||| ret 0 }}}
+              ||| r2 := x_acq;
                   if r2 == 2
                   then y_rlx
                   else ret 0
@@ -478,7 +478,7 @@ Should lead to `stuck` because of VafeiadisNarayan:OOPSLA (ConsistentRFna) ---
         spw
         {{{ x_rel := 1;
             x_na  := 2
-        \\\ r0 := x_acq;
+        ||| r0 := x_acq;
             ret r0 }}} })
 
 #|
@@ -494,7 +494,7 @@ y_mod1  = 1 || x_mod3  = 1
         {{{ r1 := x_@mod0;
             y_@mod1 := 1;
             ret r1
-        \\\ r2 := y_@mod2;
+        ||| r2 := y_@mod2;
             x_@mod3 := 1;
             x_@mod4 := 2;
             ret r2 }}} }) 
@@ -532,13 +532,13 @@ R1 = y_mod0 || ret 0 || R2 = x_mod2 || ret 0
         {{{ r10 := spw
                    {{{ r1 := y_@mod0;
                        ret r1
-                   \\\ ret 0 }}};
+                   ||| ret 0 }}};
             x_@mod1 := 1;
             ret r10_1
-        \\\ r20 := spw
+        ||| r20 := spw
                    {{{ r2 := x_@mod2;
                        ret r2
-                   \\\ ret 0 }}};
+                   ||| ret 0 }}};
             y_@mod3 := 1;
             ret r20_1 }}} })
 
@@ -590,9 +590,9 @@ RMW (cas) operation.
                 {{{ spw 
                     {{{ y_rlx := 1;
                         x_rel := 1
-                    \\\ cas_rlx_rlx(x, 1, 2)
+                    ||| cas_rlx_rlx(x, 1, 2)
                     }}}
-                \\\ r1 := x_acq;
+                ||| r1 := x_acq;
                     r2 := y_rlx;
                     ret [r1 r2] }}};
         ret r012_2 })
@@ -610,7 +610,7 @@ r1 = y_mod1 || r2 = x_mod3
         {{{ x_@mod0 := 1;
             r1 := y_@mod1;
             ret r1
-        \\\ y_@mod2 := 2;
+        ||| y_@mod2 := 2;
             r2 := x_@mod3;
             ret r2 }}} })
 

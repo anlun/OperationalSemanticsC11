@@ -64,10 +64,10 @@
    ("end"    (token-END))
    ("repeatFuel" (token-REPEATFUEL))
    
-   ("spw"    (token-SPW))
-   ("{{{"    (token-TOPEN))
-   ("\\\\\\" (token-TSEP))
-   ("}}}"    (token-TCLOSE))
+   ("spw" (token-SPW))
+   ("{{{" (token-TOPEN))
+   ("|||" (token-TSEP))
+   ("}}}" (token-TCLOSE))
 
    ((re-or "sc" "relAcq" "acq" "rel" "rlx" "na") (token-MM (string->symbol lexeme)))
 

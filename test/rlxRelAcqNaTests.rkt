@@ -89,7 +89,7 @@ It's possible to get r0 = 1 /\ r1 = 0 in Batty-al:POPL11.
         r01 := spw
                {{{ x_rel := 5;
                    y_rlx := 1
-               \\\ r0 := y_acq;
+               ||| r0 := y_acq;
                    r1 := x_rlx;
                    ret [r0 r1] }}};
         ret r01_2 })

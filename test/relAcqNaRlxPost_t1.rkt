@@ -30,15 +30,15 @@ rX |rA  |rB
               {{{ spw
                   {{{ a_rlx := 1;
                       x_rel := 1
-                  \\\ b_rlx := 1;
+                  ||| b_rlx := 1;
                       cas_rel_rlx(x, 1, 2) }}}
-              \\\ spw
+              ||| spw
                   {{{ r1 := x_rlx;
                       if r1 == 2
                       then x_rlx := 3
                       else ret 0
                       fi
-                  \\\ rX := x_acq;
+                  ||| rX := x_acq;
                       rA := a_rlx;
                       rB := b_rlx;
                       ret [rX [rA rB]] }}} }}};
