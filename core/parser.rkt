@@ -85,7 +85,11 @@
    (end EOF)
    (error void)
    (tokens a b)
-   (precs (left == !=) (left - +) (left *) (right SEMICOLON))
+   (precs (right PROJ1 PROJ2)
+          (left == !=)
+          (left - +)
+          (left * CHOICE)
+          (right SEMICOLON))
    (grammar
     (locvar ((LOC) $1)
             ((VAR) $1))
