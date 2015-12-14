@@ -90,6 +90,7 @@
           (left - +)
           (left * CHOICE)
           (right SEMICOLON))
+   (suppress)
    (grammar
     (locvar ((LOC) $1)
             ((VAR) $1))
