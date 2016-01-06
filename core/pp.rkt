@@ -269,21 +269,69 @@
 (define (nodes-to-graphviz-doc nodes)
   (above** (map node-to-graphviz-doc nodes)))
 
-(define (relation-to-graphviz-label relation)
+(define (relation-to-color-string relation)
   (match relation
-    [`sb "[label=<<font color=\"black\">sb</font>>, color=\"black\"];"]
-    [`rf "[label=<<font color=\"red\">rf</font>>, color=\"red\", constraint=\"false\"];"]
-    [`sw "[label=<<font color=\"green\">sw</font>>, color=\"green\", constraint=\"false\"];"]
-    [`sc "[label=<<font color=\"blue\">sc</font>>, color=\"blue\", constraint=\"false\"];"]))
+    [`sb "black"]
+    [`rf "red"  ]
+    [`sw "green"]
+    [`sc "blue" ]))
 
-(define (edge-to-graphviz-doc edge)
-  (match edge
-    [`(,number_0 ,number_1 ,relation)
-     (beside* (number->string number_0) " -> " (number->string number_1) " "
-              (relation-to-graphviz-label relation))]))
+(define (constraint-relation? relation)
+  (match relation
+    [`sb #t]
+    [_   #f]))
+
+(define (relation-to-label-text relation)
+  (beside*
+     "<font color=\""
+     (relation-to-color-string relation)
+     "\">"
+     (symbol->string relation)
+     "</font>"))
+
+(define (relations-to-graphviz-label relations)
+  (beside*
+   "[label=<"
+   (beside*/sep "," (map relation-to-label-text relations))
+   ">, color=\""
+   (beside*/sep ":" (map relation-to-color-string relations))
+   "\""
+   (if (ormap constraint-relation? relations)
+       ""
+       ", constraint=\"false\"")
+   "];"))
+
+(define (multilabel-edge-to-graphviz-doc multilabel-edge)
+  (let ([start-node (car   multilabel-edge)]
+        [end-node   (cadr  multilabel-edge)]
+        [relations  (caddr multilabel-edge)])
+   (beside* (number->string start-node)
+            " -> "
+            (number->string end-node)
+            " "
+            (relations-to-graphviz-label relations))))
 
 (define (edges-to-graphviz-doc edges)
-  (above** (map edge-to-graphviz-doc edges)))
+  (above**
+   (map multilabel-edge-to-graphviz-doc
+        (group-edges edges))))
+
+(define (collinear-edges? edge_0)
+  (λ (edge_1)
+    (and (equal? (car  edge_0) (car  edge_1))
+         (equal? (cadr edge_0) (cadr edge_1)))))
+
+(define (group-edges edges)
+  (match edges
+    ['() '()]
+    [_
+     (let*-values ([(edge) (car edges)]
+                   [(l_0 l_1) (partition (collinear-edges? edge) edges)])
+       (cons
+        (list
+         (car edge) (cadr edge)
+         (map caddr l_0))
+        (group-edges l_1)))]))
 
 (define (graph-to-graphviz g)
   (match g
