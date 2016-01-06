@@ -5,8 +5,8 @@
 (require "../core/parser.rkt")
 
 #|
-y_{rel,rlx}  = 1 || x_{rel,rlx}  = 1
-R1 = x_{acq,rlx} || R2 = y_{acq,rlx}
+x_{rel,rlx}  = 1 || y_{rel,rlx}  = 1
+R1 = y_{acq,rlx} || R2 = x_{acq,rlx}
 
 Can lead to R1 = R2 = 0.
 |#

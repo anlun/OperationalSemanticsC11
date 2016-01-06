@@ -41,8 +41,8 @@ It should get `stuck`.
   (union-reduction-relations etaPsiCoreStep relAcqRules))
 
 #|
-y_rel  = 1 || x_rel = 1
-R1 = x_acq || R2 = y_acq
+x_rel  = 1 || y_rel = 1
+R1 = y_acq || R2 = x_acq
 
 Can lead to R1 = R2 = 0.
 |#
@@ -60,8 +60,8 @@ Can lead to R1 = R2 = 0.
 (define rlxStep       (union-reduction-relations etaPsiCoreStep rlxRules))
 
 #|
-y_rlx  = 1 || x_rlx  = 1
-R1 = x_rlx || R2 = y_rlx
+x_rlx  = 1 || y_rlx  = 1
+R1 = y_rlx || R2 = x_rlx
 
 Can lead to R1 = R2 = 0.
 |#

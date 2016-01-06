@@ -11,18 +11,18 @@ ret 5 || ret 239
 
 #|
   x_imod0 = 0; y_imod1 = 0
-y_mod0  = 1 || x_mod2  = 1
-R1 = x_mod1 || R2 = y_mod3
+x_mod0  = 1 || y_mod2  = 1
+R1 = y_mod1 || R2 = x_mod3
 |#
 (define (abst_WR_WR imod0 imod1 mod0 mod1 mod2 mod3)
   @prog{x_@imod0 := 0;
         y_@imod1 := 0;
         spw
-        {{{ y_@mod0 := 1;
-            r1 := x_@mod1;
+        {{{ x_@mod0 := 1;
+            r1 := y_@mod1;
             ret r1
-        ||| x_@mod2 := 1;
-            r2 := y_@mod3;
+        ||| y_@mod2 := 1;
+            r2 := x_@mod3;
             ret r2 }}} })
 
 (define (concretize generator parameterString)
@@ -30,8 +30,8 @@ R1 = x_mod1 || R2 = y_mod3
 
 #|
   x_rlx = 0; y_rlx = 0
-y_rlx  = 1 || x_rlx  = 1
-R1 = x_rlx || R2 = y_rlx
+x_rlx  = 1 || y_rlx  = 1
+R1 = y_rlx || R2 = x_rlx
 
 Can lead to R1 = R2 = 0.
 |#
@@ -39,8 +39,8 @@ Can lead to R1 = R2 = 0.
 
 #|
   x_rel = 0; y_rel = 0
-y_rel  = 1 || x_rel = 1
-R1 = x_acq || R2 = y_acq
+x_rel  = 1 || y_rel = 1
+R1 = y_acq || R2 = x_acq
 
 Can lead to R1 = R2 = 0.
 |#
