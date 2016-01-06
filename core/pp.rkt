@@ -13,6 +13,13 @@
 (define (above** xs)
   (foldr above (empty-doc) xs))
 
+(define (beside*/sep sep xs)
+  (if (empty? xs)
+      (empty-doc)
+      (foldr (λ (r n) (beside* r sep n))
+             (car xs)
+             (cdr xs))))
+
 (define-metafunction coreLang
   ; ppExpr : Expr -> Doc
   [(ppExpr vName ) ,(symbol->string (term vName ))]
