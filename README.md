@@ -1,6 +1,7 @@
 # OperationalSemanticsC11
 An operational semantics for C11. [![Build Status](https://travis-ci.org/anlun/OperationalSemanticsC11.svg?branch=master)](https://travis-ci.org/anlun/OperationalSemanticsC11)
 
+### Installation
 To run or compile the project for the first time you need to run `make link`.
 It downloads and installs dependencies (`racket-pretty-printing-combinators` library),
 compiles and installs the project. Futher you need to run `make setup` or just `make` to recompile it.
@@ -20,3 +21,13 @@ The project needs a version of DrRacket >= 6.2.1.
 - `test/`
   
   Test terms and tests for different sublanguages and rules combinations.
+
+### How to write and execute own example
+
+You need to define a term. For this purpose you should write
+
+```racket
+(define myTerm
+    @prog{TERM_BODY
+          })
+```
