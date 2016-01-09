@@ -389,7 +389,7 @@
 
 (define-metafunction coreLang
   isLocationUninitialized : ι-var auxξ -> boolean
-  [(isLocationUninitialized ι auxξ) ,(equal? (term (getLastTimeStamp ι η)) (term -1))
+  [(isLocationUninitialized ι auxξ) ,(equal? (term (getLastTimestamp ι η)) (term -1))
                                     (where η (getη auxξ))]
   [(isLocationUninitialized vName auxξ) #f])
 
