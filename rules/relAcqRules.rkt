@@ -5,20 +5,6 @@
 (require "../core/coreUtils.rkt")
 (provide define-relAcqRules define-acqReadRules define-relAcqWriteRules)
 
-(define-metafunction coreLang
-  acqFailCASσReadNew : ι η σ -> σ
-  [(acqFailCASσReadNew ι η σ_read)
-   (frontMerge σ_read σ_record_front)
-   
-   (where τ_last         (getLastTimestamp ι η))
-   (where σ_record_front (fromMaybe () (getFrontByTimestamp ι τ_last η)))])
-
-(define-metafunction coreLang
-  acqSuccCASσReadNew : ι η σ -> σ
-  [(acqSuccCASσReadNew ι η σ_read)
-   (updateFront ι τ (acqFailCASσReadNew ι η σ_read))
-   (where τ (getNextTimestamp ι η))])
-
 (define-syntax-rule (define-acqReadRules lang addReadNode)
   (begin
 
@@ -66,7 +52,7 @@
 
         (where auxξ_upd_read  (updateState (Read ψ) (Read ψ_new) auxξ))
         (where auxξ_upd_write (synchronizeWriteFront path auxξ_upd_read))
-        (where η_new          (updateCell ι μ-value σ_new η))
+        (where η_new          (updateCell  ι μ-value σ_new η))
         (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
         (where auxξ_upd_γ     (addPostReadsToγ path ι τ auxξ_upd_η))
         (where auxξ_new       (addWriteNode (write rel ι μ-value τ) path auxξ_upd_γ))
@@ -108,7 +94,9 @@
         (where auxξ_upd_write (synchronizeWriteFront path auxξ_upd_read))
 
         (where σ_new          (getByPath path ψ_read_new))
-        (where η_new          (updateCell ι μ-value_new σ_new η))
+        (where η_new          (updateCell  ι μ-value_new
+                                           (acqSuccCASσReadNew ι η σ_new)
+                                           η))
         (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
         (where auxξ_new       (addReadNode τ_last
                                            (rmw rel ι μ-value_expected μ-value_new τ)
@@ -116,7 +104,7 @@
         (side-condition
          (term (succCAScondition ι η μ-value_expected rel FM)))
         (side-condition (term (isReadQueueEqualTo () path auxξ))))
-
+   
    (-->  ((in-hole E (cas acq FM ι μ-value_expected μ-value_new)) auxξ)
         (normalize
          ((in-hole E (ret μ-value_expected                     )) auxξ_new))

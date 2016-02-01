@@ -422,3 +422,17 @@
    (where (Just τ_rel) (lookup ι σ_write))
    (where γ_new (dupγ ι τ_rlx τ_rel γ))]
   [(dupRelWriteRestrictions ι τ σ_write auxξ) auxξ])
+
+(define-metafunction coreLang
+  acqFailCASσReadNew : ι η σ -> σ
+  [(acqFailCASσReadNew ι η σ_read)
+   (frontMerge σ_read σ_record_front)
+   
+   (where τ_last         (getLastTimestamp ι η))
+   (where σ_record_front (fromMaybe () (getFrontByTimestamp ι τ_last η)))])
+
+(define-metafunction coreLang
+  acqSuccCASσReadNew : ι η σ -> σ
+  [(acqSuccCASσReadNew ι η σ_read)
+   (updateFront ι τ (acqFailCASσReadNew ι η σ_read))
+   (where τ (getNextTimestamp ι η))])
