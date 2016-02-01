@@ -82,31 +82,34 @@
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
         (side-condition (not (equal? (term μ-value) (term μ-value_expected)))))
 
-#| TODO: rewrite and add tests for it.
-
    (-->  ((in-hole E (cas sc FM ι μ-value_expected μ-value_new)) auxξ)
         (normalize
          ((in-hole E (ret μ-value_expected                    )) auxξ_new))
         "cas-succ-sc"
-        (where η      (getη auxξ))
-        (where σ_sc   (getσSC auxξ))
-        (where path   (pathE E))
-        (where σ_read (getReadσ path auxξ))
-        
-        (where τ_last         (getLastTimestamp ι η))
-        (where σ_record_front (fromMaybe () (getFrontByTimestamp ι τ_last η)))
-        (where σ_with_sc      (frontMerge σ_sc σ_record_front))
-        (where τ              (getNextTimestamp ι η))
-        (where σ_new          (updateFront ι τ (frontMerge σ_read σ_with_sc)))
-        (where auxξ_upd_sc    (updateState (SC σ_sc) (SC σ_new) auxξ))
-        (where auxξ_upd_read  (updateReadσ path σ_new auxξ_upd_sc))
+        (where η          (getη     auxξ))
+        (where ψ_read     (getReadψ auxξ))
+        (where path       (pathE E))
+        (where τ          (getNextTimestamp ι η))
+        (where σ_read_new    (acqSuccCASσReadNew ι η (getReadσ path auxξ)))
+        (where ψ_read_new    (updateByFront path σ_read_new ψ_read))
+
+        (where σ_sc       (getσSC auxξ))
+        (where σ_sc_new   (updateFront ι τ σ_sc))
+
+        (where auxξ_upd_sc    (updateState (SC σ_sc) (SC σ_sc_new) auxξ))
+        (where auxξ_upd_read  (updateState (Read ψ_read) (Read ψ_new) auxξ_sc))
         (where auxξ_upd_write (synchronizeWriteFront path auxξ_upd_read))
 
+        (where σ_new          (getByPath path ψ_read_new))
         (where η_new          (updateCell ι μ-value_new σ_new η))
-        (where auxξ_new       (updateState η η_new auxξ_upd_write))
+        (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
 
+        (where τ_last     (getLastTimestamp ι η))
+        (where τ          (getNextTimestamp ι η))
+        (where auxξ_new       (addReadNode τ_last
+                                           (rmw sc ι μ-value_expected μ-value_new τ)
+                                           path auxξ_upd_η))        
+        
         (side-condition
          (term (succCAScondition ι η μ-value_expected sc FM)))
-        (side-condition (term (isReadQueueEqualTo () path auxξ))))
-|#
-)))
+        (side-condition (term (isReadQueueEqualTo () path auxξ)))))))

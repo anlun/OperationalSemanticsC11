@@ -79,7 +79,6 @@ rX |rA  |rB
                       ret [rX [rA rB]] }}} }}};
         ret r0_2_2 })
 
-#|
 (test-->> step (term (,term_WW_WRMW_W_RRR defaultState))
 
           (term ((ret (0 (0 0))) defaultState))
@@ -96,7 +95,6 @@ rX |rA  |rB
           (term ((ret (3 (0 1))) defaultState))
           (term ((ret (3 (1 0))) defaultState))
           (term ((ret (3 (1 1))) defaultState)))
-|#
 
 ;(traces step (term (,term_WW_WRMW_W_RRR defaultState)) #:pp pretty-printer)
 
