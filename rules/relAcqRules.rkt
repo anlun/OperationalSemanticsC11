@@ -23,8 +23,7 @@
         (where auxξ_upd_ψ (updateState (Read ψ) (Read (updateByFront path σ ψ)) auxξ))
         (where auxξ_new   (addReadNode τ (read acq ι μ-value) path auxξ_upd_ψ))
         (where σ_read   (getByPath path ψ))
-        (side-condition (term (correctτ τ ι σ_read))))
-)))
+        (side-condition (term (correctτ τ ι σ_read)))))))
 
 (define-syntax-rule (define-relAcqWriteRules lang
                       addReadNode
