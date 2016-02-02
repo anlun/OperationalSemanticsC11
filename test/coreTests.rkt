@@ -48,7 +48,17 @@
               (term (read rlx x)))
 
   (test-equal (term (substι b x b))
-              (term x)))
+              (term x))
+  
+  (test-equal (term (getσToWrite (("a" 1) ("x" 1))
+                                 "x"
+                                 (("a"
+                                   ((1 5 (("a" 1)))
+                                    (0 0 (("a" 0)))))
+                                  ("x"
+                                   ((1 1 (("a" 1) ("x" 1)))
+                                    (0 0 (("x" 0))))))))
+              (term (("a" 1) ("x" 2)))))
 (metafunction-tests)
 
 ;;;;;;;;;;;;;;;;;

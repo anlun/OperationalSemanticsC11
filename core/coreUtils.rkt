@@ -396,8 +396,8 @@
 (define-metafunction coreLang
   getσToWrite : σ ι η -> σ
   [(getσToWrite σ_write ι η) σ
-                               (where (Just τ) (lookup ι σ_write))
-                               (where (Just (μ-value σ)) (lookup2 τ (getCellHistory ι η)))]
+                             (where (Just τ) (lookup ι σ_write))
+                             (where (Just (μ-value σ)) (lookup3 τ (getCellHistory ι η)))]
   [(getσToWrite σ_write ι η) ()])
 
 (define-metafunction coreLang

@@ -107,7 +107,7 @@ x_rlx = 2 ||
       ret (r0 r1) 
 
 Release sequence example.
-It should be impossible to get r0 = 2 /\ r1 = 0 according to release sequence rule.
+It should be impossible to get r0 = 2 /\ r1 = 0 according to release sequence rules.
 |#
 (define term_WrlxWrelWrlx_RacqRrlx
   @prog{x_rlx := 0;
