@@ -97,3 +97,35 @@ It's possible to get r0 = 1 /\ r1 = 0 in Batty-al:POPL11.
 (test-->>∃ step
           (term (,term_Wrel0Wrlx1_Racq1Rrlx0 defaultState))
           (term ((ret (1 0))                 defaultState)))
+
+
+#|
+   x_rlx = 0; a_rlx = 0
+a_rlx = 5 || r0 = x_acq
+x_rel = 1 || r1 = a_rlx
+x_rlx = 2 ||
+      ret (r0 r1) 
+
+Release sequence example.
+It should be impossible to get r0 = 2 /\ r1 = 0 according to release sequence rule.
+|#
+(define term_WrlxWrelWrlx_RacqRrlx
+  @prog{x_rlx := 0;
+        a_rlx := 0;
+        r01 := spw
+               {{{ a_rlx := 5;
+                   x_rel := 1;
+                   x_rlx := 2
+               ||| r0 := x_acq;
+                   r1 := a_rlx;
+                   ret [r0 r1] }}};
+        ret r01_2 })
+
+(test-->> step
+          (term (,term_WrlxWrelWrlx_RacqRrlx defaultState))
+
+          (term ((ret (0 0)) defaultState))
+          (term ((ret (0 5)) defaultState))
+
+          (term ((ret (1 5)) defaultState))
+          (term ((ret (2 5)) defaultState)))
