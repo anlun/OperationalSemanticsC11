@@ -345,6 +345,7 @@
        (indent 2 (edges-to-graphviz-doc edges))
        "}"))]))
 
+#|
 (define (dot-graph-render g)
   (define-values (dot-input-in  dot-input-out ) (make-pipe))
   (define-values (dot-output-in dot-output-out) (make-pipe))
