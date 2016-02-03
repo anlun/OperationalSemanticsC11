@@ -339,12 +339,12 @@
      (doc->string
       (above*
        "digraph {"
-       "fontsize=10 label=\"\";"
+"fontsize=10 label=\"\" splines=true overlap=true ranksep=0.2 nodesep=0.025;"
+ 
        (indent 2 (nodes-to-graphviz-doc nodes))
        (indent 2 (edges-to-graphviz-doc edges))
        "}"))]))
 
-#|
 (define (dot-graph-render g)
   (define-values (dot-input-in  dot-input-out ) (make-pipe))
   (define-values (dot-output-in dot-output-out) (make-pipe))
