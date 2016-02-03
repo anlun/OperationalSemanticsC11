@@ -386,7 +386,7 @@ Leads to `stuck` state, because Compare-and-Set (Read-Modify-Write) operations i
 undefined if success modifier is weaker than fail modifier.
 |#
 (define testTerm8
-  (term (cas rlx sc "x" 1 0)))
+  @prog{cas_rlx_sc(x, 1, 0)})
 
 #|
 An example from VafeiadisNarayan:OOPSLA13. It shouldn't get `stuck`.
