@@ -46,6 +46,7 @@
 (define-metafunction coreLang
   ; ppMod : WM/RM/SM/FM -> Doc
   [(ppMod rlx   ) "rlx"]
+  [(ppMod con   ) "con"]
   [(ppMod acq   ) "acq"]
   [(ppMod rel   ) "rel"]
   [(ppMod sc    ) "sc" ]
@@ -82,6 +83,11 @@
    ,(beside* (term (ppι-var ι-var)) "_"
              (term (ppMod RM)))]
   
+  [(pp (readCon RM ι-var σ-dd))
+   ,(beside* (term (ppι-var ι-var)) "_"
+             (term (ppMod RM))
+             (term (ppσ σ-dd)))]
+
   [(pp (cas SM FM ι-var μ_0 μ_1))
    ,(beside*
      (beside* "cas_" (term (ppMod SM)) "_" (term (ppMod FM)) "(")

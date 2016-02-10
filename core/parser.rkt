@@ -69,7 +69,7 @@
    ("|||" (token-TSEP))
    ("}}}" (token-TCLOSE))
 
-   ((re-or "sc" "relAcq" "acq" "rel" "rlx" "na") (token-MM (string->symbol lexeme)))
+   ((re-or "sc" "relAcq" "acq" "rel" "con" "rlx" "na") (token-MM (string->symbol lexeme)))
 
    ((re-+ number10)       (token-NUM (string->number lexeme)))
    ((re-: "r" identifier) (token-VAR (string->symbol lexeme)))

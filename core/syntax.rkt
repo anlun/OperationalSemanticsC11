@@ -20,7 +20,11 @@
 
        (repeatFuel number AST) ; repeat with fuel
        nofuel
-       stuck]
+       stuck
+
+       ; for consume
+       (readCon RM    ι-var         σ-dd)
+       (casCon  SM FM ι-var μ_0 μ_1 σ-dd)]
 
   [K  (λ vName AST)]
 
@@ -50,7 +54,7 @@
   [ι-var ι
          vName]
 
-  [RM sc acq rlx na] ; TODO: add 'consume' semantics
+  [RM sc con acq rlx na]
   [WM sc rel rlx na]
   [SM sc relAcq acq rel rlx]
   [FM sc acq rlx]
@@ -58,6 +62,10 @@
   [τ number]                         ; Timestamp
   [η-cell ((τ μ-value σ) ...)]
   [η ((ι η-cell) ...)]               ; Heap history
+
+  ; For consume propagated information.
+  ; The order is important, which is why it is separated from ordinary σ.
+  [σ-dd ((ι τ) ...)]
 
   [σ ((ι τ) ...)]         ; Single front
   ; Front invariant:
@@ -152,9 +160,11 @@
     [`(relAcq ,_) #t]
     [`(,_ relAcq) #f]
     [`(rel   acq) #f]
+    [`(rel   con) #f]
     [`(rel    ,_) #t]
     [`(acq   rel) #f]
     [`(acq   ,_)  #t]
+    [`(con   ,_)  #t]
     [_            #f]))
 
 (define (mo<=? mo1 mo2)

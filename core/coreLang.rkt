@@ -86,12 +86,28 @@
         "cas-stuck-uninitialized"
         (where #t (isLocationUninitialized ι-var auxξ)))
 
+   (--> ((in-hole E (casCon SM FM ι-var μ-value_1 μ-value_2 σ-dd)) auxξ)
+        (stuck defaultState)
+        "casCon-stuck-wrong-modificators"
+        (side-condition (not (term (casMO=>? SM FM)))))
+
+   (--> ((in-hole E (casCon SM FM ι-var μ-value_1 μ-value_2 σ-dd)) auxξ)
+        (stuck defaultState)
+        "casCon-stuck-uninitialized"
+        (where #t (isLocationUninitialized ι-var auxξ)))
+
    (-->  ((in-hole E (read RM ι-var)) auxξ)
         (normalize 
          ((in-hole E stuck) defaultState))
         "read-stuck"
         (where #t (isLocationUninitialized ι-var auxξ)))
-   
+
+   (-->  ((in-hole E (readCon RM ι-var σ-dd)) auxξ)
+        (normalize 
+         ((in-hole E stuck) defaultState))
+        "readCon-stuck"
+        (where #t (isLocationUninitialized ι-var auxξ)))
+  
    (-->  ((in-hole E (if 0 AST_1 AST_2)) auxξ)
         (normalize 
          ((in-hole E AST_2             ) auxξ))

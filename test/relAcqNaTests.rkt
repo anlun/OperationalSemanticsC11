@@ -80,3 +80,23 @@ Should lead to `stuck` because of VafeiadisNarayan:OOPSLA (ConsistentRFna) ---
 (test-->>∃ step
            (term (,term_WrelWna_Racq etaPsiDefaultState))
            (term (stuck etaPsiDefaultState)))
+
+(define (find-path red from to)
+  (define parents (make-hash))
+  (let/ec done
+    (let loop ([t from])
+      (define nexts (apply-reduction-relation red t))
+      (for ([next (in-list (remove-duplicates nexts))])
+        (cond
+          [(equal? next to)
+           (hash-set! parents to t)
+           (done)]
+          [(hash-ref parents next #f)
+           (void)]
+          [else
+           (hash-set! parents next t)
+           (loop next)]))))
+  (let loop ([term to])
+    (cond
+      [(equal? term from) (list from)]
+      [else (cons term (loop (hash-ref parents term)))])))
