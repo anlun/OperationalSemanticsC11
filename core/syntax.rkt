@@ -34,7 +34,7 @@
 
      ι-var]
   
-  [Expr vName
+  [Expr ι-var
         number
         (op Expr Expr)]
   [op + - * == !=
@@ -253,8 +253,12 @@
    (ret (substExpr vName μ_1 μ_2))]
   [(subst vName μ (AST >>= K))
    ((subst vName μ AST) >>= (substCont vName μ K))]
-  [(subst vName μ_1 (read RM ι-var))
+  
+[(subst vName μ_1 (read RM ι-var))
    (read RM (substι vName μ_1 ι-var))]
+  [(subst vName μ_1 (readCon RM ι-var σ-dd))
+   (readCon RM (substι vName μ_1 ι-var) σ-dd)]
+
   [(subst vName μ_1 (write WM ι-var μ_2))
    (write WM (substι vName μ_1 ι-var) (substExpr vName μ_1 μ_2))]
   [(subst vName μ_1 (cas SM FM ι-var μ_2 μ_3))
@@ -337,6 +341,13 @@
   updateFront : ι τ σ -> σ
   [(updateFront ι τ σ)
    (sortσ ,(cons (list (term ι) (term τ)) (term (removeByKey ι σ))))])
+
+(define-metafunction syntax
+  calcι : (op Expr Expr) -> number
+  [(calcι (== ι      ι     )) 1]
+  [(calcι (== Expr_1 Expr_2)) 0]
+  [(calcι (!= ι      ι     )) 0]
+  [(calcι (!= Expr_1 Expr_2)) 1])
 
 (define-metafunction syntax
   calc : (op number number) -> number

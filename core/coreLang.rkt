@@ -24,7 +24,17 @@
    (normalize
      ((in-hole E (subst vName μ-subst AST))         auxξ))
    (side-condition (not (term (isUsed vName AST))))]
-  
+
+   [(normalize
+     ((in-hole E (in-hole EU        (op ι Expr)))  auxξ))
+   (normalize
+     ((in-hole E (in-hole EU (calcι (op ι Expr)))) auxξ))] 
+
+   [(normalize
+     ((in-hole E (in-hole EU        (op Expr ι)))  auxξ))
+   (normalize
+     ((in-hole E (in-hole EU (calcι (op Expr ι)))) auxξ))] 
+ 
   [(normalize
      ((in-hole E (in-hole EU       (op number_1 number_2)))  auxξ))
    (normalize

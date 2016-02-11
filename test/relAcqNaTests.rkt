@@ -1,12 +1,14 @@
-#lang racket
+#lang at-exp racket
 (require redex/reduction-semantics)
 (require "../core/syntax.rkt")
 (require "../core/coreUtils.rkt")
 (require "../rules/relAcqRules.rkt")
 (require "../rules/naRules.rkt")
 (require "testTerms.rkt")
+(require "../rules/consumeRules.rkt")
 (require "../core/pp.rkt")
 (require "../core/langs.rkt")
+(require "../core/parser.rkt")
 
 (define relAcqRules (define-relAcqRules etaPsiLang
                       addReadNode_t
@@ -17,7 +19,8 @@
                       addReadNode_t
                       etaPsiDefaultState getWriteσ_nil ιNotInReadQueue
                       addWriteNode_t))
-(define step        (union-reduction-relations etaPsiCoreStep relAcqRules naRules))
+(define consumeRules (define-conReadRules etaPsiLang addReadNode_t))
+(define step        (union-reduction-relations etaPsiCoreStep relAcqRules naRules consumeRules))
 
 #|
        c_rel = 0;
@@ -80,6 +83,37 @@ Should lead to `stuck` because of VafeiadisNarayan:OOPSLA (ConsistentRFna) ---
 (test-->>∃ step
            (term (,term_WrelWna_Racq etaPsiDefaultState))
            (term (stuck etaPsiDefaultState)))
+
+#|
+     data_na = 0
+     p_rel   = 0
+data_na = 5     || r1 = p_con
+p_rel   = &data || if (r1 != 0) {
+                ||    r2 = [r1]_na
+                || else
+                ||    r2 = 1
+
+Possible outcomes for r2 are 1 and 5.
+|#
+(define term_MP_consume
+  @prog{data_na := 0;
+        p_rel   := 0;
+        r0 := spw
+              {{{ data_na := 5;
+                  p_rel   := data
+              ||| r1 := p_con;
+                  if r1 != 0
+                  then r1_na
+                  else ret 1
+                  fi }}};
+        ret r0_2 })
+
+(test-->> step
+          (term (,term_MP_consume etaPsiDefaultState))
+
+          (term ((ret 1) etaPsiDefaultState))
+          (term ((ret 5) etaPsiDefaultState)))
+
 
 (define (find-path red from to)
   (define parents (make-hash))
