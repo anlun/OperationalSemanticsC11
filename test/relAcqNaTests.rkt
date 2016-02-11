@@ -114,6 +114,74 @@ Possible outcomes for r2 are 1 and 5.
           (term ((ret 1) etaPsiDefaultState))
           (term ((ret 5) etaPsiDefaultState)))
 
+#|
+     data_na = 0
+     p_rel   = 0
+data_na = 5     || r1 = p_con
+p_rel   = &data || if (r1 != 0) {
+                ||    r2 = data_na
+                || else
+                ||    r2 = 1
+
+It has undefined behaviour, despite
+the previous example,
+because there is no data dependency between
+memory loads in the right subthread.
+|#
+(define term_MP_consume_stuck
+  @prog{data_na := 0;
+        p_rel   := 0;
+        r0 := spw
+              {{{ data_na := 5;
+                  p_rel   := data
+              ||| r1 := p_con;
+                  if r1 != 0
+                  then data_na
+                  else ret 1
+                  fi }}};
+        ret r0_2 })
+
+(test-->> step
+          (term (,term_MP_consume_stuck etaPsiDefaultState))
+
+          (term ((ret 1) etaPsiDefaultState))
+          (term (stuck   etaPsiDefaultState)))
+
+#|
+     data_na  = 0
+     dataP_na = 0
+     p_rel    = 0
+data_na  = 5      || r1 = p_con
+dataP_na = &data  ||
+p_rel    = &dataP || if (r1 != 0) {
+                  ||    r3 = r1_na
+                  ||    r2 = r3_na
+                  || else
+                  ||    r2 = 1
+
+Possible outcomes for r2 are 1 and 5.
+|#
+(define term_MP_pointer_consume
+  @prog{data_na  := 0;
+        dataP_na := 0;
+        p_rel    := 0;
+        r0 := spw
+              {{{ data_na  := 5;
+                  dataP_na := data;
+                  p_rel    := dataP
+              ||| r1 := p_con;
+                  if r1 != 0
+                  then r3 := r1_na;
+                       r3_na
+                  else ret 1
+                  fi }}};
+        ret r0_2 })
+
+(test-->> step
+          (term (,term_MP_pointer_consume etaPsiDefaultState))
+
+          (term ((ret 1) etaPsiDefaultState))
+          (term ((ret 5) etaPsiDefaultState)))
 
 (define (find-path red from to)
   (define parents (make-hash))

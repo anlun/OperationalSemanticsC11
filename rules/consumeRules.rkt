@@ -61,9 +61,9 @@
    (repeat
        (propagateDD_helpF σ-dd vName AST))]
 
-  [(propagateDD_helpF σ-dd vName_0 (AST_0 >>= (λ vName AST_1)))
+  [(propagateDD_helpF σ-dd vName_0 (AST_0 >>= (λ vName_1 AST_1)))
    ((propagateDD_helpF σ-dd vName_0 AST_0) >>=
-    (λ vName_0 (propagateDD_helpF σ-dd vName_0 AST_1)))   
+    (λ vName_1 (propagateDD_helpF σ-dd vName_0 AST_1)))   
    (side-condition (not (equal? (term vName_0) (term vName_1))))]
 
   [(propagateDD_helpF σ-dd vName (AST_0 >>= (λ vName AST_1)))
@@ -101,18 +101,13 @@
 
 (propagateDD-tests)
 
-;; (propagateDD (R ()) () ((par ((write na "data" 5) >>= (λ r-1 (write rel "p" "data"))) ((ret 0) >>= (λ r1 (if (!= r1 0) (read na r1) (ret 1))))) >>= (λ r0 (ret (proj2 r0)))))
-
-
 (define-syntax-rule (define-conReadRules lang addReadNode)
   (begin
 
   (reduction-relation
    lang #:domain ξ
    
-   (-->  ((in-hole E (read  con ι)) auxξ) 
-        ;; (normalize
-         ;; ((in-hole E (ret μ-value)) auxξ_new))
+   (-->  ((in-hole E (read con ι)) auxξ) 
        (normalize
         ((propagateDD path σ-dd
           (in-hole E (ret μ-value))) auxξ_new))
@@ -197,6 +192,20 @@
 
         (side-condition (term (seeLast ι η (frontMerge σ_read σ-dd))))
         (side-condition (term (nonNegativeτ τ))))
+
+  
+   (--> ((in-hole E (readCon RM ι σ-dd)) auxξ)
+        (stuck defaultState)
+        "readCon-na-stuck"
+        (where path (pathE E))
+        (where σ_read (getReadσ path auxξ))
+        (where σ_na   (getσNA auxξ))
+
+        (where τ_cur  (fromMaybe -1 (lookup ι (frontMerge σ_read σ-dd))))
+        (where τ_na   (fromMaybe -1 (lookup ι σ_na)))
+        (side-condition (or (< (term τ_cur) (term τ_na))
+                            (term (negativeτ τ_cur)))))
+
 )))
 
 (define-syntax-rule (define-conSCReadRules lang
