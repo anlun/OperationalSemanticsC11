@@ -329,8 +329,9 @@
 
 (define-metafunction coreLang
   isRlxPostRead : any -> boolean
-  [(isRlxPostRead (vName ι-var rlx)) #t]
-  [(isRlxPostRead any)               #f])
+  [(isRlxPostRead (vName ι-var rlx σ-dd)) #t]
+  [(isRlxPostRead (vName ι-var con σ-dd)) #t]  ; TODO: rename methods appropriately
+  [(isRlxPostRead any)                    #f])
 
 (define-metafunction coreLang
   are∀PostReadsRlx : path auxξ -> boolean
@@ -341,9 +342,9 @@
 
 (define-metafunction coreLang
   ιNotInα : ι α -> boolean
-  [(ιNotInα ι (any_0 ... (vName         ι RM) any_1 ...)) #f]
-  [(ιNotInα ι (any_0 ... (vName_0 vName_1 RM) any_1 ...)) #f]
-  [(ιNotInα ι α)                                          #t])
+  [(ιNotInα ι (any_0 ... (vName         ι RM σ-dd) any_1 ...)) #f]
+  [(ιNotInα ι (any_0 ... (vName_0 vName_1 RM σ-dd) any_1 ...)) #f]
+  [(ιNotInα ι α)                                               #t])
 
 (define-metafunction coreLang
   ιNotInReadQueue : ι path auxξ -> boolean
@@ -356,7 +357,7 @@
 (define-metafunction coreLang
   αToγRecords : ι τ α -> γ
   [(αToγRecords ι τ α) ,(map
-                         (λ (x) (match x [(list vName locvar mod)
+                         (λ (x) (match x [(list vName locvar mod ddFront)
                                           (list (term ι) (term τ) vName)]))
                          (term α))])
 
@@ -370,10 +371,11 @@
 
 (define-metafunction coreLang
   isFirstRecord : vName ι α -> boolean
-  [(isFirstRecord vName_0 ι_0 ((vName_0 ι_0     RM ) any ...)) #t]
-  [(isFirstRecord vName_0 ι_0 ((vName_1 ι_1     acq) any ...)) #f]
-  [(isFirstRecord vName_0 ι   ((vName_1 vName_2 RM ) any ...)) #f]
-  [(isFirstRecord vName_0 ι_0 ((vName_1 ι_1     RM ) any ...)) (isFirstRecord vName_0 ι_0 (any ...))])
+  [(isFirstRecord vName_0 ι_0 ((vName_0 ι_0     RM  σ-dd) any ...)) #t]
+  [(isFirstRecord vName_0 ι_0 ((vName_1 ι_1     acq σ-dd) any ...)) #f]
+  [(isFirstRecord vName_0 ι   ((vName_1 vName_2 RM  σ-dd) any ...)) #f]
+  [(isFirstRecord vName_0 ι_0 ((vName_1 ι_1     RM  σ-dd) any ...))
+   (isFirstRecord vName_0 ι_0 (any ...))])
 
 (define-metafunction coreLang
   substμα : vName μ-value α -> α
@@ -383,8 +385,8 @@
 (define-metafunction coreLang
   substια : vName ι α -> α
   [(substια vName   ι ()) ()]
-  [(substια vName_0 ι ((vName_1 ι-var RM) any ...))
-   ,(cons (term (vName_1 (substι vName_0 ι ι-var) RM))
+  [(substια vName_0 ι ((vName_1 ι-var RM σ-dd) any ...))
+   ,(cons (term (vName_1 (substι vName_0 ι ι-var) RM σ-dd))
           (term (substια vName_0 ι (any ...))))])
 
 (define-metafunction coreLang
@@ -436,3 +438,70 @@
   [(acqSuccCASσReadNew ι η σ_read)
    (updateFront ι τ (acqFailCASσReadNew ι η σ_read))
    (where τ (getNextTimestamp ι η))])
+
+(define-metafunction coreLang
+  getDataDependencies_full : μ-value σ η -> σ-dd
+  [(getDataDependencies_full ι σ η) ,(cons (term (ι τ))
+                                            (term (getDataDependencies_full μ-value σ η)))
+                                     (where (Just τ      ) (lookup ι σ))
+                                     (where (Just μ-value) (getValueByTimestamp ι τ η))]
+  [(getDataDependencies_full μ-value σ η) ()])
+
+(define-metafunction coreLang
+  getDataDependencies : μ-value σ η -> σ-dd
+  [(getDataDependencies μ-value σ η) ,(cdr
+                                       (term (getDataDependencies_full μ-value σ η)))])
+
+(define (getDD-tests)
+  (test-equal (term (getDataDependencies "x"
+                                   (("x" 1) ("y" 1) ("z" 1))
+                                   (("x" ((0 0 ()) (1 "y" ())))
+                                    ("y" ((0 0 ()) (1 "z" ())))
+                                    ("z" ((0 0 ()) (1  1  ()))))))
+              (term (("y" 1) ("z" 1))))
+
+  (test-equal (term (getDataDependencies "p"
+                                         (("data" 0) ("p" 0))
+                                         (("data" ((1 5 (("data" 1))) (0 0 (("data" 0)))))
+                                          ("p"
+                                           ((1 "data" (("data" 1) ("p" 1)))
+                                            (0 0 (("data" 0) ("p" 0))))))))
+              (term ()))
+
+  (test-equal (term (getDataDependencies "p"
+                                         (("data" 1) ("p" 1))
+                                         (("data" ((1 5 (("data" 1))) (0 0 (("data" 0)))))
+                                          ("p"
+                                           ((1 "data" (("data" 1) ("p" 1)))
+                                            (0 0 (("data" 0) ("p" 0))))))))
+              (term (("data" 1)))))
+(getDD-tests)
+
+(define-metafunction coreLang
+  propagateDD_helpF : σ-dd vName AST -> AST
+
+  [(propagateDD_helpF σ-dd vName (read RM vName))
+   (readCon RM vName σ-dd)]
+
+  [(propagateDD_helpF σ-dd vName (cas SM FM vName μ_0 μ_1))
+   (casCon SM FM vName μ_0 μ_1 σ-dd)]
+
+  [(propagateDD_helpF σ-dd vName (if Expr AST_0 AST_1))
+   (if Expr
+       (propagateDD_helpF σ-dd vName AST_0)
+       (propagateDD_helpF σ-dd vName AST_1))]
+
+  [(propagateDD_helpF σ-dd vName (repeat AST))
+   (repeat
+       (propagateDD_helpF σ-dd vName AST))]
+
+  [(propagateDD_helpF σ-dd vName_0 (AST_0 >>= (λ vName_1 AST_1)))
+   ((propagateDD_helpF σ-dd vName_0 AST_0) >>=
+    (λ vName_1 (propagateDD_helpF σ-dd vName_0 AST_1)))   
+   (side-condition (not (equal? (term vName_0) (term vName_1))))]
+
+  [(propagateDD_helpF σ-dd vName (AST_0 >>= (λ vName AST_1)))
+   ((propagateDD_helpF σ-dd vName AST_0) >>=
+    (λ vName AST_1))]
+  
+  [(propagateDD_helpF σ-dd vName AST) AST])

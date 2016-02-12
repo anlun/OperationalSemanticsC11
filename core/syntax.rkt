@@ -109,7 +109,7 @@
   ;; For postponed reads.
   [φ α
      (par φ φ)]
-  [α ((vName ι-var RM) ...)]
+  [α ((vName ι-var RM σ-dd) ...)]
   [γ ((ι τ vName) ...)]
 
   [Ep hole
@@ -159,12 +159,15 @@
     [`(,_     sc) #f]
     [`(relAcq ,_) #t]
     [`(,_ relAcq) #f]
+
     [`(rel   acq) #f]
     [`(rel   con) #f]
-    [`(rel    ,_) #t]
+    [`(rel   rlx) #t]
+
     [`(acq   rel) #f]
-    [`(acq   ,_)  #t]
-    [`(con   ,_)  #t]
+    [`(acq   con) #t]
+    [`(acq   rlx) #t]
+    [`(con   rlx) #t]
     [_            #f]))
 
 (define (mo<=? mo1 mo2)

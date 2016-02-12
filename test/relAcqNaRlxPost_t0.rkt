@@ -18,7 +18,7 @@ Can lead to R1 = R2 = 0.
 (test_WR_WR_00 term_WrelRacq_WrelRacq)
 
 #|
-R1 = x_rlx            || R2 = y_rlx
+R1 = x_{rlx, con}     || R2 = y_{rlx, con}
 y_{sc, rel, rlx}  = 1 || x_{sc, rel, rlx}  = 1
 
 With postponed reads it should be able to lead to R1 = R2 = 1.
@@ -30,6 +30,10 @@ With postponed reads it should be able to lead to R1 = R2 = 1.
 (test_RW_RW_11 term_RrlxWrlx_RrlxWrlx)
 (test_RW_RW_11 term_RrlxWrel_RrlxWrel)
 (test_RW_RW_11 term_RrlxWsc_RrlxWsc)
+
+(test_RW_RW_11 term_RconWrlx_RconWrlx)
+(test_RW_RW_11 term_RconWrel_RconWrel)
+(test_RW_RW_11 term_RconWsc_RconWsc)
 
 #|
 R1 = x_{acq,rlx}  || R2 = y_{acq,rlx} 

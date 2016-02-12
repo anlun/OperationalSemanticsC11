@@ -167,10 +167,11 @@
    ,(above**
      (map (λ (h)
             (match h
-              [(list name l m)
+              [(list name l m front)
                (beside*/space (symbol->string name)
                               (term (ppι-var ,l))
-                              (term (ppMod ,m)))]))
+                              (term (ppMod ,m))
+                              (term (ppσ ,front)))]))
           (term α)))])
 
 (define (pp-par label left right)

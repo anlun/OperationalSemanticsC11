@@ -32,12 +32,13 @@
         (where path     (pathE E))
         (where φ        (getφ auxξ))
         (where α        (getByPath path φ))
-        (where α_new    ,(append (term α) (term ((a ι-var RM)))))
+        (where α_new    ,(append (term α) (term ((a ι-var RM ())))))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
 
         (side-condition (not (equal? (term sc) (term RM)))))
 
+   ; TODO: propagate information at the moment of resolving consume read.
    (-->  (                     AST  auxξ)
         (normalize        
          ((subst vName μ-value AST) auxξ_new))
@@ -47,7 +48,7 @@
         (where ψ_read (getReadψ auxξ))
         
         (where (in-hole Ep α) (getφ auxξ))
-        (where (in-hole El_0 (vName ι RM)) α)
+        (where (in-hole El_0 (vName ι RM σ-dd)) α)
         (where (in-hole El_1 (τ μ-value σ)) (getCellHistory ι η))
         (where path (pathEp Ep))
 
@@ -64,7 +65,7 @@
 
         (where σ_read   (getByPath path ψ_read))
         (side-condition (not (empty? (term α))))
-        (side-condition (term (correctτ τ ι σ_read)))
+        (side-condition (term (correctτ τ ι (frontMerge σ_read σ-dd))))
         (side-condition (term (isFirstRecord vName ι α)))
 
         (side-condition (not (term (isRestrictedByγ ι τ RM γ)))))
@@ -76,7 +77,7 @@
         (where η      (getη auxξ))
         (where ψ_read (getReadψ auxξ))
         (where (in-hole Ep α) (getφ auxξ))
-        (where (in-hole El_0 (vName ι RM)) α)
+        (where (in-hole El_0 (vName ι RM σ-dd)) α)
         (side-condition (not (empty? (term α))))        
         (side-condition (term (isFirstRecord vName ι α)))
         

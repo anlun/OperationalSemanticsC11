@@ -99,6 +99,43 @@ Rel modificators solve nothing here.
 (define term_RrlxWrel_RrlxWrel (concretize abst_RW_RW "rlx rel rlx rel"))
 
 #|
+R1 = x_rlx || R2 = y_rlx
+y_sc   = 1 || x_sc   = 1
+
+With postponed reads it should be able to lead to R1 = R2 = 1. 
+SC modificators solve nothing here.
+|#
+(define term_RrlxWsc_RrlxWsc (concretize abst_RW_RW "rlx sc rlx sc"))
+
+#|
+R1 = x_con || R2 = y_con
+y_rlx  = 1 || x_rlx  = 1
+
+With postponed reads it should be able to lead to R1 = R2 = 1. 
+|#
+(define term_RconWrlx_RconWrlx (concretize abst_RW_RW "con rlx con rlx"))
+
+#|
+R1 = x_con  || R2 = y_con
+y_rel   = 1 || x_rel   = 1
+
+With postponed reads it should be able to lead to R1 = R2 = 1. 
+Rel modificators solve nothing here,
+because consume (con) doesn't provide synchronization.
+|#
+(define term_RconWrel_RconWrel (concretize abst_RW_RW "con rel con rel"))
+
+#|
+R1 = x_con || R2 = y_con
+y_sc   = 1 || x_sc   = 1
+
+With postponed reads it should be able to lead to R1 = R2 = 1. 
+SC modificators solve nothing here,
+because consume (con) doesn't provide synchronization.
+|#
+(define term_RconWsc_RconWsc (concretize abst_RW_RW "con sc con sc"))
+
+#|
 R1 = x_acq  || R2 = y_rlx
 y_rel   = 1 || x_rel   = 1
 
@@ -121,15 +158,6 @@ y_rel   = 1 || x_rel   = 1
 It's impossible to get R1 = R2 = 1.
 |#
 (define term_RacqWrel_RacqWrel (concretize abst_RW_RW "acq rel acq rel"))
-
-#|
-R1 = x_rlx || R2 = y_rlx
-y_sc   = 1 || x_sc   = 1
-
-With postponed reads it should be able to lead to R1 = R2 = 1. 
-SC modificators solve nothing here.
-|#
-(define term_RrlxWsc_RrlxWsc (concretize abst_RW_RW "rlx sc rlx sc"))
 
 #|
 x_na = 1 || x_na = 2
