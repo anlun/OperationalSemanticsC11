@@ -6,6 +6,7 @@
 (require "../rules/postReadRules.rkt")
 (require "../rules/rlxRules.rkt")
 (require "../rules/relAcqRules.rkt")
+(require "../rules/naRules.rkt")
 (require "../rules/scRules.rkt")
 (require "../core/langs.rkt")
 (provide defaultState step)
@@ -25,6 +26,8 @@
                              synchronizeWriteFront isReadQueueEqualTo
                              are∀PostReadsRlx ιNotInReadQueue 
                              addWriteNode_t))
+(define naRules            (define-naWriteStuckRules  etaPsi2SCpostLang
+                             defaultState getWriteσ_2ψ ιNotInReadQueue addWriteNode_t))
 (define scRules            (define-scRules            etaPsi2SCpostLang
                              getReadσ updateReadσ synchronizeWriteFront isReadQueueEqualTo
                              are∀PostReadsRlx ιNotInReadQueue))
@@ -33,4 +36,5 @@
               postponedReadRules
               rlxWriteRules
               relAcqWriteRules
+              naRules
               scRules))

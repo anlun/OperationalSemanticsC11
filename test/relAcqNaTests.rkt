@@ -161,22 +161,6 @@ p_rel    = &dataP || if (r1 != 0) {
 
 Possible outcomes for r2 are 1 and 5.
 |#
-(define term_MP_pointer_consume
-  @prog{data_na  := 0;
-        dataP_na := 0;
-        p_rel    := 0;
-        r0 := spw
-              {{{ data_na  := 5;
-                  dataP_na := data;
-                  p_rel    := dataP
-              ||| r1 := p_con;
-                  if r1 != 0
-                  then r3 := r1_na;
-                       r3_na
-                  else ret 1
-                  fi }}};
-        ret r0_2 })
-
 (test-->> step
           (term (,term_MP_pointer_consume etaPsiDefaultState))
 

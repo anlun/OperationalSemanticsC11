@@ -18,6 +18,11 @@
                              (not (equal? name (term vName)))]))
             (term γ))])
 
+(define-metafunction coreLang
+  updateByFrontMod : RM path σ ψ -> ψ
+  [(updateByFrontMod acq path σ ψ) (updateByFront path σ ψ)]
+  [(updateByFrontMod RM  path σ ψ) ψ])
+
 (define-syntax-rule (define-postponedReadRules lang)
   (begin
 
@@ -52,7 +57,7 @@
         (where (in-hole El_1 (τ μ-value σ)) (getCellHistory ι η))
         (where path (pathEp Ep))
 
-        (where ψ_read_new (updateByFront path σ ψ_read))
+        (where ψ_read_new (updateByFrontMod RM path σ ψ_read))
         (where auxξ_upd_ψ (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
 
         (where α_new      (substμα vName μ-value (elToList El_0)))

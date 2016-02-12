@@ -648,3 +648,33 @@ r1 = y_mod1 || r2 = x_mod3
 (define term_W1scRsc_W2relRacq   (concretize abst_W1R_W2R "sc  sc  rel acq"))
 (define term_W1scRsc_W2scRacq    (concretize abst_W1R_W2R "sc  sc  sc  acq"))
 (define term_W1scRsc_W2scRsc     (concretize abst_W1R_W2R "sc  sc  sc  sc "))
+
+#|
+     data_na  = 0
+     dataP_na = 0
+     p_rel    = 0
+data_na  = 5      || r1 = p_con
+dataP_na = &data  ||
+p_rel    = &dataP || if (r1 != 0) {
+                  ||    r3 = r1_na
+                  ||    r2 = r3_na
+                  || else
+                  ||    r2 = 1
+
+Possible outcomes for r2 are 1 and 5.
+|#
+(define term_MP_pointer_consume
+  @prog{data_na  := 0;
+        dataP_na := 0;
+        p_rel    := 0;
+        r0 := spw
+              {{{ data_na  := 5;
+                  dataP_na := data;
+                  p_rel    := dataP
+              ||| r1 := p_con;
+                  if r1 != 0
+                  then r3 := r1_na;
+                       r3_na
+                  else ret 1
+                  fi }}};
+        ret r0_2 })
