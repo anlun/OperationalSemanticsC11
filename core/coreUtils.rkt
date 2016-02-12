@@ -378,16 +378,21 @@
    (isFirstRecord vName_0 ι_0 (any ...))])
 
 (define-metafunction coreLang
-  substμα : vName μ-value α -> α
-  [(substμα vName ι       α) (substια vName ι α)]
-  [(substμα vName μ-value α) α])
+  substμα : vName μ-value σ-dd α -> α
+  [(substμα vName ι       σ-dd α) (substια vName ι σ-dd α)]
+  [(substμα vName μ-value σ-dd α) α])
 
 (define-metafunction coreLang
-  substια : vName ι α -> α
-  [(substια vName   ι ()) ()]
-  [(substια vName_0 ι ((vName_1 ι-var RM σ-dd) any ...))
-   ,(cons (term (vName_1 (substι vName_0 ι ι-var) RM σ-dd))
-          (term (substια vName_0 ι (any ...))))])
+  substια : vName ι σ-dd α -> α
+  [(substια vName ι σ-dd ()) ()]
+
+  [(substια vName_0 ι σ-dd_0 ((vName_1 vName_0 RM σ-dd_1) any ...))
+   ,(cons (term (vName_1 ι RM (frontMerge σ-dd_0 σ-dd_1)))
+          (term (substια vName_0 ι σ-dd_0 (any ...))))]
+
+  [(substια vName_0 ι σ-dd_0 ((vName_1 ι-var RM σ-dd_1) any ...))
+   ,(cons (term (vName_1 ι-var RM σ-dd_1))
+          (term (substια vName_0 ι σ-dd_0 (any ...))))])
 
 (define-metafunction coreLang
   isLocationUninitialized : ι-var auxξ -> boolean
@@ -483,6 +488,9 @@
   [(propagateDD_helpF σ-dd vName (read RM vName))
    (readCon RM vName σ-dd)]
 
+  [(propagateDD_helpF σ-dd_0 vName (readCon RM vName σ-dd_1))
+   (readCon RM vName (frontMerge σ-dd_0 σ-dd_1))]
+
   [(propagateDD_helpF σ-dd vName (cas SM FM vName μ_0 μ_1))
    (casCon SM FM vName μ_0 μ_1 σ-dd)]
 
@@ -505,3 +513,89 @@
     (λ vName AST_1))]
   
   [(propagateDD_helpF σ-dd vName AST) AST])
+
+;; DD -- data dependencies
+(define-metafunction coreLang
+  propagateDD : path σ-dd AST -> AST
+  [(propagateDD () σ-dd ((ret μ-value) >>= (λ vName AST)))
+   ((ret μ-value) >>= (λ vName (propagateDD_helpF σ-dd vName AST)))]
+  
+  [(propagateDD path σ-dd (AST_0 >>= (λ vName AST_1)))
+   ((propagateDD path σ-dd AST_0) >>= (λ vName AST_1))]
+
+  [(propagateDD () σ-dd (ret μ)) (ret μ)]
+  ;; [(propagateDD () σ-dd (read RM ι-var))
+   ;; (propagateDD_helpF σ-dd (read RM ι-var))]
+
+  ;; [(propagateDD () σ-dd_0 (readCon RM ι-var σ-dd_1))
+   ;; (propagateDD_helpF σ-dd_0 (readCon RM ι-var σ-dd_1))]
+
+  [(propagateDD (L path) σ-dd (par AST_0 AST_1))
+   (par (propagateDD path σ-dd AST_0) AST_1)]
+  [(propagateDD (R path) σ-dd (par AST_0 AST_1))
+   (par AST_0 (propagateDD path σ-dd AST_1))]
+
+  [(propagateDD path σ-dd AST) AST])
+
+
+(define-metafunction coreLang
+  propagateDD_vName_helpF : vName σ-dd AST -> AST
+  
+  [(propagateDD_vName_helpF vName σ-dd (read RM vName))
+   (readCon RM vName σ-dd)]
+
+  [(propagateDD_vName_helpF vName σ-dd_0 (readCon RM vName σ-dd_1))
+   (readCon RM vName (frontMerge σ-dd_0 σ-dd_1))]
+
+  [(propagateDD_vName_helpF vName σ-dd (cas SM FM vName μ_0 μ_1))
+   (casCon SM FM vName μ_0 μ_1 σ-dd)]
+
+  [(propagateDD_vName_helpF vName σ-dd_0 (casCon SM FM vName μ_0 μ_1 σ-dd_1))
+   (casCon SM FM vName μ_0 μ_1 (frontMerge σ-dd_0 σ-dd_1))]
+
+  [(propagateDD_vName_helpF vName σ-dd (if Expr AST_0 AST_1))
+   (if Expr (propagateDD_vName_helpF vName σ-dd AST_0)
+            (propagateDD_vName_helpF vName σ-dd AST_1))]
+
+  [(propagateDD_vName_helpF vName σ-dd (repeat AST))
+   (repeat (propagateDD_vName_helpF vName σ-dd AST))]
+
+  [(propagateDD_vName_helpF vName σ-dd (repeatFuel number AST))
+   (repeatFuel number (propagateDD_vName_helpF vName σ-dd AST))]
+
+  [(propagateDD_vName_helpF vName σ-dd (AST_0 >>= (λ vName AST_1)))
+   ((propagateDD_vName_helpF vName σ-dd AST_0) >>= (λ vName AST_1))]
+
+  [(propagateDD_vName_helpF vName_0 σ-dd (AST_0 >>= (λ vName_1 AST_1)))
+   ((propagateDD_vName_helpF vName_0 σ-dd AST_0) >>=
+    (λ vName_1 (propagateDD_vName_helpF vName_0 σ-dd AST_1))) 
+   (side-condition (not (equal? (term vName_0) (term vName_1))))]
+
+  [(propagateDD_vName_helpF vName σ-dd AST) AST])
+
+(define-metafunction coreLang
+  propagateDD_vName : vName path σ-dd AST -> AST
+  [(propagateDD_vName vName (L path) σ-dd (par AST_0 AST_1))
+   (par (propagateDD_vName vName path σ-dd AST_0) AST_1)]
+
+  [(propagateDD_vName vName (R path) σ-dd (par AST_0 AST_1))
+   (par AST_0 (propagateDD_vName vName path σ-dd AST_1))]
+
+  [(propagateDD_vName vName_0 path σ-dd (AST_0 >>= (λ vName_1 AST_1)))
+   ((propagateDD_vName vName_0 path σ-dd AST_0) >>= (λ vName_1 AST_1))]
+
+  [(propagateDD_vName vName () σ-dd AST)
+   (propagateDD_vName_helpF vName σ-dd AST)])
+
+(define (propagateDD-tests)
+  (test-equal (term (propagateDD (R ())
+                                 ()
+                                 ((par (ret 0)
+                                       ((ret 0) >>=
+                                        (λ r1 (read na r1)))) >>=
+                                  (λ r0 (ret r0)))))
+              '((par (ret 0) ((ret 0) >>= (λ r1 (readCon na r1 ()))))
+                >>=
+                (λ r0 (ret r0))) ))
+
+(propagateDD-tests)

@@ -23,6 +23,11 @@
   [(updateByFrontMod acq path σ ψ) (updateByFront path σ ψ)]
   [(updateByFrontMod RM  path σ ψ) ψ])
 
+(define-metafunction coreLang
+  getDataDependenciesMod : RM ι σ η -> σ-dd
+  [(getDataDependenciesMod con ι σ η) (getDataDependencies ι σ η)]
+  [(getDataDependenciesMod RM  ι σ η) ()])
+
 (define-syntax-rule (define-postponedReadRules lang)
   (begin
 
@@ -43,10 +48,28 @@
 
         (side-condition (not (equal? (term sc) (term RM)))))
 
-   ; TODO: propagate information at the moment of resolving consume read.
+   (-->  ((in-hole E (readCon RM ι-var σ-dd)) auxξ)
+        (normalize
+         ((in-hole E (ret          a       )) auxξ_new))
+        "readCon-postponed"
+        (fresh a)
+        (where path     (pathE E))
+        (where φ        (getφ auxξ))
+        (where α        (getByPath path φ))
+        (where α_new    ,(append (term α) (term ((a ι-var RM σ-dd)))))
+        (where φ_new    (updateOnPath path α_new φ))
+        (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
+
+        (side-condition (not (equal? (term sc) (term RM)))))
+
    (-->  (                     AST  auxξ)
+        ;; (normalize        
+        ;;  ((propagateDD path σ-dd_new
+        ;;   (subst vName μ-value AST)) auxξ_new))
         (normalize        
-         ((subst vName μ-value AST) auxξ_new))
+         ((subst vName μ-value
+                 (propagateDD_vName vName path σ-dd_new AST)) auxξ_new))
+
         "read-resolve"
         (where φ      (getφ auxξ))
         (where η      (getη auxξ))
@@ -60,7 +83,9 @@
         (where ψ_read_new (updateByFrontMod RM path σ ψ_read))
         (where auxξ_upd_ψ (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
 
-        (where α_new      (substμα vName μ-value (elToList El_0)))
+        (where σ-dd_new   (frontMerge σ-dd (getDataDependenciesMod RM ι σ η)))
+
+        (where α_new      (substμα vName μ-value σ-dd_new (elToList El_0)))
         (where φ_new      (updateOnPath path α_new φ))
         (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ_upd_ψ))
 

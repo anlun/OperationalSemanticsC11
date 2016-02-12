@@ -5,35 +5,6 @@
 (require "../core/coreUtils.rkt")
 (provide define-conReadRules)
 
-;; DD -- data dependencies
-(define-metafunction coreLang
-  propagateDD : path σ-dd AST -> AST
-  [(propagateDD () σ-dd ((ret μ-value) >>= (λ vName AST)))
-   ((ret μ-value) >>= (λ vName (propagateDD_helpF σ-dd vName AST)))]
-  
-  [(propagateDD path σ-dd (AST_0 >>= (λ vName AST_1)))
-   ((propagateDD path σ-dd AST_0) >>= (λ vName AST_1))]
-
-  [(propagateDD path σ-dd (ret μ)) (ret μ)]
-
-  [(propagateDD (L path) σ-dd (par AST_0 AST_1))
-   (par (propagateDD path σ-dd AST_0) AST_1)]
-  [(propagateDD (R path) σ-dd (par AST_0 AST_1))
-   (par AST_0 (propagateDD path σ-dd AST_1))])
-
-(define (propagateDD-tests)
-  (test-equal (term (propagateDD (R ())
-                                 ()
-                                 ((par (ret 0)
-                                       ((ret 0) >>=
-                                        (λ r1 (read na r1)))) >>=
-                                  (λ r0 (ret r0)))))
-              '((par (ret 0) ((ret 0) >>= (λ r1 (readCon na r1 ()))))
-                >>=
-                (λ r0 (ret r0))) ))
-
-(propagateDD-tests)
-
 (define-syntax-rule (define-conReadRules lang addReadNode)
   (begin
 

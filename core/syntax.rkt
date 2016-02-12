@@ -257,7 +257,7 @@
   [(subst vName μ (AST >>= K))
    ((subst vName μ AST) >>= (substCont vName μ K))]
   
-[(subst vName μ_1 (read RM ι-var))
+  [(subst vName μ_1 (read RM ι-var))
    (read RM (substι vName μ_1 ι-var))]
   [(subst vName μ_1 (readCon RM ι-var σ-dd))
    (readCon RM (substι vName μ_1 ι-var) σ-dd)]
