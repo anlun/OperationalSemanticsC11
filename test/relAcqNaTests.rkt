@@ -166,23 +166,3 @@ Possible outcomes for r2 are 1 and 5.
 
           (term ((ret 1) etaPsiDefaultState))
           (term ((ret 5) etaPsiDefaultState)))
-
-(define (find-path red from to)
-  (define parents (make-hash))
-  (let/ec done
-    (let loop ([t from])
-      (define nexts (apply-reduction-relation red t))
-      (for ([next (in-list (remove-duplicates nexts))])
-        (cond
-          [(equal? next to)
-           (hash-set! parents to t)
-           (done)]
-          [(hash-ref parents next #f)
-           (void)]
-          [else
-           (hash-set! parents next t)
-           (loop next)]))))
-  (let loop ([term to])
-    (cond
-      [(equal? term from) (list from)]
-      [else (cons term (loop (hash-ref parents term)))])))

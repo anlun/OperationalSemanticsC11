@@ -102,3 +102,22 @@ With postponed reads it shouldn't lead to R1 = 2; R1 = 1.
           (term ((ret (2 0)) defaultState))
           (term ((ret (0 1)) defaultState)))
 
+#|
+     data_na  = 0
+     dataP_na = 0
+     p_rel    = 0
+data_na  = 5      || r1 = p_con
+dataP_na = &data  ||
+p_rel    = &dataP || if (r1 != 0) {
+                  ||    r3 = r1_na
+                  ||    r2 = r3_na
+                  || else
+                  ||    r2 = 1
+
+Possible outcomes for r2 are 1 and 5.
+|#
+(test-->> step
+          (term (,term_MP_pointer_consume defaultState))
+
+          (term ((ret 1) defaultState))
+          (term ((ret 5) defaultState)))

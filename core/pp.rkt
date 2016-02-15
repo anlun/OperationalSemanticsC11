@@ -4,7 +4,7 @@
 (require "syntax.rkt")
 (require "coreLang.rkt")
 (require "coreUtils.rkt")
-(provide pretty-printer ast-print)
+(provide pretty-printer ast-print print-state)
 
 (current-page-width 1050)
 (define tabstop (make-parameter 3))
@@ -228,7 +228,7 @@
 (define-metafunction coreLang
   ; ppStateγ : auxξ -> Doc
   [(ppStateγ (θ_0 ... (R γ) θ_1 ...))
-   ,(above* "--- R γ" (term (ppγ γ)))]
+   ,(above* "--- R γ" " " (term (ppγ γ)))]
   [(ppStateγ auxξ) ,(empty-doc)])
 
 (define-metafunction coreLang
@@ -248,11 +248,13 @@
             (term (ppStateφ auxξ))
             (term (ppStateγ auxξ)))])
 
-(define (write-text-state t txt)
-  (send txt insert
-    (doc->string
+(define (print-state t)
+  (doc->string
      (above* (term (pp ,(list-ref t 0))) ""
-             (term (ppState ,(list-ref t 1)))))))
+             (term (ppState ,(list-ref t 1))))))
+
+(define (write-text-state t txt)
+  (send txt insert (print-state t)))
 
 (define (ast-print ast)
   (doc->string (term (pp ,ast))))

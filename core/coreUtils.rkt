@@ -193,8 +193,10 @@
 (define-metafunction coreLang
   updateOnPath : path any any -> any
   [(updateOnPath ()       any_new              any)  any_new]
-  [(updateOnPath (L path) any_new (par any_0 any_1)) (par (updateOnPath path any_new any_0) any_1)]
-  [(updateOnPath (R path) any_new (par any_0 any_1)) (par any_0 (updateOnPath path any_new any_1))])
+  [(updateOnPath (L path) any_new (par any_0 any_1))
+   (par (updateOnPath path any_new any_0) any_1)]
+  [(updateOnPath (R path) any_new (par any_0 any_1))
+   (par any_0 (updateOnPath path any_new any_1))])
 
 (define-metafunction coreLang
   spwST_readψ_φ : path auxξ -> auxξ
@@ -494,6 +496,9 @@
   [(propagateDD_helpF σ-dd vName (cas SM FM vName μ_0 μ_1))
    (casCon SM FM vName μ_0 μ_1 σ-dd)]
 
+  [(propagateDD_helpF σ-dd_0 vName (casCon SM FM vName μ_0 μ_1 σ-dd_1))
+   (casCon SM FM vName μ_0 μ_1 (frontMerge σ-dd_0 σ-dd_1))]
+
   [(propagateDD_helpF σ-dd vName (if Expr AST_0 AST_1))
    (if Expr
        (propagateDD_helpF σ-dd vName AST_0)
@@ -502,6 +507,9 @@
   [(propagateDD_helpF σ-dd vName (repeat AST))
    (repeat
        (propagateDD_helpF σ-dd vName AST))]
+
+  [(propagateDD_helpF σ-dd vName (repeatFuel number AST))
+   (repeatFuel number (propagateDD_helpF vName σ-dd AST))]
 
   [(propagateDD_helpF σ-dd vName_0 (AST_0 >>= (λ vName_1 AST_1)))
    ((propagateDD_helpF σ-dd vName_0 AST_0) >>=
@@ -523,55 +531,12 @@
   [(propagateDD path σ-dd (AST_0 >>= (λ vName AST_1)))
    ((propagateDD path σ-dd AST_0) >>= (λ vName AST_1))]
 
-  [(propagateDD () σ-dd (ret μ)) (ret μ)]
-  ;; [(propagateDD () σ-dd (read RM ι-var))
-   ;; (propagateDD_helpF σ-dd (read RM ι-var))]
-
-  ;; [(propagateDD () σ-dd_0 (readCon RM ι-var σ-dd_1))
-   ;; (propagateDD_helpF σ-dd_0 (readCon RM ι-var σ-dd_1))]
-
   [(propagateDD (L path) σ-dd (par AST_0 AST_1))
    (par (propagateDD path σ-dd AST_0) AST_1)]
   [(propagateDD (R path) σ-dd (par AST_0 AST_1))
    (par AST_0 (propagateDD path σ-dd AST_1))]
 
   [(propagateDD path σ-dd AST) AST])
-
-
-(define-metafunction coreLang
-  propagateDD_vName_helpF : vName σ-dd AST -> AST
-  
-  [(propagateDD_vName_helpF vName σ-dd (read RM vName))
-   (readCon RM vName σ-dd)]
-
-  [(propagateDD_vName_helpF vName σ-dd_0 (readCon RM vName σ-dd_1))
-   (readCon RM vName (frontMerge σ-dd_0 σ-dd_1))]
-
-  [(propagateDD_vName_helpF vName σ-dd (cas SM FM vName μ_0 μ_1))
-   (casCon SM FM vName μ_0 μ_1 σ-dd)]
-
-  [(propagateDD_vName_helpF vName σ-dd_0 (casCon SM FM vName μ_0 μ_1 σ-dd_1))
-   (casCon SM FM vName μ_0 μ_1 (frontMerge σ-dd_0 σ-dd_1))]
-
-  [(propagateDD_vName_helpF vName σ-dd (if Expr AST_0 AST_1))
-   (if Expr (propagateDD_vName_helpF vName σ-dd AST_0)
-            (propagateDD_vName_helpF vName σ-dd AST_1))]
-
-  [(propagateDD_vName_helpF vName σ-dd (repeat AST))
-   (repeat (propagateDD_vName_helpF vName σ-dd AST))]
-
-  [(propagateDD_vName_helpF vName σ-dd (repeatFuel number AST))
-   (repeatFuel number (propagateDD_vName_helpF vName σ-dd AST))]
-
-  [(propagateDD_vName_helpF vName σ-dd (AST_0 >>= (λ vName AST_1)))
-   ((propagateDD_vName_helpF vName σ-dd AST_0) >>= (λ vName AST_1))]
-
-  [(propagateDD_vName_helpF vName_0 σ-dd (AST_0 >>= (λ vName_1 AST_1)))
-   ((propagateDD_vName_helpF vName_0 σ-dd AST_0) >>=
-    (λ vName_1 (propagateDD_vName_helpF vName_0 σ-dd AST_1))) 
-   (side-condition (not (equal? (term vName_0) (term vName_1))))]
-
-  [(propagateDD_vName_helpF vName σ-dd AST) AST])
 
 (define-metafunction coreLang
   propagateDD_vName : vName path σ-dd AST -> AST
@@ -581,11 +546,14 @@
   [(propagateDD_vName vName (R path) σ-dd (par AST_0 AST_1))
    (par AST_0 (propagateDD_vName vName path σ-dd AST_1))]
 
+  [(propagateDD_vName vName_0 path σ-dd ((ret vName_0) >>= (λ vName_1 AST_1)))
+   ((ret vName_0) >>= (λ vName_1 (propagateDD_vName vName_1 path σ-dd AST_1)))]
+
   [(propagateDD_vName vName_0 path σ-dd (AST_0 >>= (λ vName_1 AST_1)))
    ((propagateDD_vName vName_0 path σ-dd AST_0) >>= (λ vName_1 AST_1))]
 
   [(propagateDD_vName vName () σ-dd AST)
-   (propagateDD_vName_helpF vName σ-dd AST)])
+   (propagateDD_helpF σ-dd vName AST)])
 
 (define (propagateDD-tests)
   (test-equal (term (propagateDD (R ())
@@ -599,3 +567,68 @@
                 (λ r0 (ret r0))) ))
 
 (propagateDD-tests)
+
+(define (find-path red from to)
+  (define parents (make-hash))
+  (let/ec done
+    (let loop ([t from])
+      (define nexts (apply-reduction-relation red t))
+      (for ([next (in-list (remove-duplicates nexts))])
+        (cond
+          [(equal? next to)
+           (hash-set! parents to t)
+           (done)]
+          [(hash-ref parents next #f)
+           (void)]
+          [else
+           (hash-set! parents next t)
+           (loop next)]))))
+  (let loop ([term to])
+    (cond
+      [(equal? term from) (list from)]
+      [else (cons term (loop (hash-ref parents term)))])))
+
+;; (define (find-path red from to)
+;;   (define parents (make-hash))
+;;   (let/ec done
+;;     (let loop ([t from])
+;;       (define nexts (apply-reduction-relation red t))
+;;       (for ([next (in-list (remove-duplicates nexts))])
+;;         (cond
+;;           [(equal? next to)
+;;            (hash-set! parents to t)
+;;            (done)]
+;;           [(hash-ref parents next #f)
+;;            (void)]
+;;           [else
+;;            (hash-set! parents next t)
+;;            (loop next)]))))
+;;   parents)
+
+;; (define (getChildren from parents)
+;;   (for/hash ([(k v) (in-hash parents)]
+;;              #:unless (equal? k from))
+;;     (values v k)))
+
+;; (define (show-restricted-trace tracesF step from to)
+;;   (define parents  (find-path step from to))
+;;   (define children (getChildren from parents))
+;;   (tracesF step from
+;;           #:reduce
+;;           (λ (_ t)
+;;             (let/ec k
+;;               (list
+;;                (list #f
+;;                      (hash-ref children t
+;;                                (λ () (k '()))
+;;                                )))))))
+
+;; (define (show-restricted-trace-pp tracesF pp step from to)
+;;   (define parents  (find-path step from to))
+;;   (define children (getChildren from parents))
+;;   (tracesF step from
+;;           #:reduce
+;;           (λ (_ t)
+;;             (let/ec k
+;;               (list (list #f (hash-ref children t (λ () (k '())))))))
+;;           #:pp pp))

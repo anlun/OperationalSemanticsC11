@@ -63,13 +63,9 @@
         (side-condition (not (equal? (term sc) (term RM)))))
 
    (-->  (                     AST  auxξ)
-        ;; (normalize        
-        ;;  ((propagateDD path σ-dd_new
-        ;;   (subst vName μ-value AST)) auxξ_new))
         (normalize        
          ((subst vName μ-value
                  (propagateDD_vName vName path σ-dd_new AST)) auxξ_new))
-
         "read-resolve"
         (where φ      (getφ auxξ))
         (where η      (getη auxξ))
