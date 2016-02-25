@@ -18,7 +18,8 @@
    etaPsi2SCpostLang #:domain ξ))
 (define coreTest (define-coreTest coreStep defaultState))
 
-(define postponedReadRules (define-postponedReadRules etaPsi2SCpostLang))
+(define postponedReadRules (define-postponedReadRules etaPsi2SCpostLang
+                             defaultState))
 (define rlxWriteRules      (define-rlxWriteRules      etaPsi2SCpostLang
                              getWriteσ_2ψ isReadQueueEqualTo ιNotInReadQueue))
 (define relAcqWriteRules   (define-relAcqWriteRules   etaPsi2SCpostLang

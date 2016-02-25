@@ -28,7 +28,7 @@
   [(getDataDependenciesMod con ι σ η) (getDataDependencies ι σ η)]
   [(getDataDependenciesMod RM  ι σ η) ()])
 
-(define-syntax-rule (define-postponedReadRules lang)
+(define-syntax-rule (define-postponedReadRules lang defaultState)
   (begin
 
   (reduction-relation
