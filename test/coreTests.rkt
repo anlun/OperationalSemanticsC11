@@ -88,7 +88,7 @@
    5)
   
   (test-equal
-   (term (spwST_gr () (() (Graph (((0 skip)) ())) (GFront 0))))
+   (term (spwST-gr () (() (Graph (((0 skip)) ())) (GFront 0))))
    (term (() (Graph (((1 skip) (0 skip)) ((0 1 sb)))) (GFront (par 1 1)))))
 
   (test-equal

@@ -14,7 +14,7 @@
 (define-term defaultState (() (Read ()) (NA ()) (Write ()) (SC ()) (P ()) (R ())))
 (define coreStep
   (extend-reduction-relation
-   (define-coreStep defaultState spwST_2ψ_φ joinST_2ψ_φ isReadQueueEqualTo)
+   (define-coreStep defaultState spwST-2ψ_φ joinST-2ψ_φ isReadQueueEqualTo)
    etaPsi2SCpostLang #:domain ξ))
 (define coreTest (define-coreTest coreStep defaultState))
 
