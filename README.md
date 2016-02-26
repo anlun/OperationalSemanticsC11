@@ -13,7 +13,7 @@ Futher you need to run
 make setup
 ```
 or just `make` to recompile it.
-The project needs a version of DrRacket >= 6.2.1.
+The project needs a version of Racket >= 6.2.1.
 
 ### How to write and execute own examples
 
