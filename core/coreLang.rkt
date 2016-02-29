@@ -106,15 +106,13 @@
         "casCon-stuck-uninitialized"
         (where #t (isLocationUninitialized ι-var auxξ)))
 
-   (-->  ((in-hole E (read RM ι-var)) auxξ)
-        (normalize 
-         ((in-hole E stuck) defaultState))
+   (--> ((in-hole E (read RM ι-var)) auxξ)
+        (stuck defaultState)
         "read-stuck"
         (where #t (isLocationUninitialized ι-var auxξ)))
 
-   (-->  ((in-hole E (readCon RM ι-var σ-dd)) auxξ)
-        (normalize 
-         ((in-hole E stuck) defaultState))
+   (--> ((in-hole E (readCon RM ι-var σ-dd)) auxξ)
+        (stuck defaultState)
         "readCon-stuck"
         (where #t (isLocationUninitialized ι-var auxξ)))
   
