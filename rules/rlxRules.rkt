@@ -23,7 +23,8 @@
         (where auxξ_new (updateState (Read ψ) (Read (updateByFront path ((ι τ)) ψ)) auxξ))
 
         (where σ_read   (getByPath path ψ))
-        (side-condition (term (correctτ τ ι σ_read)))))))
+        (side-condition (term (correctτ τ ι σ_read)))
+        (side-condition (term (isPossibleE E auxξ)))))))
 
 (define-syntax-rule (define-rlxWriteRules lang getWriteσ isReadQueueEqualTo ιNotInReadQueue)
   (begin
@@ -52,7 +53,8 @@
         (where auxξ_new   auxξ_upd_γ)
 
         (side-condition (term (are∀PostReadsRlx  path auxξ)))
-        (side-condition (term (ιNotInReadQueue ι path auxξ))))
+        (side-condition (term (ιNotInReadQueue ι path auxξ)))
+        (side-condition (term (isPossibleE E auxξ))))
 
    (-->  ((in-hole E (cas SM rlx ι μ-value_expected μ-value_new)) auxξ)
         (normalize
@@ -69,7 +71,8 @@
         ;(side-condition (term (correctτ τ ι σ_read))) ; <- Previous condition implies it.
         (side-condition (not (equal? (term μ-value)
                                      (term μ-value_expected))))
-        (side-condition (term (isReadQueueEqualTo () path auxξ))))
+        (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (term (isPossibleE E auxξ))))
    
    (-->  ((in-hole E (cas rlx FM ι μ-value_expected μ-value_new)) auxξ)
         (normalize
@@ -91,7 +94,8 @@
 
         (side-condition
          (term (succCAScondition ι η μ-value_expected rlx FM)))
-        (side-condition (term (ιNotInReadQueue ι path auxξ))))
+        (side-condition (term (ιNotInReadQueue ι path auxξ)))
+        (side-condition (term (isPossibleE E auxξ))))
 )))
 
 (define-syntax-rule (define-rlxRules lang getWriteσ isReadQueueEqualTo ιNotInReadQueue)

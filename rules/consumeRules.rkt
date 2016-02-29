@@ -26,7 +26,8 @@
         (where auxξ_new   (addReadNode τ (read con ι μ-value) path auxξ_upd_ψ))
 
         (where σ_read   (getByPath path ψ))
-        (side-condition (term (correctτ τ ι σ_read))))
+        (side-condition (term (correctτ τ ι σ_read)))
+        (side-condition (term (isPossibleE E auxξ))))
 
    (-->  ((in-hole E (readCon con ι σ-dd)) auxξ)
        (normalize
@@ -43,7 +44,8 @@
         (where auxξ_new   (addReadNode τ (read con ι μ-value) path auxξ_upd_ψ))
 
         (where σ_read   (getByPath path ψ))
-        (side-condition (term (correctτ τ ι (frontMerge σ_read σ-dd)))))
+        (side-condition (term (correctτ τ ι (frontMerge σ_read σ-dd))))
+        (side-condition (term (isPossibleE E auxξ))))
 
    (-->  ((in-hole E (readCon acq ι σ-dd)) auxξ)
         (normalize
@@ -60,7 +62,8 @@
         (where σ_read     (getByPath path ψ))
 
         (side-condition (term (correctτ τ ι
-                                        (frontMerge σ_read σ-dd)))))
+                                        (frontMerge σ_read σ-dd))))
+        (side-condition (term (isPossibleE E auxξ))))
 
    (-->  ((in-hole E (readCon rlx ι σ-dd)) auxξ)
         (normalize
@@ -77,7 +80,9 @@
         (where σ_read     (getByPath path ψ))
 
         (side-condition (term (correctτ τ ι
-                                        (frontMerge σ_read σ-dd)))))
+                                        (frontMerge σ_read σ-dd))))
+        (side-condition (term (isPossibleE E auxξ))))
+
    (-->  ((in-hole E (readCon na ι σ-dd)) auxξ)
         (normalize
          ((propagateDD path σ-dd
@@ -95,7 +100,8 @@
         (where σ_read     (getByPath path ψ))
 
         (side-condition (term (seeLast ι η (frontMerge σ_read σ-dd))))
-        (side-condition (term (nonNegativeτ τ))))
+        (side-condition (term (nonNegativeτ τ)))
+        (side-condition (term (isPossibleE E auxξ))))
 
   
    (--> ((in-hole E (readCon RM ι σ-dd)) auxξ)
@@ -108,7 +114,8 @@
         (where τ_cur  (fromMaybe -1 (lookup ι (frontMerge σ_read σ-dd))))
         (where τ_na   (fromMaybe -1 (lookup ι σ_na)))
         (side-condition (or (< (term τ_cur) (term τ_na))
-                            (term (negativeτ τ_cur)))))
+                            (term (negativeτ τ_cur))))
+        (side-condition (term (isPossibleE E auxξ))))
 
 )))
 

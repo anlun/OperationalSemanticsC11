@@ -76,23 +76,26 @@
    (-->  ((in-hole E ((ret μ-subst) >>= (λ vName AST))) auxξ)
         (normalize
          ((in-hole E (subst vName μ-subst AST))         auxξ))
-        ">>=-subst")
-        ;; (side-condition (term (isPossibleE E auxξ))))
+        ">>=-subst"
+        (side-condition (term (isPossibleE E auxξ))))
    
    (-->  ((in-hole E (in-hole EU (choice number_1 number_2))) auxξ)
         (normalize
          ((in-hole E (in-hole EU         number_1          )) auxξ))
-        "num-choice-left")
+        "num-choice-left"
+        (side-condition (term (isPossibleE E auxξ))))
 
    (-->  ((in-hole E (in-hole EU (choice number_1 number_2))) auxξ)
         (normalize
          ((in-hole E (in-hole EU                  number_2 )) auxξ))
-        "num-choice-right")
+        "num-choice-right"
+        (side-condition (term (isPossibleE E auxξ))))
   
    (-->  ((in-hole E (                            repeat AST))    auxξ)
         (normalize
          ((in-hole E (AST >>= (λ x (if x (ret x) (repeat AST))))) auxξ))
-        "repeat-unroll")
+        "repeat-unroll"
+        (side-condition (term (isPossibleE E auxξ))))
 
    (-->  ((in-hole E (                            repeatFuel number     AST))    auxξ)
         (normalize
@@ -100,59 +103,70 @@
         "repeatFuel-unroll"
         (where number_new ,(- (term number) 1))
         (side-condition
-         (> (term number) 0)))
+         (> (term number) 0))
+        (side-condition (term (isPossibleE E auxξ))))
 
    (--> ((in-hole E (repeatFuel 0 AST)) auxξ)
         (nofuel defaultState)
-        "repeatFuel-nofuel")
+        "repeatFuel-nofuel"
+        (side-condition (term (isPossibleE E auxξ))))
 
    (--> ((in-hole E (cas SM FM ι-var μ-value_1 μ-value_2)) auxξ)
         (stuck defaultState)
         "cas-stuck-wrong-modificators"
-        (side-condition (not (term (casMO=>? SM FM)))))
+        (side-condition (not (term (casMO=>? SM FM))))
+        (side-condition (term (isPossibleE E auxξ))))
 
    (--> ((in-hole E (cas SM FM ι-var μ-value_1 μ-value_2)) auxξ)
         (stuck defaultState)
         "cas-stuck-uninitialized"
-        (where #t (isLocationUninitialized ι-var auxξ)))
+        (where #t (isLocationUninitialized ι-var auxξ))
+        (side-condition (term (isPossibleE E auxξ))))
 
    (--> ((in-hole E (casCon SM FM ι-var μ-value_1 μ-value_2 σ-dd)) auxξ)
         (stuck defaultState)
         "casCon-stuck-wrong-modificators"
-        (side-condition (not (term (casMO=>? SM FM)))))
+        (side-condition (not (term (casMO=>? SM FM))))
+        (side-condition (term (isPossibleE E auxξ))))
 
    (--> ((in-hole E (casCon SM FM ι-var μ-value_1 μ-value_2 σ-dd)) auxξ)
         (stuck defaultState)
         "casCon-stuck-uninitialized"
-        (where #t (isLocationUninitialized ι-var auxξ)))
+        (where #t (isLocationUninitialized ι-var auxξ))
+        (side-condition (term (isPossibleE E auxξ))))
 
    (--> ((in-hole E (read RM ι-var)) auxξ)
         (stuck defaultState)
         "read-stuck"
-        (where #t (isLocationUninitialized ι-var auxξ)))
+        (where #t (isLocationUninitialized ι-var auxξ))
+        (side-condition (term (isPossibleE E auxξ))))
 
    (--> ((in-hole E (readCon RM ι-var σ-dd)) auxξ)
         (stuck defaultState)
         "readCon-stuck"
-        (where #t (isLocationUninitialized ι-var auxξ)))
+        (where #t (isLocationUninitialized ι-var auxξ))
+        (side-condition (term (isPossibleE E auxξ))))
   
    (-->  ((in-hole E (if 0 AST_1 AST_2)) auxξ)
         (normalize 
          ((in-hole E AST_2             ) auxξ))
-        "if-false")
+        "if-false"
+        (side-condition (term (isPossibleE E auxξ))))
    (-->  ((in-hole E (if number AST_1 AST_2)) auxξ)
         (normalize 
          ((in-hole E AST_1                  ) auxξ))
         "if-true"
         (side-condition
-          (not (equal? (term number) 0))))
+          (not (equal? (term number) 0)))
+        (side-condition (term (isPossibleE E auxξ))))
 
    (-->  ((in-hole E (par (ret μ-value_0) (ret μ-value_1)))              auxξ)
         (normalize 
          ((in-hole E (ret (    μ-value_0       μ-value_1))) (joinST path auxξ)))
         "join"
         (where path (pathE E))
-        (side-condition (term (isReadQueueEqualTo (par () ()) path auxξ))))
+        (side-condition (term (isReadQueueEqualTo (par () ()) path auxξ)))
+        (side-condition (term (isPossibleE E auxξ))))
 
    (-->  ((in-hole E (spw AST_0 AST_1)) auxξ)
         (normalize 
@@ -160,7 +174,8 @@
         "spw"
         (where path (pathE E))
         (where auxξ_new (spwST path auxξ))
-        (side-condition (term (isReadQueueEqualTo () path auxξ))))
+        (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (term (isPossibleE E auxξ))))
      
    ; For test results brevity only.
    (--> ((ret μ) auxξ)
@@ -168,6 +183,7 @@
         "heap-info-erasure"
         (side-condition     ; To eliminate cycle.
          (not (equal? (term auxξ) (term defaultState)))))
+        ;; (side-condition (term (isPossibleE E auxξ))))
    )))
 
 ;;;;;;;;;;;;;;;;

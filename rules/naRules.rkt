@@ -25,7 +25,8 @@
         (where auxξ_new (addReadNode τ (read na ι μ-value) path auxξ))
         
         (side-condition (term (seeLast ι η σ_read)))
-        (side-condition (term (nonNegativeτ τ)))))))
+        (side-condition (term (nonNegativeτ τ)))
+        (side-condition (term (isPossibleE E auxξ)))))))
 
 (define-syntax-rule (define-naWriteStuckRules lang
                       defaultState getWriteσ ιNotInReadQueue addWriteNode)
@@ -43,7 +44,8 @@
 
         (where τ_cur  (fromMaybe -1 (lookup ι σ_read)))
         (where τ_na   (fromMaybe -1 (lookup ι σ_na)))
-        (side-condition (< (term τ_cur) (term τ_na))))
+        (side-condition (< (term τ_cur) (term τ_na)))
+        (side-condition (term (isPossibleE E auxξ))))
         #|
         (where η        (getη     auxξ))
         (where ψ        (getReadψ auxξ))
@@ -61,7 +63,8 @@
         (where τ_cur  (fromMaybe -1 (lookup ι σ_read)))
         (where τ_na   (fromMaybe -1 (lookup ι σ_na)))
         (side-condition (or (< (term τ_cur) (term τ_na))
-                            (term (negativeτ τ_cur)))))
+                            (term (negativeτ τ_cur))))
+        (side-condition (term (isPossibleE E auxξ))))
         #|
         (where η      (getη     auxξ))
         (where ψ      (getReadψ auxξ))
@@ -99,7 +102,8 @@ record (so as about a synchronization front stored in it).
 
         (where σ_read   (getByPath path ψ))
         (side-condition (term (seeLast ι η σ_read)))
-        (side-condition (term (ιNotInReadQueue ι path auxξ)))))))
+        (side-condition (term (ιNotInReadQueue ι path auxξ)))
+        (side-condition (term (isPossibleE E auxξ)))))))
 
 (define-syntax-rule (define-naRules lang
                       addReadNode defaultState getWriteσ ιNotInReadQueue addWriteNode)

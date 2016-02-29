@@ -23,7 +23,8 @@
         (where auxξ_upd_ψ (updateState (Read ψ) (Read (updateByFront path σ ψ)) auxξ))
         (where auxξ_new   (addReadNode τ (read acq ι μ-value) path auxξ_upd_ψ))
         (where σ_read   (getByPath path ψ))
-        (side-condition (term (correctτ τ ι σ_read)))))))
+        (side-condition (term (correctτ τ ι σ_read)))
+        (side-condition (term (isPossibleE E auxξ)))))))
 
 (define-syntax-rule (define-relAcqWriteRules lang
                       addReadNode
@@ -58,7 +59,8 @@
 
         ;(side-condition (term (isReadQueueEqualTo () path auxξ))))
         (side-condition (term (are∀PostReadsRlx  path auxξ)))
-        (side-condition (term (ιNotInReadQueue ι path auxξ))))
+        (side-condition (term (ιNotInReadQueue ι path auxξ)))
+        (side-condition (term (isPossibleE E auxξ))))
    
    (-->  ((in-hole E (cas SM acq ι μ-value_expected μ-value_to_write)) auxξ)
         (normalize
@@ -76,7 +78,8 @@
         ;(side-condition (term (correctτ τ ι σ_read))) ; <- Previous condition implies it.
         (side-condition (not (equal? (term μ-value)
                                      (term μ-value_expected))))
-        (side-condition (term (isReadQueueEqualTo () path auxξ))))
+        (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (term (isPossibleE E auxξ))))
         
    (-->  ((in-hole E (cas rel FM ι μ-value_expected μ-value_new)) auxξ)
         (normalize
@@ -102,7 +105,8 @@
                                            path auxξ_upd_η))
         (side-condition
          (term (succCAScondition ι η μ-value_expected rel FM)))
-        (side-condition (term (isReadQueueEqualTo () path auxξ))))
+        (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (term (isPossibleE E auxξ))))
    
    (-->  ((in-hole E (cas acq FM ι μ-value_expected μ-value_new)) auxξ)
         (normalize
@@ -127,7 +131,8 @@
         
         (side-condition
          (term (succCAScondition ι η μ-value_expected acq FM)))
-        (side-condition (term (isReadQueueEqualTo () path auxξ))))
+        (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (term (isPossibleE E auxξ))))
 
    (-->  ((in-hole E (cas relAcq FM ι μ-value_expected μ-value_new)) auxξ)
         (normalize
@@ -155,7 +160,8 @@
         
         (side-condition
          (term (succCAScondition ι η μ-value_expected relAcq FM)))
-        (side-condition (term (isReadQueueEqualTo () path auxξ)))))))
+        (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (term (isPossibleE E auxξ)))))))
 
 (define-syntax-rule (define-relAcqRules lang
                       addReadNode

@@ -46,7 +46,8 @@
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
 
-        (side-condition (not (equal? (term sc) (term RM)))))
+        (side-condition (not (equal? (term sc) (term RM))))
+        (side-condition (term (isPossibleE E auxξ))))
 
    (-->  ((in-hole E (readCon RM ι-var σ-dd)) auxξ)
         (normalize
@@ -60,7 +61,8 @@
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
 
-        (side-condition (not (equal? (term sc) (term RM)))))
+        (side-condition (not (equal? (term sc) (term RM))))
+        (side-condition (term (isPossibleE E auxξ))))
 
    (-->  (                     AST  auxξ)
         (normalize        
@@ -94,7 +96,8 @@
         (side-condition (term (correctτ τ ι (frontMerge σ_read σ-dd))))
         (side-condition (term (isFirstRecord vName ι α)))
 
-        (side-condition (not (term (isRestrictedByγ ι τ RM γ)))))
+        (side-condition (not (term (isRestrictedByγ ι τ RM γ))))
+        (side-condition (term (isPossiblePath path auxξ))))
 
    (--> (AST auxξ)
         (stuck defaultState)
@@ -107,4 +110,5 @@
         (side-condition (not (empty? (term α))))        
         (side-condition (term (isFirstRecord vName ι α)))
         
-        (side-condition (term (isLocationUninitialized ι auxξ)))))))
+        (side-condition (term (isLocationUninitialized ι auxξ)))
+        (side-condition (term (isPossiblePath path auxξ)))))))
