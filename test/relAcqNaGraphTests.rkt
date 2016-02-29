@@ -18,7 +18,7 @@
 
 (define coreStep
   (extend-reduction-relation
-   (define-coreStep defaultState spwST-readψ_gr joinST-readψ_gr isReadQueueEqualTo_t)
+   (define-coreStep defaultState spwST-readψ-gr joinST-readψ-gr isReadQueueEqualTo_t)
    etaPsiGraphLang #:domain ξ))
 (define coreTest (define-coreTest coreStep defaultState))
 

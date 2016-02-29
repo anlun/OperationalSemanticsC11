@@ -72,7 +72,7 @@
 (define-term postponedReadDefaultState (() (Read ()) (NA ()) (P ()) (R ())))
 (define postponedReadCoreStep
   (extend-reduction-relation
-   (define-coreStep postponedReadDefaultState spwST-readψ_φ joinST-readψ_φ isReadQueueEqualTo)
+   (define-coreStep postponedReadDefaultState spwST-readψ-φ joinST-readψ-φ isReadQueueEqualTo)
    postReadLang #:domain ξ))
 (define postponedReadCoreTest (define-coreTest postponedReadCoreStep postponedReadDefaultState))
 
