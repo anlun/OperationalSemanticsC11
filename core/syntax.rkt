@@ -102,6 +102,8 @@
   [path ()
         (L path)
         (R path)]
+  
+  [paths (path ...)]
 
   [Maybe (Just any)
          None]

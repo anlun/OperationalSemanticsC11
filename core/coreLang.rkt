@@ -12,52 +12,72 @@
   [ξ (AST auxξ)])
 
 (define-metafunction coreLang
+  isPossiblePath : path auxξ -> boolean
+  [(isPossiblePath path_0 (θ_0 ... (Paths (path_1 path_2 ...)) θ_1 ...))
+   ,(equal? (term path_0) (term path_1))]
+  [(isPossiblePath path auxξ) ,#t])
+
+(define-metafunction coreLang
+  isPossibleE : E auxξ -> boolean
+  [(isPossibleE E auxξ) (isPossiblePath (pathE E) auxξ)])
+
+(define-metafunction coreLang
   isUsed : vName AST -> boolean
   [(isUsed vName AST) #f
                       (side-condition (equal? (term (subst vName 1 AST)) (term AST)))]
   [(isUsed vName AST) #t])
 
 (define-metafunction coreLang
-  normalize : ξ -> ξ
-  [(normalize
+  normalize_subst : ξ -> ξ
+  [(normalize_subst
      ((in-hole E ((ret μ-subst) >>= (λ vName AST))) auxξ))
-   (normalize
+   (normalize_subst
      ((in-hole E (subst vName μ-subst AST))         auxξ))
    (side-condition (not (term (isUsed vName AST))))]
 
-   [(normalize
+   [(normalize_subst
      ((in-hole E (in-hole EU        (op ι Expr)))  auxξ))
-   (normalize
+   (normalize_subst
      ((in-hole E (in-hole EU (calcι (op ι Expr)))) auxξ))] 
 
-   [(normalize
+   [(normalize_subst
      ((in-hole E (in-hole EU        (op Expr ι)))  auxξ))
-   (normalize
+   (normalize_subst
      ((in-hole E (in-hole EU (calcι (op Expr ι)))) auxξ))] 
  
-  [(normalize
+  [(normalize_subst
      ((in-hole E (in-hole EU       (op number_1 number_2)))  auxξ))
-   (normalize
+   (normalize_subst
      ((in-hole E (in-hole EU (calc (op number_1 number_2)))) auxξ))
    (side-condition (not (equal? (term op) 'choice)))]
   
-  [(normalize
+  [(normalize_subst
      ((in-hole E (in-hole EU           (projOp (μ_1 μ_2))))  auxξ))
-   (normalize
+   (normalize_subst
      ((in-hole E (in-hole EU (projCalc (projOp (μ_1 μ_2))))) auxξ))]
-  [(normalize ξ) ξ])
+  [(normalize_subst ξ) ξ])
+
+(define-metafunction coreLang
+  schedulerStep : auxξ -> auxξ
+  [(schedulerStep (θ_0 ... (Paths paths) θ_1 ...))
+   (θ_0 ... (Paths ,(cdr (term paths))) θ_1 ...)]
+  [(schedulerStep auxξ) auxξ])
+
+(define-metafunction coreLang
+  normalize : ξ -> ξ
+  [(normalize (AST auxξ)) (normalize_subst (AST (schedulerStep auxξ)))])
 
 ; ST stands for `state transformer`.
 (define-syntax-rule (define-coreStep defaultState spwST joinST isReadQueueEqualTo)
   (begin
 
-  (reduction-relation
-   coreLang #:domain ξ
+  (reduction-relation coreLang #:domain ξ
 
    (-->  ((in-hole E ((ret μ-subst) >>= (λ vName AST))) auxξ)
         (normalize
          ((in-hole E (subst vName μ-subst AST))         auxξ))
         ">>=-subst")
+        ;; (side-condition (term (isPossibleE E auxξ))))
    
    (-->  ((in-hole E (in-hole EU (choice number_1 number_2))) auxξ)
         (normalize
