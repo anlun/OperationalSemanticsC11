@@ -1,6 +1,7 @@
 #lang racket
 (require redex/reduction-semantics)
 (require "syntax.rkt")
+(require (for-syntax racket/match))
 (provide coreLang define-coreStep define-coreTest normalize isUsed)
 
 (define-extended-language coreLang syntax
@@ -163,3 +164,26 @@
 (test-->> step
           (term (,testTerm-1 defaultState))
           (term ((ret (3 12)) defaultState)))))
+
+(begin-for-syntax
+  (define (rule-converter rule-stx)
+    ;; (datum->syntax rule-stx
+                   (match (syntax->datum rule-stx)
+                     [(list '==> from to name)
+                      (list '--> from to name)]
+                     ;(side-condition (term isPossibleE E auxξ)))]
+                     [a a])))
+;)
+
+(define-syntax (reduction-relation-opc11 stx)
+  ;; (define syndat (syntax->list stx))
+  (define syndat (syntax->list stx))
+  (define lang   (cadr syndat))
+  (define rules  (cddr syndat))
+  (datum->syntax stx
+                    (append
+                     `(reduction-relation ,lang #:domain ξ)
+                     (map rule-converter rules))))
+
+;; (define-syntax (==> stx)
+;;   (datum->syntax stx (rule-converter (syntax-e stx))))
