@@ -8,7 +8,12 @@
 
          etaPsi2Lang
          etaPsiSCLang etaPsi2SCLang etaPsi2SCpostLang
-         graphLang etaPsiGraphLang)
+         graphLang etaPsiGraphLang
+
+         schedulerLang
+         schedulerCoreStep
+         schedulerDefaultState
+)
 
 (define-extended-language etaPsiLang coreLang
   ; State:
@@ -78,6 +83,15 @@
 
 (define-extended-language etaPsi2SCpostLang coreLang
   [auxξ (η (Read ψ) (NA σ) (Write ψ) (SC σ) (P φ) (R γ))])
+
+(define-extended-language schedulerLang coreLang
+  [auxξ (η (Read ψ) (NA σ) (Write ψ) (SC σ) (P φ) (R γ) (Paths paths))])
+(define-term schedulerDefaultState
+  (() (Read ()) (NA ()) (Write ()) (SC ()) (P ()) (R ()) (Paths ())))
+(define schedulerCoreStep
+  (extend-reduction-relation
+   (define-coreStep schedulerDefaultState spwST-2ψ-φ joinST-2ψ-φ isReadQueueEqualTo)
+   schedulerLang #:domain ξ))
 
 (define-extended-language graphLang coreLang
   [auxξ (η (Graph G) (GFront GF))])

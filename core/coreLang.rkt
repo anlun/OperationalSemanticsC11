@@ -1,7 +1,8 @@
 #lang racket
 (require redex/reduction-semantics)
 (require "syntax.rkt")
-(provide coreLang define-coreStep define-coreTest normalize isUsed)
+(provide coreLang define-coreStep define-coreTest normalize isUsed
+         isPossibleE isPossiblePath)
 
 (define-extended-language coreLang syntax
   ; State:
@@ -15,6 +16,8 @@
   isPossiblePath : path auxξ -> boolean
   [(isPossiblePath path_0 (θ_0 ... (Paths (path_1 path_2 ...)) θ_1 ...))
    ,(equal? (term path_0) (term path_1))]
+  [(isPossiblePath path (θ_0 ... (Paths ()) θ_1 ...))
+   ,#f]
   [(isPossiblePath path auxξ) ,#t])
 
 (define-metafunction coreLang
@@ -59,6 +62,8 @@
 
 (define-metafunction coreLang
   schedulerStep : auxξ -> auxξ
+  [(schedulerStep (θ_0 ... (Paths ()) θ_1 ...))
+   (θ_0 ... (Paths ()) θ_1 ...)]
   [(schedulerStep (θ_0 ... (Paths paths) θ_1 ...))
    (θ_0 ... (Paths ,(cdr (term paths))) θ_1 ...)]
   [(schedulerStep auxξ) auxξ])

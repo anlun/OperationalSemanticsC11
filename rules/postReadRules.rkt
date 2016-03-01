@@ -110,5 +110,4 @@
         (side-condition (not (empty? (term α))))        
         (side-condition (term (isFirstRecord vName ι α)))
         
-        (side-condition (term (isLocationUninitialized ι auxξ)))
-        (side-condition (term (isPossiblePath path auxξ)))))))
+        (side-condition (term (isLocationUninitialized ι auxξ)))))))
