@@ -91,13 +91,17 @@
         (where γ_new      (removeγRestrictionsByVName vName γ))
         (where auxξ_new   (updateState (R γ) (R γ_new) auxξ_upd_φ))
 
-        (where σ_read   (getByPath path ψ_read))
+        (where σ_read     (getByPath path ψ_read))
+        (where σ_to-check (frontMerge σ_read σ-dd))
+        (where τ_read     (fromMaybe -1 (lookup ι σ_to-check)))
+        
         (side-condition (not (empty? (term α))))
-        (side-condition (term (correctτ τ ι (frontMerge σ_read σ-dd))))
+        (side-condition (term (correctτ τ ι σ_to-check)))
         (side-condition (term (isFirstRecord vName ι α)))
 
         (side-condition (not (term (isRestrictedByγ ι τ RM γ))))
-        (side-condition (term (isPossiblePath path auxξ))))
+        (side-condition (term (isPossibleRead path τ_read τ auxξ))))
+        ;; (side-condition (term (isPossiblePath path auxξ))))
 
    (--> (AST auxξ)
         (stuck defaultState)

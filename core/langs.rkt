@@ -85,7 +85,7 @@
   [auxξ (η (Read ψ) (NA σ) (Write ψ) (SC σ) (P φ) (R γ))])
 
 (define-extended-language schedulerLang coreLang
-  [auxξ (η (Read ψ) (NA σ) (Write ψ) (SC σ) (P φ) (R γ) (Paths paths))])
+  [auxξ (η (Read ψ) (NA σ) (Write ψ) (SC σ) (P φ) (R γ) (Paths pathsτ))])
 (define-term schedulerDefaultState
   (() (Read ()) (NA ()) (Write ()) (SC ()) (P ()) (R ()) (Paths ())))
 (define schedulerCoreStep

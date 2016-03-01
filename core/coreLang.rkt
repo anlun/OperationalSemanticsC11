@@ -2,7 +2,8 @@
 (require redex/reduction-semantics)
 (require "syntax.rkt")
 (provide coreLang define-coreStep define-coreTest normalize isUsed
-         isPossibleE isPossiblePath)
+         isPossibleE isPossiblePath
+         isPossibleRead)
 
 (define-extended-language coreLang syntax
   ; State:
@@ -14,7 +15,7 @@
 
 (define-metafunction coreLang
   isPossiblePath : path auxξ -> boolean
-  [(isPossiblePath path_0 (θ_0 ... (Paths (path_1 path_2 ...)) θ_1 ...))
+  [(isPossiblePath path_0 (θ_0 ... (Paths ((path_1 τ_1) (path_2 τ_2) ...)) θ_1 ...))
    ,(equal? (term path_0) (term path_1))]
   [(isPossiblePath path (θ_0 ... (Paths ()) θ_1 ...))
    ,#f]
@@ -23,6 +24,24 @@
 (define-metafunction coreLang
   isPossibleE : E auxξ -> boolean
   [(isPossibleE E auxξ) (isPossiblePath (pathE E) auxξ)])
+
+(define-metafunction coreLang
+  ;; isPossibleRead : (E | path) τ τ auxξ -> boolean 
+  [(isPossibleRead path_0 τ_front τ_read
+                   (θ_0 ... (Paths ((path_1 τ_1) (path_2 τ_2) ...)) θ_1 ...))
+   ,(and (equal? (term path_0) (term path_1))
+         (equal? (term τ_read) (+ (term τ_front)
+                                  (term τ_1))))]
+
+  [(isPossibleRead E τ_front τ_read
+                   (θ_0 ... (Paths ((path_1 τ_1) (path_2 τ_2) ...)) θ_1 ...))
+   ,(and (equal? (term path_0) (term path_1))
+         (equal? (term τ_read) (+ (term τ_front)                                  
+                                  (term τ_1))))
+   (where path_0 (pathE E))]
+  [(isPossibleRead any τ_0 τ_1
+                   (θ_0 ... (Paths ()) θ_1 ...)) ,#f]
+  [(isPossibleRead any τ_0 τ_1 auxξ) ,#t])
 
 (define-metafunction coreLang
   isUsed : vName AST -> boolean
@@ -64,8 +83,8 @@
   schedulerStep : auxξ -> auxξ
   [(schedulerStep (θ_0 ... (Paths ()) θ_1 ...))
    (θ_0 ... (Paths ()) θ_1 ...)]
-  [(schedulerStep (θ_0 ... (Paths paths) θ_1 ...))
-   (θ_0 ... (Paths ,(cdr (term paths))) θ_1 ...)]
+  [(schedulerStep (θ_0 ... (Paths pathsτ) θ_1 ...))
+   (θ_0 ... (Paths ,(cdr (term pathsτ))) θ_1 ...)]
   [(schedulerStep auxξ) auxξ])
 
 (define-metafunction coreLang

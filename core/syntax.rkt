@@ -103,7 +103,7 @@
         (L path)
         (R path)]
   
-  [paths (path ...)]
+  [pathsτ ((path τ) ...)]
 
   [Maybe (Just any)
          None]

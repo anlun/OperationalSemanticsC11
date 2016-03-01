@@ -45,13 +45,14 @@ Can lead to R1 = R2 = 0.
 (define startState
            (term (,term_WrlxRrlx_WrlxRrlx
                   (updateState (Paths ())
-                               (Paths (() () () (L ()) (R ())
-                                       (L ()) (R ())
-                                       (L ()) (R ())
-                                       (L ()) (R ())
-                                       () ()
+                               (Paths ((() 0) (() 0) (() 0)
+                                       ((L ()) 0) ((R ()) 0)
+                                       ((L ()) 0) ((R ()) 0)
+                                       ((L ()) 0) ((R ()) 0)
+                                       ((L ()) 0) ((R ()) 0)
+                                       (() 0) (() 0)
                                        ))
                                defaultState))))
-(test-->>∃ step
-           startState
-           (term ((ret (0 0)) defaultState)))
+(test-->> step
+          startState
+          (term ((ret (0 0)) defaultState)))
