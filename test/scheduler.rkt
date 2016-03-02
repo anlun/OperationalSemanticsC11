@@ -6,11 +6,6 @@
 (require "../core/langs.rkt")
 (require "../core/parser.rkt")
 (require "testTerms.rkt")
-(require "../rules/relAcqRules.rkt")
-(require "../rules/naRules.rkt")
-(require "../rules/rlxRules.rkt")
-(require "../rules/scRules.rkt")
-(require "../rules/postReadRules.rkt")
 (require "../steps/schedulerStep.rkt")
 
 #|
