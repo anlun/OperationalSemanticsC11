@@ -11,10 +11,6 @@
    ,(>= (term τ) (term (fromMaybe -1 (lookup ι σ))))])
 
 (define-metafunction coreLang
-  getη : auxξ -> η
-  [(getη (θ_0 ... η θ_1 ...)) η])
-
-(define-metafunction coreLang
   getReadψ  : auxξ -> ψ
   [(getReadψ (θ_0 ...  (Read ψ)  θ_1 ...)) ψ])
 
@@ -395,12 +391,6 @@
   [(substια vName_0 ι σ-dd_0 ((vName_1 ι-var RM σ-dd_1) any ...))
    ,(cons (term (vName_1 ι-var RM σ-dd_1))
           (term (substια vName_0 ι σ-dd_0 (any ...))))])
-
-(define-metafunction coreLang
-  isLocationUninitialized : ι-var auxξ -> boolean
-  [(isLocationUninitialized ι auxξ) ,(equal? (term (getLastTimestamp ι η)) (term -1))
-                                    (where η (getη auxξ))]
-  [(isLocationUninitialized vName auxξ) #f])
 
 (define-metafunction coreLang
   getσToWrite : σ ι η -> σ

@@ -3,7 +3,10 @@
 (require "syntax.rkt")
 (provide coreLang define-coreStep define-coreTest normalize isUsed
          isPossibleE isPossiblePath
-         isPossibleRead)
+         isPossibleRead
+         isLocationDeallocated
+
+         getη isLocationUninitialized)
 
 (define-extended-language coreLang syntax
   ; State:
@@ -14,12 +17,16 @@
   [ξ (AST auxξ)])
 
 (define-metafunction coreLang
+  getη : auxξ -> η
+  [(getη (θ_0 ... η θ_1 ...)) η])
+
+(define-metafunction coreLang
   isPossiblePath : path auxξ -> boolean
   [(isPossiblePath path_0 (θ_0 ... (Paths ((path_1 τ_1) (path_2 τ_2) ...)) θ_1 ...))
    ,(equal? (term path_0) (term path_1))]
   [(isPossiblePath path (θ_0 ... (Paths ()) θ_1 ...))
-   ,#f]
-  [(isPossiblePath path auxξ) ,#t])
+   #f]
+  [(isPossiblePath path auxξ) #t])
 
 (define-metafunction coreLang
   isPossibleE : E auxξ -> boolean
@@ -40,8 +47,8 @@
                                   (term τ_1))))
    (where path_0 (pathE E))]
   [(isPossibleRead any τ_0 τ_1
-                   (θ_0 ... (Paths ()) θ_1 ...)) ,#f]
-  [(isPossibleRead any τ_0 τ_1 auxξ) ,#t])
+                   (θ_0 ... (Paths ()) θ_1 ...)) #f]
+  [(isPossibleRead any τ_0 τ_1 auxξ) #t])
 
 (define-metafunction coreLang
   isUsed : vName AST -> boolean
@@ -91,6 +98,23 @@
   normalize : ξ -> ξ
   [(normalize (AST auxξ)) (normalize_subst (AST (schedulerStep auxξ)))])
 
+(define-metafunction coreLang
+  isLocationDeallocated : ι-var auxξ -> boolean
+  [(isLocationDeallocated ι (θ_0 ... (Deallocated listι) θ_1 ...))
+   ,(not (false? (member (term ι) (term listι))))]
+  [(isLocationDeallocated ι-var auxξ) #f])
+
+(define-metafunction coreLang
+  deallocate : ι auxξ -> auxξ
+  [(deallocate ι (θ_0 ... (Deallocated listι) θ_1 ...))
+   (θ_0 ... (Deallocated ,(cons (term ι) (term listι))) θ_1 ...)])
+
+(define-metafunction coreLang
+  isLocationUninitialized : ι-var auxξ -> boolean
+  [(isLocationUninitialized ι auxξ) ,(equal? (term (getLastTimestamp ι η)) (term -1))
+                                    (where η (getη auxξ))]
+  [(isLocationUninitialized vName auxξ) #f])
+
 ; ST stands for `state transformer`.
 (define-syntax-rule (define-coreStep defaultState spwST joinST isReadQueueEqualTo)
   (begin
@@ -138,38 +162,41 @@
    (--> ((in-hole E (cas SM FM ι-var μ-value_1 μ-value_2)) auxξ)
         (stuck defaultState)
         "cas-stuck-wrong-modificators"
-        (side-condition (not (term (casMO=>? SM FM))))
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (not (term (casMO=>? SM FM)))))
 
    (--> ((in-hole E (cas SM FM ι-var μ-value_1 μ-value_2)) auxξ)
         (stuck defaultState)
         "cas-stuck-uninitialized"
-        (where #t (isLocationUninitialized ι-var auxξ))
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (or (term (isLocationUninitialized ι-var auxξ))
+                            (term (isLocationDeallocated ι-var auxξ)))))
 
    (--> ((in-hole E (casCon SM FM ι-var μ-value_1 μ-value_2 σ-dd)) auxξ)
         (stuck defaultState)
         "casCon-stuck-wrong-modificators"
-        (side-condition (not (term (casMO=>? SM FM))))
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (not (term (casMO=>? SM FM)))))
 
    (--> ((in-hole E (casCon SM FM ι-var μ-value_1 μ-value_2 σ-dd)) auxξ)
         (stuck defaultState)
         "casCon-stuck-uninitialized"
-        (where #t (isLocationUninitialized ι-var auxξ))
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (or (term (isLocationUninitialized ι-var auxξ))
+                            (term (isLocationDeallocated ι-var auxξ)))))
 
    (--> ((in-hole E (read RM ι-var)) auxξ)
         (stuck defaultState)
         "read-stuck"
-        (where #t (isLocationUninitialized ι-var auxξ))
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (or (term (isLocationDeallocated   ι-var auxξ))
+                            (term (isLocationUninitialized ι-var auxξ)))))
 
    (--> ((in-hole E (readCon RM ι-var σ-dd)) auxξ)
         (stuck defaultState)
         "readCon-stuck"
-        (where #t (isLocationUninitialized ι-var auxξ))
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (or (term (isLocationDeallocated   ι-var auxξ))
+                            (term (isLocationUninitialized ι-var auxξ)))))
+
+   (--> ((in-hole E (write WM ι)) auxξ)
+        (stuck defaulState)
+        "write-stuck" ; segfault
+        (side-condition (term (isLocationDeallocated ι-var auxξ))))
   
    (-->  ((in-hole E (if 0 AST_1 AST_2)) auxξ)
         (normalize 
@@ -208,6 +235,20 @@
         (side-condition     ; To eliminate cycle.
          (not (equal? (term auxξ) (term defaultState)))))
         ;; (side-condition (term (isPossibleE E auxξ))))
+
+   (-->  ((in-hole E (dealloc ι)) auxξ)
+        (normalize
+         ((in-hole E (ret     0)) auxξ_new))
+        "deallocate"
+        (where auxξ_new (deallocate ι auxξ))
+        (side-condition (not (term (isLocationDeallocated ι auxξ))))
+        (side-condition (term (isPossibleE E auxξ))))
+
+   (--> ((in-hole E (dealloc ι)) auxξ)
+        (stuck defaultState)
+        "deallocate-stuck"
+        (side-condition (term (isLocationDeallocated ι auxξ)))
+        (side-condition (term (isPossibleE E auxξ))))
    )))
 
 ;;;;;;;;;;;;;;;;
