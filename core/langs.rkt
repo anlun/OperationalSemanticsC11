@@ -85,9 +85,9 @@
   [auxξ (η (Read ψ) (NA σ) (Write ψ) (SC σ) (P φ) (R γ))])
 
 (define-extended-language schedulerLang coreLang
-  [auxξ (η (Read ψ) (NA σ) (Write ψ) (SC σ) (P φ) (R γ) (Paths pathsτ))])
+  [auxξ (η (Read ψ) (NA σ) (Write ψ) (SC σ) (P φ) (R γ) (Paths pathsτ) (Deallocated listι))])
 (define-term schedulerDefaultState
-  (() (Read ()) (NA ()) (Write ()) (SC ()) (P ()) (R ()) (Paths ())))
+  (() (Read ()) (NA ()) (Write ()) (SC ()) (P ()) (R ()) (Paths ()) (Deallocated ())))
 (define schedulerCoreStep
   (extend-reduction-relation
    (define-coreStep schedulerDefaultState spwST-2ψ-φ joinST-2ψ-φ isReadQueueEqualTo)

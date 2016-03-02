@@ -17,6 +17,7 @@
                         COMMA SEMICOLON
                         UNDERSCORE ASSIGN CAS
                         RET STUCK
+                        DEALLOC
                         EOF))
 (define-lex-trans number
   (syntax-rules ()
@@ -49,19 +50,20 @@
    ("["      (token-BOPEN))
    ("]"      (token-BCLOSE))
    
-   ("ret"    (token-RET))
-   ("stuck"  (token-STUCK))
-   ("_"      (token-UNDERSCORE))
-   (":="     (token-ASSIGN))
-   ("cas_"   (token-CAS))
-   (","      (token-COMMA))
-   (";"      (token-SEMICOLON))
-   ("if"     (token-IF))
-   ("then"   (token-THEN))
-   ("else"   (token-ELSE))
-   ("fi"     (token-FI))
-   ("repeat" (token-REPEAT))
-   ("end"    (token-END))
+   ("ret"     (token-RET))
+   ("stuck"   (token-STUCK))
+   ("dealloc" (token-DEALLOC))
+   ("_"       (token-UNDERSCORE))
+   (":="      (token-ASSIGN))
+   ("cas_"    (token-CAS))
+   (","       (token-COMMA))
+   (";"       (token-SEMICOLON))
+   ("if"      (token-IF))
+   ("then"    (token-THEN))
+   ("else"    (token-ELSE))
+   ("fi"      (token-FI))
+   ("repeat"  (token-REPEAT))
+   ("end"     (token-END))
    ("repeatFuel" (token-REPEATFUEL))
    
    ("spw" (token-SPW))
@@ -96,6 +98,7 @@
             ((VAR) $1))
     (stmt ((RET exp) (list 'ret $2))
           ((STUCK)   'stuck)
+          ((DEALLOC locvar)                  (list 'dealloc $2))
           ((VAR ASSIGN stmt SEMICOLON stmt)  (list $3 '>>= (list 'λ $1 $5)))
           ((stmt SEMICOLON stmt)             (list $1 '>>= (list 'λ 'r-1 $3)))
           ((locvar UNDERSCORE MM ASSIGN exp) (list 'write $3 $1 $5))

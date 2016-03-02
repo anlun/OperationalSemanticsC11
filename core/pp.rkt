@@ -79,7 +79,12 @@
      (term (ppι-var ι-var)) "_"
      (term (ppMod WM))      " := "
      (term (ppμ μ)))]
-  
+ 
+  [(pp (dealloc ι-var))
+   ,(beside*
+     "dealloc "
+     (term (ppι-var ι-var)))]
+ 
   [(pp (read RM ι-var))
    ,(beside* (term (ppι-var ι-var)) "_"
              (term (ppMod RM)))]

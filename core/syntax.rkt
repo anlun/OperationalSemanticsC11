@@ -18,6 +18,8 @@
        (par     AST AST) ; Run-time construction.
        (spw     AST AST) ; Construction to start parallel execution.
 
+       (dealloc ι-var)
+       
        (repeatFuel number AST) ; repeat with fuel
        nofuel
        stuck
@@ -104,6 +106,8 @@
         (R path)]
   
   [pathsτ ((path τ) ...)]
+  
+  [listι  (ι ...)]
 
   [Maybe (Just any)
          None]
@@ -138,6 +142,8 @@
       (par GF GF)]
   
   [vName variable-not-otherwise-mentioned])
+
+(current-cache-all? #t)
 
 ;  [SM sc relAcq acq rel rlx]
 ;  [FM sc acq rlx]
@@ -259,6 +265,9 @@
   [(subst vName μ (AST >>= K))
    ((subst vName μ AST) >>= (substCont vName μ K))]
   
+  [(subst vName μ_1 (dealloc ι-var))
+   (dealloc (substι vName μ_1 ι-var))]
+
   [(subst vName μ_1 (read RM ι-var))
    (read RM (substι vName μ_1 ι-var))]
   [(subst vName μ_1 (readCon RM ι-var σ-dd))
@@ -411,4 +420,3 @@
   elToList : El -> any
   [(elToList (any_0 ... hole any_1 ...)) (any_0 ... any_1 ...)])
 
-(current-cache-all? #t)
