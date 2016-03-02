@@ -12,24 +12,33 @@
         cr2_na   := 0;
         lhead_na := null;
         r0 := spw
-              {{{ a_rlx     := [1 null];
+              {{{ ;; Adds to list the first value (1).
+                  a_rlx     := [1 null];
                   ltail_rlx := a;
                   lhead_rel := a;
 
+                  ;; Adds to list the second value (10).
                   b_rlx     := [10 null];
                   rt        := ltail_rlx;
                   rtc       := rt_rlx;
                   rt_rel    := [rtc_1 b];
                   ltail_rlx := b;
 
+                  ;; Adds to list the second value (100).
                   c_rlx     := [100 null];
                   rt        := ltail_rlx;
                   rtc       := rt_rlx;
                   rt_rel    := [rtc_1 c];
-                  ltail_rlx := c
+                  ltail_rlx := c;
+                  
+                  rt  := lhead_rlx;
+                  rtc := rt_rlx;
+                  rt  := ret rtc_2;
+                  ret 0
               ||| r1 := spw
                         {{{ sum1_na  := 0;
 
+                            ;; Traversing the list.
                             rh      := lhead_con;
                             cur1_na := rh;                            
                             repeat
@@ -43,9 +52,11 @@
                               fi 
                             end;
                             
+                            ;; A signalization of a RCU quiescent state.
                             rC := wc_acq;
                             cr1_rel := rC;
 
+                            ;; Traversing the list.
                             rh      := lhead_con;
                             cur1_na := rh;                            
                             repeat
