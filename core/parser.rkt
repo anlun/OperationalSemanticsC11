@@ -79,7 +79,17 @@
    (identifier            (token-LOC lexeme))
    ;; recursively calls the lexer which effectively skips whitespace
    (whitespace (lang-lexer input-port))
+   (";;" (comment-lexer input-port))
+
    ((eof) (token-EOF))))
+
+(define comment-lexer 
+  (lexer
+   [#\newline
+    (lang-lexer input-port)]
+   
+   [any-char
+    (comment-lexer input-port)]))
 
 (define lang-parser
   (parser
