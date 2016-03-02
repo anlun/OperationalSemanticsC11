@@ -115,6 +115,6 @@
                                        ))
                                defaultState))
 
-(test-->> step
-          (term (,term_RCU startState))
-          (term ((ret 0) defaultState)))
+;; (test-->> step
+;;           (term (,term_RCU startState))
+;;           (term ((ret 0) defaultState)))
