@@ -100,7 +100,7 @@
         (side-condition (term (isFirstRecord vName ι α)))
 
         (side-condition (not (term (isRestrictedByγ ι τ RM γ))))
-        (side-condition (term (isPossibleRead path τ_read τ auxξ))))
+        (side-condition (term (isPossibleRead path ι τ_read τ auxξ))))
         ;; (side-condition (term (isPossiblePath path auxξ))))
 
    (--> (AST auxξ)

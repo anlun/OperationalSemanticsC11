@@ -33,28 +33,66 @@
   [(isPossibleE E auxξ) (isPossiblePath (pathE E) auxξ)])
 
 (define-metafunction coreLang
-  ;; isPossibleRead : (E | path) τ τ auxξ -> boolean 
-  [(isPossibleRead path_0 τ_front τ_read
-                   (θ_0 ... (Paths ((path_1 τ_1) (path_2 τ_2) ...)) θ_1 ...))
+  ;; isPossibleRead : (E | path) ι τ τ auxξ -> boolean 
+  [(isPossibleRead path_0 ι τ_front τ_read
+                   (θ_0 ... η θ_1 ...
+                        (Paths ((path_1 τ_1) (path_2 τ_2) ...))
+                        θ_2 ...))
    ,(and (equal? (term path_0) (term path_1))
-         (equal? (term τ_read) (+ (term τ_front)
-                                  (term τ_1))))]
+         (equal? (term τ_read) (min (term τ_max)
+                                    (+ (term τ_front)
+                                       (term τ_1)))))
+   (where τ_max  (getLastTimestamp ι η))]
 
-  [(isPossibleRead E τ_front τ_read
-                   (θ_0 ... (Paths ((path_1 τ_1) (path_2 τ_2) ...)) θ_1 ...))
-   ,(and (equal? (term path_0) (term path_1))
-         (equal? (term τ_read) (+ (term τ_front)                                  
-                                  (term τ_1))))
-   (where path_0 (pathE E))]
-  [(isPossibleRead any τ_0 τ_1
+  [(isPossibleRead E ι τ_front τ_read auxξ)
+   (isPossibleRead path ι τ_front τ_read auxξ)
+   (where path (pathE E))]
+
+  [(isPossibleRead any ι τ_0 τ_1
                    (θ_0 ... (Paths ()) θ_1 ...)) #f]
-  [(isPossibleRead any τ_0 τ_1 auxξ) #t])
+  [(isPossibleRead any ι τ_0 τ_1 auxξ) #t])
 
 (define-metafunction coreLang
   isUsed : vName AST -> boolean
   [(isUsed vName AST) #f
                       (side-condition (equal? (term (subst vName 1 AST)) (term AST)))]
   [(isUsed vName AST) #t])
+
+(define-metafunction coreLang
+  ;; incPath : (L|R) paths -> paths
+  [(incPath any paths)
+   ,(map (λ (x) (list (term any) x))
+         (term paths))])
+
+(define-metafunction coreLang
+  reducableThreads : AST -> paths
+  [(reducableThreads (ret μ-value)) ()]
+  [(reducableThreads (par (ret μ-value_0)
+                          (ret μ-value_1)))
+                     (())]
+
+  [(reducableThreads nofuel) ()]
+  [(reducableThreads stuck ) ()]
+
+  [(reducableThreads (par AST_0 AST_1))
+   ,(append (term (incPath L paths_left ))
+            (term (incPath R paths_right)))
+   (where paths_left  (reducableThreads AST_0))
+   (where paths_right (reducableThreads AST_1))]
+
+;; Default case --- the current thread is reducable.
+  [(reducableThreads AST) ( () )])
+
+;; Returns random element from the list.
+(define select-random
+  (lambda (ls)
+    (let ((len (length ls)))
+      (list-ref ls (random len)))))
+
+(define-metafunction coreLang
+  isSchedulerQueueEmpty : auxξ -> boolean
+  [(isSchedulerQueueEmpty (θ_0 ... (Paths ()) θ_1 ...)) #t]
+  [(isSchedulerQueueEmpty auxξ) #f])
 
 (define-metafunction coreLang
   normalize_subst : ξ -> ξ
@@ -249,6 +287,19 @@
         "deallocate-stuck"
         (side-condition (term (isLocationDeallocated ι auxξ)))
         (side-condition (term (isPossibleE E auxξ))))
+   
+   (--> (AST auxξ)
+        (AST auxξ_new)
+        "schedule-next-step"
+        (where τ_rand          ,(random 10))
+        (where paths_reducable (reducableThreads AST))
+        (side-condition (not (null? (term paths_reducable))))
+        (where path            ,(select-random
+                                 (term paths_reducable)))
+        (where auxξ_new (updateState (Paths ())
+                                     (Paths ((path τ_rand)))
+                                     auxξ))
+        (side-condition (term (isSchedulerQueueEmpty auxξ))))
    )))
 
 ;;;;;;;;;;;;;;;;

@@ -106,6 +106,7 @@
         (R path)]
   
   [pathsτ ((path τ) ...)]
+  [paths  (path ...)]
   
   [listι  (ι ...)]
 
