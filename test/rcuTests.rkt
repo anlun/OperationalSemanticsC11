@@ -1,6 +1,6 @@
 #lang at-exp racket
-;; (require redex/reduction-semantics)
-(require redex)
+(require redex/reduction-semantics)
+;; (require redex)
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
