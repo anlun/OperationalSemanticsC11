@@ -10,17 +10,17 @@
 
 ;;          getη isLocationUninitialized)
 
-(define nonPostponedReadConst -1)
+(define nonPostponedReadConst (term None))
 
 (define-metafunction coreLang
   isPossiblePath : path auxξ -> boolean
   [(isPossiblePath path_0
                    (θ_0 ...
-                        (Paths ((path_1 τ_1 number_1) (path_2 τ_2 number_2) ...))
+                        (Paths ((path_1 τ_1 Maybe_1) (path_2 τ_2 Maybe_2) ...))
                         θ_1 ...))
    ,(and (equal? (term path_0) (term path_1))
          (equal? nonPostponedReadConst
-                 (term number_1)))]
+                 (term Maybe_1)))]
 
   [(isPossiblePath path (θ_0 ... (Paths ()) θ_1 ...)) #f]
 
@@ -31,26 +31,24 @@
   [(isPossibleE E auxξ) (isPossiblePath (pathE E) auxξ)])
 
 (define-metafunction coreLang
-  ;; isPossibleRead : (E | path) number ι τ τ auxξ -> boolean 
-  [(isPossibleRead path_0 number_0 ι τ_front τ_read
+  ;; isPossibleRead : (E | path) vName ι τ τ auxξ -> boolean 
+  [(isPossibleRead path_0 vName ι τ_front τ_read
                    (θ_0 ... η θ_1 ...
-                        (Paths ((path_1 τ_1 number_1) (path_2 τ_2 number_2) ...))
+                        (Paths ((path_1 τ_1 (Just vName)) (path_2 τ_2 Maybe) ...))
                         θ_2 ...))
    ,(and (equal? (term path_0) (term path_1))
          (equal? (term τ_read) (min (term τ_max)
                                     (+ (term τ_front)
-                                       (term τ_1))))
-         (equal? (term number_0) (term number_1)))
-
+                                       (term τ_1)))))
    (where τ_max  (getLastTimestamp ι η))]
 
-  [(isPossibleRead E number ι τ_front τ_read auxξ)
-   (isPossibleRead path number ι τ_front τ_read auxξ)
+  [(isPossibleRead E vName ι τ_front τ_read auxξ)
+   (isPossibleRead path vName ι τ_front τ_read auxξ)
    (where path (pathE E))]
 
-  [(isPossibleRead any number ι τ_0 τ_1
+  [(isPossibleRead any vName ι τ_0 τ_1
                    (θ_0 ... (Paths ()) θ_1 ...)) #f]
-  [(isPossibleRead any number ι τ_0 τ_1 auxξ) #t])
+  [(isPossibleRead any vName ι τ_0 τ_1 auxξ) #t])
 
 (define-metafunction coreLang
   isUsed : vName AST -> boolean
@@ -133,11 +131,10 @@
   [(possibleTasks-path-read path ι auxξ)
    ,(map
      (λ (t)
-       (list (term path) t -1))
+       (list (term path) (- t (term τ_front)) -1))
      (range (term τ_front) (term τ_max)))
-   (where ψ (getReadψ auxξ))
-   (where σ (getByPath path ψ))
-   (where (Just τ_front) (lookup ι σ))
+   (where σ_read (getReadσ path auxξ))
+   (where (Just τ_front) (lookup ι σ_read))
    (where τ_max (getLastTimestamp ι auxξ))])
 
 (define-metafunction coreLang
@@ -146,20 +143,30 @@
    (side-condition (term (noPostponedReads auxξ)))]
 
   [(possiblePostponedReads path auxξ) 
-   ;; TODO
-   ()
-   ;; ,(map (λ (x) (cons (term path) x))
-   ;;   (flatten
-   ;;    (map (λ (postponedReadRecord)
-   ;;           ())
-   ;;         (term α))))
+   ,(map (λ (x) (cons (term path) x))
+         (flatten
+          (map (λ (x)
+                 (term (possibleτ-postponedRead ,x path auxξ)))
+               (term α))))
    (where φ (getφ auxξ))
-   (where α (getByPath path φ))
-   (where γ (getγ auxξ))])
+   (where α (getByPath path φ))])
 
-;; (map (λ (x)
-;;        (term (canPostponedReadBePerformed ,x α γ))))
-;;      (term α))
+(define-metafunction coreLang
+  ;; possibleτ-postponedRead : (vName ι-var RM σ-dd) path auxξ -> ((τ Maybe) ...)
+  [(possibleτ-postponedRead (vName_0 vName_1 RM σ-dd) path auxξ) ()]
+  [(possibleτ-postponedRead (vName   ι       RM σ-dd) σ_read α γ auxξ)
+   ,(map (λ (t) (list (- t (term τ_front)) (term (Just vName)))
+     (filter (λ (t)
+               (term
+                (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α γ ,t)))
+             (range (term τ_front) (term τ_max)))))
+   
+   (where φ      (getφ auxξ))
+   (where α      (getByPath path φ))
+   (where γ      (getγ auxξ))
+   (where σ_read (getReadσ path auxξ))
+   (where (Just τ_front) (lookup ι σ_read))
+   (where τ_max (getLastTimestamp ι auxξ))])
 
 ;; Returns random element from the list.
 (define select-random
@@ -377,10 +384,10 @@
                                  (term paths_reducable)))
 
         ;; TODO: Randomly choose it corresponding to the chosen thread.
-        (where number_read     (term nonPostponedReadConst)) 
+        (where Maybe_read     (term nonPostponedReadConst)) 
         
         (where auxξ_new (updateState (Paths ())
-                                     (Paths ((path τ_rand number_read)))
+                                     (Paths ((path τ_rand Maybe_read)))
                                      auxξ)))
    )))
 

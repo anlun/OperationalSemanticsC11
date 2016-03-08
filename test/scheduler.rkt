@@ -17,16 +17,17 @@ Can lead to R1 = R2 = 0.
 |#
 (define-term startState
                   (updateState (Paths ())
-                               (Paths ((() 0 -1) (() 0 -1) (() 0 -1)
-                                       ((L ()) 0 -1) ((R ()) 0 -1)
-                                       ((L ()) 0 -1) ((R ()) 0 -1)
-                                       ((L ()) 0 -1) ((R ()) 0 -1)
-                                       ((L ()) 0 -1) ((R ()) 0 -1)
-                                       (() 0 -1) (() 0 -1)
+                               (Paths ((() 0 None) (() 0 None) (() 0 None)
+                                       ((L ()) 0 None) ((R ()) 0 None)
+                                       ((L ()) 0 None) ((R ()) 0 None)
+                                       ((L ()) 0 None) ((R ()) 0 None)
+                                       ((L ()) 0 None) ((R ()) 0 None)
+                                       (() 0 None) (() 0 None)
                                        ))
                                defaultState))
 (test-->> step
-          (term (,term_WrlxRrlx_WrlxRrlx startState))
+          ;; (term (,term_WrlxRrlx_WrlxRrlx startState))
+          (term (,term_WrlxRrlx_WrlxRrlx defaultState))
           (term ((ret (0 0)) defaultState)))
 
 (define term_deallocate_stuck
@@ -41,14 +42,15 @@ Can lead to R1 = R2 = 0.
 
 (define-term startState2
                   (updateState (Paths ())
-                               (Paths ((() 0 -1) (() 0 -1) (() 0 -1)
-                                       ((L ()) 0 -1) ((R ()) 0 -1)
-                                       ((L ()) 0 -1)
-                                       ((R ()) 0 -1) ((R ()) 0 -1)
-                                       (() 0 -1) (() 0 -1)
+                               (Paths ((() 0 None) (() 0 None) (() 0 None)
+                                       ((L ()) 0 None) ((R ()) 0 None)
+                                       ((L ()) 0 None)
+                                       ((R ()) 0 None) ((R ()) 0 None)
+                                       (() 0 None) (() 0 None)
                                        ))
                                defaultState))
 
 (test-->>∃ step
-           (term (,term_deallocate_stuck startState2))
+           (term (,term_deallocate_stuck defaultState))
+           ;; (term (,term_deallocate_stuck startState2))
            (term (stuck defaultState)))

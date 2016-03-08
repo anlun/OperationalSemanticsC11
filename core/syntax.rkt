@@ -105,7 +105,7 @@
         (L path)
         (R path)]
   
-  [pathsτ ((path τ number) ...)]
+  [pathsτ ((path τ Maybe) ...)] ;; Maybe vName --- a name of thunk to resolve.
   [paths  (path ...)]
   
   [listι  (ι ...)]

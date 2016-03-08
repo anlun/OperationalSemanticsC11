@@ -94,9 +94,8 @@
         (side-condition (term
                          (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α γ τ)))
        
-        (where number_read (holeIndex El_0))
         (side-condition (term (isPossibleRead path
-                                              number_read
+                                              vName
                                               ι τ_read-min τ auxξ))))
 
    (--> (AST auxξ)
