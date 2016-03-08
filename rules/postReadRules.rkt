@@ -93,18 +93,20 @@
 
         (where σ_read     (getByPath path ψ_read))
         (where σ_to-check (frontMerge σ_read σ-dd))
-        (where τ_read     (fromMaybe -1 (lookup ι σ_to-check)))
+        (where τ_read-min (fromMaybe -1 (lookup ι σ_to-check)))
         
         (side-condition (not (empty? (term α))))
         (side-condition (term (correctτ τ ι σ_to-check)))
         (side-condition (term (isFirstRecord vName ι α)))
 
         (side-condition (not (term (isRestrictedByγ ι τ RM γ))))
+        
+        ;; (side-condition (term (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α γ τ)))
        
         (where number_read (holeIndex El_0))
         (side-condition (term (isPossibleRead path
                                               number_read
-                                              ι τ_read τ auxξ))))
+                                              ι τ_read-min τ auxξ))))
 
    (--> (AST auxξ)
         (stuck defaultState)

@@ -1,6 +1,7 @@
 #lang racket
 (require redex/reduction-semantics)
 (require "syntax.rkt")
+(require "coreUtils.rkt")
 (provide (all-defined-out))
 ;; (provide coreLang define-coreStep define-coreTest normalize isUsed
 ;;          isPossibleE isPossiblePath
@@ -8,22 +9,6 @@
 ;;          isLocationDeallocated
 
 ;;          getη isLocationUninitialized)
-
-(define-extended-language coreLang syntax
-  ; State:
-  ; AST -- current state of program tree;
-  ; θ   -- auxiliary state.
-  [θ any]
-  [auxξ (θ ... η θ ...)]
-  [ξ (AST auxξ)])
-
-(define-metafunction coreLang
-  getη : auxξ -> η
-  [(getη (θ_0 ... η θ_1 ...)) η])
-
-(define-metafunction coreLang
-  updateState : θ θ auxξ -> auxξ
-  [(updateState θ_old θ_new (θ_0 ... θ_old θ_1 ...)) (θ_0 ... θ_new θ_1 ...)])
 
 (define nonPostponedReadConst -1)
 
@@ -157,8 +142,36 @@
 
 (define-metafunction coreLang
   possiblePostponedReads : path auxξ -> pathsτ
-  ;; TODO: implement
-  [(possiblePostponedReads path auxξ) ()])
+  [(possiblePostponedReads path auxξ) ()
+   (side-condition (term (noPostponedReads auxξ)))]
+
+  [(possiblePostponedReads path auxξ) 
+   ;; TODO
+   ()
+   ;; ,(map (λ (x) (cons (term path) x))
+   ;;   (flatten
+   ;;    (map (λ (postponedReadRecord)
+   ;;           ())
+   ;;         (term α))))
+   (where φ (getφ auxξ))
+   (where α (getByPath path φ))
+   (where γ (getγ auxξ))])
+
+;; (map (λ (x)
+;;        (term (canPostponedReadBePerformed ,x α γ))))
+;;      (term α))
+
+(define-metafunction coreLang
+  canPostponedReadBePerformed : (vName ι-var RM σ-dd) σ α γ τ -> boolean
+  
+  ;; Can't resolve read from not yet resolved location.
+  [(canPostponedReadBePerformed (vName_0 vName_1 RM σ-dd) σ_read α γ τ) #f]
+
+  [(canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α γ τ)
+   ,(and (not (term (isRestrictedByγ ι τ RM γ)))
+         (term (correctτ τ ι σ_to-check))
+         (term (isFirstRecord vName ι α)))
+   (where σ_to-check (frontMerge σ_read σ-dd))])
 
 ;; Returns random element from the list.
 (define select-random

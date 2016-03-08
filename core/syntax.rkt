@@ -421,3 +421,10 @@
   elToList : El -> any
   [(elToList (any_0 ... hole any_1 ...)) (any_0 ... any_1 ...)])
 
+(define-extended-language coreLang syntax
+  ; State:
+  ; AST -- current state of program tree;
+  ; θ   -- auxiliary state.
+  [θ any]
+  [auxξ (θ ... η θ ...)]
+  [ξ (AST auxξ)])

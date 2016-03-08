@@ -1,8 +1,16 @@
 #lang racket
 (require redex/reduction-semantics)
 (require "syntax.rkt")
-(require "coreLang.rkt")
 (provide (all-defined-out))
+
+(define-metafunction coreLang
+  getη : auxξ -> η
+  [(getη (θ_0 ... η θ_1 ...)) η])
+
+(define-metafunction coreLang
+  updateState : θ θ auxξ -> auxξ
+  [(updateState θ_old θ_new (θ_0 ... θ_old θ_1 ...)) (θ_0 ... θ_new θ_1 ...)])
+
 
 (define-metafunction coreLang
   holeIndex : El -> number

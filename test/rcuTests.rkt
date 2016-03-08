@@ -1,9 +1,11 @@
 #lang at-exp racket
-(require redex/reduction-semantics)
+;; (require redex/reduction-semantics)
+(require redex)
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
 (require "../core/parser.rkt")
+(require "../core/pp.rkt")
 (require "../steps/schedulerStep.rkt")
 
 (define term_RCU
