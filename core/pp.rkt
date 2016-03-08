@@ -205,6 +205,28 @@
                                       (symbol->string name))]))
                   (term γ)))])
 
+(define-metafunction coreLang
+  ; ppPath : path -> Doc
+  [(ppPath ()) ,"()"]
+  [(ppPath (L path)) ,(beside "L" (term (ppPath path)))]
+  [(ppPath (R path)) ,(beside "R" (term (ppPath path)))])
+
+(define-metafunction coreLang
+  ; ppMaybe (vName) : Maybe -> Doc
+  [(ppMaybe (Just vName)) ,(symbol->string (term vName))]
+  [(ppMaybe None) "None"])
+
+(define-metafunction coreLang
+  ; ppPathsτ : pathsτ -> Doc
+  [(ppPathsτ pathsτ) ,(above**
+             (map (λ (h)
+                    (match h
+                      [(list path t name)
+                       (beside*/space (term (ppPath ,path))
+                                      (number->string t)
+                                      (term (ppMaybe ,name)))]))
+                  (term pathsτ)))])
+
 ; -----
 (define-metafunction coreLang
   ; ppStateη : auxξ -> Doc
@@ -242,6 +264,11 @@
    ,(above* "--- Write ψ" (term (ppψ ψ)))]
   [(ppStateψWrite auxξ) ,(empty-doc)])
 
+(define-metafunction coreLang
+  ; ppStatePathsτ : auxξ -> Doc
+  [(ppStatePathsτ (θ_0 ... (Paths pathsτ) θ_1 ...))
+   ,(above* "--- Paths" (term (ppPathsτ pathsτ)))]
+  [(ppStatePathsτ auxξ) ,(empty-doc)])
 
 (define-metafunction coreLang
   ;ppState : auxξ -> Doc
@@ -251,7 +278,8 @@
             (term (ppStateψWrite auxξ))
             (term (ppStateσ auxξ))
             (term (ppStateφ auxξ))
-            (term (ppStateγ auxξ)))])
+            (term (ppStateγ auxξ))
+            (term (ppStatePathsτ auxξ)))])
 
 (define (print-state t)
   (doc->string

@@ -11,7 +11,6 @@
   updateState : θ θ auxξ -> auxξ
   [(updateState θ_old θ_new (θ_0 ... θ_old θ_1 ...)) (θ_0 ... θ_new θ_1 ...)])
 
-
 (define-metafunction coreLang
   holeIndex : El -> number
   [(holeIndex (any_0 ... hole any_1 ...)) ,(length (term (any_0 ...)))])

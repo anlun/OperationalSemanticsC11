@@ -94,9 +94,7 @@
         (side-condition (term
                          (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α γ τ)))
        
-        (side-condition (term (isPossibleRead path
-                                              vName
-                                              ι τ_read-min τ auxξ))))
+        (side-condition (term (isPossibleRead path vName ι τ_read-min τ auxξ))))
 
    (--> (AST auxξ)
         (stuck defaultState)

@@ -1,10 +1,12 @@
 #lang at-exp racket
-(require redex/reduction-semantics)
+;; (require redex/reduction-semantics)
+(require redex)
 (require "../core/syntax.rkt")
 (require "../core/coreUtils.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/langs.rkt")
 (require "../core/parser.rkt")
+(require "../core/pp.rkt")
 (require "testTerms.rkt")
 (require "../steps/schedulerStep.rkt")
 
@@ -25,10 +27,15 @@ Can lead to R1 = R2 = 0.
                                        (() 0 None) (() 0 None)
                                        ))
                                defaultState))
-(test-->> step
-          ;; (term (,term_WrlxRrlx_WrlxRrlx startState))
-          (term (,term_WrlxRrlx_WrlxRrlx defaultState))
-          (term ((ret (0 0)) defaultState)))
+;; (test-->> step
+;;           ;; (term (,term_WrlxRrlx_WrlxRrlx startState))
+;;           (term (,term_WrlxRrlx_WrlxRrlx defaultState))
+;;           (term ((ret (0 0)) defaultState)))
+
+;; (stepper step (term (,term_WrlxRrlx_WrlxRrlx defaultState)) pretty-printer)
+(stepper step (term (,term_WrlxRrlx_WrlxRrlx defaultState)))
+(define nextTask
+  (select-random (term (possibleTasks ,term_WrlxRrlx_WrlxRrlx defaultState))))
 
 (define term_deallocate_stuck
   @prog{x_rlx := 0;
@@ -49,8 +56,19 @@ Can lead to R1 = R2 = 0.
                                        (() 0 None) (() 0 None)
                                        ))
                                defaultState))
+;; (possiblePostponedReads ()
+(define-term state1
+                        ((("x" ((0 0 (("x" 0))))) ("y" ((0 0 (("y" 0))))))
+                         (Read (par (("x" 0) ("y" 0)) (("x" 0) ("y" 0))))
+                         (NA ())
+                         (Write (par () ()))
+                         (SC ())
+                         (P (par () ()))
+                         (R ())
+                         (Paths ()) (Deallocated ())))
 
-(test-->>∃ step
-           (term (,term_deallocate_stuck defaultState))
-           ;; (term (,term_deallocate_stuck startState2))
-           (term (stuck defaultState)))
+
+;; (test-->>∃ step
+;;            (term (,term_deallocate_stuck defaultState))
+;;            ;; (term (,term_deallocate_stuck startState2))
+;;            (term (stuck defaultState)))
