@@ -23,7 +23,7 @@
 (define-metafunction coreLang
   ; ppExpr : Expr -> Doc
   [(ppExpr vName ) ,(symbol->string (term vName ))]
-  [(ppExpr ι     )  (term ι)]
+  [(ppExpr ι     )  ι]
   [(ppExpr number) ,(number->string (term number))]
   [(ppExpr (op Expr_0 Expr_1))
    ,(beside* "(" (symbol->string (term op)) " "

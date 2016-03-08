@@ -34,10 +34,6 @@
   getGF : auxξ -> GF
   [(getGF (θ_0 ... (GFront GF) θ_1 ...)) GF])
 
-(define-metafunction coreLang
-  updateState : θ θ auxξ -> auxξ
-  [(updateState θ_old θ_new (θ_0 ... θ_old θ_1 ...)) (θ_0 ... θ_new θ_1 ...)])
-
 #|
 (define-metafunction coreLang
   updateStateF : θ (θ -> θ) auxξ -> auxξ

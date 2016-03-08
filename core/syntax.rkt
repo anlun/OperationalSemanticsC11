@@ -105,7 +105,7 @@
         (L path)
         (R path)]
   
-  [pathsτ ((path τ) ...)]
+  [pathsτ ((path τ number) ...)]
   [paths  (path ...)]
   
   [listι  (ι ...)]

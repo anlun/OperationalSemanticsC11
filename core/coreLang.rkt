@@ -1,12 +1,13 @@
 #lang racket
 (require redex/reduction-semantics)
 (require "syntax.rkt")
-(provide coreLang define-coreStep define-coreTest normalize isUsed
-         isPossibleE isPossiblePath
-         isPossibleRead
-         isLocationDeallocated
+(provide (all-defined-out))
+;; (provide coreLang define-coreStep define-coreTest normalize isUsed
+;;          isPossibleE isPossiblePath
+;;          isPossibleRead
+;;          isLocationDeallocated
 
-         getη isLocationUninitialized)
+;;          getη isLocationUninitialized)
 
 (define-extended-language coreLang syntax
   ; State:
@@ -22,6 +23,12 @@
 
 (define-metafunction coreLang
   isPossiblePath : path auxξ -> boolean
+  updateState : θ θ auxξ -> auxξ
+  [(updateState θ_old θ_new (θ_0 ... θ_old θ_1 ...)) (θ_0 ... θ_new θ_1 ...)])
+
+(define nonPostponedReadConst -1)
+
+(define-metafunction coreLang
   [(isPossiblePath path_0 (θ_0 ... (Paths ((path_1 τ_1) (path_2 τ_2) ...)) θ_1 ...))
    ,(equal? (term path_0) (term path_1))]
   [(isPossiblePath path (θ_0 ... (Paths ()) θ_1 ...))
