@@ -161,18 +161,6 @@
 ;;        (term (canPostponedReadBePerformed ,x α γ))))
 ;;      (term α))
 
-(define-metafunction coreLang
-  canPostponedReadBePerformed : (vName ι-var RM σ-dd) σ α γ τ -> boolean
-  
-  ;; Can't resolve read from not yet resolved location.
-  [(canPostponedReadBePerformed (vName_0 vName_1 RM σ-dd) σ_read α γ τ) #f]
-
-  [(canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α γ τ)
-   ,(and (not (term (isRestrictedByγ ι τ RM γ)))
-         (term (correctτ τ ι σ_to-check))
-         (term (isFirstRecord vName ι α)))
-   (where σ_to-check (frontMerge σ_read σ-dd))])
-
 ;; Returns random element from the list.
 (define select-random
   (lambda (ls)

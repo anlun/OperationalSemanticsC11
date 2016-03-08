@@ -586,6 +586,24 @@
       [(equal? term from) (list from)]
       [else (cons term (loop (hash-ref parents term)))])))
 
+(define-metafunction coreLang
+  isRestrictedByγ : ι τ RM γ -> boolean
+  [(isRestrictedByγ ι τ RM (any_0 ... (ι τ vName) any_1 ...)) #t
+   (side-condition (mo<=? (term acq) (term RM)))]
+  [(isRestrictedByγ ι τ RM γ) #f])
+
+(define-metafunction coreLang
+  canPostponedReadBePerformed : (vName ι-var RM σ-dd) σ α γ τ -> boolean
+  
+  ;; Can't resolve read from not yet resolved location.
+  [(canPostponedReadBePerformed (vName_0 vName_1 RM σ-dd) σ_read α γ τ) #f]
+
+  [(canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α γ τ)
+   ,(and (not (term (isRestrictedByγ ι τ RM γ)))
+         (term (correctτ τ ι σ_to-check))
+         (term (isFirstRecord vName ι α)))
+   (where σ_to-check (frontMerge σ_read σ-dd))])
+
 ;; (define (find-path red from to)
 ;;   (define parents (make-hash))
 ;;   (let/ec done

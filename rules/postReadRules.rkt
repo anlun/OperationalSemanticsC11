@@ -6,12 +6,6 @@
 (provide define-postponedReadRules) 
 
 (define-metafunction coreLang
-  isRestrictedByγ : ι τ RM γ -> boolean
-  [(isRestrictedByγ ι τ RM (any_0 ... (ι τ vName) any_1 ...)) #t
-   (side-condition (mo<=? (term acq) (term RM)))]
-  [(isRestrictedByγ ι τ RM γ) #f])
-
-(define-metafunction coreLang
   removeγRestrictionsByVName : vName γ -> γ
   [(removeγRestrictionsByVName vName γ)
    ,(filter (λ (x) (match x [(list loc t name)
@@ -74,6 +68,8 @@
         (where ψ_read (getReadψ auxξ))
         
         (where (in-hole Ep α) (getφ auxξ))
+        (side-condition (not (empty? (term α))))
+
         (where (in-hole El_0 (vName ι RM σ-dd)) α)
         (where (in-hole El_1 (τ μ-value σ)) (getCellHistory ι η))
         (where path (pathEp Ep))
@@ -95,13 +91,8 @@
         (where σ_to-check (frontMerge σ_read σ-dd))
         (where τ_read-min (fromMaybe -1 (lookup ι σ_to-check)))
         
-        (side-condition (not (empty? (term α))))
-        (side-condition (term (correctτ τ ι σ_to-check)))
-        (side-condition (term (isFirstRecord vName ι α)))
-
-        (side-condition (not (term (isRestrictedByγ ι τ RM γ))))
-        
-        ;; (side-condition (term (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α γ τ)))
+        (side-condition (term
+                         (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α γ τ)))
        
         (where number_read (holeIndex El_0))
         (side-condition (term (isPossibleRead path
