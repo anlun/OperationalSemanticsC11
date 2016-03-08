@@ -22,17 +22,23 @@
   [(getη (θ_0 ... η θ_1 ...)) η])
 
 (define-metafunction coreLang
-  isPossiblePath : path auxξ -> boolean
   updateState : θ θ auxξ -> auxξ
   [(updateState θ_old θ_new (θ_0 ... θ_old θ_1 ...)) (θ_0 ... θ_new θ_1 ...)])
 
 (define nonPostponedReadConst -1)
 
 (define-metafunction coreLang
-  [(isPossiblePath path_0 (θ_0 ... (Paths ((path_1 τ_1) (path_2 τ_2) ...)) θ_1 ...))
-   ,(equal? (term path_0) (term path_1))]
-  [(isPossiblePath path (θ_0 ... (Paths ()) θ_1 ...))
-   #f]
+  isPossiblePath : path auxξ -> boolean
+  [(isPossiblePath path_0
+                   (θ_0 ...
+                        (Paths ((path_1 τ_1 number_1) (path_2 τ_2 number_2) ...))
+                        θ_1 ...))
+   ,(and (equal? (term path_0) (term path_1))
+         (equal? nonPostponedReadConst
+                 (term number_1)))]
+
+  [(isPossiblePath path (θ_0 ... (Paths ()) θ_1 ...)) #f]
+
   [(isPossiblePath path auxξ) #t])
 
 (define-metafunction coreLang
@@ -40,24 +46,26 @@
   [(isPossibleE E auxξ) (isPossiblePath (pathE E) auxξ)])
 
 (define-metafunction coreLang
-  ;; isPossibleRead : (E | path) ι τ τ auxξ -> boolean 
-  [(isPossibleRead path_0 ι τ_front τ_read
+  ;; isPossibleRead : (E | path) number ι τ τ auxξ -> boolean 
+  [(isPossibleRead path_0 number_0 ι τ_front τ_read
                    (θ_0 ... η θ_1 ...
-                        (Paths ((path_1 τ_1) (path_2 τ_2) ...))
+                        (Paths ((path_1 τ_1 number_1) (path_2 τ_2 number_2) ...))
                         θ_2 ...))
    ,(and (equal? (term path_0) (term path_1))
          (equal? (term τ_read) (min (term τ_max)
                                     (+ (term τ_front)
-                                       (term τ_1)))))
+                                       (term τ_1))))
+         (equal? (term number_0) (term number_1)))
+
    (where τ_max  (getLastTimestamp ι η))]
 
-  [(isPossibleRead E ι τ_front τ_read auxξ)
-   (isPossibleRead path ι τ_front τ_read auxξ)
+  [(isPossibleRead E number ι τ_front τ_read auxξ)
+   (isPossibleRead path number ι τ_front τ_read auxξ)
    (where path (pathE E))]
 
-  [(isPossibleRead any ι τ_0 τ_1
+  [(isPossibleRead any number ι τ_0 τ_1
                    (θ_0 ... (Paths ()) θ_1 ...)) #f]
-  [(isPossibleRead any ι τ_0 τ_1 auxξ) #t])
+  [(isPossibleRead any number ι τ_0 τ_1 auxξ) #t])
 
 (define-metafunction coreLang
   isUsed : vName AST -> boolean
@@ -66,14 +74,15 @@
   [(isUsed vName AST) #t])
 
 (define-metafunction coreLang
-  ;; incPath : (L|R) paths -> paths
-  [(incPath any paths)
+  ;; incPaths : (L|R) paths -> paths
+  [(incPaths any paths)
    ,(map (λ (x) (list (term any) x))
          (term paths))])
 
 (define-metafunction coreLang
   reducableThreads : AST -> paths
   [(reducableThreads (ret μ-value)) ()]
+  [(reducableThreads (AST >>= K)) (reducableThreads AST)]
   [(reducableThreads (par (ret μ-value_0)
                           (ret μ-value_1)))
                      (())]
@@ -82,13 +91,74 @@
   [(reducableThreads stuck ) ()]
 
   [(reducableThreads (par AST_0 AST_1))
-   ,(append (term (incPath L paths_left ))
-            (term (incPath R paths_right)))
+   ,(append (term (incPaths L paths_left ))
+            (term (incPaths R paths_right)))
    (where paths_left  (reducableThreads AST_0))
    (where paths_right (reducableThreads AST_1))]
 
 ;; Default case --- the current thread is reducable.
-  [(reducableThreads AST) ( () )])
+  [(reducableThreads AST) (())])
+
+(define-metafunction coreLang
+  possibleTasks : AST auxξ -> pathsτ
+  [(possibleTasks AST auxξ) (possibleTasks-path () AST auxξ)])
+
+(define-metafunction coreLang
+  possibleTasks-path : path AST auxξ -> pathsτ
+  [(possibleTasks-path path (ret μ)) (possiblePostponedReads path auxξ)]
+  [(possibleTasks-path path (AST >>= K)) (possibleTasks-path path AST auxξ)]
+
+  [(possibleTasks-path path AST auxξ)
+   (possibleTasks-path-read path ι auxξ)
+   (side-condition (term (noPostponedReads auxξ)))
+   (where (Just ι) (ιFromReadAction AST))]
+
+  [(possibleTasks-path path (par AST_0 AST_1) auξ)
+   ,(if (and (null? (term pathsτ_left ))
+             (null? (term pathsτ_right)))
+        (list ((term path) 0 nonPostponedReadConst))
+        (append (term pathsτ_left )
+                (term pathsτ_right)))
+   (where pathsτ_left  (possibleTasks-path (L path) AST_0 auxξ))
+   (where pathsτ_rigth (possibleTasks-path (R path) AST_1 auxξ))]
+
+  [(possibleTasks-path path nofuel) ()]
+  [(possibleTasks-path path stuck ) ()]
+  
+;; Default case --- the current thread is reducable.
+  [(possibleTasks-path path AST auxξ)
+   ,(cons (list ((term path) 0 nonPostponedReadConst))
+          (term (possiblePostponedReads path auxξ)))])
+
+(define-metafunction coreLang
+  ιFromReadAction : AST -> Maybe
+  [(ιFromReadAction (read      RM ι     )) (Just ι)]
+  [(ιFromReadAction (readCon   RM ι σ-dd)) (Just ι)]
+  [(ιFromReadAction (cas    SM FM ι     )) (Just ι)]
+  [(ιFromReadAction (casCon SM FM ι σ-dd)) (Just ι)]
+  [(ιFromReadAction AST) None])
+
+(define-metafunction coreLang
+  noPostponedReads : auxξ -> boolean
+  [(noPostponedReads (θ_0 ... (P φ) θ_1 ...)) #f]
+  [(noPostponedReads auxξ) #t])
+
+(define-metafunction coreLang
+  possibleTasks-path-read : path ι auxξ -> pathsτ
+  [(possibleTasks-path-read path ι auxξ)
+   ,(map
+     (λ (t)
+       (list (term path) t -1))
+     (range (term τ_front) (term τ_max)))
+   (where ψ (getReadψ auxξ))
+   (where σ (getByPath path ψ))
+   (where (Just τ_front) (lookup ι σ))
+   (where τ_max (getLastTimestamp ι auxξ))])
+
+(define-metafunction coreLang
+  possiblePostponedReads : path auxξ -> pathsτ
+  ;; TODO: implement
+  [(possiblePostponedReads path auxξ) ()])
 
 ;; Returns random element from the list.
 (define select-random
@@ -294,31 +364,35 @@
         "deallocate-stuck"
         (side-condition (term (isLocationDeallocated ι auxξ)))
         (side-condition (term (isPossibleE E auxξ))))
-   
+  
    (--> (AST auxξ)
         (AST auxξ_new)
         "schedule-next-step"
+        (side-condition (term (isSchedulerQueueEmpty auxξ)))
         (where τ_rand          ,(random 10))
         (where paths_reducable (reducableThreads AST))
-        (side-condition (not (null? (term paths_reducable))))
+        (side-condition        (not (null? (term paths_reducable))))
         (where path            ,(select-random
                                  (term paths_reducable)))
+
+        ;; TODO: Randomly choose it corresponding to the chosen thread.
+        (where number_read     (term nonPostponedReadConst)) 
+        
         (where auxξ_new (updateState (Paths ())
-                                     (Paths ((path τ_rand)))
-                                     auxξ))
-        (side-condition (term (isSchedulerQueueEmpty auxξ))))
+                                     (Paths ((path τ_rand number_read)))
+                                     auxξ)))
    )))
 
 ;;;;;;;;;;;;;;;;
 ; Test macros
 ;;;;;;;;;;;;;;;;
 
-(define testTerm-1
+(define testTerm-112
   (term ((spw (ret (+ 1 2)) (ret (+ 3 9))) >>= (λ v
           (ret v)))))
 
 (define-syntax-rule (define-coreTest step defaultState)
   (begin
 (test-->> step
-          (term (,testTerm-1 defaultState))
+          (term (,testTerm-112 defaultState))
           (term ((ret (3 12)) defaultState)))))

@@ -4,6 +4,10 @@
 (require "coreLang.rkt")
 (provide (all-defined-out))
 
+(define-metafunction coreLang
+  holeIndex : El -> number
+  [(holeIndex (any_0 ... hole any_1 ...)) ,(length (term (any_0 ...)))])
+
 (define-relation syntax
   correctτ ⊆ τ × ι × σ
   [(correctτ τ ι σ)

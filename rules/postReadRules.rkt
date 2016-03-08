@@ -64,7 +64,7 @@
         (side-condition (not (equal? (term sc) (term RM))))
         (side-condition (term (isPossibleE E auxξ))))
 
-   (-->  (                     AST  auxξ)
+   (-->  (AST  auxξ)
         (normalize        
          ((subst vName μ-value
                  (propagateDD_vName vName path σ-dd_new AST)) auxξ_new))
@@ -100,8 +100,11 @@
         (side-condition (term (isFirstRecord vName ι α)))
 
         (side-condition (not (term (isRestrictedByγ ι τ RM γ))))
-        (side-condition (term (isPossibleRead path ι τ_read τ auxξ))))
-        ;; (side-condition (term (isPossiblePath path auxξ))))
+       
+        (where number_read (holeIndex El_0))
+        (side-condition (term (isPossibleRead path
+                                              number_read
+                                              ι τ_read τ auxξ))))
 
    (--> (AST auxξ)
         (stuck defaultState)
