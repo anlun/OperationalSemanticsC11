@@ -107,8 +107,8 @@
         (term ((path 0 ,nonPostponedReadConst)))
         (append (term pathsτ_left )
                 (term pathsτ_right)))
-   (where pathsτ_left  (possibleTasks-path (L path) AST_0 auxξ))
-   (where pathsτ_right (possibleTasks-path (R path) AST_1 auxξ))]
+   (where pathsτ_left  (possibleTasks-path (updatePath L path) AST_0 auxξ))
+   (where pathsτ_right (possibleTasks-path (updatePath R path) AST_1 auxξ))]
 
   [(possibleTasks-path path nofuel auxξ) ()]
   [(possibleTasks-path path stuck  auxξ) ()]
@@ -139,7 +139,7 @@
        (list (term path) (- t (term τ_front)) -1))
      (range (term τ_front) (+ 1 (term τ_max))))
    (where σ_read (getReadσ path auxξ))
-   (where (Just τ_front) (lookup ι σ_read))
+   (where τ_front (fromMaybe 0 (lookup ι σ_read)))
    (where τ_max (getLastTimestamp ι (getη auxξ)))])
 
 (define-metafunction coreLang
@@ -165,11 +165,12 @@
                 (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α γ ,t)))
              (range (term τ_front) (+ 1 (term τ_max)))))
    
+   (side-condition (not (term (noPostponedReads auxξ))))
    (where φ      (getφ auxξ))
    (where α      (getByPath path φ))
    (where γ      (getγ auxξ))
    (where σ_read (getReadσ path auxξ))
-   (where (Just τ_front) (lookup ι σ_read))
+   (where τ_front (fromMaybe 0 (lookup ι σ_read)))
    (where τ_max (getLastTimestamp ι (getη auxξ)))])
 
 ;; Returns random element from the list.

@@ -194,6 +194,12 @@
   [(pathEp (par φ Ep)) (R (pathEp Ep))])
 
 (define-metafunction coreLang
+  ;updatePath : (L | R) path -> path
+  updatePath : any path -> path
+  [(updatePath any ()) (any ())]
+  [(updatePath any_0 (any_1 path)) (any_1 (updatePath any_0 path))])
+
+(define-metafunction coreLang
   updateOnPath : path any any -> any
   [(updateOnPath ()       any_new              any)  any_new]
   [(updateOnPath (L path) any_new (par any_0 any_1))
