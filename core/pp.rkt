@@ -23,7 +23,7 @@
 (define-metafunction coreLang
   ; ppExpr : Expr -> Doc
   [(ppExpr vName ) ,(symbol->string (term vName ))]
-  [(ppExpr ι     )  ι]
+  [(ppExpr ι     ) ι]
   [(ppExpr number) ,(number->string (term number))]
   [(ppExpr (op Expr_0 Expr_1))
    ,(beside* "(" (symbol->string (term op)) " "
@@ -55,7 +55,7 @@
   [(ppMod na    ) "na" ])
 
 (define-metafunction coreLang
-  ppι-var : ι-var -> string
+  ; ppι-var : ι-var -> string
   [(ppι-var ι) ι]
   [(ppι-var vName) ,(symbol->string (term vName))])
 
@@ -113,10 +113,10 @@
    ,(above* (beside "if "   (term (ppExpr Expr)))
             (beside "then " (term (pp AST_0)))
             (beside "else " (term (pp AST_1)))
-            "if")]
+            "fi")]
   
   [(pp (repeat AST))
-   ,(beside* "repeat " (term (pp AST)) " end")]
+   ,(above* "repeat " (indent 2 (term (pp AST))) "end")]
 
   [(pp (repeatFuel number AST))
    ,(beside* "repeatFuel " (number->string (term number))
@@ -173,7 +173,7 @@
      (map (λ (h)
             (match h
               [(list name l m front)
-               (beside*/space (symbol->string name)
+               (beside*/space (term (ppι-var ,name))
                               (term (ppι-var ,l))
                               (term (ppMod ,m))
                               (term (ppσ ,front)))]))
