@@ -18,6 +18,7 @@
 (define-relation syntax
   correctτ ⊆ τ × ι × σ
   [(correctτ τ ι σ)
+   ,(not (equal? (term None) (term (lookup ι σ))))     ; This condition check if location is mentioned in front.
    ,(>= (term τ) (term (fromMaybe -1 (lookup ι σ))))])
 
 (define-metafunction coreLang

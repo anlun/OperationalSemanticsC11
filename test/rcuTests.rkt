@@ -116,7 +116,7 @@
                         }}};
                   ret r1
               }}};
-        ret r0 })
+        ret r0_2 })
 
 (define-term startState
                   (updateState (Paths ())
@@ -136,10 +136,14 @@
                                        ))
                                defaultState))
 
-;; (test-->> step
-;;           ;; (term (,term_RCU startState))
-;;           (term (,term_RCU defaultState))
-;;           (term ((ret 0) defaultState)))
+(test-->> step
+          ;; (term (,term_RCU startState))
+          (term (,term_RCU defaultState))
+          (term ((ret (0 0)) defaultState)))
+
+;; Usage of consume reads leads to stuck states, because the data-dependency relation
+;; doesn't go beyond write-read combination of cur(1|2) in repeat loops.
+;; If we change them to acquire reads, everything works fine.
 
 ;; (traces step (term (,term_RCU defaultState)) #:pp pretty-printer)
 ;; (stepper step (term (,term_RCU defaultState)) pretty-printer)
