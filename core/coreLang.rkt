@@ -166,12 +166,13 @@
              (range (term τ_front) (+ 1 (term τ_max)))))
    
    (side-condition (not (term (noPostponedReads auxξ))))
-   (where φ      (getφ auxξ))
-   (where α      (getByPath path φ))
-   (where γ      (getγ auxξ))
-   (where σ_read (getReadσ path auxξ))
+   (where φ       (getφ auxξ))
+   (where α       (getByPath path φ))
+   (where γ       (getγ auxξ))
+   (where σ_read  (getReadσ path auxξ))
+   
    (where τ_front (fromMaybe 0 (lookup ι σ_read)))
-   (where τ_max (getLastTimestamp ι (getη auxξ)))])
+   (where τ_max   (getLastTimestamp ι (getη auxξ)))])
 
 ;; Returns random element from the list.
 (define select-random

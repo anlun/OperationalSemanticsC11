@@ -42,13 +42,14 @@
 
                             ;; Traversing the list.
                             rh      := lhead_con;
-                            cur1_na := rh;                            
+                            cur1_na := rh; 
                             repeat
                               rCur := cur1_na;
                               if (rCur != null)
                               then rNode   := rCur_con;
                                    rSum    := sum1_na;
-                                   sum1_na := rSum + rNode_1;
+                                   rVal    := ret rNode_1;
+                                   sum1_na := rVal + rSum;
                                    cur1_na := rNode_2;
                                    ret 0
                               else ret 1
@@ -67,7 +68,8 @@
                               if (rCur != null)
                               then rNode   := rCur_con;
                                    rSum    := sum1_na;
-                                   sum1_na := rSum + rNode_1;
+                                   rVal    := ret rNode_1;
+                                   sum1_na := rVal + rSum;
                                    cur1_na := rNode_2;
                                    ret 0
                               else ret 1
@@ -84,7 +86,8 @@
                               if (rCur != null)
                               then rNode   := rCur_con;
                                    rSum    := sum2_na;
-                                   sum2_na := rSum + rNode_1;
+                                   rVal    := ret rNode_1;
+                                   sum2_na := rVal + rSum;
                                    cur2_na := rNode_2;
                                    ret 0
                               else ret 1
@@ -101,7 +104,8 @@
                               if (rCur != null)
                               then rNode   := rCur_con;
                                    rSum    := sum2_na;
-                                   sum2_na := rSum + rNode_1;
+                                   rVal    := ret rNode_1;
+                                   sum2_na := rVal + rSum;
                                    cur2_na := rNode_2;
                                    ret 0
                               else ret 1
