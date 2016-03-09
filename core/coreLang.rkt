@@ -239,12 +239,14 @@
    (θ_0 ... (Deallocated ,(cons (term ι) (term listι))) θ_1 ...)])
 
 (define-metafunction coreLang
-  isLocationUninitialized : ι-var path auxξ -> boolean
-  [(isLocationUninitialized ι path auxξ)
+  isLocationUninitialized : ι-var σ-dd path auxξ -> boolean
+  [(isLocationUninitialized ι σ-dd path auxξ)
    ,(or (equal? (term (getLastTimestamp ι η)) (term -1))
-        (equal? (term None) (term (lookup ι (getReadσ path auxξ)))))
+        (equal? (term None)
+                (term (lookup ι
+                              (frontMerge σ-dd (getReadσ path auxξ))))))
    (where η (getη auxξ))]
-  [(isLocationUninitialized vName path auxξ) #f])
+  [(isLocationUninitialized vName σ-dd path auxξ) #f])
 
 ; ST stands for `state transformer`.
 (define-syntax-rule (define-coreStep defaultState spwST joinST isReadQueueEqualTo)
@@ -299,7 +301,7 @@
         (stuck defaultState)
         "cas-stuck-uninitialized"
         (where path (pathE E))
-        (side-condition (or (term (isLocationUninitialized ι-var path auxξ))
+        (side-condition (or (term (isLocationUninitialized ι-var () path auxξ))
                             (term (isLocationDeallocated ι-var auxξ)))))
 
    (--> ((in-hole E (casCon SM FM ι-var μ-value_1 μ-value_2 σ-dd)) auxξ)
@@ -311,21 +313,21 @@
         (stuck defaultState)
         "casCon-stuck-uninitialized"
         (where path (pathE E))
-        (side-condition (or (term (isLocationUninitialized ι-var path auxξ))
+        (side-condition (or (term (isLocationUninitialized ι-var σ-dd path auxξ))
                             (term (isLocationDeallocated ι-var auxξ)))))
 
    (--> ((in-hole E (read RM ι-var)) auxξ)
         (stuck defaultState)
         "read-stuck"
         (where path (pathE E))
-        (side-condition (or (term (isLocationUninitialized ι-var path auxξ))
+        (side-condition (or (term (isLocationUninitialized ι-var () path auxξ))
                             (term (isLocationDeallocated   ι-var auxξ)))))
 
    (--> ((in-hole E (readCon RM ι-var σ-dd)) auxξ)
         (stuck defaultState)
         "readCon-stuck"
         (where path (pathE E))
-        (side-condition (or (term (isLocationUninitialized ι-var path auxξ))
+        (side-condition (or (term (isLocationUninitialized ι-var σ-dd path auxξ))
                             (term (isLocationDeallocated   ι-var auxξ)))))
 
    (--> ((in-hole E (write WM ι)) auxξ)

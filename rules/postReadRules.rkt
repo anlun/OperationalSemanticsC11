@@ -108,4 +108,4 @@
         (side-condition (term (isFirstRecord vName ι α)))
         
         (where path (pathEp Ep))
-        (side-condition (term (isLocationUninitialized ι path auxξ)))))))
+        (side-condition (term (isLocationUninitialized ι σ-dd path auxξ)))))))
