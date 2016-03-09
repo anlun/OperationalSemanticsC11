@@ -274,7 +274,10 @@
   
    (-->  ((in-hole E (                            repeat AST))    auxξ)
         (normalize
-         ((in-hole E (AST >>= (λ x (if x (ret x) (repeat AST))))) auxξ))
+         ;((in-hole E (AST >>= (λ x (if x (ret x) (repeat AST))))) auxξ))
+         ((in-hole E (insertRepeatK AST
+                                    (λ x (if x (ret x) (repeat AST)))))
+          auxξ))
         "repeat-unroll"
         (side-condition (term (isPossibleE E auxξ))))
 

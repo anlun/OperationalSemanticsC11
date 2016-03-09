@@ -609,6 +609,20 @@
          (term (isFirstRecord vName ι α)))
    (where σ_to-check (frontMerge σ_read σ-dd))])
 
+; TODO: think about expension to other cases, like nested repeat.
+(define-metafunction coreLang
+  insertRepeatK : AST K -> AST
+  ;; insertRepeatK : AST_body K -> AST
+  [(insertRepeatK (AST_0 >>= (λ vName AST_1)) K)
+   (AST_0 >>= (λ vName (insertRepeatK AST_1 K)))]
+
+  [(insertRepeatK (if Expr AST_0 AST_1) K)
+   (if Expr
+       (insertRepeatK AST_0 K)
+       (insertRepeatK AST_1 K))]
+
+  [(insertRepeatK AST_body K) (AST_body >>= K)])
+
 ;; (define (find-path red from to)
 ;;   (define parents (make-hash))
 ;;   (let/ec done

@@ -41,16 +41,14 @@
                         {{{ sum1_na  := 0;
 
                             ;; Traversing the list.
-                            rh      := lhead_con;
-                            cur1_na := rh; 
+                            rCur := lhead_con; 
                             repeat
-                              rCur := cur1_na;
                               if (rCur != null)
                               then rNode   := rCur_con;
                                    rSum    := sum1_na;
                                    rVal    := ret rNode_1;
                                    sum1_na := rVal + rSum;
-                                   cur1_na := rNode_2;
+                                   rCur    := ret rNode_2;
                                    ret 0
                               else ret 1
                               fi 
@@ -61,52 +59,46 @@
                             cr1_rel := rC;
 
                             ;; Traversing the list.
-                            rh      := lhead_con;
-                            cur1_na := rh;                            
+                            rCur := lhead_con; 
                             repeat
-                              rCur := cur1_na;
                               if (rCur != null)
                               then rNode   := rCur_con;
                                    rSum    := sum1_na;
                                    rVal    := ret rNode_1;
                                    sum1_na := rVal + rSum;
-                                   cur1_na := rNode_2;
+                                   rCur    := ret rNode_2;
                                    ret 0
                               else ret 1
                               fi 
                             end;
-
+ 
                             sum1_na
                         ||| sum2_na  := 0;
 
-                            rh      := lhead_con;
-                            cur2_na := rh;                            
+                            rCur := lhead_con; 
                             repeat
-                              rCur := cur2_na;
                               if (rCur != null)
                               then rNode   := rCur_con;
                                    rSum    := sum2_na;
                                    rVal    := ret rNode_1;
                                    sum2_na := rVal + rSum;
-                                   cur2_na := rNode_2;
+                                   rCur    := ret rNode_2;
                                    ret 0
                               else ret 1
                               fi 
                             end;
-                            
+
                             rC := cw_acq;
                             cr2_rel := rC;
 
-                            rh      := lhead_con;
-                            cur2_na := rh;                            
+                            rCur := lhead_con; 
                             repeat
-                              rCur := cur2_na;
                               if (rCur != null)
                               then rNode   := rCur_con;
                                    rSum    := sum2_na;
                                    rVal    := ret rNode_1;
                                    sum2_na := rVal + rSum;
-                                   cur2_na := rNode_2;
+                                   rCur    := ret rNode_2;
                                    ret 0
                               else ret 1
                               fi 
@@ -136,10 +128,10 @@
                                        ))
                                defaultState))
 
-(test-->> step
-          ;; (term (,term_RCU startState))
-          (term (,term_RCU defaultState))
-          (term ((ret (0 0)) defaultState)))
+;; (test-->> step
+;;           ;; (term (,term_RCU startState))
+;;           (term (,term_RCU defaultState))
+;;           (term ((ret (0 0)) defaultState)))
 
 ;; Usage of consume reads leads to stuck states, because the data-dependency relation
 ;; doesn't go beyond write-read combination of cur(1|2) in repeat loops.
