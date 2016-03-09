@@ -49,13 +49,14 @@
                               then rNode   := rCur_con;
                                    rSum    := sum1_na;
                                    sum1_na := rSum + rNode_1;
-                                   cur1_na := rNode_2
-                              else ret 0
+                                   cur1_na := rNode_2;
+                                   ret 0
+                              else ret 1
                               fi 
                             end;
                             
                             ;; A signalization of a RCU quiescent state.
-                            rC := wc_acq;
+                            rC := cw_acq;
                             cr1_rel := rC;
 
                             ;; Traversing the list.
@@ -67,8 +68,9 @@
                               then rNode   := rCur_con;
                                    rSum    := sum1_na;
                                    sum1_na := rSum + rNode_1;
-                                   cur1_na := rNode_2
-                              else ret 0
+                                   cur1_na := rNode_2;
+                                   ret 0
+                              else ret 1
                               fi 
                             end;
 
@@ -83,12 +85,13 @@
                               then rNode   := rCur_con;
                                    rSum    := sum2_na;
                                    sum2_na := rSum + rNode_1;
-                                   cur2_na := rNode_2
-                              else ret 0
+                                   cur2_na := rNode_2;
+                                   ret 0
+                              else ret 1
                               fi 
                             end;
                             
-                            rC := wc_acq;
+                            rC := cw_acq;
                             cr2_rel := rC;
 
                             rh      := lhead_con;
@@ -99,8 +102,9 @@
                               then rNode   := rCur_con;
                                    rSum    := sum2_na;
                                    sum2_na := rSum + rNode_1;
-                                   cur2_na := rNode_2
-                              else ret 0
+                                   cur2_na := rNode_2;
+                                   ret 0
+                              else ret 1
                               fi 
                             end;
 
