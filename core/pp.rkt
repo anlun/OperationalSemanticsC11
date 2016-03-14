@@ -4,7 +4,7 @@
 (require "syntax.rkt")
 (require "coreLang.rkt")
 (require "coreUtils.rkt")
-(provide pretty-printer ast-print print-state)
+(provide pretty-printer ast-print print-state print-TeX)
 
 (current-page-width 1050)
 (define tabstop (make-parameter 3))
@@ -26,9 +26,9 @@
   [(ppExpr ι     ) ι]
   [(ppExpr number) ,(number->string (term number))]
   [(ppExpr (op Expr_0 Expr_1))
-   ,(beside* "(" (symbol->string (term op)) " "
-             (term (ppExpr Expr_0))
-             " "
+   ,(beside* "("
+             (term (ppExpr Expr_0)) " "
+             (symbol->string (term op)) " "
              (term (ppExpr Expr_1))
              ")")])
 
@@ -57,7 +57,7 @@
 (define-metafunction coreLang
   ; ppι-var : ι-var -> string
   [(ppι-var ι) ι]
-  [(ppι-var vName) ,(symbol->string (term vName))])
+  [(ppι-var vName) ,(beside* "" (symbol->string (term vName)))])
 
 (define-metafunction coreLang
   ;pp : AST -> Doc
@@ -285,6 +285,94 @@
   (doc->string
      (above* (term (pp ,(list-ref t 0))) ""
              (term (ppState ,(list-ref t 1))))))
+
+(define (print-TeX t)
+  (doc->string (term (ppTeX-in-listing ,t))))
+
+(define-metafunction coreLang
+  ; ppTeX-in-listing : AST -> Doc
+  [(ppTeX-in-listing AST)
+   ,(above* "\\begin{lstlisting}[language=while]"
+            (term (ppTeX AST))
+            "\\end{lstlisting}")])
+
+(define-metafunction coreLang
+  ; ppTeX-μ : μ -> Doc
+  [(ppTeX-μ ι-var) (ppι-var ι-var)]
+  [(ppTeX-μ (μ_0 μ_1))
+   ,(beside*
+     "[" (term (ppTeX-μ μ_0)) " " (term (ppTeX-μ μ_1)) "]")]
+  [(ppTeX-μ Expr) (ppExpr Expr)]
+  [(ppTeX-μ (proj1 μ))
+   ,(beside (term (ppTeX-μ μ)) "|$_1$|")]
+  [(ppTeX-μ (proj2 μ))
+   ,(beside (term (ppTeX-μ μ)) "|$_2$|")])
+
+(define-metafunction coreLang
+  ; ppTeX : AST -> Doc
+  [(ppTeX (spw AST_0 AST_1))
+   ,(above* "\\end{lstlisting}"
+            "\\begin{tabular}{l||l}"
+            (above* "\\begin{lstlisting}[language=while]"
+                    (term (ppTeX AST_0))
+                    "\\end{lstlisting}"
+                    "\\hspace{.6cm} &"
+                    "\\begin{lstlisting}[language=while]"
+                    (term (ppTeX AST_1))
+                    "\\end{lstlisting}")
+            "\\end{tabular}"
+            "\\begin{lstlisting}[language=while]")]
+
+  [(ppTeX (cas SM FM ι-var μ_0 μ_1))
+   ,(beside*
+     "cas|$_{" (term (ppMod SM))
+     "," (term (ppMod FM)) "}$|("
+     (term (ppι-var ι-var)) ", "
+     (term (ppTex-μ μ_0)) ", "
+     (term (ppTex-μ μ_1)) ")")]
+  [(ppTeX (write WM ι-var μ))
+   ,(beside*
+     "|$[$|" (term (ppι-var ι-var))
+     "|$]_{" (term (ppMod WM))
+     "}$|"
+     " = " (term (ppTeX-μ μ)))]  
+
+  [(ppTeX (AST_0 >>= (λ vName (ret vName))))
+   (ppTeX AST_0)]
+
+  [(ppTeX (AST_0 >>= (λ vName AST_1)))
+   ,(above* (beside* (term (ppTeX AST_0)) ";")
+            (term (ppTeX AST_1)))
+   (side-condition (equal? 'r-1 (term vName)))]
+
+  [(ppTeX (AST_0 >>= (λ vName AST_1)))
+   ,(above*
+     (beside* (symbol->string (term vName))
+              " = "
+              (term (ppTeX AST_0))
+              ";")
+     (term (ppTeX AST_1)))
+   (side-condition (not (equal? 'r-1 (term vName))))]
+ 
+  [(ppTeX (read RM ι-var))
+   ,(beside*
+     "|$[$|" (term (ppι-var ι-var))
+     "|$]_{" (term (ppMod RM))
+     "}$|")]
+  
+  [(ppTeX (repeat AST))
+   ,(above*
+     "repeat"
+     (indent 2 (term (ppTeX AST)))
+     "end")]
+  
+  [(ppTeX (if μ AST_0 AST_1))
+   ,(above* (beside* "if "   (term (ppTeX-μ μ)))
+            (beside* "then " (term (ppTeX AST_0)))
+            (beside* "else " (term (ppTeX AST_1)))
+            "fi")]
+
+  [(ppTeX (ret μ)) ,(beside "ret " (term (ppTeX-μ μ)))])
 
 (define (write-text-state t txt)
   (send txt insert (print-state t)))
