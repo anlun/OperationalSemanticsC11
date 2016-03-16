@@ -372,6 +372,7 @@
             (beside* "else " (term (ppTeX AST_1)))
             "fi")]
 
+  [(ppTeX (dealloc ι-var)) ,(beside* "delete " (term (ppTeX-μ ι-var)))]
   [(ppTeX (ret μ)) ,(beside "ret " (term (ppTeX-μ μ)))])
 
 (define (write-text-state t txt)

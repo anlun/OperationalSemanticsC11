@@ -32,13 +32,41 @@
             rtc       := rt_rlx;
             rt_rel    := [rtc_1 c];
             ltail_rlx := c;
-                  
-            ;; rt  := lhead_rlx;
-            ;; rtc := rt_rlx;
-            ;; rt  := ret rtc_2;
+            
+            ;; Update second list element.           
+            r1  := lhead_rlx; ;; r1 -> lhead
+            r1c := r1_rlx;
+            r2  := ret r1c_2;     ;; r2 -> the second element
+            r2c := r2_rlx;
+            r3  := ret r2c_2;     ;; r3 -> the third element
+            
+            d_rel  := [1000 r3];
+            r1_rel := [r1c_1 d];
+
+            rcw    := cw_rlx;
+            cw_rel := rcw + 2;
+            iterCounter_na := 0;
+            repeat
+              ric := iterCounter_na;
+              iterCounter_na := ric + 1;
+              rcr1 := cr1_acq;
+              ret (rcr1 % 2)
+            end;
+            repeat
+              ric := iterCounter_na;
+              iterCounter_na := ric + 1;
+              rcr2 := cr2_acq;
+              ret (rcr2 % 2)
+            end;
+            dealloc r2;
+
             ret 0
         ||| spw
             {{{ sum1_na  := 0;
+
+                ;; Starting working with the list.
+                rC := cw_acq;
+                cr1_rel := rC + 1;
 
                 ;; Traversing the list.
                 rh      := lhead_acq;
@@ -60,6 +88,10 @@
                 rC := cw_acq;
                 cr1_rel := rC;
 
+                ;; Starting working with the list.
+                rC := cw_acq;
+                cr1_rel := rC + 1;
+
                 ;; Traversing the list.
                 rh      := lhead_acq;
                 cur1_na := rh;                            
@@ -76,8 +108,16 @@
                   fi 
                 end;
 
+                ;; A signalization of a RCU quiescent state.
+                rC := cw_acq;
+                cr1_rel := rC;
+
                 sum1_na
             ||| sum2_na  := 0;
+
+                ;; Starting working with the list.
+                rC := cw_acq;
+                cr2_rel := rC + 1;
 
                 rh      := lhead_acq;
                 cur2_na := rh;                            
@@ -97,6 +137,10 @@
                 rC := cw_acq;
                 cr2_rel := rC;
 
+                ;; Starting working with the list.
+                rC := cw_acq;
+                cr2_rel := rC + 1;
+
                 rh      := lhead_acq;
                 cur2_na := rh;                            
                 repeat
@@ -111,6 +155,9 @@
                   else ret 1
                   fi 
                 end;
+
+                rC := cw_acq;
+                cr2_rel := rC;
 
                 sum2_na
             }}}
@@ -138,6 +185,13 @@
           ;; (term (,term_RCU startState))
           (term (,term_RCU defaultState))
           (term ((ret (0 (0 0))) defaultState)))
+
+(test-->> step
+          ;; (term (,term_RCU startState))
+          (term (,term_RCU defaultState))
+          (term ((ret (0 (0 0))) defaultState)))
+
+;; TODO: sometimes it fails with 'stuck. Discover why.
 
 ;; Usage of consume reads leads to stuck states, because the data-dependency relation
 ;; doesn't go beyond write-read combination of cur(1|2) in repeat loops.

@@ -97,9 +97,9 @@
   [(possibleTasks-path path (AST >>= K) auxξ) (possibleTasks-path path AST auxξ)]
 
   [(possibleTasks-path path AST auxξ)
-   (possibleTasks-path-read path ι auxξ)
+   (possibleTasks-path-read path ι RM auxξ)
    (side-condition (term (noPostponedReads auxξ)))
-   (where (Just ι) (ιFromReadAction AST))]
+   (where (Just (ι RM)) (ιModFromReadAction AST))]
 
   [(possibleTasks-path path (par AST_0 AST_1) auxξ)
    ,(if (and (null? (term pathsτ_left ))
@@ -119,12 +119,12 @@
           (term (possiblePostponedReads path auxξ)))])
 
 (define-metafunction coreLang
-  ιFromReadAction : AST -> Maybe
-  [(ιFromReadAction (read      RM ι     )) (Just ι)]
-  [(ιFromReadAction (readCon   RM ι σ-dd)) (Just ι)]
-  [(ιFromReadAction (cas    SM FM ι     )) (Just ι)]
-  [(ιFromReadAction (casCon SM FM ι σ-dd)) (Just ι)]
-  [(ιFromReadAction AST) None])
+  ιModFromReadAction : AST -> Maybe
+  [(ιModFromReadAction (read      RM ι     )) (Just (ι RM))]
+  [(ιModFromReadAction (readCon   RM ι σ-dd)) (Just (ι RM))]
+  [(ιModFromReadAction (cas    SM FM ι     )) (Just (ι SM))] ;; TODO: 
+  [(ιModFromReadAction (casCon SM FM ι σ-dd)) (Just (ι SM))] ;; Maybe smth other then SM.
+  [(ιModFromReadAction AST) None])
 
 (define-metafunction coreLang
   noPostponedReads : auxξ -> boolean
@@ -132,8 +132,20 @@
   [(noPostponedReads auxξ) #t])
 
 (define-metafunction coreLang
-  possibleTasks-path-read : path ι auxξ -> pathsτ
-  [(possibleTasks-path-read path ι auxξ)
+  possibleTasks-path-read : path ι RM auxξ -> pathsτ
+  [(possibleTasks-path-read path ι sc auxξ)
+   ,(map
+     (λ (t)
+       (list (term path) (- t (term τ_front)) -1))
+     (range (term τ_front) (+ 1 (term τ_max))))
+   (where σ_read (getReadσ path auxξ))
+   (where σ_sc   (getσSC auxξ))
+   (where τ_front ,(max
+                    (term (fromMaybe 0 (lookup ι σ_sc  )))
+                    (term (fromMaybe 0 (lookup ι σ_read)))))
+   (where τ_max (getLastTimestamp ι (getη auxξ)))]
+
+  [(possibleTasks-path-read path ι RM auxξ)
    ,(map
      (λ (t)
        (list (term path) (- t (term τ_front)) -1))
