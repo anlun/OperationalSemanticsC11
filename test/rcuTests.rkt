@@ -66,7 +66,7 @@
 
                 ;; Starting working with the list.
                 rC := cw_acq;
-                cr1_rel := rC + 1;
+                cr1_rlx := rC + 1;
 
                 ;; Traversing the list.
                 rh      := lhead_acq;
@@ -85,12 +85,12 @@
                 end;
                             
                 ;; A signalization of a RCU quiescent state.
-                rC := cw_acq;
+                rC := cw_rlx;
                 cr1_rel := rC;
 
                 ;; Starting working with the list.
                 rC := cw_acq;
-                cr1_rel := rC + 1;
+                cr1_rlx := rC + 1;
 
                 ;; Traversing the list.
                 rh      := lhead_acq;
@@ -109,7 +109,7 @@
                 end;
 
                 ;; A signalization of a RCU quiescent state.
-                rC := cw_acq;
+                rC := cw_rlx;
                 cr1_rel := rC;
 
                 sum1_na
@@ -117,7 +117,7 @@
 
                 ;; Starting working with the list.
                 rC := cw_acq;
-                cr2_rel := rC + 1;
+                cr2_rlx := rC + 1;
 
                 rh      := lhead_acq;
                 cur2_na := rh;                            
@@ -134,12 +134,12 @@
                   fi 
                 end;
                       
-                rC := cw_acq;
+                rC := cw_rlx;
                 cr2_rel := rC;
 
                 ;; Starting working with the list.
                 rC := cw_acq;
-                cr2_rel := rC + 1;
+                cr2_rlx := rC + 1;
 
                 rh      := lhead_acq;
                 cur2_na := rh;                            
@@ -156,7 +156,7 @@
                   fi 
                 end;
 
-                rC := cw_acq;
+                rC := cw_rlx;
                 cr2_rel := rC;
 
                 sum2_na
