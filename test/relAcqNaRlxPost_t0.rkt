@@ -93,7 +93,7 @@ R1 = x_acq || R2 = y_rlx
 y_rlx  = 1 || x_rel  = 1
            || x_rlx  = 2
 
-With postponed reads it shouldn't lead to R1 = 2; R1 = 1.
+With postponed reads it shouldn't lead to R1 = {1, 2} \/ R2 = 1.
 |#
 (test-->> step
           (term (,term_RacqWrlx_RrlxWrelWrlx defaultState))
@@ -121,3 +121,49 @@ Possible outcomes for r2 are 1 and 5.
 
           (term ((ret 1) defaultState))
           (term ((ret 5) defaultState)))
+
+#|
+     data_na  = 0
+     p_rel    = 0
+data_na  = 5     || r1 = p_con
+p_rel    = &data || if (r1 != 0) {
+                 ||    r2 = r1_na
+                 || else
+                 ||    r2 = 1
+
+Possible outcomes for r2 are 1 and 5.
+|#
+
+#|
+WRC_rlx
+
+      x_rlx = 0; y_rlx = 0
+x_rlx = 1 || r1 = x_rlx || r2 = y_rlx
+          || y_rlx = r1 || r3 = x_rlx
+
+Possible outcome: r2 = 1 /\ r3 = 0.
+|#
+(test-->> step
+          (term (,term_WRC_rlx defaultState))
+
+          (term ((ret (0 0)) defaultState))
+          (term ((ret (0 1)) defaultState))
+          (term ((ret (1 1)) defaultState))
+
+          (term ((ret (1 0)) defaultState)))
+
+#|
+WRC_rel+acq
+
+      x_rel = 0; y_rel = 0
+x_rel = 1 || r1 = x_acq || r2 = y_acq
+          || y_rel = r1 || r3 = x_acq
+
+Impossible outcome: r2 = 1 /\ r3 = 0.
+|#
+(test-->> step
+          (term (,term_WRC_rel+acq defaultState))
+
+          (term ((ret (0 0)) defaultState))
+          (term ((ret (0 1)) defaultState))
+          (term ((ret (1 1)) defaultState)))

@@ -50,6 +50,21 @@ Can lead to R1 = R2 = 0.
           (term (,term_WrelRacq_WrelRacq etaPsiDefaultState))
           (term ((ret (0 0)) etaPsiDefaultState)))
 
+#|
+IRIW. Anti-TSO example. (Release+Acquire)
+
+                     x_rel = 0
+                     y_rel = 0
+x_rel = 1 || y_rel = 1 || a = x_acq || c = y_acq
+          ||           || b = y_acq || d = x_acq
+
+The `ret ((1 0) (0 1))` shows that our model is more relaxed
+than x86-TSO [Sewell-al:CACM10].
+|#
+(test-->>∃ relAcqStep
+          (term (,testTerm67 etaPsiDefaultState))
+          (term ((ret ((1 0) (0 1))) etaPsiDefaultState)))
+
 ;;;;;;;;;;;;;;;;;;
 ; Rlx
 ;;;;;;;;;;;;;;;;;;

@@ -42,6 +42,56 @@ rX |rA
           (term ((ret (2 1)) defaultState)))
 
 #|
+             x_rlx = 0; a_rlx = 0
+a_rlx = 1 || cas_rlx_rlx(x, 1, 2) || rX = x_acq
+x_rel = 1 ||                      || rA = a_rlx
+x_rlx = 3 ||                      ||
+             ret (rX rA)
+
+Possible outcomes according to Batty-al:POPL11:
+rX |rA  
+--------
+0  |0,1
+1  |1  
+2  |1  
+3  |1
+|#
+(define term_WWW_WRMW_RR
+  @prog{x_rlx := 0;
+        a_rlx := 0;
+        r0 := spw
+              {{{ r1 := spw
+                        {{{ a_rlx := 1;
+                            x_rel := 1;
+                            x_rlx := 3
+                        ||| cas_rlx_rlx(x, 1, 2) }}};
+                  ret r1_2
+              ||| rX := x_acq;
+                  rA := a_rlx;
+                  ret [rX rA] }}};
+        ret r0 })
+
+(test-->> step (term (,term_WWW_WRMW_RR defaultState))
+
+          (term ((ret (0 (0 0))) defaultState))
+          (term ((ret (1 (0 0))) defaultState))
+          (term ((ret (3 (0 0))) defaultState))
+
+          (term ((ret (0 (0 1))) defaultState))
+          (term ((ret (1 (0 1))) defaultState))
+          (term ((ret (3 (0 1))) defaultState))
+
+          (term ((ret (0 (1 1))) defaultState))
+          (term ((ret (1 (1 1))) defaultState))
+          (term ((ret (3 (1 1))) defaultState))
+
+          (term ((ret (1 (2 1))) defaultState))
+          
+          (term ((ret (0 (3 1))) defaultState))
+          (term ((ret (1 (3 1))) defaultState))
+          (term ((ret (3 (3 1))) defaultState)))
+
+#|
                      x_rlx = 0; a_rlx = 0; b_rlx = 0
 a_rlx = 1 || b_rlx = 1            || if (x_rlx == 2) { || rX = x_acq
 x_rel = 1 || cas_rel_rlx(x, 1, 2) ||   x_rlx = 3       || rA = a_rlx
@@ -79,22 +129,22 @@ rX |rA  |rB
                       ret [rX [rA rB]] }}} }}};
         ret r0_2_2 })
 
-(test-->> step (term (,term_WW_WRMW_W_RRR defaultState))
+;; (test-->> step (term (,term_WW_WRMW_W_RRR defaultState))
 
-          (term ((ret (0 (0 0))) defaultState))
-          (term ((ret (0 (0 1))) defaultState))
-          (term ((ret (0 (1 0))) defaultState))
-          (term ((ret (0 (1 1))) defaultState))
+;;           (term ((ret (0 (0 0))) defaultState))
+;;           (term ((ret (0 (0 1))) defaultState))
+;;           (term ((ret (0 (1 0))) defaultState))
+;;           (term ((ret (0 (1 1))) defaultState))
 
-          (term ((ret (1 (1 0))) defaultState))
-          (term ((ret (1 (1 1))) defaultState))
+;;           (term ((ret (1 (1 0))) defaultState))
+;;           (term ((ret (1 (1 1))) defaultState))
           
-          (term ((ret (2 (1 1))) defaultState))
+;;           (term ((ret (2 (1 1))) defaultState))
 
-          (term ((ret (3 (0 0))) defaultState))
-          (term ((ret (3 (0 1))) defaultState))
-          (term ((ret (3 (1 0))) defaultState))
-          (term ((ret (3 (1 1))) defaultState)))
+;;           (term ((ret (3 (0 0))) defaultState))
+;;           (term ((ret (3 (0 1))) defaultState))
+;;           (term ((ret (3 (1 0))) defaultState))
+;;           (term ((ret (3 (1 1))) defaultState)))
 
 ;(traces step (term (,term_WW_WRMW_W_RRR defaultState)) #:pp pretty-printer)
 

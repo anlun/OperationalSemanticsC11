@@ -386,6 +386,33 @@ than x86-TSO [Sewell-al:CACM10].
         ret rABCD_2})
 
 #|
+IRIW. Anti-TSO example. (Release+Acquire)
+
+                     x_rel = 0
+                     y_rel = 0
+x_rel = 1 || y_rel = 1 || a = x_acq || c = y_rel
+          ||           || b = y_acq || d = x_rel
+
+The `ret ((1 0) (0 1))` shows that our model is more relaxed
+than x86-TSO [Sewell-al:CACM10].
+|#
+(define testTerm67
+  @prog{x_rel := 0;
+        y_rel := 0;
+        rABCD := spw
+                 {{{ spw
+                     {{{ x_rel := 1
+                     ||| y_rel := 1 }}}
+                 ||| spw
+                     {{{ rA := x_acq;
+                         rB := y_acq;
+                         ret [rA rB]
+                     ||| rC := y_acq;
+                         rD := x_acq;
+                         ret [rC rD] }}} }}};
+        ret rABCD_2})
+
+#|
 Anti-TSO example.
 It shows why our model isn't TSO.
 
@@ -678,3 +705,47 @@ Possible outcomes for r2 are 1 and 5.
                   else ret 1
                   fi }}};
         ret r0_2 })
+
+#|
+WRC_rel+acq
+
+      x_rel = 0; y_rel = 0
+x_rel = 1 || r1 = x_acq || r2 = y_acq
+          || y_rel = r1 || r3 = x_acq
+
+Impossible outcome: r2 = 1 /\ r3 = 0.
+|#
+(define term_WRC_rel+acq
+  @prog{x_rel := 0;
+        y_rel := 0;
+        r0 := spw
+              {{{ spw
+                  {{{ x_rel := 1
+                  ||| r1 := x_acq;
+                      y_rel := r1 }}}
+              ||| r2 := y_acq;
+                  r3 := x_acq;
+                  ret [r2 r3] }}};
+        ret r0_2})
+       
+#|
+WRC_rlx
+
+      x_rlx = 0; y_rlx = 0
+x_rlx = 1 || r1 = x_rlx || r2 = y_rlx
+          || y_rlx = r1 || r3 = x_rlx
+
+Possible outcome: r2 = 1 /\ r3 = 0.
+|#
+(define term_WRC_rlx
+  @prog{x_rlx := 0;
+        y_rlx := 0;
+        r0 := spw
+              {{{ spw
+                  {{{ x_rlx := 1
+                  ||| r1 := x_rlx;
+                      y_rlx := r1 }}}
+              ||| r2 := y_rlx;
+                  r3 := x_rlx;
+                  ret [r2 r3] }}};
+        ret r0_2})
