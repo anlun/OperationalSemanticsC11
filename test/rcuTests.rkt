@@ -181,15 +181,13 @@
                                        ))
                                defaultState))
 
-(test-->> step
-          ;; (term (,term_RCU startState))
-          (term (,term_RCU defaultState))
-          (term ((ret (0 (0 0))) defaultState)))
-
-(test-->> step
-          ;; (term (,term_RCU startState))
-          (term (,term_RCU defaultState))
-          (term ((ret (0 (0 0))) defaultState)))
+(define (rcuTest)
+  (test-->> step
+            ;; (term (,term_RCU startState))
+            (term (,term_RCU defaultState))
+            (term ((ret (0 (0 0))) defaultState))))
+(rcuTest)
+(rcuTest)
 
 ;; TODO: sometimes it fails with 'stuck. Discover why.
 
@@ -199,3 +197,4 @@
 
 ;; (traces step (term (,term_RCU defaultState)) #:pp pretty-printer)
 ;; (stepper step (term (,term_RCU defaultState)) pretty-printer)
+
