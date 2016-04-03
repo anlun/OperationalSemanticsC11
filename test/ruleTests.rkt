@@ -65,6 +65,24 @@ than x86-TSO [Sewell-al:CACM10].
           (term (,testTerm67 etaPsiDefaultState))
           (term ((ret ((1 0) (0 1))) etaPsiDefaultState)))
 
+#| CoRR_rel+acq (Coherence of Read-Read)
+                     x_rel = 0
+x_rel = 1 || x_rel = 2 || a = x_acq || c = x_acq
+          ||           || b = x_acq || d = x_acq
+
+The execution a = d = 1 and b = c = 2 should be invalid.
+|#
+;; (test-->>∃ relAcqStep
+;;           (term (,test_CoRR_rel+acq etaPsiDefaultState))
+;;           (term ((ret ((0 0) (0 0))) etaPsiDefaultState))
+;;           (term ((ret ((0 0) (0 1))) etaPsiDefaultState))
+;;           (term ((ret ((0 0) (1 1))) etaPsiDefaultState))
+;;           (term ((ret ((0 1) (0 0))) etaPsiDefaultState))
+;;           (term ((ret ((0 1) (0 1))) etaPsiDefaultState))
+;;           (term ((ret ((0 1) (0 1))) etaPsiDefaultState))
+;; )
+
+
 ;;;;;;;;;;;;;;;;;;
 ; Rlx
 ;;;;;;;;;;;;;;;;;;

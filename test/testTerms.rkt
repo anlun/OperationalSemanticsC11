@@ -14,7 +14,7 @@ ret 5 || ret 239
 x_mod0  = 1 || y_mod2  = 1
 R1 = y_mod1 || R2 = x_mod3
 |#
-(define (abst_WR_WR imod0 imod1 mod0 mod1 mod2 mod3)
+(define (term_LB_abst imod0 imod1 mod0 mod1 mod2 mod3)
   @prog{x_@imod0 := 0;
         y_@imod1 := 0;
         spw
@@ -35,7 +35,7 @@ R1 = y_rlx || R2 = x_rlx
 
 Can lead to R1 = R2 = 0.
 |#
-(define term_WrlxRrlx_WrlxRrlx (concretize abst_WR_WR "rlx rlx rlx rlx rlx rlx"))
+(define term_WrlxRrlx_WrlxRrlx (concretize term_LB_abst "rlx rlx rlx rlx rlx rlx"))
 
 #|
   x_rel = 0; y_rel = 0
@@ -44,7 +44,7 @@ R1 = y_acq || R2 = x_acq
 
 Can lead to R1 = R2 = 0.
 |#
-(define term_WrelRacq_WrelRacq (concretize abst_WR_WR "rel rel rel acq rel acq"))
+(define term_WrelRacq_WrelRacq (concretize term_LB_abst "rel rel rel acq rel acq"))
 
 #|
   x_rel = 0; y_rel = 0
@@ -52,7 +52,7 @@ x_sc  = 1  || y_sc  = 1
 r1 = y_sc  || r2 = x_sc
        ret r1 r2
 |#
-(define term_WscRsc_WscRsc (concretize abst_WR_WR "rel rel sc sc sc sc"))
+(define term_WscRsc_WscRsc (concretize term_LB_abst "rel rel sc sc sc sc"))
 
 #|
        x_rel = 0; y_rel = 0
@@ -60,10 +60,10 @@ x_{sc,rel}  = 1 || y_{sc,rel}  = 1
 r1 = y_{sc,rel} || r2 = x_{sc,rel}
             ret r1 r2
 |#
-(define term_WrelRsc_WscRsc (concretize abst_WR_WR "rel rel rel sc sc sc"))
-(define term_WscRacq_WscRsc (concretize abst_WR_WR "rel rel sc acq sc sc"))
-(define term_WscRsc_WrelRsc (concretize abst_WR_WR "rel rel sc sc rel sc"))
-(define term_WscRsc_WscRacq (concretize abst_WR_WR "rel rel sc sc sc acq"))
+(define term_WrelRsc_WscRsc (concretize term_LB_abst "rel rel rel sc sc sc"))
+(define term_WscRacq_WscRsc (concretize term_LB_abst "rel rel sc acq sc sc"))
+(define term_WscRsc_WrelRsc (concretize term_LB_abst "rel rel sc sc rel sc"))
+(define term_WscRsc_WscRacq (concretize term_LB_abst "rel rel sc sc sc acq"))
 
 #|
    x_rlx = 0; y_rlx = 0
@@ -336,7 +336,7 @@ if x_acq == y_acq then || if x_acq != y_acq then
             else ret 0
             fi }}} })
 
-#|
+#| CoRR_rlx (Coherence of Read-Read)
                      x_rlx = 0
 x_rlx = 1 || x_rlx = 2 || a = x_rlx || c = x_rlx
           ||           || b = x_rlx || d = x_rlx
@@ -357,6 +357,29 @@ The execution a = d = 1 and b = c = 2 should be invalid.
                          rD := x_rlx;
                          ret [rC rD] }}} }}};
         ret rABCD_2})
+
+#| CoRR_rel+acq (Coherence of Read-Read)
+                     x_rel = 0
+x_rel = 1 || x_rel = 2 || a = x_acq || c = x_acq
+          ||           || b = x_acq || d = x_acq
+
+The execution a = d = 1 and b = c = 2 should be invalid.
+|#
+(define test_CoRR_rel+acq
+  @prog{x_rel := 0;
+        rABCD := spw
+                 {{{ spw
+                     {{{ x_rel := 1
+                     ||| x_rel := 2 }}}
+                 ||| spw
+                     {{{ rA := x_acq;
+                         rB := x_acq;
+                         ret [rA rB]
+                     ||| rC := x_acq;
+                         rD := x_acq;
+                         ret [rC rD] }}} }}};
+        ret rABCD_2})
+
 
 #|
 IRIW. Anti-TSO example.
