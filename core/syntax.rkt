@@ -39,7 +39,7 @@
   [Expr ι-var
         number
         (op Expr Expr)]
-  [op + - * / % == !=
+  [op + - * / % == != > >= < <=
       choice] ; The `choice` operator will nondeterministically choose left or right expression.
 
   [projOp proj1
@@ -373,7 +373,11 @@
   [(calc (/  number_1 number_2)) ,(/  (term number_1) (term number_2))]
   [(calc (%  number_1 number_2)) ,(remainder  (term number_1) (term number_2))]
   [(calc (== number_1 number_2)) ,(if (equal? (term number_1) (term number_2)) 1 0)]
-  [(calc (!= number_1 number_2)) ,(if (equal? (term number_1) (term number_2)) 0 1)])
+  [(calc (!= number_1 number_2)) ,(if (equal? (term number_1) (term number_2)) 0 1)]
+  [(calc (>  number_1 number_2)) ,(if (>  (term number_1) (term number_2)) 1 0)]
+  [(calc (>= number_1 number_2)) ,(if (>= (term number_1) (term number_2)) 1 0)]
+  [(calc (<  number_1 number_2)) ,(if (<  (term number_1) (term number_2)) 1 0)]
+  [(calc (<= number_1 number_2)) ,(if (<= (term number_1) (term number_2)) 1 0)])
 
 (define-metafunction syntax
   projCalc : (projOp μ) -> μ

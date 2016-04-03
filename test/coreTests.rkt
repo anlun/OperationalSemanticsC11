@@ -153,6 +153,9 @@
   (test-equal @prog{ret 3 + 3 * 6 == 21}
               '(ret (== (+ 3 (* 3 6)) 21)))
 
+  (test-equal @prog{ret 3 + 3 * 6 <= 21}
+              '(ret (<= (+ 3 (* 3 6)) 21)))
+
   (test-equal @prog{ret [3 3]_2}
               '(ret (proj2 (3 3))))
 

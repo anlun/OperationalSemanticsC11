@@ -431,8 +431,17 @@
   (term ((spw (ret (+ 1 2)) (ret (+ 3 9))) >>= (λ v
           (ret v)))))
 
+#|
+ret 5 < 5
+|#
+(define testTerm-2 (term (ret (< 5 5))))
+
+
 (define-syntax-rule (define-coreTest step defaultState)
   (begin
 (test-->> step
           (term (,testTerm-112 defaultState))
-          (term ((ret (3 12)) defaultState)))))
+          (term ((ret (3 12)) defaultState)))
+(test-->> step
+          (term (,testTerm-2 defaultState))
+          (term ((ret 0) defaultState)))))

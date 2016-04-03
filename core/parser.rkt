@@ -6,7 +6,7 @@
 
 (define-tokens       a (NUM VAR LOC
                         MM))
-(define-empty-tokens b (+ - * / % == !=
+(define-empty-tokens b (+ - * / % == != > >= < <=
                         CHOICE
                         PROJ1 PROJ2
                         POPEN PCLOSE
@@ -44,6 +44,10 @@
    ("%"      (token-%))
    ("=="     (token-==))
    ("!="     (token-!=))
+   (">"      (token-> ))
+   (">="     (token->=))
+   ("<"      (token-< ))
+   ("<="     (token-<=))
    ("choice" (token-CHOICE))
    ("_1"     (token-PROJ1))
    ("_2"     (token-PROJ2))
@@ -101,6 +105,7 @@
    (tokens a b)
    (precs (right PROJ1 PROJ2)
           (left == !=)
+          (left > >= < <=)
           (left - +)
           (left * CHOICE)
           (right SEMICOLON))
@@ -133,6 +138,10 @@
           ((exp %  exp) (list '% $1 $3))
           ((exp == exp) (list '== $1 $3))
           ((exp != exp) (list '!= $1 $3))
+          ((exp >  exp) (list '>  $1 $3))
+          ((exp >= exp) (list '>= $1 $3))
+          ((exp <  exp) (list '<  $1 $3))
+          ((exp <= exp) (list '<= $1 $3))
           ((exp  PROJ1) (list 'proj1 $1))
           ((exp  PROJ2) (list 'proj2 $1))
           ((CHOICE exp exp) (list 'choice $2 $3))
