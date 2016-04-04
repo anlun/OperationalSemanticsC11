@@ -90,7 +90,9 @@
   [EU hole
       (EU μ)
       (μ EU)
-      (projOp EU)
+      (projOp μ EU)
+      (projOp EU μ)
+      (op μ EU)
       (ret EU)
       (write  WM ι-var EU)
       (cas SM FM ι-var EU μ)

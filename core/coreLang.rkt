@@ -205,27 +205,32 @@
      ((in-hole E (subst vName μ-subst AST))         auxξ))
    (side-condition (not (term (isUsed vName AST))))]
 
-   [(normalize_subst
-     ((in-hole E (in-hole EU        (op ι Expr)))  auxξ))
-   (normalize_subst
-     ((in-hole E (in-hole EU (calcι (op ι Expr)))) auxξ))] 
+  [(normalize_subst (AST auxξ)) ((normalize_expr AST) auxξ)])
 
-   [(normalize_subst
-     ((in-hole E (in-hole EU        (op Expr ι)))  auxξ))
-   (normalize_subst
-     ((in-hole E (in-hole EU (calcι (op Expr ι)))) auxξ))] 
+
+(define-metafunction coreLang
+  normalize_expr : AST -> AST
+   [(normalize_expr
+     (in-hole E (in-hole EU        (op ι Expr))))
+   (normalize_expr
+     (in-hole E (in-hole EU (calcι (op ι Expr)))))] 
+
+   [(normalize_expr
+     (in-hole E (in-hole EU        (op Expr ι))))
+   (normalize_expr
+     (in-hole E (in-hole EU (calcι (op Expr ι)))))] 
  
-  [(normalize_subst
-     ((in-hole E (in-hole EU       (op number_1 number_2)))  auxξ))
-   (normalize_subst
-     ((in-hole E (in-hole EU (calc (op number_1 number_2)))) auxξ))
+  [(normalize_expr
+     (in-hole E (in-hole EU       (op number_1 number_2))))
+   (normalize_expr
+     (in-hole E (in-hole EU (calc (op number_1 number_2)))))
    (side-condition (not (equal? (term op) 'choice)))]
   
-  [(normalize_subst
-     ((in-hole E (in-hole EU           (projOp (μ_1 μ_2))))  auxξ))
-   (normalize_subst
-     ((in-hole E (in-hole EU (projCalc (projOp (μ_1 μ_2))))) auxξ))]
-  [(normalize_subst ξ) ξ])
+  [(normalize_expr
+     (in-hole E (in-hole EU           (projOp (μ_1 μ_2)))))
+   (normalize_expr
+     (in-hole E (in-hole EU (projCalc (projOp (μ_1 μ_2))))))]
+  [(normalize_expr AST) AST])
 
 (define-metafunction coreLang
   schedulerStep : auxξ -> auxξ
@@ -265,6 +270,12 @@
   (begin
 
   (reduction-relation coreLang #:domain ξ
+   
+   (--> (AST     auxξ)
+        (AST_new auxξ)
+        "calc_expr"
+        (where AST_new (normalize_expr AST))
+        (side-condition (not (equal? (term AST) (term AST_new)))))
 
    (-->  ((in-hole E ((ret μ-subst) >>= (λ vName AST))) auxξ)
         (normalize
@@ -378,8 +389,8 @@
         (side-condition (term (isPossibleE E auxξ))))
      
    ; For test results brevity only.
-   (--> ((ret μ) auxξ)
-        ((ret μ) defaultState)
+   (--> ((ret μ-value) auxξ)
+        ((ret μ-value) defaultState)
         "heap-info-erasure"
         (side-condition     ; To eliminate cycle.
          (not (equal? (term auxξ) (term defaultState)))))
@@ -434,7 +445,7 @@
 #|
 ret 5 < 5
 |#
-(define testTerm-2 (term (ret (< 5 5))))
+(define testTerm-2 (term ((ret (< 5 5)) >>= (λ x (ret x)))))
 
 
 (define-syntax-rule (define-coreTest step defaultState)
@@ -444,4 +455,5 @@ ret 5 < 5
           (term ((ret (3 12)) defaultState)))
 (test-->> step
           (term (,testTerm-2 defaultState))
-          (term ((ret 0) defaultState)))))
+          (term ((ret 0) defaultState)))
+))
