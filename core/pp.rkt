@@ -271,6 +271,19 @@
   [(ppStatePathsτ auxξ) ,(empty-doc)])
 
 (define-metafunction coreLang
+  ; ppStateDealloc : auxξ -> Doc
+  [(ppStateDealloc (θ_0 ... (Deallocated listι) θ_1 ...))
+   ,(above* "--- Deallocated" (term (ppListι listι)))]
+  [(ppStateDealloc auxξ) ,(empty-doc)])
+
+(define-metafunction coreLang
+  ; ppListι : listι -> Doc
+  [(ppListι listι) ,(beside*/sep " "
+                                 (map (λ (x)
+                                     (term (ppι-var ,x)))
+                                   (term listι)))])
+
+(define-metafunction coreLang
   ;ppState : auxξ -> Doc
   [(ppState auxξ)
    ,(above* (term (ppStateη auxξ))
@@ -279,7 +292,8 @@
             (term (ppStateσ auxξ))
             (term (ppStateφ auxξ))
             (term (ppStateγ auxξ))
-            (term (ppStatePathsτ auxξ)))])
+            (term (ppStatePathsτ  auxξ))
+            (term (ppStateDealloc auxξ)))])
 
 (define (print-state t)
   (doc->string
