@@ -117,9 +117,12 @@
          None]
 
   ;; For postponed reads.
+  [postponedEntry (vName ι-var RM σ-dd) ;; postponed read
+                  (vName μ)             ;; postponed let expression
+                  ]
   [φ α
      (par φ φ)]
-  [α ((vName ι-var RM σ-dd) ...)]
+  [α (postponedEntry ...)]
   [γ ((ι τ vName) ...)]
 
   [Ep hole

@@ -108,4 +108,12 @@
         (side-condition (term (isFirstRecord vName ι α)))
         
         (where path (pathEp Ep))
-        (side-condition (term (isLocationUninitialized ι σ-dd path auxξ)))))))
+        (side-condition (term (isLocationUninitialized ι σ-dd path auxξ))))
+
+   ;; (-->  ((in-hole E ((ret μ) >>= (λ vName AST))) auxξ)
+   ;;       ((in-hole E AST)         auxξ)
+   ;;      ">>=-subst-postpone"
+   ;;      (side-condition (term (isPossibleE E auxξ)))
+   ;;      (sude-condition (not (redex-match coreLang μ (term μ))))
+   ;;      ) 
+)))

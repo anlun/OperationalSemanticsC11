@@ -367,10 +367,12 @@
 
 (define-metafunction coreLang
   αToγRecords : ι τ α -> γ
-  [(αToγRecords ι τ α) ,(map
-                         (λ (x) (match x [(list vName locvar mod ddFront)
-                                          (list (term ι) (term τ) vName)]))
-                         (term α))])
+  [(αToγRecords ι τ α) ,(apply
+                         append (map
+                                 (λ (x) (match x [(list vName locvar mod ddFront)
+                                                  (list (list (term ι) (term τ) vName))]
+                                                 [_ (list)]))
+                                 (term α)))])
 
 (define-metafunction coreLang
   addPostReadsToγ : path ι τ auxξ -> auxξ
@@ -385,25 +387,30 @@
   [(isFirstRecord vName_0 ι_0 ((vName_0 ι_0     RM  σ-dd) any ...)) #t]
   [(isFirstRecord vName_0 ι_0 ((vName_1 ι_1     acq σ-dd) any ...)) #f]
   [(isFirstRecord vName_0 ι   ((vName_1 vName_2 RM  σ-dd) any ...)) #f]
-  [(isFirstRecord vName_0 ι_0 ((vName_1 ι_1     RM  σ-dd) any ...))
+  [(isFirstRecord vName_0 ι_0 (postponedEntry any ...))
    (isFirstRecord vName_0 ι_0 (any ...))])
 
 (define-metafunction coreLang
-  substμα : vName μ-value σ-dd α -> α
-  [(substμα vName ι       σ-dd α) (substια vName ι σ-dd α)]
-  [(substμα vName μ-value σ-dd α) α])
+  consT : any (any ...) -> (any ...)
+  [(consT any_0 any_1) ,(cons (term any_0) (term any_1))])
 
 (define-metafunction coreLang
-  substια : vName ι σ-dd α -> α
-  [(substια vName ι σ-dd ()) ()]
+  substμPostponedEntry : vName μ-value σ-dd postponedEntry -> postponedEntry
+  [(substμPostponedEntry vName_0 ι σ-dd_0 (vName_1 vName_0 RM σ-dd_1))
+   (vName_1 ι RM (frontMerge σ-dd_0 σ-dd_1))]
 
-  [(substια vName_0 ι σ-dd_0 ((vName_1 vName_0 RM σ-dd_1) any ...))
-   ,(cons (term (vName_1 ι RM (frontMerge σ-dd_0 σ-dd_1)))
-          (term (substια vName_0 ι σ-dd_0 (any ...))))]
+  [(substμPostponedEntry vName_0 μ-value σ-dd (vName_1 μ))
+   (vName_1 (substExpr vName_0  μ-value μ))]
 
-  [(substια vName_0 ι σ-dd_0 ((vName_1 ι-var RM σ-dd_1) any ...))
-   ,(cons (term (vName_1 ι-var RM σ-dd_1))
-          (term (substια vName_0 ι σ-dd_0 (any ...))))])
+  [(substμPostponedEntry vName_0 μ-value σ-dd any) any])
+
+(define-metafunction coreLang
+  substμα : vName μ-value σ-dd α -> α
+
+  [(substμα vName μ-value σ-dd α)
+   ,(map (λ (x)
+           (term (substμPostponedEntry vName μ-value σ-dd ,x)))
+         (term α))])
 
 (define-metafunction coreLang
   getσToWrite : σ ι η -> σ
