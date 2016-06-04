@@ -342,6 +342,7 @@
   isRlxPostRead : any -> boolean
   [(isRlxPostRead (vName ι-var rlx σ-dd)) #t]
   [(isRlxPostRead (vName ι-var con σ-dd)) #t]  ; TODO: rename methods appropriately
+  [(isRlxPostRead (vName μ))              #t]
   [(isRlxPostRead any)                    #f])
 
 (define-metafunction coreLang

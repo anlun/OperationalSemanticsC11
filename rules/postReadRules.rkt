@@ -26,7 +26,7 @@
 ;; The current implementation doesn't work correctly
 ;; if a program contains a variable with name `choice`. 
 (define (doesntContainChoice mu) ;; μ -> boolean
-  (memv 'choice (flatten mu)))
+  (not (memv 'choice (flatten mu))))
 
 (define-syntax-rule (define-postponedReadRules lang defaultState)
   (begin

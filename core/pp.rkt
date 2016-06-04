@@ -176,7 +176,10 @@
                (beside*/space (term (ppι-var ,name))
                               (term (ppι-var ,l))
                               (term (ppMod ,m))
-                              (term (ppσ ,front)))]))
+                              (term (ppσ ,front)))]
+              [(list name mu)
+               (beside*/space (term (ppι-var ,name))
+                              (term (ppμ     ,mu)))]))
           (term α)))])
 
 (define (pp-par label left right)
