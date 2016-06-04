@@ -52,6 +52,25 @@ Without rlx/rlx combination it's impossible to get R1 = R2 = 1.
 (test_RW_RW_n11 term_RacqWrel_RacqWrel)
 
 #|
+R1  = x_{rlx, con}    || R2 = y_{rlx, con}
+R1' = R1 + 1          || R2' = R2 + 1
+y_{sc, rel, rlx}  = 1 || x_{sc, rel, rlx}  = 1
+
+With postponed lets and reads it should be able to lead to R1' = R2' = 2.
+|#
+(define (test_RW_RW_let_22 curTerm)
+  (test-->>∃ step
+          (term (,curTerm defaultState))
+          (term ((ret (2 2)) defaultState))))
+(test_RW_RW_let_22 term_RrlxWrlx_RrlxWrlx_let)
+(test_RW_RW_let_22 term_RrlxWrel_RrlxWrel_let)
+(test_RW_RW_let_22 term_RrlxWsc_RrlxWsc_let)
+
+(test_RW_RW_let_22 term_RconWrlx_RconWrlx_let)
+(test_RW_RW_let_22 term_RconWrel_RconWrel_let)
+(test_RW_RW_let_22 term_RconWsc_RconWsc_let)
+
+#|
           x_rlx = 0; y_rlx = 0
      y_rlx = 1     || if (x_acq == 2) {
      x_rel = 1     ||    r1 = y_rlx 

@@ -160,6 +160,37 @@ It's impossible to get R1 = R2 = 1.
 (define term_RacqWrel_RacqWrel (concretize abst_RW_RW "acq rel acq rel"))
 
 #|
+   x_rlx = 0; y_rlx = 0
+R1  = x_mod0; || R2  = y_mod2;
+R1' = R1 + 1; || R2' = R2 + 1;
+y_mod1   = 1; || x_mod3   = 1;
+ret R1'       || ret R2'
+|#
+(define (abst_RW_RW_let mod0 mod1 mod2 mod3)
+  @prog{x_rlx := 0;
+        y_rlx := 0;
+        spw
+        {{{ r1  := x_@mod0;
+            r11 := ret (r1 + 1);
+            y_@mod1 := 1;
+            ret r11
+        ||| r2  := y_@mod2;
+            r21 := ret (r2 + 1);
+            x_@mod3 := 1;
+            ret r21 }}} })
+
+(define term_RrlxWrlx_RrlxWrlx_let (concretize abst_RW_RW_let "rlx rlx rlx rlx")) 
+(define term_RrlxWrel_RrlxWrel_let (concretize abst_RW_RW_let "rlx rel rlx rel")) 
+(define term_RrlxWsc_RrlxWsc_let   (concretize abst_RW_RW_let "rlx sc  rlx sc" )) 
+(define term_RconWrlx_RconWrlx_let (concretize abst_RW_RW_let "con rlx con rlx")) 
+(define term_RconWrel_RconWrel_let (concretize abst_RW_RW_let "con rel con rel")) 
+(define term_RconWsc_RconWsc_let   (concretize abst_RW_RW_let "con sc  con sc" )) 
+(define term_RacqWrel_RrlxWrel_let (concretize abst_RW_RW_let "acq rel rlx rel"))
+(define term_RrlxWrel_RacqWrel_let (concretize abst_RW_RW_let "rlx rel acq rel"))
+(define term_RacqWrel_RacqWrel_let (concretize abst_RW_RW_let "acq rel acq rel"))
+
+
+#|
 x_na = 1 || x_na = 2
 
 It should get `stuck`.
