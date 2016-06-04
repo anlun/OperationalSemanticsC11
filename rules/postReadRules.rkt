@@ -22,6 +22,12 @@
   [(getDataDependenciesMod con ι σ η) (getDataDependencies ι σ η)]
   [(getDataDependenciesMod RM  ι σ η) ()])
 
+;; TODO: Rewrite to tree traversal.
+;; The current implementation doesn't work correctly
+;; if a program contains a variable with name `choice`. 
+(define (doesntContainChoice mu) ;; μ -> boolean
+  (memv 'choice (flatten mu)))
+
 (define-syntax-rule (define-postponedReadRules lang defaultState)
   (begin
 
@@ -36,7 +42,7 @@
         (where path     (pathE E))
         (where φ        (getφ auxξ))
         (where α        (getByPath path φ))
-        (where α_new    ,(append (term α) (term ((a ι-var RM ())))))
+        (where α_new    (appendT α ((a ι-var RM ()))))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
 
@@ -51,7 +57,7 @@
         (where path     (pathE E))
         (where φ        (getφ auxξ))
         (where α        (getByPath path φ))
-        (where α_new    ,(append (term α) (term ((a ι-var RM σ-dd)))))
+        (where α_new    (appendT α ((a ι-var RM σ-dd))))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
 
@@ -114,6 +120,15 @@
    ;;       ((in-hole E AST)         auxξ)
    ;;      ">>=-subst-postpone"
    ;;      (side-condition (term (isPossibleE E auxξ)))
-   ;;      (sude-condition (not (redex-match coreLang μ (term μ))))
+        
+   ;;      (where μ_simplified (calcExpr μ))
+        
+   ;;      ;; μ can't be substituted immediately
+   ;;      (side-condition (not (redex-match coreLang μ-subst (term μ))))
+
+   ;;      ;; μ doesnt contain `choice` operator --- they should be resolved before
+   ;;      ;; postponing.
+   ;;      (side-condition (doesntContainChoice (term μ)))
    ;;      ) 
 )))
+

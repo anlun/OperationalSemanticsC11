@@ -32,9 +32,7 @@
 
   [μ Expr   ; Value
      (μ μ)
-     (projOp μ)
-
-     ι-var]
+     (projOp μ)]
   
   [Expr ι-var
         number
@@ -88,18 +86,21 @@
 
   ; Expression usage
   [EU hole
-      (EU μ)
-      (μ EU)
-      (projOp EU)
-      (op μ EU)
-      (op EU μ)
       (ret EU)
       (write  WM ι-var EU)
       (cas SM FM ι-var EU μ)
       (cas SM FM ι-var μ EU)
       (if EU AST AST)
-      (par EU AST)
-      (par AST EU)]
+
+      (casCon SM FM ι-var EU μ σ-dd)
+      (casCon SM FM ι-var μ EU σ-dd)]
+
+  [EU2 hole
+       (EU2 μ)
+       (μ EU2)
+       (projOp EU2)
+       (op μ EU2)
+       (op EU2 μ)]
 
   [El (any_0 ... hole any_1 ...)]
   
@@ -364,31 +365,44 @@
    (sortσ ,(cons (list (term ι) (term τ)) (term (removeByKey ι σ))))])
 
 (define-metafunction syntax
-  calcι : (op Expr Expr) -> number
-  [(calcι (== ι      ι     )) 1]
-  [(calcι (== Expr_1 Expr_2)) 0]
-  [(calcι (!= ι      ι     )) 0]
-  [(calcι (!= Expr_1 Expr_2)) 1])
+  isNormalized : μ -> boolean
+
+  [(isNormalized number) #t]
+  [(isNormalized (μ_0 μ_1))
+   ,(and (term (isNormalized μ_0))
+         (term (isNormalized μ_1)))]
+ 
+  [(isNormalized μ) #f])
 
 (define-metafunction syntax
-  calc : (op number number) -> number
-  [(calc (+  number_1 number_2)) ,(+  (term number_1) (term number_2))]
-  [(calc (-  number_1 number_2)) ,(-  (term number_1) (term number_2))]
-  [(calc (*  number_1 number_2)) ,(*  (term number_1) (term number_2))]
-  [(calc (/  number_1 number_2)) ,(/  (term number_1) (term number_2))]
-  [(calc (%  number_1 number_2)) ,(remainder  (term number_1) (term number_2))]
-  [(calc (== number_1 number_2)) ,(if (equal? (term number_1) (term number_2)) 1 0)]
-  [(calc (!= number_1 number_2)) ,(if (equal? (term number_1) (term number_2)) 0 1)]
-  [(calc (>  number_1 number_2)) ,(if (>  (term number_1) (term number_2)) 1 0)]
-  [(calc (>= number_1 number_2)) ,(if (>= (term number_1) (term number_2)) 1 0)]
-  [(calc (<  number_1 number_2)) ,(if (<  (term number_1) (term number_2)) 1 0)]
-  [(calc (<= number_1 number_2)) ,(if (<= (term number_1) (term number_2)) 1 0)])
+  calc : μ -> μ
+  [(calc (+  number_0 number_1)) ,(+          (term number_0) (term number_1))]
+  [(calc (-  number_0 number_1)) ,(-          (term number_0) (term number_1))]
+  [(calc (*  number_0 number_1)) ,(*          (term number_0) (term number_1))]
+  [(calc (/  number_0 number_1)) ,(/          (term number_0) (term number_1))]
+  [(calc (%  number_0 number_1)) ,(remainder  (term number_0) (term number_1))]
+  [(calc (== number_0 number_1)) ,(if (equal? (term number_0) (term number_1)) 1 0)]
+  [(calc (!= number_0 number_1)) ,(if (equal? (term number_0) (term number_1)) 0 1)]
+  [(calc (>  number_0 number_1)) ,(if (>      (term number_0) (term number_1)) 1 0)]
+  [(calc (>= number_0 number_1)) ,(if (>=     (term number_0) (term number_1)) 1 0)]
+  [(calc (<  number_0 number_1)) ,(if (<      (term number_0) (term number_1)) 1 0)]
+  [(calc (<= number_0 number_1)) ,(if (<=     (term number_0) (term number_1)) 1 0)]
 
-(define-metafunction syntax
-  projCalc : (projOp μ) -> μ
-  [(projCalc (proj1 (μ_1 μ_2))) μ_1]
-  [(projCalc (proj2 (μ_1 μ_2))) μ_2]
-  [(projCalc (projOp        μ)) μ  ])
+  [(calc (proj1 (μ_0 μ_1))) μ_0]
+  [(calc (proj2 (μ_0 μ_1))) μ_1]
+
+  [(calc (== ι_0 ι_1)) ,(if (equal? (term ι_0) (term ι_1)) 1 0)]
+  [(calc (!= ι_0 ι_1)) ,(if (equal? (term ι_0) (term ι_1)) 0 1)]
+  
+  [(calc (== ι μ)) 0
+   (side-condition (term (isNormalized μ)))]
+  [(calc (!= ι μ)) 1
+   (side-condition (term (isNormalized μ)))]
+
+  [(calc (== μ ι)) (calc (== ι μ))]
+  [(calc (!= μ ι)) (calc (!= ι μ))]
+
+  [(calc μ) μ])
 
 (define-metafunction syntax
   fromMaybe : any Maybe -> any

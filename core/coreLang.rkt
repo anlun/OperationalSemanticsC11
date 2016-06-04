@@ -210,27 +210,31 @@
 
 (define-metafunction coreLang
   normalize_expr : AST -> AST
-   [(normalize_expr
-     (in-hole E (in-hole EU        (op ι Expr))))
-   (normalize_expr
-     (in-hole E (in-hole EU (calcι (op ι Expr)))))] 
 
-   [(normalize_expr
-     (in-hole E (in-hole EU        (op Expr ι))))
-   (normalize_expr
-     (in-hole E (in-hole EU (calcι (op Expr ι)))))] 
- 
-  [(normalize_expr
-     (in-hole E (in-hole EU       (op number_1 number_2))))
-   (normalize_expr
-     (in-hole E (in-hole EU (calc (op number_1 number_2)))))
-   (side-condition (not (equal? (term op) 'choice)))]
-  
-  [(normalize_expr
-     (in-hole E (in-hole EU           (projOp (μ_1 μ_2)))))
-   (normalize_expr
-     (in-hole E (in-hole EU (projCalc (projOp (μ_1 μ_2))))))]
+  [(normalize_expr (in-hole E (in-hole EU μ    )))
+   (normalize_expr (in-hole E (in-hole EU μ_new)))
+
+   (where μ_new (calc μ))
+   (side-condition (not (equal? (term μ) (term μ_new))))]
+
   [(normalize_expr AST) AST])
+
+(define-metafunction coreLang
+  calcμ : μ -> μ
+  [(calcμ (μ_0 μ_1))
+   ((calcμ μ_0) (calcμ μ_1))]
+
+  [(calcμ (projOp μ))
+   (calc  (projOp (calcμ μ)))]
+
+  [(calcμ (op Expr_0 Expr_1))
+   (calc  (op (calcμ Expr_0) (calcμ Expr_1)))]
+
+  [(calcμ ι-var)
+   ι-var]
+
+  [(calcμ number)
+   number])
 
 (define-metafunction coreLang
   schedulerStep : auxξ -> auxξ
@@ -283,15 +287,15 @@
         ">>=-subst"
         (side-condition (term (isPossibleE E auxξ))))
    
-   (-->  ((in-hole E (in-hole EU (choice number_1 number_2))) auxξ)
+   (-->  ((in-hole E (in-hole EU (in-hole EU2 (choice number_1 number_2)))) auxξ)
         (normalize
-         ((in-hole E (in-hole EU         number_1          )) auxξ))
+         ((in-hole E (in-hole EU (in-hole EU2         number_1          ))) auxξ))
         "num-choice-left"
         (side-condition (term (isPossibleE E auxξ))))
 
-   (-->  ((in-hole E (in-hole EU (choice number_1 number_2))) auxξ)
+   (-->  ((in-hole E (in-hole EU (in-hole EU2 (choice number_1 number_2)))) auxξ)
         (normalize
-         ((in-hole E (in-hole EU                  number_2 )) auxξ))
+         ((in-hole E (in-hole EU (in-hole EU2                  number_2 ))) auxξ))
         "num-choice-right"
         (side-condition (term (isPossibleE E auxξ))))
   

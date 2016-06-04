@@ -395,6 +395,10 @@
   [(consT any_0 any_1) ,(cons (term any_0) (term any_1))])
 
 (define-metafunction coreLang
+  appendT : (any ...) (any ...) -> (any ...)
+  [(appendT any_0 any_1) ,(append (term any_0) (term any_1))])
+
+(define-metafunction coreLang
   substμPostponedEntry : vName μ-value σ-dd postponedEntry -> postponedEntry
   [(substμPostponedEntry vName_0 ι σ-dd_0 (vName_1 vName_0 RM σ-dd_1))
    (vName_1 ι RM (frontMerge σ-dd_0 σ-dd_1))]
