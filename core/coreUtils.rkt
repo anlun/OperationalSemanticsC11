@@ -404,7 +404,7 @@
    (vName_1 ι RM (frontMerge σ-dd_0 σ-dd_1))]
 
   [(substμPostponedEntry vName_0 μ-value σ-dd (vName_1 μ))
-   (vName_1 (substExpr vName_0  μ-value μ))]
+   (vName_1 (calcμ (substExpr vName_0  μ-value μ)))]
 
   [(substμPostponedEntry vName_0 μ-value σ-dd any) any])
 

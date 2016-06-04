@@ -214,27 +214,10 @@
   [(normalize_expr (in-hole E (in-hole EU μ    )))
    (normalize_expr (in-hole E (in-hole EU μ_new)))
 
-   (where μ_new (calc μ))
+   (where μ_new (calcμ μ))
    (side-condition (not (equal? (term μ) (term μ_new))))]
 
   [(normalize_expr AST) AST])
-
-(define-metafunction coreLang
-  calcμ : μ -> μ
-  [(calcμ (μ_0 μ_1))
-   ((calcμ μ_0) (calcμ μ_1))]
-
-  [(calcμ (projOp μ))
-   (calc  (projOp (calcμ μ)))]
-
-  [(calcμ (op Expr_0 Expr_1))
-   (calc  (op (calcμ Expr_0) (calcμ Expr_1)))]
-
-  [(calcμ ι-var)
-   ι-var]
-
-  [(calcμ number)
-   number])
 
 (define-metafunction coreLang
   schedulerStep : auxξ -> auxξ

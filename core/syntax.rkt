@@ -405,6 +405,23 @@
   [(calc μ) μ])
 
 (define-metafunction syntax
+  calcμ : μ -> μ
+  [(calcμ (μ_0 μ_1))
+   ((calcμ μ_0) (calcμ μ_1))]
+
+  [(calcμ (projOp μ))
+   (calc  (projOp (calcμ μ)))]
+
+  [(calcμ (op Expr_0 Expr_1))
+   (calc  (op (calcμ Expr_0) (calcμ Expr_1)))]
+
+  [(calcμ ι-var)
+   ι-var]
+
+  [(calcμ number)
+   number])
+
+(define-metafunction syntax
   fromMaybe : any Maybe -> any
   [(fromMaybe any None) any]
   [(fromMaybe any_1 (Just any_2)) any_2])
