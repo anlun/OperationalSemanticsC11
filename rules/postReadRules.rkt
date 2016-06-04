@@ -116,19 +116,46 @@
         (where path (pathEp Ep))
         (side-condition (term (isLocationUninitialized ι σ-dd path auxξ))))
 
-   ;; (-->  ((in-hole E ((ret μ) >>= (λ vName AST))) auxξ)
-   ;;       ((in-hole E AST)         auxξ)
-   ;;      ">>=-subst-postpone"
-   ;;      (side-condition (term (isPossibleE E auxξ)))
+   (-->  ((in-hole E ((ret μ) >>= (λ vName AST))) auxξ)
+        (normalize
+         ((in-hole E (subst vName a AST))         auxξ_new))
+        ;; The substitution is needed to avoid collapse with previous
+        ;; postponed operations.
+        ">>=-subst-postpone"
+        (side-condition (term (isPossibleE E auxξ)))
         
-   ;;      (where μ_simplified (calcExpr μ))
-        
-   ;;      ;; μ can't be substituted immediately
-   ;;      (side-condition (not (redex-match coreLang μ-subst (term μ))))
+        (where μ_simplified (calcμ μ))
 
-   ;;      ;; μ doesnt contain `choice` operator --- they should be resolved before
-   ;;      ;; postponing.
-   ;;      (side-condition (doesntContainChoice (term μ)))
-   ;;      ) 
+        ;; μ can't be substituted immediately
+        (side-condition (not (redex-match coreLang μ-subst (term μ_simplified))))
+
+        ;; μ doesnt contain `choice` operator --- they should be resolved before
+        ;; postponing.
+        (side-condition (doesntContainChoice (term μ_simplified)))
+
+        (fresh a)
+        (where path     (pathE E))
+        (where φ        (getφ auxξ))
+        (where α        (getByPath path φ))
+        (where α_new    (appendT α ((a μ_simplified))))
+        (where φ_new    (updateOnPath path α_new φ))
+        (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
+
+   (-->  (AST  auxξ)
+        (normalize        
+         ((subst vName μ-value AST) auxξ_new))
+        ">>=-subst-resolve"
+
+        (where φ      (getφ auxξ))
+        (where (in-hole Ep α) (getφ auxξ))
+        (side-condition (not (empty? (term α))))
+
+        (where (in-hole El (vName μ-value)) α)
+        (where path (pathEp Ep))
+
+        (where α_new    (substμα vName μ-value () (elToList El)))
+        (where φ_new    (updateOnPath path α_new φ))
+        (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
+        (side-condition (term (isPossiblePath path auxξ))))
 )))
 
