@@ -28,7 +28,7 @@
 (define (doesntContainChoice mu) ;; μ -> boolean
   (not (memv 'choice (flatten mu))))
 
-(define-syntax-rule (define-postponedReadRules lang defaultState)
+(define-syntax-rule (define-postponedReadRules lang defaultState getWriteσ)
   (begin
 
   (reduction-relation
@@ -157,5 +157,62 @@
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
         (side-condition (term (isPossiblePath path auxξ))))
-)))
 
+   (-->  ((in-hole E (write rlx ι-var μ)) auxξ)
+        (normalize
+         ((in-hole E (ret a            )) auxξ_new))
+        "write-rlx-postpone"
+        (side-condition (term (isPossibleE E auxξ)))
+        
+        (where μ_simplified (calcμ μ))
+
+        ;; μ doesnt contain `choice` operator --- they should be resolved before
+        ;; postponing.
+        (side-condition (doesntContainChoice (term μ_simplified)))
+
+        (fresh a)
+        (where path     (pathE E))
+        (where φ        (getφ auxξ))
+        (where α        (getByPath path φ))
+        (where α_new    (appendT α ((write a ι-var rlx μ_simplified))))
+        (where φ_new    (updateOnPath path α_new φ))
+        (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
+
+   (-->  (AST  auxξ)
+        (normalize 
+         ((subst vName μ-value AST) auxξ_new))
+        "write-resolve"
+
+        (where (in-hole Ep α) (getφ auxξ))
+        ;; (side-condition (not (empty? (term α))))
+
+        (where path (pathEp Ep))
+        ;; (side-condition (term (isPossiblePath path auxξ)))
+
+        (where (in-hole El (write vName ι WM μ-value)) α)
+        ;; (side-condition (term
+        ;;                  (canPostponedWriteBePerformed (vName ι) α)))
+
+        (where α_new      (substμα vName μ-value () (elToList El)))
+        (where φ          (getφ auxξ))
+        (where φ_new      (updateOnPath path α_new φ))
+        (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ))
+
+        (where η       (getη auxξ))
+        (where ψ_read  (getReadψ auxξ))
+
+        (where τ              (getNextTimestamp ι η))
+        (where ψ_read_new     (updateByFront path ((ι τ)) ψ_read))
+        (where auxξ_upd_front (updateState (Read ψ_read) (Read ψ_read_new) auxξ_upd_φ))
+
+        (where σ_write    (getWriteσ path auxξ))
+        (where σ_ToWrite  (updateFront ι τ (getσToWrite σ_write ι η)))
+        (where η_new      (updateCell  ι μ-value σ_ToWrite η))
+        (where auxξ_upd_η (updateState η η_new auxξ_upd_front))
+        (where auxξ_upd_γ (dupRelWriteRestrictions ι τ σ_write auxξ_upd_η))
+        (where auxξ_new   auxξ_upd_γ)
+
+        ;; (side-condition (term (are∀PostReadsRlx  path auxξ)))
+        ;; (side-condition (term (ιNotInReadQueue ι path auxξ)))
+        )
+)))

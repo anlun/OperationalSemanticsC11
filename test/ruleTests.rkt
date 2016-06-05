@@ -159,7 +159,7 @@ In TSO a = 1 and b = 0 is forbidden outcome. But not in our semantics.
 ;;;;;;;;;;;;;;;;;;
 
 (define postponedReadRules (define-postponedReadRules postReadLang
-                             postponedReadDefaultState))
+                             postponedReadDefaultState getWriteσ_2ψ))
 (define rlxWriteRules      (define-rlxWriteRules      postReadLang
                              getWriteσ_nil isReadQueueEqualTo ιNotInReadQueue))
 (define postponedReadStep  (union-reduction-relations postponedReadCoreStep rlxWriteRules postponedReadRules))

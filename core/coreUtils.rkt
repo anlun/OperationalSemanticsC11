@@ -418,7 +418,7 @@
 
   [(substμPostponedEntry vName_0 μ-value σ-dd
                          (write vName_1 ι-var WM μ))
-   (write vName_1 (substExpr vName_0 μ-value ι-var)
+   (write vName_1 (substExpr vName_0 μ-value ι-var) WM
            (calcμ (substExpr vName_0 μ-value μ)))]
   [(substμPostponedEntry vName_0 μ-value σ-dd any) any])
 
@@ -633,6 +633,27 @@
          (term (correctτ τ ι σ_to-check))
          (term (isFirstRecord vName ι α)))
    (where σ_to-check (frontMerge σ_read σ-dd))])
+
+(define-metafunction coreLang
+  canPostponedWriteBePerformed : (vName ι) α -> boolean
+  [(canPostponedWriteBePerformed (vName ι) ((write vName   ι     WM  μ-value  ) any ...)) #t]
+  [(canPostponedWriteBePerformed (vName ι) ((write vName_1 ι-var WM  μ-value_1) any ...)) #f]
+  [(canPostponedWriteBePerformed (vName ι) ((write vName_1 ι-var rel μ-value_1) any ...)) #f]
+
+  [(canPostponedWriteBePerformed (vName ι) ((write vName_1 ι_0   rlx μ-value  ) any ...))
+   (canPostponedWriteBePerformed (vName ι) (any ...))]
+
+  [(canPostponedWriteBePerformed (vName ι) ((read  vName_1 ι     any_1 ...    ) any ...)) #f]
+
+  [(canPostponedWriteBePerformed (vName ι) ((read  vName_1 ι_0   any_1 ...    ) any ...))
+   (canPostponedWriteBePerformed (vName ι) (any ...))]
+
+  [(canPostponedWriteBePerformed (vName ι) ((let-in vName_1 any_1 ...         ) any ...))
+   (canPostponedWriteBePerformed (vName ι) (any ...))]
+
+  ;; In success case we should visit the correponding to (vName ι) record in α.
+  ;; [(canPostponedWriteBePerfomed (vName ι) ()) #t]
+)
 
 ;; (define (find-path red from to)
 ;;   (define parents (make-hash))

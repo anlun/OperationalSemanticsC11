@@ -14,7 +14,7 @@
 (define coreStep schedulerCoreStep)
 
 (define postponedReadRules (define-postponedReadRules schedulerLang
-                             defaultState))
+                             defaultState getWriteσ_2ψ))
 (define rlxWriteRules      (define-rlxWriteRules      schedulerLang
                              getWriteσ_2ψ isReadQueueEqualTo ιNotInReadQueue))
 (define relAcqWriteRules   (define-relAcqWriteRules   schedulerLang
