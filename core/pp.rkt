@@ -172,7 +172,7 @@
    ,(above**
      (map (λ (h)
             (match h
-              [(list r name l m front)
+              [(list 'read name l m front)
                (beside*/space (term (ppι-var ,name))
                               (term (ppι-var ,l))
                               (term (ppMod   ,m))
@@ -180,7 +180,7 @@
               [(list l name mu)
                (beside*/space (term (ppι-var ,name))
                               (term (ppμ     ,mu)))]
-              [(list w name l m mu)
+              [(list 'write name l m mu)
                (beside*/space (term (ppι-var ,name))
                               (term (ppι-var ,l))
                               (term (ppMod   ,m))

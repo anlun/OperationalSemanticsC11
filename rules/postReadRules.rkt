@@ -184,14 +184,14 @@
         "write-resolve"
 
         (where (in-hole Ep α) (getφ auxξ))
-        ;; (side-condition (not (empty? (term α))))
+        (side-condition (not (empty? (term α))))
 
         (where path (pathEp Ep))
-        ;; (side-condition (term (isPossiblePath path auxξ)))
+        (side-condition (term (isPossiblePath path auxξ)))
 
         (where (in-hole El (write vName ι WM μ-value)) α)
-        ;; (side-condition (term
-        ;;                  (canPostponedWriteBePerformed (vName ι) α)))
+        (side-condition (term
+                         (canPostponedWriteBePerformed (vName ι) α)))
 
         (where α_new      (substμα vName μ-value () (elToList El)))
         (where φ          (getφ auxξ))
@@ -210,9 +210,5 @@
         (where η_new      (updateCell  ι μ-value σ_ToWrite η))
         (where auxξ_upd_η (updateState η η_new auxξ_upd_front))
         (where auxξ_upd_γ (dupRelWriteRestrictions ι τ σ_write auxξ_upd_η))
-        (where auxξ_new   auxξ_upd_γ)
-
-        ;; (side-condition (term (are∀PostReadsRlx  path auxξ)))
-        ;; (side-condition (term (ιNotInReadQueue ι path auxξ)))
-        )
+        (where auxξ_new   auxξ_upd_γ))
 )))

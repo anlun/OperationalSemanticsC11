@@ -343,7 +343,8 @@
   [(isRlxPostRead (read   vName ι-var rlx σ-dd)) #t]
   [(isRlxPostRead (read   vName ι-var con σ-dd)) #t]  ; TODO: rename methods appropriately
   [(isRlxPostRead (let-in vName μ))              #t]
-  [(isRlxPostRead (write  vName ι-var rlx μ   )) #t]
+  ;; [(isRlxPostRead (write  vName ι-var rlx μ   )) #t]
+  [(isRlxPostRead (write  vName ι-var rlx μ   )) #f]
   [(isRlxPostRead any)                           #f])
 
 (define-metafunction coreLang
@@ -644,6 +645,8 @@
    (canPostponedWriteBePerformed (vName ι) (any ...))]
 
   [(canPostponedWriteBePerformed (vName ι) ((read  vName_1 ι     any_1 ...    ) any ...)) #f]
+
+  [(canPostponedWriteBePerformed (vName ι) ((read  vName_1 ι_0 acq any_1 ...  ) any ...)) #f]
 
   [(canPostponedWriteBePerformed (vName ι) ((read  vName_1 ι_0   any_1 ...    ) any ...))
    (canPostponedWriteBePerformed (vName ι) (any ...))]
