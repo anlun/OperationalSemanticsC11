@@ -118,8 +118,9 @@
          None]
 
   ;; For postponed reads.
-  [postponedEntry (vName ι-var RM σ-dd) ;; postponed read
-                  (vName μ)             ;; postponed let expression
+  [postponedEntry (read   vName ι-var RM σ-dd) ;; postponed read
+                  (let-in vName μ)             ;; postponed let expression
+                  (write  vName ι-var WM μ)    ;; postponed write
                   ]
   [φ α
      (par φ φ)]

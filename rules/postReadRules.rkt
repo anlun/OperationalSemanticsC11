@@ -42,7 +42,7 @@
         (where path     (pathE E))
         (where φ        (getφ auxξ))
         (where α        (getByPath path φ))
-        (where α_new    (appendT α ((a ι-var RM ()))))
+        (where α_new    (appendT α ((read a ι-var RM ()))))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
 
@@ -57,7 +57,7 @@
         (where path     (pathE E))
         (where φ        (getφ auxξ))
         (where α        (getByPath path φ))
-        (where α_new    (appendT α ((a ι-var RM σ-dd))))
+        (where α_new    (appendT α ((read a ι-var RM σ-dd))))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
 
@@ -76,7 +76,7 @@
         (where (in-hole Ep α) (getφ auxξ))
         (side-condition (not (empty? (term α))))
 
-        (where (in-hole El_0 (vName ι RM σ-dd)) α)
+        (where (in-hole El_0 (read vName ι RM σ-dd)) α)
         (where (in-hole El_1 (τ μ-value σ)) (getCellHistory ι η))
         (where path (pathEp Ep))
 
@@ -109,7 +109,7 @@
         (where η      (getη auxξ))
         (where ψ_read (getReadψ auxξ))
         (where (in-hole Ep α) (getφ auxξ))
-        (where (in-hole El_0 (vName ι RM σ-dd)) α)
+        (where (in-hole El_0 (read vName ι RM σ-dd)) α)
         (side-condition (not (empty? (term α))))        
         (side-condition (term (isFirstRecord vName ι α)))
         
@@ -137,7 +137,7 @@
         (where path     (pathE E))
         (where φ        (getφ auxξ))
         (where α        (getByPath path φ))
-        (where α_new    (appendT α ((a μ_simplified))))
+        (where α_new    (appendT α ((let-in a μ_simplified))))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
 
@@ -149,7 +149,7 @@
         (where (in-hole Ep α) (getφ auxξ))
         (side-condition (not (empty? (term α))))
 
-        (where (in-hole El (vName μ-value)) α)
+        (where (in-hole El (let-in vName μ-value)) α)
         (where path (pathEp Ep))
 
         (where α_new    (substμα vName μ-value () (elToList El)))

@@ -172,13 +172,18 @@
    ,(above**
      (map (λ (h)
             (match h
-              [(list name l m front)
+              [(list r name l m front)
                (beside*/space (term (ppι-var ,name))
                               (term (ppι-var ,l))
-                              (term (ppMod ,m))
-                              (term (ppσ ,front)))]
-              [(list name mu)
+                              (term (ppMod   ,m))
+                              (term (ppσ     ,front)))]
+              [(list l name mu)
                (beside*/space (term (ppι-var ,name))
+                              (term (ppμ     ,mu)))]
+              [(list w name l m mu)
+               (beside*/space (term (ppι-var ,name))
+                              (term (ppι-var ,l))
+                              (term (ppMod   ,m))
                               (term (ppμ     ,mu)))]))
           (term α)))])
 

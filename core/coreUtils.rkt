@@ -340,10 +340,11 @@
 
 (define-metafunction coreLang
   isRlxPostRead : any -> boolean
-  [(isRlxPostRead (vName ι-var rlx σ-dd)) #t]
-  [(isRlxPostRead (vName ι-var con σ-dd)) #t]  ; TODO: rename methods appropriately
-  [(isRlxPostRead (vName μ))              #t]
-  [(isRlxPostRead any)                    #f])
+  [(isRlxPostRead (read   vName ι-var rlx σ-dd)) #t]
+  [(isRlxPostRead (read   vName ι-var con σ-dd)) #t]  ; TODO: rename methods appropriately
+  [(isRlxPostRead (let-in vName μ))              #t]
+  [(isRlxPostRead (write  vName ι-var rlx μ   )) #t]
+  [(isRlxPostRead any)                           #f])
 
 (define-metafunction coreLang
   are∀PostReadsRlx : path auxξ -> boolean
@@ -354,9 +355,11 @@
 
 (define-metafunction coreLang
   ιNotInα : ι α -> boolean
-  [(ιNotInα ι (any_0 ... (vName         ι RM σ-dd) any_1 ...)) #f]
-  [(ιNotInα ι (any_0 ... (vName_0 vName_1 RM σ-dd) any_1 ...)) #f]
-  [(ιNotInα ι α)                                               #t])
+  [(ιNotInα ι (any_0 ... (read  vName         ι RM σ-dd) any_1 ...)) #f]
+  [(ιNotInα ι (any_0 ... (read  vName_0 vName_1 RM σ-dd) any_1 ...)) #f]
+  [(ιNotInα ι (any_0 ... (write vName   ι       WM μ   ) any_1 ...)) #f]
+  [(ιNotInα ι (any_0 ... (write vName_0 vName_1 WM μ   ) any_1 ...)) #f]
+  [(ιNotInα ι α)                                                     #t])
 
 (define-metafunction coreLang
   ιNotInReadQueue : ι path auxξ -> boolean
@@ -370,7 +373,7 @@
   αToγRecords : ι τ α -> γ
   [(αToγRecords ι τ α) ,(apply
                          append (map
-                                 (λ (x) (match x [(list vName locvar mod ddFront)
+                                 (λ (x) (match x [(list rd vName locvar mod ddFront)
                                                   (list (list (term ι) (term τ) vName))]
                                                  [_ (list)]))
                                  (term α)))])
@@ -385,9 +388,13 @@
 
 (define-metafunction coreLang
   isFirstRecord : vName ι α -> boolean
-  [(isFirstRecord vName_0 ι_0 ((vName_0 ι_0     RM  σ-dd) any ...)) #t]
-  [(isFirstRecord vName_0 ι_0 ((vName_1 ι_1     acq σ-dd) any ...)) #f]
-  [(isFirstRecord vName_0 ι   ((vName_1 vName_2 RM  σ-dd) any ...)) #f]
+  [(isFirstRecord vName_0 ι_0 ((read  vName_0 ι_0     RM  σ-dd) any ...)) #t]
+  [(isFirstRecord vName_0 ι_0 ((read  vName_1 ι_1     acq σ-dd) any ...)) #f]
+  [(isFirstRecord vName_0 ι   ((read  vName_1 vName_2 RM  σ-dd) any ...)) #f]
+
+  [(isFirstRecord vName_0 ι   ((write vName_1 vName_2 WM  μ   ) any ...)) #f]
+  [(isFirstRecord vName_0 ι   ((write vName_1 ι       WM  μ   ) any ...)) #f]
+
   [(isFirstRecord vName_0 ι_0 (postponedEntry any ...))
    (isFirstRecord vName_0 ι_0 (any ...))])
 
@@ -401,12 +408,18 @@
 
 (define-metafunction coreLang
   substμPostponedEntry : vName μ-value σ-dd postponedEntry -> postponedEntry
-  [(substμPostponedEntry vName_0 ι σ-dd_0 (vName_1 vName_0 RM σ-dd_1))
-   (vName_1 ι RM (frontMerge σ-dd_0 σ-dd_1))]
+  [(substμPostponedEntry vName_0 ι σ-dd_0
+                         (read vName_1 vName_0 RM σ-dd_1))
+   (read vName_1 ι RM (frontMerge σ-dd_0 σ-dd_1))]
 
-  [(substμPostponedEntry vName_0 μ-value σ-dd (vName_1 μ))
-   (vName_1 (calcμ (substExpr vName_0  μ-value μ)))]
+  [(substμPostponedEntry vName_0 μ-value σ-dd
+                         (let-in vName_1 μ))
+   (let-in vName_1 (calcμ (substExpr vName_0 μ-value μ)))]
 
+  [(substμPostponedEntry vName_0 μ-value σ-dd
+                         (write vName_1 ι-var WM μ))
+   (write vName_1 (substExpr vName_0 μ-value ι-var)
+           (calcμ (substExpr vName_0 μ-value μ)))]
   [(substμPostponedEntry vName_0 μ-value σ-dd any) any])
 
 (define-metafunction coreLang
