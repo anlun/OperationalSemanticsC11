@@ -146,7 +146,6 @@
          ((subst vName μ-value AST) auxξ_new))
         ">>=-subst-resolve"
 
-        (where φ      (getφ auxξ))
         (where (in-hole Ep α) (getφ auxξ))
         (side-condition (not (empty? (term α))))
 
@@ -154,6 +153,7 @@
         (where path (pathEp Ep))
 
         (where α_new    (substμα vName μ-value () (elToList El)))
+        (where φ        (getφ auxξ))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
         (side-condition (term (isPossiblePath path auxξ))))

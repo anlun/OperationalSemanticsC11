@@ -16,7 +16,7 @@
         spw
         {{{ ;; Adds to list the first value (1).
             a_rlx     := [1 null];
-            ltail_na := a;
+            ltail_na  := a;
             lhead_rel := a;
 
             ;; Adds to list the second value (10).
