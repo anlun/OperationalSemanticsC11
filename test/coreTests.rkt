@@ -58,7 +58,14 @@
                                   ("x"
                                    ((1 1 (("a" 1) ("x" 1)))
                                     (0 0 (("x" 0))))))))
-              (term (("a" 1) ("x" 1)))))
+              (term (("a" 1) ("x" 1))))
+
+  (test-equal (term (canPostponedWriteBePerformed (a3 "y")
+                                                  ((read  a1 "x"  rlx ())
+                                                   (write a2 "z1" rlx a1)
+                                                   (write a3 "y"  rlx 1))))
+              (term #t))
+)
 (metafunction-tests)
 
 ;;;;;;;;;;;;;;;;;

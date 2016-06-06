@@ -10,12 +10,12 @@ R1 = y_{acq,rlx} || R2 = x_{acq,rlx}
 
 Can lead to R1 = R2 = 0.
 |#
-(define (test_WR_WR_00 curTerm)
+(define (test_SB_00 curTerm)
   (test-->>∃ step
           (term (,curTerm  defaultState))
           (term ((ret (0 0)) defaultState))))
-(test_WR_WR_00 term_WrlxRrlx_WrlxRrlx)
-(test_WR_WR_00 term_WrelRacq_WrelRacq)
+(test_SB_00 term_WrlxRrlx_WrlxRrlx)
+(test_SB_00 term_WrelRacq_WrelRacq)
 
 #|
 R1 = x_{rlx, con}     || R2 = y_{rlx, con}
@@ -23,17 +23,17 @@ y_{sc, rel, rlx}  = 1 || x_{sc, rel, rlx}  = 1
 
 With postponed reads it should be able to lead to R1 = R2 = 1.
 |#
-(define (test_RW_RW_11 curTerm)
+(define (test_LB_11 curTerm)
   (test-->>∃ step
           (term (,curTerm defaultState))
           (term ((ret (1 1)) defaultState))))
-(test_RW_RW_11 term_RrlxWrlx_RrlxWrlx)
-(test_RW_RW_11 term_RrlxWrel_RrlxWrel)
-(test_RW_RW_11 term_RrlxWsc_RrlxWsc)
+(test_LB_11 term_RrlxWrlx_RrlxWrlx)
+(test_LB_11 term_RrlxWrel_RrlxWrel)
+(test_LB_11 term_RrlxWsc_RrlxWsc)
 
-(test_RW_RW_11 term_RconWrlx_RconWrlx)
-(test_RW_RW_11 term_RconWrel_RconWrel)
-(test_RW_RW_11 term_RconWsc_RconWsc)
+(test_LB_11 term_RconWrlx_RconWrlx)
+(test_LB_11 term_RconWrel_RconWrel)
+(test_LB_11 term_RconWsc_RconWsc)
 
 #|
 R1 = x_{acq,rlx}  || R2 = y_{acq,rlx} 
@@ -41,15 +41,15 @@ y_rel  = 1        || x_rel  = 1
 
 Without rlx/rlx combination it's impossible to get R1 = R2 = 1.
 |#
-(define (test_RW_RW_n11 curTerm)
+(define (test_LB_n11 curTerm)
   (test-->> step
           (term (,curTerm defaultState))
           (term ((ret (0 0)) defaultState))
           (term ((ret (1 0)) defaultState))
           (term ((ret (0 1)) defaultState))))
-(test_RW_RW_n11 term_RacqWrel_RrlxWrel)
-(test_RW_RW_n11 term_RrlxWrel_RacqWrel)
-(test_RW_RW_n11 term_RacqWrel_RacqWrel)
+(test_LB_n11 term_RacqWrel_RrlxWrel)
+(test_LB_n11 term_RrlxWrel_RacqWrel)
+(test_LB_n11 term_RacqWrel_RacqWrel)
 
 #|
 R1  = x_{rlx, con}    || R2 = y_{rlx, con}
@@ -58,24 +58,47 @@ y_{sc, rel, rlx}  = 1 || x_{sc, rel, rlx}  = 1
 
 With postponed lets and reads it should be able to lead to R1' = R2' = 2.
 |#
-(define (test_RW_RW_let_22 curTerm)
+(define (test_LB_let_22 curTerm)
   (test-->>∃ step
           (term (,curTerm defaultState))
           (term ((ret (2 2)) defaultState))))
-(test_RW_RW_let_22 term_RrlxWrlx_RrlxWrlx_let)
-(test_RW_RW_let_22 term_RrlxWrel_RrlxWrel_let)
-(test_RW_RW_let_22 term_RrlxWsc_RrlxWsc_let)
+(test_LB_let_22 term_RrlxWrlx_RrlxWrlx_let)
+(test_LB_let_22 term_RrlxWrel_RrlxWrel_let)
+(test_LB_let_22 term_RrlxWsc_RrlxWsc_let)
 
-(test_RW_RW_let_22 term_RconWrlx_RconWrlx_let)
-(test_RW_RW_let_22 term_RconWrel_RconWrel_let)
-(test_RW_RW_let_22 term_RconWsc_RconWsc_let)
+(test_LB_let_22 term_RconWrlx_RconWrlx_let)
+(test_LB_let_22 term_RconWrel_RconWrel_let)
+(test_LB_let_22 term_RconWsc_RconWsc_let)
+
+#|
+     x_rlx = 0; y_rlx = 0
+R1  = x_mod0; || R2  = y_mod2;
+z1_rlx  = R1; || z2_rlx  = R2;
+y_mod1  =  1; || x_mod3  =  1;
+  r1 = z1_mod0; r2 = z2_mod0
+
+With postponed writes and reads it should be able to lead to r1 = r2 = 1.
+|#
+
+(define (test_LB_use curTerm)
+  (test-->>∃ step
+          (term (,curTerm defaultState))
+          (term ((ret (1 1)) defaultState))))
+
+(test_LB_use term_RrlxWrlx_RrlxWrlx_use)
+(test_LB_use term_RconWrlx_RconWrlx_use)
+
+;; Problem
+;; (test_LB_use term_RrlxWrel_RrlxWrel_use)
+
+;; (stepper step (term (,term_RrlxWrlx_RrlxWrlx_use defaultState)) pretty-printer)
 
 #|
           x_rlx = 0; y_rlx = 0
      y_rlx = 1     || if (x_acq == 2) {
      x_rel = 1     ||    r1 = y_rlx 
 x_rlx = 2 || ret 0 || } else {
-                   ||    r1 = 1 }             
+                   ||    r1 = 1 } 
 
 According to Batty-al:POPL11 it's possible to get r1 = 0, because
 there is no release sequence between x_rel = 1 and x_rlx = 2.

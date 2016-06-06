@@ -637,18 +637,19 @@
 
 (define-metafunction coreLang
   canPostponedWriteBePerformed : (vName ι) α -> boolean
-  [(canPostponedWriteBePerformed (vName ι) ((write vName   ι     WM  μ-value  ) any ...)) #t]
-  [(canPostponedWriteBePerformed (vName ι) ((write vName_1 ι-var WM  μ-value_1) any ...)) #f]
-  [(canPostponedWriteBePerformed (vName ι) ((write vName_1 ι-var rel μ-value_1) any ...)) #f]
+  [(canPostponedWriteBePerformed (vName ι) ((write vName   ι       WM  μ-value  ) any ...)) #t]
+  [(canPostponedWriteBePerformed (vName ι) ((write vName_1 vName_2 WM  μ        ) any ...)) #f]
+  [(canPostponedWriteBePerformed (vName ι) ((write vName_1 ι-var   rel μ        ) any ...)) #f]
 
-  [(canPostponedWriteBePerformed (vName ι) ((write vName_1 ι_0   rlx μ-value  ) any ...))
+  [(canPostponedWriteBePerformed (vName ι) ((write vName_1 ι_0     rlx μ        ) any ...))
    (canPostponedWriteBePerformed (vName ι) (any ...))]
 
-  [(canPostponedWriteBePerformed (vName ι) ((read  vName_1 ι     any_1 ...    ) any ...)) #f]
+  [(canPostponedWriteBePerformed (vName ι) ((read  vName_1 ι           any_1 ...  ) any ...)) #f]
 
-  [(canPostponedWriteBePerformed (vName ι) ((read  vName_1 ι_0 acq any_1 ...  ) any ...)) #f]
+  [(canPostponedWriteBePerformed (vName ι) ((read  vName_1 vName_2     any_1 ...  ) any ...)) #f]
+  [(canPostponedWriteBePerformed (vName ι) ((read  vName_1 ι-var   acq any_1 ...  ) any ...)) #f]
 
-  [(canPostponedWriteBePerformed (vName ι) ((read  vName_1 ι_0   any_1 ...    ) any ...))
+  [(canPostponedWriteBePerformed (vName ι) ((read  vName_1 ι_0         any_1 ...  ) any ...))
    (canPostponedWriteBePerformed (vName ι) (any ...))]
 
   [(canPostponedWriteBePerformed (vName ι) ((let-in vName_1 any_1 ...         ) any ...))

@@ -4,6 +4,9 @@
 (require racket/string)
 (require "../core/parser.rkt")
 
+(define (concretize generator parameterString)
+  (apply generator (string-split parameterString)))
+
 #|
 ret 5 || ret 239
 |#
@@ -14,7 +17,7 @@ ret 5 || ret 239
 x_mod0  = 1 || y_mod2  = 1
 R1 = y_mod1 || R2 = x_mod3
 |#
-(define (term_LB_abst imod0 imod1 mod0 mod1 mod2 mod3)
+(define (term_SB_abst imod0 imod1 mod0 mod1 mod2 mod3)
   @prog{x_@imod0 := 0;
         y_@imod1 := 0;
         spw
@@ -25,9 +28,6 @@ R1 = y_mod1 || R2 = x_mod3
             r2 := x_@mod3;
             ret r2 }}} })
 
-(define (concretize generator parameterString)
-  (apply generator (string-split parameterString)))
-
 #|
   x_rlx = 0; y_rlx = 0
 x_rlx  = 1 || y_rlx  = 1
@@ -35,7 +35,7 @@ R1 = y_rlx || R2 = x_rlx
 
 Can lead to R1 = R2 = 0.
 |#
-(define term_WrlxRrlx_WrlxRrlx (concretize term_LB_abst "rlx rlx rlx rlx rlx rlx"))
+(define term_WrlxRrlx_WrlxRrlx (concretize term_SB_abst "rlx rlx rlx rlx rlx rlx"))
 
 #|
   x_rel = 0; y_rel = 0
@@ -44,7 +44,7 @@ R1 = y_acq || R2 = x_acq
 
 Can lead to R1 = R2 = 0.
 |#
-(define term_WrelRacq_WrelRacq (concretize term_LB_abst "rel rel rel acq rel acq"))
+(define term_WrelRacq_WrelRacq (concretize term_SB_abst "rel rel rel acq rel acq"))
 
 #|
   x_rel = 0; y_rel = 0
@@ -52,7 +52,7 @@ x_sc  = 1  || y_sc  = 1
 r1 = y_sc  || r2 = x_sc
        ret r1 r2
 |#
-(define term_WscRsc_WscRsc (concretize term_LB_abst "rel rel sc sc sc sc"))
+(define term_WscRsc_WscRsc (concretize term_SB_abst "rel rel sc sc sc sc"))
 
 #|
        x_rel = 0; y_rel = 0
@@ -60,17 +60,17 @@ x_{sc,rel}  = 1 || y_{sc,rel}  = 1
 r1 = y_{sc,rel} || r2 = x_{sc,rel}
             ret r1 r2
 |#
-(define term_WrelRsc_WscRsc (concretize term_LB_abst "rel rel rel sc sc sc"))
-(define term_WscRacq_WscRsc (concretize term_LB_abst "rel rel sc acq sc sc"))
-(define term_WscRsc_WrelRsc (concretize term_LB_abst "rel rel sc sc rel sc"))
-(define term_WscRsc_WscRacq (concretize term_LB_abst "rel rel sc sc sc acq"))
+(define term_WrelRsc_WscRsc (concretize term_SB_abst "rel rel rel sc sc sc"))
+(define term_WscRacq_WscRsc (concretize term_SB_abst "rel rel sc acq sc sc"))
+(define term_WscRsc_WrelRsc (concretize term_SB_abst "rel rel sc sc rel sc"))
+(define term_WscRsc_WscRacq (concretize term_SB_abst "rel rel sc sc sc acq"))
 
 #|
    x_rlx = 0; y_rlx = 0
 R1 = x_mod0 || R2 = y_mod2
 y_mod1  = 1 || x_mod3  = 1
 |#
-(define (abst_RW_RW mod0 mod1 mod2 mod3)
+(define (term_LB_abst mod0 mod1 mod2 mod3)
   @prog{x_rlx := 0;
         y_rlx := 0;
         spw
@@ -87,7 +87,7 @@ y_rlx  = 1 || x_rlx  = 1
 
 With postponed reads it should be able to lead to R1 = R2 = 1.
 |#
-(define term_RrlxWrlx_RrlxWrlx (concretize abst_RW_RW "rlx rlx rlx rlx")) 
+(define term_RrlxWrlx_RrlxWrlx (concretize term_LB_abst "rlx rlx rlx rlx")) 
 
 #|
 R1 = x_rlx  || R2 = y_rlx
@@ -96,7 +96,7 @@ y_rel   = 1 || x_rel   = 1
 With postponed reads it should be able to lead to R1 = R2 = 1. 
 Rel modificators solve nothing here.
 |#
-(define term_RrlxWrel_RrlxWrel (concretize abst_RW_RW "rlx rel rlx rel"))
+(define term_RrlxWrel_RrlxWrel (concretize term_LB_abst "rlx rel rlx rel"))
 
 #|
 R1 = x_rlx || R2 = y_rlx
@@ -105,7 +105,7 @@ y_sc   = 1 || x_sc   = 1
 With postponed reads it should be able to lead to R1 = R2 = 1. 
 SC modificators solve nothing here.
 |#
-(define term_RrlxWsc_RrlxWsc (concretize abst_RW_RW "rlx sc rlx sc"))
+(define term_RrlxWsc_RrlxWsc (concretize term_LB_abst "rlx sc rlx sc"))
 
 #|
 R1 = x_con || R2 = y_con
@@ -113,7 +113,7 @@ y_rlx  = 1 || x_rlx  = 1
 
 With postponed reads it should be able to lead to R1 = R2 = 1. 
 |#
-(define term_RconWrlx_RconWrlx (concretize abst_RW_RW "con rlx con rlx"))
+(define term_RconWrlx_RconWrlx (concretize term_LB_abst "con rlx con rlx"))
 
 #|
 R1 = x_con  || R2 = y_con
@@ -123,7 +123,7 @@ With postponed reads it should be able to lead to R1 = R2 = 1.
 Rel modificators solve nothing here,
 because consume (con) doesn't provide synchronization.
 |#
-(define term_RconWrel_RconWrel (concretize abst_RW_RW "con rel con rel"))
+(define term_RconWrel_RconWrel (concretize term_LB_abst "con rel con rel"))
 
 #|
 R1 = x_con || R2 = y_con
@@ -133,7 +133,7 @@ With postponed reads it should be able to lead to R1 = R2 = 1.
 SC modificators solve nothing here,
 because consume (con) doesn't provide synchronization.
 |#
-(define term_RconWsc_RconWsc (concretize abst_RW_RW "con sc con sc"))
+(define term_RconWsc_RconWsc (concretize term_LB_abst "con sc con sc"))
 
 #|
 R1 = x_acq  || R2 = y_rlx
@@ -141,7 +141,7 @@ y_rel   = 1 || x_rel   = 1
 
 It's impossible to get R1 = R2 = 1.
 |#
-(define term_RacqWrel_RrlxWrel (concretize abst_RW_RW "acq rel rlx rel"))
+(define term_RacqWrel_RrlxWrel (concretize term_LB_abst "acq rel rlx rel"))
 
 #|
 R1 = x_rlx  || R2 = y_acq
@@ -149,7 +149,7 @@ y_rel   = 1 || x_rel   = 1
 
 It's impossible to get R1 = R2 = 1.
 |#
-(define term_RrlxWrel_RacqWrel (concretize abst_RW_RW "rlx rel acq rel"))
+(define term_RrlxWrel_RacqWrel (concretize term_LB_abst "rlx rel acq rel"))
 
 #|
 R1 = x_acq  || R2 = y_acq
@@ -157,7 +157,7 @@ y_rel   = 1 || x_rel   = 1
 
 It's impossible to get R1 = R2 = 1.
 |#
-(define term_RacqWrel_RacqWrel (concretize abst_RW_RW "acq rel acq rel"))
+(define term_RacqWrel_RacqWrel (concretize term_LB_abst "acq rel acq rel"))
 
 #|
    x_rlx = 0; y_rlx = 0
@@ -166,7 +166,7 @@ R1' = R1 + 1; || R2' = R2 + 1;
 y_mod1   = 1; || x_mod3   = 1;
 ret R1'       || ret R2'
 |#
-(define (abst_RW_RW_let mod0 mod1 mod2 mod3)
+(define (term_LB_abst_let mod0 mod1 mod2 mod3)
   @prog{x_rlx := 0;
         y_rlx := 0;
         spw
@@ -179,16 +179,49 @@ ret R1'       || ret R2'
             x_@mod3 := 1;
             ret r21 }}} })
 
-(define term_RrlxWrlx_RrlxWrlx_let (concretize abst_RW_RW_let "rlx rlx rlx rlx")) 
-(define term_RrlxWrel_RrlxWrel_let (concretize abst_RW_RW_let "rlx rel rlx rel")) 
-(define term_RrlxWsc_RrlxWsc_let   (concretize abst_RW_RW_let "rlx sc  rlx sc" )) 
-(define term_RconWrlx_RconWrlx_let (concretize abst_RW_RW_let "con rlx con rlx")) 
-(define term_RconWrel_RconWrel_let (concretize abst_RW_RW_let "con rel con rel")) 
-(define term_RconWsc_RconWsc_let   (concretize abst_RW_RW_let "con sc  con sc" )) 
-(define term_RacqWrel_RrlxWrel_let (concretize abst_RW_RW_let "acq rel rlx rel"))
-(define term_RrlxWrel_RacqWrel_let (concretize abst_RW_RW_let "rlx rel acq rel"))
-(define term_RacqWrel_RacqWrel_let (concretize abst_RW_RW_let "acq rel acq rel"))
+(define term_RrlxWrlx_RrlxWrlx_let (concretize term_LB_abst_let "rlx rlx rlx rlx")) 
+(define term_RrlxWrel_RrlxWrel_let (concretize term_LB_abst_let "rlx rel rlx rel")) 
+(define term_RrlxWsc_RrlxWsc_let   (concretize term_LB_abst_let "rlx sc  rlx sc" )) 
+(define term_RconWrlx_RconWrlx_let (concretize term_LB_abst_let "con rlx con rlx")) 
+(define term_RconWrel_RconWrel_let (concretize term_LB_abst_let "con rel con rel")) 
+(define term_RconWsc_RconWsc_let   (concretize term_LB_abst_let "con sc  con sc" )) 
+(define term_RacqWrel_RrlxWrel_let (concretize term_LB_abst_let "acq rel rlx rel"))
+(define term_RrlxWrel_RacqWrel_let (concretize term_LB_abst_let "rlx rel acq rel"))
+(define term_RacqWrel_RacqWrel_let (concretize term_LB_abst_let "acq rel acq rel"))
 
+#|
+     x_rlx = 0; y_rlx = 0
+R1  = x_mod0; || R2  = y_mod2;
+z1_rlx  = R1; || z2_rlx  = R2;
+y_mod1  =  1; || x_mod3  =  1;
+  r1 = z1_mod0; r2 = z2_mod0
+         ret (r1  r2)
+|#
+(define (term_LB_abst_use mod0 mod1 mod2 mod3)
+  @prog{x_rlx := 0;
+        y_rlx := 0;
+        spw
+        {{{ r1  := x_@mod0;
+            z1_rlx   := r1;
+            y_@mod1  := 1;
+            ret r1
+        ||| r2  := y_@mod2;
+            z2_rlx   := r2;
+            x_@mod3  := 1;
+            ret r2 }}};
+        r1 := z1_@mod0;
+        r2 := z2_@mod0;
+        ret [r1 r2] })
+
+(define term_RrlxWrlx_RrlxWrlx_use (concretize term_LB_abst_use "rlx rlx rlx rlx")) 
+(define term_RrlxWrel_RrlxWrel_use (concretize term_LB_abst_use "rlx rel rlx rel")) 
+(define term_RrlxWsc_RrlxWsc_use   (concretize term_LB_abst_use "rlx sc  rlx sc" )) 
+(define term_RconWrlx_RconWrlx_use (concretize term_LB_abst_use "con rlx con rlx")) 
+(define term_RconWrel_RconWrel_use (concretize term_LB_abst_use "con rel con rel")) 
+(define term_RconWsc_RconWsc_use   (concretize term_LB_abst_use "con sc  con sc" )) 
+(define term_RacqWrel_RrlxWrel_use (concretize term_LB_abst_use "acq rel rlx rel"))
+(define term_RrlxWrel_RacqWrel_use (concretize term_LB_abst_use "rlx rel acq rel"))
+(define term_RacqWrel_RacqWrel_use (concretize term_LB_abst_use "acq rel acq rel"))
 
 #|
 x_na = 1 || x_na = 2
