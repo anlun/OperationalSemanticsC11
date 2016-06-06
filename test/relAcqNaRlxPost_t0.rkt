@@ -94,6 +94,29 @@ With postponed writes and reads it should be able to lead to r1 = r2 = 1.
 ;; (stepper step (term (,term_RrlxWrlx_RrlxWrlx_use defaultState)) pretty-printer)
 
 #|
+  x_mod0 = 0; y_mod0 = 0
+x_mod1 = 1; || y_mod3 = 1; 
+y_mod2 = 2; || x_mod4 = 2;  
+ r1 = x_mod5; r2 = z2_mod5
+      ret (r1 r2)
+
+It should be possible to get r1 = r2 = 1, if there is no thread with
+both release accesses. 
+|#
+(define (test_2+2W curTerm)
+  (test-->>∃ step
+          (term (,curTerm defaultState))
+          (term ((ret (1 1)) defaultState))))
+
+(test_2+2W term_2+2W_rlx)
+
+;; Problem
+;; (test_2+2W term_2+2W_rel_acq)
+;; (test_2+2W term_2+2W_rel1_rlx)
+;; (test_2+2W term_2+2W_rel2_rlx)
+;; (test_2+2W term_2+2W_rel3_rlx)
+
+#|
           x_rlx = 0; y_rlx = 0
      y_rlx = 1     || if (x_acq == 2) {
      x_rel = 1     ||    r1 = y_rlx 

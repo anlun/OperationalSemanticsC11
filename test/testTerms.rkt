@@ -224,6 +224,36 @@ y_mod1  =  1; || x_mod3  =  1;
 (define term_RacqWrel_RacqWrel_use (concretize term_LB_abst_use "acq rel acq rel"))
 
 #|
+  x_mod0 = 0; y_mod0 = 0
+x_mod1 = 1; || y_mod3 = 1; 
+y_mod2 = 2; || x_mod4 = 2;  
+ r1 = x_mod5; r2 = z2_mod5
+      ret (r1 r2)
+
+It should be possible to get r1 = r2 = 1, if there is no thread with
+both release accesses. 
+|#
+(define (term_2+2W_abst mod0 mod1 mod2 mod3 mod4 mod5)
+  @prog{x_@mod0 := 0;
+        y_@mod0 := 0;
+        spw
+        {{{ x_@mod1 := 1;
+            y_@mod2 := 2;
+            ret 0
+        ||| y_@mod3 := 1;
+            x_@mod4 := 2;
+            ret 0 }}};
+        r1 := x_@mod5;
+        r2 := y_@mod5;
+        ret [r1 r2] })
+
+(define term_2+2W_rlx      (concretize term_2+2W_abst "rlx rlx rlx rlx rlx rlx")) 
+(define term_2+2W_rel_acq  (concretize term_2+2W_abst "rel rel rel rel rel acq")) 
+(define term_2+2W_rel1_rlx (concretize term_2+2W_abst "rlx rel rlx rel rlx rlx")) 
+(define term_2+2W_rel2_rlx (concretize term_2+2W_abst "rlx rlx rel rlx rel rlx")) 
+(define term_2+2W_rel3_rlx (concretize term_2+2W_abst "rlx rlx rel rel rlx rlx")) 
+
+#|
 x_na = 1 || x_na = 2
 
 It should get `stuck`.
