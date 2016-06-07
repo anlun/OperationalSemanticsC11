@@ -345,14 +345,14 @@
         "write-stuck" ; segfault
         (side-condition (term (isLocationDeallocated ι-var auxξ))))
   
-   (-->  ((in-hole E (if 0 AST_1 AST_2)) auxξ)
+   (-->  ((in-hole E (if 0 AST_0 AST_1)) auxξ)
         (normalize 
-         ((in-hole E AST_2             ) auxξ))
+         ((in-hole E AST_1             ) auxξ))
         "if-false"
         (side-condition (term (isPossibleE E auxξ))))
-   (-->  ((in-hole E (if number AST_1 AST_2)) auxξ)
+   (-->  ((in-hole E (if number AST_0 AST_1)) auxξ)
         (normalize 
-         ((in-hole E AST_1                  ) auxξ))
+         ((in-hole E AST_0                  ) auxξ))
         "if-true"
         (side-condition
           (not (equal? (term number) 0)))
