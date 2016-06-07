@@ -50,7 +50,7 @@
   [μ-subst μ-value
            vName]
   
-  [ι string] ; Location. Can be used 'number' instead of 'string'
+  [ι string] ; Location. We could have used 'number' instead of 'string'.
   [ι-var ι
          vName]
 
