@@ -339,29 +339,44 @@
 
 
 (define-metafunction coreLang
-  isRlxPostRead : any -> boolean
-  [(isRlxPostRead (read   vName ι-var rlx σ-dd)) #t]
-  [(isRlxPostRead (read   vName ι-var con σ-dd)) #t]  ; TODO: rename methods appropriately
-  [(isRlxPostRead (let-in vName μ))              #t]
-  ;; [(isRlxPostRead (write  vName ι-var rlx μ   )) #t]
-  [(isRlxPostRead (write  vName ι-var rlx μ   )) #f]
-  [(isRlxPostRead any)                           #f])
+  isPostRlx : postponedEntry -> boolean
+  [(isPostRlx (read   vName ι-var rlx σ-dd)) #t]
+  [(isPostRlx (read   vName ι-var con σ-dd)) #t]  ; TODO: rename methods appropriately
+  [(isPostRlx (let-in vName μ))              #t]
+  ;; [(isPostRlx (write  vName ι-var rlx μ   )) #t]
+  [(isPostRlx (write  vName ι-var rlx μ   )) #f]
+  [(isPostRlx (if vName μ α_0 α_1))
+   ,(and (term (are∀PostRlxInα α_0)
+               (are∀PostRlxInα α_1)))]
+  [(isPostRlx any)                           #f])
+
+(define-metafuntion coreLang
+  are∀PostRlxInα : α -> boolean
+  [(are∀PostRlxInα α) ,(andmap (λ (x) (term (isPostRlx ,x))) (term α))])
 
 (define-metafunction coreLang
   are∀PostReadsRlx : path auxξ -> boolean
-  [(are∀PostReadsRlx path (θ_0 ... (P φ_all) θ_1 ...))
-                            ,(andmap (λ (x) (term (isRlxPostRead ,x))) (term φ_path))
-                            (where φ_path (getByPath path φ_all))]
+  [(are∀PostReadsRlx path (θ_0 ... (P φ_all) θ_1 ...)) (are∀PostRlxInα α)
+                                                       (where α (getByPath path φ_all))]
   [(are∀PostReadsRlx path auxξ) #t])
 
 (define-metafunction coreLang
-  ιNotInα : ι α -> boolean
-  [(ιNotInα ι (any_0 ... (read  vName         ι RM σ-dd) any_1 ...)) #f]
-  [(ιNotInα ι (any_0 ... (read  vName_0 vName_1 RM σ-dd) any_1 ...)) #f]
-  [(ιNotInα ι (any_0 ... (write vName   ι       WM μ   ) any_1 ...)) #f]
-  [(ιNotInα ι (any_0 ... (write vName_0 vName_1 WM μ   ) any_1 ...)) #f]
-  [(ιNotInα ι α)                                                     #t])
+  ιNotInPostponedEntry : ι postponedEntry -> boolean
+  [(ιNotInPostponedEntry ι (read  vName         ι RM σ-dd)) #f]
+  [(ιNotInPostponedEntry ι (read  vName_0 vName_1 RM σ-dd)) #f]
+  [(ιNotInPostponedEntry ι (write vName   ι       WM μ   )) #f]
+  [(ιNotInPostponedEntry ι (write vName_0 vName_1 WM μ   )) #f]
 
+  [(ιNotInPostponedEntry ι (if vName μ α_0 α_1))
+   ,(and (term (ιNotInα ι α_0))
+         (term (ιNotInα ι α_1)))]
+
+  [(ιNotInPostponedEntry ι postponedEntry)                  #t])
+
+(define-metafunction coreLang
+  ιNotInα : ι α -> boolean
+  [(ιNotInα ι α) ,(andmap (λ (x) (term (ιNotInPostponedEntry ι x))) (term α))])
+   
 (define-metafunction coreLang
   ιNotInReadQueue : ι path auxξ -> boolean
   [(ιNotInReadQueue ι path (θ_0 ... (P φ) θ_1 ...))
@@ -421,6 +436,13 @@
                          (write vName_1 ι-var WM μ))
    (write vName_1 (substExpr vName_0 μ-value ι-var) WM
            (calcμ (substExpr vName_0 μ-value μ)))]
+  
+  [(substμPostponedEntry vName_0 μ-value σ-dd
+                         (if vName_1 μ α_0 α_1))
+   (if vName_1 (calcμ (substExpr vName_0 μ-value μ))
+       (substμα vName_0 μ-value σ-dd α_0)
+       (substμα vName_0 μ-value σ-dd α_1))]
+  
   [(substμPostponedEntry vName_0 μ-value σ-dd any) any])
 
 (define-metafunction coreLang

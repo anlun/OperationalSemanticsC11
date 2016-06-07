@@ -121,6 +121,11 @@
   [postponedEntry (read   vName ι-var RM σ-dd) ;; postponed read
                   (let-in vName μ)             ;; postponed let expression
                   (write  vName ι-var WM μ)    ;; postponed write
+
+                  ;; vName --- an unique identifier;
+                  ;; Expr  --- an `if' condition;
+                  ;; α's   --- postponed operations of `then' and `else' branches;
+                  (if     vName Expr α α)
                   ]
   [φ α
      (par φ φ)]

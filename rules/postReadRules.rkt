@@ -22,6 +22,20 @@
   [(getDataDependenciesMod con ι σ η) (getDataDependencies ι σ η)]
   [(getDataDependenciesMod RM  ι σ η) ()])
 
+
+(define-metafunction coreLang
+  isPostponedEntryIfIdentifier : any postponedEntry -> boolean
+  [(isPostponedEntryIfIdentifier vName (if vName any_1 ...)) #t]
+  [(isPostponedEntryIfIdentifier any_0 any_1               ) #f])
+
+(define-metafunction coreLang
+  ;; Checks if there is a postponed operation with the `any' identifier
+  ;; (the first argument).
+  isIfInα : any α -> boolean
+  [(isIfInα any α) ,(andmap (λ (x)
+                              (term (isPostponedEntryIfIdentifier any x)))
+                            (term α))])
+
 ;; TODO: Rewrite to tree traversal.
 ;; The current implementation doesn't work correctly
 ;; if a program contains a variable with name `choice`. 
@@ -211,4 +225,30 @@
         (where auxξ_upd_η (updateState η η_new auxξ_upd_front))
         (where auxξ_upd_γ (dupRelWriteRestrictions ι τ σ_write auxξ_upd_η))
         (where auxξ_new   auxξ_upd_γ))
+   
+   ;; (-->  ((in-hole E (if Expr AST_0 AST_1)) auxξ)
+   ;;      (normalize
+   ;;       ((in-hole E (if a    AST_0 AST_1)) auxξ_new))
+   ;;      "if-speculation-init"
+        
+   ;;      (where Expr_simplified (calc Expr))
+   ;;      (side-condition (not (redex-match coreLang number (term Expr_simplified))))
+
+   ;;      (where path     (pathE E))
+   ;;      (where φ        (getφ auxξ))
+   ;;      (where α        (getByPath path φ))
+   ;;      (side-condition (not (term (isIfInα Expr_simplified α))))
+
+   ;;      (fresh a)
+   ;;      (where α_new    (appendT α ((if a Expr_simplified () ()))))
+   ;;      (where φ_new    (updateOnPath path α_new φ))
+   ;;      (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
+
+;; TODO
+;; 1) Rewrite rules allowing postpone operations under conditionals.
+;; 2) Add buffer-propagation rule.
+;; 3) Update substitution/normalization step to resolve `if's in case
+;; the conditional expression is fully calculated.
+;; 4) Add an action propagation from an `if' level to a higher one.
+
 )))
