@@ -346,11 +346,11 @@
   ;; [(isPostRlx (write  vName ι-var rlx μ   )) #t]
   [(isPostRlx (write  vName ι-var rlx μ   )) #f]
   [(isPostRlx (if vName μ α_0 α_1))
-   ,(and (term (are∀PostRlxInα α_0)
-               (are∀PostRlxInα α_1)))]
+   ,(and (term (are∀PostRlxInα α_0))
+         (term (are∀PostRlxInα α_1)))]
   [(isPostRlx any)                           #f])
 
-(define-metafuntion coreLang
+(define-metafunction coreLang
   are∀PostRlxInα : α -> boolean
   [(are∀PostRlxInα α) ,(andmap (λ (x) (term (isPostRlx ,x))) (term α))])
 
@@ -375,7 +375,7 @@
 
 (define-metafunction coreLang
   ιNotInα : ι α -> boolean
-  [(ιNotInα ι α) ,(andmap (λ (x) (term (ιNotInPostponedEntry ι x))) (term α))])
+  [(ιNotInα ι α) ,(andmap (λ (x) (term (ιNotInPostponedEntry ι ,x))) (term α))])
    
 (define-metafunction coreLang
   ιNotInReadQueue : ι path auxξ -> boolean
