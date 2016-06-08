@@ -292,7 +292,6 @@
         (where φ        (getφ auxξ))
         (where α        (getByPath path φ))
         (side-condition (not (term (isIfInα Expr_simplified α))))
-        ;; (side-condition (not (redex-match coreLang vName (term Expr_simplified))))
 
         (fresh a)
         (where α_new    (appendToα Eif (if a Expr_simplified () ()) α))
@@ -300,10 +299,7 @@
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
 
 ;; TODO
-;; 1) Rewrite rules allowing postpone operations under conditionals.
-;; 2) Add buffer-propagation rule.
-;; 3) Update substitution/normalization step to resolve `if's in case
-;; the conditional expression is fully calculated.
-;; 4) Add an action propagation from an `if' level to a higher one.
+;; 1) Add buffer-propagation rule.
+;; 2) Add an action propagation from an `if' level to a higher one.
 
 )))
