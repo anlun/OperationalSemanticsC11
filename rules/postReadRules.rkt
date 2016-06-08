@@ -42,6 +42,16 @@
 (define (doesntContainChoice mu) ;; μ -> boolean
   (not (memv 'choice (flatten mu))))
 
+(define-metafunction coreLang
+  appendToα : Eif postponedEntry α -> α
+  [(appendToα hole postponedEntry α) (appendT α (postponedEntry))]
+
+  [(appendToα (if vName Expr Eif AST) postponedEntry (any_0 ... (if vName Expr α_0 α_1) any_1 ...))
+   (any_0 ... (if vName Expr (appendToα Eif postponedEntry α_0) α_1) any_1 ...)]
+
+  [(appendToα (if vName Expr AST Eif) postponedEntry (any_0 ... (if vName Expr α_0 α_1) any_1 ...))
+   (any_0 ... (if vName Expr α_0 (appendToα Eif postponedEntry α_1)) any_1 ...)])
+
 (define-syntax-rule (define-postponedReadRules lang defaultState getWriteσ)
   (begin
 
@@ -59,7 +69,7 @@
         
         (side-condition (term (isCorrectEif Eif α)))
 
-        (where α_new    (appendT α ((read a ι-var RM ()))))
+        (where α_new    (appendToα Eif (read a ι-var RM ()) α))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
 
@@ -77,7 +87,7 @@
 
         (side-condition (term (isCorrectEif Eif α)))
 
-        (where α_new    (appendT α ((read a ι-var RM σ-dd))))
+        (where α_new    (appendToα Eif (read a ι-var RM σ-dd) α))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
 
@@ -160,7 +170,7 @@
 
         (side-condition (term (isCorrectEif Eif α)))
 
-        (where α_new    (appendT α ((let-in a μ_simplified))))
+        (where α_new    (appendToα Eif (let-in a μ_simplified) α))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
 
@@ -200,7 +210,7 @@
 
         (side-condition (term (isCorrectEif Eif α)))
 
-        (where α_new    (appendT α ((write a ι-var rlx μ_simplified))))
+        (where α_new    (appendToα Eif (write a ι-var rlx μ_simplified) α))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
 
@@ -252,7 +262,7 @@
    ;;      (side-condition (not (term (isIfInα Expr_simplified α))))
 
    ;;      (fresh a)
-   ;;      (where α_new    (appendT α ((if a Expr_simplified () ()))))
+   ;;      (where α_new    (appendToα Eif (if a Expr_simplified () ()) α))
    ;;      (where φ_new    (updateOnPath path α_new φ))
    ;;      (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
 
