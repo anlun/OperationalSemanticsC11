@@ -141,6 +141,9 @@
   [Ep hole
       (par Ep φ)
       (par φ Ep)]
+  [Eifα hole
+        (postponedEntry ... (if vName Eifα α) postponedEntry ...)
+        (postponedEntry ... (if vName α Eifα) postponedEntry ...)]
   
   [Relation rf
             sb

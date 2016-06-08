@@ -103,7 +103,8 @@
         (where η      (getη auxξ))
         (where ψ_read (getReadψ auxξ))
         
-        (where (in-hole Ep α) (getφ auxξ))
+        (where (in-hole Ep α_thread) (getφ auxξ))
+        (where (in-hole Eifα α) α_thread)
         (side-condition (not (empty? (term α))))
 
         (where (in-hole El_0 (read vName ι RM σ-dd)) α)
@@ -116,7 +117,7 @@
         (where σ-dd_new   (frontMerge σ-dd (getDataDependenciesMod RM ι σ η)))
 
         (where α_new      (substμα vName μ-value σ-dd_new (elToList El_0)))
-        (where φ_new      (updateOnPath path α_new φ))
+        (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
         (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ_upd_ψ))
 
         (where γ          (getγ auxξ))
@@ -179,7 +180,8 @@
          ((subst vName μ-value AST) auxξ_new))
         ">>=-subst-resolve"
 
-        (where (in-hole Ep α) (getφ auxξ))
+        (where (in-hole Ep α_thread) (getφ auxξ))
+        (where (in-hole Eifα α) α_thread)
         (side-condition (not (empty? (term α))))
 
         (where (in-hole El (let-in vName μ-value)) α)
@@ -187,7 +189,7 @@
 
         (where α_new    (substμα vName μ-value () (elToList El)))
         (where φ        (getφ auxξ))
-        (where φ_new    (updateOnPath path α_new φ))
+        (where φ_new    (updateOnPath path (in-hole Eifα α_new) φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
         (side-condition (term (isPossiblePath path auxξ))))
 
@@ -219,8 +221,12 @@
          ((subst vName μ-value AST) auxξ_new))
         "write-resolve"
 
-        (where (in-hole Ep α) (getφ auxξ))
+        (where (in-hole Ep α_thread) (getφ auxξ))
+        (where (in-hole Eifα α) α_thread)
         (side-condition (not (empty? (term α))))
+
+        (side-condition (equal? (term Eifα) (term hole)))
+        ;; TODO: write a corresponding version for not the first level speculation.
 
         (where path (pathEp Ep))
         (side-condition (term (isPossiblePath path auxξ)))
@@ -231,7 +237,7 @@
 
         (where α_new      (substμα vName μ-value () (elToList El)))
         (where φ          (getφ auxξ))
-        (where φ_new      (updateOnPath path α_new φ))
+        (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
         (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ))
 
         (where η       (getη auxξ))
