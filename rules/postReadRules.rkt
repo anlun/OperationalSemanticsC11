@@ -52,6 +52,15 @@
   [(appendToα (if vName Expr AST Eif) postponedEntry (any_0 ... (if vName Expr α_0 α_1) any_1 ...))
    (any_0 ... (if vName Expr α_0 (appendToα Eif postponedEntry α_1)) any_1 ...)])
 
+(define-metafunction coreLang
+  branchChoose : number any any -> any
+  [(branchChoose 0      any_0 any_1) any_1]
+  [(branchChoose number any_0 any_1) any_0])
+
+(define-metafunction coreLang
+  insertListInEl : El (any ...) -> (any ...)
+  [(insertListInEl (any_0 ... hole any_1 ...) any) (appendT (any_0 ...) (appendT any (any_1 ...)))])
+
 (define-syntax-rule (define-postponedReadRules lang defaultState getWriteσ)
   (begin
 
@@ -253,12 +262,27 @@
         (where auxξ_upd_η (updateState η η_new auxξ_upd_front))
         (where auxξ_upd_γ (dupRelWriteRestrictions ι τ σ_write auxξ_upd_η))
         (where auxξ_new   auxξ_upd_γ))
-   
+
+   (-->  ((in-hole E (in-hole Eif (if vName AST_0 AST_1))) auxξ)
+        (normalize
+         ((in-hole E (in-hole Eif (branchChoice number AST_0 AST_1))) auxξ_new))
+        "if-speculation-branch-choice"
+
+        (side-condition (term (isPossiblePath (pathE E) auxξ)))
+
+        (where (in-hole Ep α_thread) (getφ auxξ))
+        (where (in-hole Eifα (in-hole El (if vName number α_0 α_1))) α_thread)
+
+        (where α_new (insertListInEl El (branchChoice number α_0 α_1)))
+        (where φ_new (updateOnPath path α_new φ))
+        (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
+  
    ;; (-->  ((in-hole E (in-hole Eif (if Expr AST_0 AST_1))) auxξ)
    ;;      (normalize
    ;;       ((in-hole E (in-hole Eif (if a    AST_0 AST_1))) auxξ_new))
    ;;      "if-speculation-init"
         
+        ;; (side-condition (term (isPossiblePath (pathE E) auxξ)))
    ;;      (where Expr_simplified (calc Expr))
    ;;      (side-condition (not (redex-match coreLang number (term Expr_simplified))))
 
