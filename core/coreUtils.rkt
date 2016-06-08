@@ -484,6 +484,31 @@
   [(dupRelWriteRestrictions ι τ σ_write auxξ) auxξ])
 
 (define-metafunction coreLang
+  eifToIdList : Eif -> (vName ...)
+  [(eifToIdList hole) ()]
+  [(eifToIdList (if vName Eif AST)) (consT vName (eifToIdList Eif))]
+  [(eifToIdList (if vName AST Eif)) (consT vName (eifToIdList Eif))])
+
+(define-metafunction coreLang
+  pathEif : Eif -> path
+  [(pathEif hole) ()]
+  [(pathEif (if vName Eif AST)) (L (pathEif Eif))]
+  [(pathEif (if vName AST Eif)) (R (pathEif Eif))])
+
+(define-metafunction coreLang
+  isCorrectEifIds : (vName ...) path α -> boolean
+  [(isCorrectEifIds () () α) #t]
+  [(isCorrectEifIds (vName_0 vName_1 ...) (L path) (any_0 ... (if vName_0 Expr α_0 α_1) any_1 ...))
+   (isCorrectEifIds (vName_1 ...) path α_0)]
+  [(isCorrectEifIds (vName_0 vName_1 ...) (R path) (any_0 ... (if vName_0 Expr α_0 α_1) any_1 ...))
+   (isCorrectEifIds (vName_1 ...) path α_1)]
+  [(isCorrectEifIds any path α) #f])
+
+(define-metafunction coreLang
+  isCorrectEif : Eif α -> boolean
+  [(isCorrectEif Eif α) (isCorrectEifIds (eifToIdList Eif) (pathEif Eif) α)])
+
+(define-metafunction coreLang
   acqFailCASσReadNew : ι η σ -> σ
   [(acqFailCASσReadNew ι η σ_read)
    (frontMerge σ_read σ_record_front)

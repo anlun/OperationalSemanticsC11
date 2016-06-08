@@ -48,14 +48,17 @@
   (reduction-relation
    lang #:domain ξ
    
-   (-->  ((in-hole E (read RM ι-var)) auxξ)
+   (-->  ((in-hole E (in-hole Eif (read RM ι-var))) auxξ)
         (normalize
-         ((in-hole E (ret  a       )) auxξ_new))
+         ((in-hole E (in-hole Eif (ret  a       ))) auxξ_new))
         "read-postponed"
         (fresh a)
         (where path     (pathE E))
         (where φ        (getφ auxξ))
         (where α        (getByPath path φ))
+        
+        (side-condition (term (isCorrectEif Eif α)))
+
         (where α_new    (appendT α ((read a ι-var RM ()))))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
@@ -63,14 +66,17 @@
         (side-condition (not (equal? (term sc) (term RM))))
         (side-condition (term (isPossibleE E auxξ))))
 
-   (-->  ((in-hole E (readCon RM ι-var σ-dd)) auxξ)
+   (-->  ((in-hole E (in-hole Eif (readCon RM ι-var σ-dd))) auxξ)
         (normalize
-         ((in-hole E (ret          a       )) auxξ_new))
+         ((in-hole E (in-hole Eif (ret          a       ))) auxξ_new))
         "readCon-postponed"
         (fresh a)
         (where path     (pathE E))
         (where φ        (getφ auxξ))
         (where α        (getByPath path φ))
+
+        (side-condition (term (isCorrectEif Eif α)))
+
         (where α_new    (appendT α ((read a ι-var RM σ-dd))))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
@@ -130,9 +136,9 @@
         (where path (pathEp Ep))
         (side-condition (term (isLocationUninitialized ι σ-dd path auxξ))))
 
-   (-->  ((in-hole E ((ret μ) >>= (λ vName AST))) auxξ)
+   (-->  ((in-hole E (in-hole Eif ((ret μ) >>= (λ vName AST)))) auxξ)
         (normalize
-         ((in-hole E (subst vName a AST))         auxξ_new))
+         ((in-hole E (in-hole Eif (subst vName a AST)))         auxξ_new))
         ;; The substitution is needed to avoid collapse with previous
         ;; postponed operations.
         ">>=-subst-postpone"
@@ -151,6 +157,9 @@
         (where path     (pathE E))
         (where φ        (getφ auxξ))
         (where α        (getByPath path φ))
+
+        (side-condition (term (isCorrectEif Eif α)))
+
         (where α_new    (appendT α ((let-in a μ_simplified))))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
@@ -172,9 +181,9 @@
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
         (side-condition (term (isPossiblePath path auxξ))))
 
-   (-->  ((in-hole E (write rlx ι-var μ)) auxξ)
+   (-->  ((in-hole E (in-hole Eif (write rlx ι-var μ))) auxξ)
         (normalize
-         ((in-hole E (ret a            )) auxξ_new))
+         ((in-hole E (in-hole Eif (ret a            ))) auxξ_new))
         "write-rlx-postpone"
         (side-condition (term (isPossibleE E auxξ)))
         
@@ -188,6 +197,9 @@
         (where path     (pathE E))
         (where φ        (getφ auxξ))
         (where α        (getByPath path φ))
+
+        (side-condition (term (isCorrectEif Eif α)))
+
         (where α_new    (appendT α ((write a ι-var rlx μ_simplified))))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
@@ -226,9 +238,9 @@
         (where auxξ_upd_γ (dupRelWriteRestrictions ι τ σ_write auxξ_upd_η))
         (where auxξ_new   auxξ_upd_γ))
    
-   ;; (-->  ((in-hole E (if Expr AST_0 AST_1)) auxξ)
+   ;; (-->  ((in-hole E (in-hole Eif (if Expr AST_0 AST_1))) auxξ)
    ;;      (normalize
-   ;;       ((in-hole E (if a    AST_0 AST_1)) auxξ_new))
+   ;;       ((in-hole E (in-hole Eif (if a    AST_0 AST_1))) auxξ_new))
    ;;      "if-speculation-init"
         
    ;;      (where Expr_simplified (calc Expr))

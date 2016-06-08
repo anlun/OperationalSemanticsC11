@@ -117,11 +117,12 @@
   [Maybe (Just any)
          None]
 
-  ;; For postponed reads.
+  ;; For postponed operations.
   [postponedEntry (read   vName ι-var RM σ-dd) ;; postponed read
                   (let-in vName μ)             ;; postponed let expression
                   (write  vName ι-var WM μ)    ;; postponed write
-
+                  
+                  ;; Speculative `if'.
                   ;; vName --- an unique identifier;
                   ;; Expr  --- an `if' condition;
                   ;; α's   --- postponed operations of `then' and `else' branches;
@@ -131,6 +132,11 @@
      (par φ φ)]
   [α (postponedEntry ...)]
   [γ ((ι τ vName) ...)]
+
+  ;; Speculative `if' context.
+  [Eif hole
+       (if vName hole AST)
+       (if vName AST hole)] 
 
   [Ep hole
       (par Ep φ)
