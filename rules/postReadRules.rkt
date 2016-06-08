@@ -32,9 +32,9 @@
   ;; Checks if there is a postponed operation with the `any' identifier
   ;; (the first argument).
   isIfInα : any α -> boolean
-  [(isIfInα any α) ,(andmap (λ (x)
-                              (term (isPostponedEntryIfIdentifier any x)))
-                            (term α))])
+  [(isIfInα any α) ,(ormap (λ (x)
+                             (term (isPostponedEntryIfIdentifier any ,x)))
+                           (term α))])
 
 ;; TODO: Rewrite to tree traversal.
 ;; The current implementation doesn't work correctly
@@ -265,36 +265,39 @@
 
    (-->  ((in-hole E (in-hole Eif (if vName AST_0 AST_1))) auxξ)
         (normalize
-         ((in-hole E (in-hole Eif (branchChoice number AST_0 AST_1))) auxξ_new))
+         ((in-hole E (in-hole Eif (branchChoose number AST_0 AST_1))) auxξ_new))
         "if-speculation-branch-choice"
 
-        (side-condition (term (isPossiblePath (pathE E) auxξ)))
+        (where path (pathE E))
+        (side-condition (term (isPossiblePath path auxξ)))
 
-        (where (in-hole Ep α_thread) (getφ auxξ))
+        (where φ (getφ auxξ))
+        (where (in-hole Ep α_thread) φ)
         (where (in-hole Eifα (in-hole El (if vName number α_0 α_1))) α_thread)
 
-        (where α_new (insertListInEl El (branchChoice number α_0 α_1)))
+        (where α_new (insertListInEl El (branchChoose number α_0 α_1)))
         (where φ_new (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
   
-   ;; (-->  ((in-hole E (in-hole Eif (if Expr AST_0 AST_1))) auxξ)
-   ;;      (normalize
-   ;;       ((in-hole E (in-hole Eif (if a    AST_0 AST_1))) auxξ_new))
-   ;;      "if-speculation-init"
+   (-->  ((in-hole E (in-hole Eif (if Expr AST_0 AST_1))) auxξ)
+        (normalize
+         ((in-hole E (in-hole Eif (if a    AST_0 AST_1))) auxξ_new))
+        "if-speculation-init"
         
-        ;; (side-condition (term (isPossiblePath (pathE E) auxξ)))
-   ;;      (where Expr_simplified (calc Expr))
-   ;;      (side-condition (not (redex-match coreLang number (term Expr_simplified))))
+        (side-condition (term (isPossiblePath (pathE E) auxξ)))
+        (where Expr_simplified (calc Expr))
+        (side-condition (not (redex-match coreLang number (term Expr_simplified))))
 
-   ;;      (where path     (pathE E))
-   ;;      (where φ        (getφ auxξ))
-   ;;      (where α        (getByPath path φ))
-   ;;      (side-condition (not (term (isIfInα Expr_simplified α))))
+        (where path     (pathE E))
+        (where φ        (getφ auxξ))
+        (where α        (getByPath path φ))
+        (side-condition (not (term (isIfInα Expr_simplified α))))
+        ;; (side-condition (not (redex-match coreLang vName (term Expr_simplified))))
 
-   ;;      (fresh a)
-   ;;      (where α_new    (appendToα Eif (if a Expr_simplified () ()) α))
-   ;;      (where φ_new    (updateOnPath path α_new φ))
-   ;;      (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
+        (fresh a)
+        (where α_new    (appendToα Eif (if a Expr_simplified () ()) α))
+        (where φ_new    (updateOnPath path α_new φ))
+        (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
 
 ;; TODO
 ;; 1) Rewrite rules allowing postpone operations under conditionals.
