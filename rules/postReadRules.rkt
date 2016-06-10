@@ -297,6 +297,39 @@
         (where α_new    (appendToα Eif (if a Expr_simplified () ()) α))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
+   
+   (-->  (AST auxξ)
+        (normalize
+         ((subst vName_2 a (subst vName_1 a AST)) auxξ_new))
+        "if-speculation-write-promoting"
+
+        (where (in-hole Ep α_thread) (getφ auxξ))
+        (where (in-hole Eifα α) α_thread)
+        
+        (where (in-hole El_0 (if vName_0 Expr α_1 α_2)) α)
+        (where (in-hole El_1 (write vName_1 ι WM μ-value)) α_1)
+        (where (in-hole El_2 (write vName_2 ι WM μ-value)) α_2)
+
+        (side-condition (term
+                         (canPostponedWriteBePerformed (vName_1 ι) α_1)))
+        (side-condition (term
+                         (canPostponedWriteBePerformed (vName_2 ι) α_2)))
+
+        (where path (pathEp Ep))
+        (side-condition (term (isPossiblePath path auxξ)))
+
+        (fresh a)
+        (where α_1_new (substμα vName_1 a () (elToList El_1)))
+        (where α_2_new (substμα vName_2 a () (elToList El_2)))
+
+        (where α_new (insertListInEl El_0
+                      ((write vName_1 ι WM μ_value)
+                       (if vName_0 Expr α_1_new α_2_new))))
+
+        (where φ          (getφ auxξ))
+        (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
+        (where auxξ_new   (updateState (P φ) (P φ_new) auxξ))
+        )
 
 ;; TODO
 ;; 1) Add buffer-propagation rule.

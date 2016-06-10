@@ -423,34 +423,34 @@
   [(appendT any_0 any_1) ,(append (term any_0) (term any_1))])
 
 (define-metafunction coreLang
-  substμPostponedEntry : vName μ-value σ-dd postponedEntry -> postponedEntry
-  [(substμPostponedEntry vName_0 ι σ-dd_0
+  substμPostponedEntry : vName μ σ-dd postponedEntry -> postponedEntry
+  [(substμPostponedEntry vName_0 ι-var σ-dd_0
                          (read vName_1 vName_0 RM σ-dd_1))
-   (read vName_1 ι RM (frontMerge σ-dd_0 σ-dd_1))]
+   (read vName_1 ι-var RM (frontMerge σ-dd_0 σ-dd_1))]
 
-  [(substμPostponedEntry vName_0 μ-value σ-dd
-                         (let-in vName_1 μ))
-   (let-in vName_1 (calcμ (substExpr vName_0 μ-value μ)))]
+  [(substμPostponedEntry vName_0 μ_0 σ-dd
+                         (let-in vName_1 μ_1))
+   (let-in vName_1 (calcμ (substExpr vName_0 μ_0 μ_1)))]
 
-  [(substμPostponedEntry vName_0 μ-value σ-dd
-                         (write vName_1 ι-var WM μ))
-   (write vName_1 (substExpr vName_0 μ-value ι-var) WM
-           (calcμ (substExpr vName_0 μ-value μ)))]
+  [(substμPostponedEntry vName_0 μ_0 σ-dd
+                         (write vName_1 ι-var WM μ_1))
+   (write vName_1 (substExpr vName_0 μ_0 ι-var) WM
+           (calcμ (substExpr vName_0 μ_0 μ_1)))]
   
-  [(substμPostponedEntry vName_0 μ-value σ-dd
-                         (if vName_1 μ α_0 α_1))
-   (if vName_1 (calcμ (substExpr vName_0 μ-value μ))
-       (substμα vName_0 μ-value σ-dd α_0)
-       (substμα vName_0 μ-value σ-dd α_1))]
+  [(substμPostponedEntry vName_0 μ_0 σ-dd
+                         (if vName_1 μ_1 α_0 α_1))
+   (if vName_1 (calcμ (substExpr vName_0 μ_0 μ_1))
+       (substμα vName_0 μ_0 σ-dd α_0)
+       (substμα vName_0 μ_0 σ-dd α_1))]
   
-  [(substμPostponedEntry vName_0 μ-value σ-dd any) any])
+  [(substμPostponedEntry vName_0 μ σ-dd any) any])
 
 (define-metafunction coreLang
-  substμα : vName μ-value σ-dd α -> α
+  substμα : vName μ σ-dd α -> α
 
-  [(substμα vName μ-value σ-dd α)
+  [(substμα vName μ σ-dd α)
    ,(map (λ (x)
-           (term (substμPostponedEntry vName μ-value σ-dd ,x)))
+           (term (substμPostponedEntry vName μ σ-dd ,x)))
          (term α))])
 
 (define-metafunction coreLang
