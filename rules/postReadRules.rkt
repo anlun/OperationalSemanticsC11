@@ -46,10 +46,10 @@
   appendToα : Eif postponedEntry α -> α
   [(appendToα hole postponedEntry α) (appendT α (postponedEntry))]
 
-  [(appendToα (if vName Expr Eif AST) postponedEntry (any_0 ... (if vName Expr α_0 α_1) any_1 ...))
+  [(appendToα (if vName Eif AST) postponedEntry (any_0 ... (if vName Expr α_0 α_1) any_1 ...))
    (any_0 ... (if vName Expr (appendToα Eif postponedEntry α_0) α_1) any_1 ...)]
 
-  [(appendToα (if vName Expr AST Eif) postponedEntry (any_0 ... (if vName Expr α_0 α_1) any_1 ...))
+  [(appendToα (if vName AST Eif) postponedEntry (any_0 ... (if vName Expr α_0 α_1) any_1 ...))
    (any_0 ... (if vName Expr α_0 (appendToα Eif postponedEntry α_1)) any_1 ...)])
 
 (define-metafunction coreLang
