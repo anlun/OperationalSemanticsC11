@@ -890,11 +890,10 @@ Possible outcome: r = 1
                  y_@mod2 := 1
             else y_@mod2 := 1
             fi
-        ||| r1 := x_@mod0;
-            if r1
-            then z_rlx   := 1;
-                 y_@mod2 := 1
-            else y_@mod2 := 1
+        ||| r2 := y_@mod0;
+            if r2
+            then x_@mod2 := 1
+            else ret 0 
             fi }}};
         z_rlx })
 

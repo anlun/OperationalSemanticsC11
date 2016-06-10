@@ -485,13 +485,13 @@
 
 (define-metafunction coreLang
   eifToIdList : Eif -> (vName ...)
-  [(eifToIdList hole) ()]
+  [(eifToIdList Eif1) ()]
   [(eifToIdList (if vName Eif AST)) (consT vName (eifToIdList Eif))]
   [(eifToIdList (if vName AST Eif)) (consT vName (eifToIdList Eif))])
 
 (define-metafunction coreLang
   pathEif : Eif -> path
-  [(pathEif hole) ()]
+  [(pathEif Eif1) ()]
   [(pathEif (if vName Eif AST)) (L (pathEif Eif))]
   [(pathEif (if vName AST Eif)) (R (pathEif Eif))])
 

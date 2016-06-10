@@ -264,9 +264,9 @@
         (where AST_new (normalize_expr AST))
         (side-condition (not (equal? (term AST) (term AST_new)))))
 
-   (-->  ((in-hole E ((ret μ-subst) >>= (λ vName AST))) auxξ)
+   (-->  ((in-hole E (in-hole Eif ((ret μ-subst) >>= (λ vName AST)))) auxξ)
         (normalize
-         ((in-hole E (subst vName μ-subst AST))         auxξ))
+         ((in-hole E (in-hole Eif (subst vName μ-subst AST)))         auxξ))
         ">>=-subst"
         (side-condition (term (isPossibleE E auxξ))))
    

@@ -184,7 +184,13 @@
                (beside*/space (term (ppι-var ,name))
                               (term (ppι-var ,l))
                               (term (ppMod   ,m))
-                              (term (ppμ     ,mu)))]))
+                              (term (ppμ     ,mu)))]
+              [(list 'if name expr alpha_0 alpha_1)
+               (beside*/space "if"
+                              (term (ppι-var ,name))
+                              (term (ppμ     ,expr))
+                              (term (ppα     ,alpha_0))
+                              (term (ppα     ,alpha_1)))]))
           (term α)))])
 
 (define (pp-par label left right)

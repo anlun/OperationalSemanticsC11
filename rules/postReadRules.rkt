@@ -44,7 +44,7 @@
 
 (define-metafunction coreLang
   appendToα : Eif postponedEntry α -> α
-  [(appendToα hole postponedEntry α) (appendT α (postponedEntry))]
+  [(appendToα Eif1 postponedEntry α) (appendT α (postponedEntry))]
 
   [(appendToα (if vName Eif AST) postponedEntry (any_0 ... (if vName Expr α_0 α_1) any_1 ...))
    (any_0 ... (if vName Expr (appendToα Eif postponedEntry α_0) α_1) any_1 ...)]
@@ -323,7 +323,7 @@
         (where α_2_new (substμα vName_2 a () (elToList El_2)))
 
         (where α_new (insertListInEl El_0
-                      ((write vName_1 ι WM μ_value)
+                      ((write a ι WM μ-value)
                        (if vName_0 Expr α_1_new α_2_new))))
 
         (where φ          (getφ auxξ))

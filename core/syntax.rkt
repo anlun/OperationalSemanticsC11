@@ -134,9 +134,12 @@
   [γ ((ι τ vName) ...)]
 
   ;; Speculative `if' context.
-  [Eif hole
-       (if vName hole AST)
-       (if vName AST hole)] 
+  [Eif Eif1
+       (if vName Eif AST)
+       (if vName AST Eif)]
+
+  [Eif1 hole
+        (Eif1 >>= K)]
 
   [Ep hole
       (par Ep φ)
