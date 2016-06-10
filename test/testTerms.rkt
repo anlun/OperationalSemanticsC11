@@ -866,3 +866,36 @@ Possible outcome: r2 = 1 /\ r3 = 0.
                   r3 := x_rlx;
                   ret [r2 r3] }}};
         ret r0_2})
+
+#|
+  x_rlx = 0; y_rlx = 0; z_rlx = 0;
+if (x_mod1) { || if (y_mod3) {
+  z_rlx  = 1  ||   x_mod4 = 1
+  y_mod2 = 1  || }
+} else {      ||
+  y_mod2 = 1  ||
+}             ||
+            r = z_rlx
+
+Possible outcome: r = 1
+|#
+(define (term_nOTA_abst mod0 mod1 mod2 mod3 mod4)
+  @prog{x_rlx := 0;
+        y_rlx := 0;
+        z_rlx := 0;
+        spw
+        {{{ r1 := x_@mod0;
+            if r1
+            then z_rlx   := 1;
+                 y_@mod2 := 1
+            else y_@mod2 := 1
+            fi
+        ||| r1 := x_@mod0;
+            if r1
+            then z_rlx   := 1;
+                 y_@mod2 := 1
+            else y_@mod2 := 1
+            fi }}};
+        z_rlx })
+
+(define term_nOTA_rlx (concretize term_nOTA_abst "rlx rlx rlx rlx rlx"))

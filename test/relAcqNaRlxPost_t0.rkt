@@ -5,6 +5,23 @@
 (require "../core/parser.rkt")
 
 #|
+  x_rlx = 0; y_rlx = 0; z_rlx = 0;
+if (x_rlx) { || if (y_rlx) {
+  z_rlx = 1  ||   x_rlx = 1
+  y_rlx = 1  || }
+} else {     ||
+  y_rlx = 1  ||
+}            ||
+          r = z_rlx
+
+Possible outcome: r = 1
+|#
+(test-->>∃ step
+           (term (,term_nOTA_rlx defaultState))
+          
+           (term ((ret 1) defaultState)))
+
+#|
 x_{rel,rlx}  = 1 || y_{rel,rlx}  = 1
 R1 = y_{acq,rlx} || R2 = x_{acq,rlx}
 
