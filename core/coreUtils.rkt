@@ -628,6 +628,11 @@
   [(propagateDD_vName vName_0 path σ-dd (AST_0 >>= (λ vName_1 AST_1)))
    ((propagateDD_vName vName_0 path σ-dd AST_0) >>= (λ vName_1 AST_1))]
 
+  [(propagateDD_vName vName () σ-dd (if Expr AST_0 AST_1))
+   (if Expr
+       (propagateDD_vName vName () σ-dd AST_0)
+       (propagateDD_vName vName () σ-dd AST_1))]
+
   [(propagateDD_vName vName () σ-dd AST)
    (propagateDD_helpF σ-dd vName AST)])
 
