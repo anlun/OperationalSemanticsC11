@@ -107,8 +107,18 @@
   [path ()
         (L path)
         (R path)]
+
+  [ifContext (vName ...)]
+
+  ;; A next action path/identifier
+  [actionLbl None                   ;; For non speculative/postponed actions, except for reads
+             (read τ)               ;; For non postponed reads
+             
+             (read vName τ ifContext)    ;;  For speculative/postponed actions
+             (postpone ifContext)
+             (resolve vName ifContext)]
+  [pathτ  (path actionLbl)]
   
-  [pathτ  (path τ Maybe)]
   [pathsτ (pathτ ...)] ;; Maybe vName --- a name of thunk to resolve.
   [paths  (path  ...)]
   

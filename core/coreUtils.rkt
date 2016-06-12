@@ -496,6 +496,14 @@
   [(pathEif (if vName AST Eif)) (R (pathEif Eif))])
 
 (define-metafunction coreLang
+  getIfContext : Eifα -> ifContext
+  [(getIfContext hole) ()]
+  [(getIfContext (postponedEntry ... (if vName Expr Eifα α) postponedEntry ...))
+   (consT vName (getIfContext Eifα))]
+  [(getIfContext (postponedEntry ... (if vName Expr α Eifα) postponedEntry ...))
+   (consT vName (getIfContext Eifα))])
+
+(define-metafunction coreLang
   isCorrectEifIds : (vName ...) path α -> boolean
   [(isCorrectEifIds () () α) #t]
   [(isCorrectEifIds (vName_0 vName_1 ...) (L path) (any_0 ... (if vName_0 Expr α_0 α_1) any_1 ...))

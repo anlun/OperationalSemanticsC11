@@ -142,9 +142,11 @@
         
         (side-condition (term
                          (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α γ τ)))
-       
-        (side-condition (term (isPossibleRead path vName ι τ_read-min τ auxξ))))
+      
+        (where ifContext (getIfContext Eifα))
+        (side-condition (term (isPossibleRead path vName ι τ_read-min τ ifContext auxξ))))
 
+   ;; TODO: update the rule to the speculative reads
    (--> (AST auxξ)
         (stuck defaultState)
         "read-resolve-stuck"

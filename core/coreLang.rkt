@@ -15,15 +15,10 @@
 (define-metafunction coreLang
   isPossiblePath : path auxξ -> boolean
   [(isPossiblePath path_0
-                   (θ_0 ...
-                        (Paths ((path_1 τ_1 Maybe_1) (path_2 τ_2 Maybe_2) ...))
-                        θ_1 ...))
-   ,(and (equal? (term path_0) (term path_1))
-         (equal? nonPostponedReadConst
-                 (term Maybe_1)))]
+                   (in-hole El (Paths ((path_0 None) any ...))))
+   #t]
 
-  [(isPossiblePath path (θ_0 ... (Paths ()) θ_1 ...)) #f]
-
+  [(isPossiblePath path (in-hole El (Paths ()))) #f]
   [(isPossiblePath path auxξ) #t])
 
 (define-metafunction coreLang
@@ -31,25 +26,53 @@
   [(isPossibleE E auxξ) (isPossiblePath (pathE E) auxξ)])
 
 (define-metafunction coreLang
-  ;; isPossibleRead : (E | path) vName ι τ τ auxξ -> boolean 
-  [(isPossibleRead path_0 vName ι τ_front τ_read
-                   (θ_0 ... η θ_1 ...
-                        (Paths ((path_1 τ_1 Maybe_1) (path_2 τ_2 Maybe_2) ...))
-                        θ_2 ...))
-   ,(and (equal? (term path_0) (term path_1))
-         (equal? (term τ_read) (min (term τ_max)
-                                    (+ (term τ_front)
-                                       (term τ_1))))
-         (equal? (term (Just vName)) (term Maybe_1)))
-   (where τ_max  (getLastTimestamp ι η))]
+  isPossibleτ : τ τ τ ι η -> boolean
+  [(isPossibleτ τ_read τ_front τ_shift ι η)
+   ,(equal? (term τ_read)
+            (min (term τ_max)
+                 (+ (term τ_front) (term τ_1))))
+   (where τ_max (getLastTimestamp ι η))])
 
-  [(isPossibleRead E vName ι τ_front τ_read auxξ)
-   (isPossibleRead path vName ι τ_front τ_read auxξ)
-   (where path (pathE E))]
+(define-metafunction coreLang
+  isReadActionLbl : actionLbl -> boolean
+  [(isReadActionLbl (read any ...)) #t]
+  [(isReadActionLbl any           ) #f])
 
-  [(isPossibleRead any vName ι τ_0 τ_1
-                   (θ_0 ... (Paths ()) θ_1 ...)) #f]
-  [(isPossibleRead any vName ι τ_0 τ_1 auxξ) #t])
+(define-metafunction coreLang
+  getActionVName : actionLbl -> vName
+  [(getActionVName (read    vName any ...) vName)]
+  [(getActionVName (resolve vName any ...) vName)])
+
+(define-metafunction coreLang
+  getActionτ : actionLbl -> τ
+  [(getActionτ (read τ)) τ]
+  [(getActionτ (read vName τ any ...)) τ])
+
+(define-metafunction coreLang
+  getActionIfContext : actionLbl -> ifContext
+  [(getActionIfContext (read vName τ  ifContext)) ifContext]
+  [(getActionIfContext (postpone      ifContext)) ifContext]
+  [(getActionIfContext (resolve vName ifContext)) ifContext])
+
+(define-metafunction coreLang
+  ;; isPossibleRead : (E | path) vName ι τ τ ifContext auxξ -> boolean 
+  [(isPossibleRead path vName ι τ_front τ_read ifContext
+                   (θ_0 ... η θ_1 ... (Paths ((path actionLbl) any ...)) θ_2 ...))
+
+   ,(and (isPossibleτ τ_read τ_front τ_shift ι η) 
+         (equal? (term vName)     (term vName_action))
+         (equal? (term ifContext) (term ifContext_action)))
+
+   (side-condition (term (isReadActionLbl actionLbl)))
+   (where vName_action     (getActionVName     actionLbl))
+   (where τ_shift          (getActionτ         actionLbl))
+   (where ifContext_action (getActionIfContext actionLbl))]
+
+  [(isPossibleRead E vName ι τ_front τ_read ifContext auxξ)
+   (isPossibleRead (pathE E) vName ι τ_front τ_read auxξ)]
+
+  [(isPossibleRead any vName ι τ_0 τ_1 ifContext (in-hole El (Paths ()))) #f]
+  [(isPossibleRead any vName ι τ_0 τ_1 ifContext auxξ                   ) #t])
 
 (define-metafunction coreLang
   isUsed : vName AST -> boolean
@@ -89,22 +112,22 @@
 
 (define-metafunction coreLang
   possibleTasks-path : path AST auxξ -> pathsτ
-  [(possibleTasks-path path (ret μ) auxξ) (possiblePostponedReads path auxξ)]
+  [(possibleTasks-path path (ret μ) auxξ) (possiblePostponedOps path auxξ)]
 
   [(possibleTasks-path path ((ret μ-value) >>= K) auxξ)
-   ,(cons (term (path 0 ,nonPostponedReadConst))
-          (term (possiblePostponedReads path auxξ)))]
+   ,(cons (term (path None))
+          (term (possiblePostponedOps path auxξ)))]
   [(possibleTasks-path path (AST >>= K) auxξ) (possibleTasks-path path AST auxξ)]
 
   [(possibleTasks-path path AST auxξ)
    (possibleTasks-path-read path ι RM auxξ)
-   (side-condition (term (noPostponedReads auxξ)))
+   (side-condition (term (noPostponedOps auxξ)))
    (where (Just (ι RM)) (ιModFromReadAction AST))]
 
   [(possibleTasks-path path (par AST_0 AST_1) auxξ)
    ,(if (and (null? (term pathsτ_left ))
              (null? (term pathsτ_right)))
-        (term ((path 0 ,nonPostponedReadConst)))
+        (term ((path None)))
         (append (term pathsτ_left )
                 (term pathsτ_right)))
    (where pathsτ_left  (possibleTasks-path (updatePath L path) AST_0 auxξ))
@@ -115,8 +138,8 @@
   
 ;; Default case --- the current thread is reducable.
   [(possibleTasks-path path AST auxξ)
-   ,(cons (term (path 0 ,nonPostponedReadConst))
-          (term (possiblePostponedReads path auxξ)))])
+   ,(cons (term (path None))
+          (term (possiblePostponedOps path auxξ)))])
 
 (define-metafunction coreLang
   ιModFromReadAction : AST -> Maybe
@@ -127,45 +150,38 @@
   [(ιModFromReadAction AST) None])
 
 (define-metafunction coreLang
-  noPostponedReads : auxξ -> boolean
-  [(noPostponedReads (θ_0 ... (P φ) θ_1 ...)) #f]
-  [(noPostponedReads auxξ) #t])
+  noPostponedOps : auxξ -> boolean
+  [(noPostponedOps (θ_0 ... (P φ) θ_1 ...)) #f]
+  [(noPostponedOps auxξ) #t])
 
 (define-metafunction coreLang
   possibleTasks-path-read : path ι RM auxξ -> pathsτ
-  [(possibleTasks-path-read path ι sc auxξ)
-   ,(map
-     (λ (t)
-       (list (term path) (- t (term τ_front)) -1))
-     (range (term τ_front) (+ 1 (term τ_max))))
-   (where σ_read (getReadσ path auxξ))
-   (where σ_sc   (getσSC auxξ))
-   (where τ_front ,(max
-                    (term (fromMaybe 0 (lookup ι σ_sc  )))
-                    (term (fromMaybe 0 (lookup ι σ_read)))))
-   (where τ_max (getLastTimestamp ι (getη auxξ)))]
 
   [(possibleTasks-path-read path ι RM auxξ)
-   ,(map
-     (λ (t)
-       (list (term path) (- t (term τ_front)) -1))
+   ,(map (λ (t)
+           (list (term path) (list 'read (- t (term τ_front)))))
      (range (term τ_front) (+ 1 (term τ_max))))
    (where σ_read (getReadσ path auxξ))
-   (where τ_front (fromMaybe 0 (lookup ι σ_read)))
+   (where τ_sc_min ,(if (equal? (term RM) 'sc)
+                        (term (fromMaybe 0 (lookup ι (getσSC auxξ))))
+                        0)
+   (where τ_front ,(max (term τ_sc_min)
+                        (term (fromMaybe 0 (lookup ι σ_read)))))
    (where τ_max (getLastTimestamp ι (getη auxξ)))])
 
+;; TODO: rewrite this function
 (define-metafunction coreLang
-  possiblePostponedReads : path auxξ -> pathsτ
-  [(possiblePostponedReads path auxξ) 
+  possiblePostponedOps : path auxξ -> pathsτ
+  [(possiblePostponedOps path auxξ) 
    ,(map (λ (x) (cons (term path) x))
          (apply append
           (map (λ (x)
                  (term (possibleτ-postponedRead ,x path auxξ)))
                (term α))))
-   (side-condition (not (term (noPostponedReads auxξ))))
+   (side-condition (not (term (noPostponedOps auxξ))))
    (where φ (getφ auxξ))
    (where α (getByPath path φ))]
-  [(possiblePostponedReads path auxξ) ()])
+  [(possiblePostponedOps path auxξ) ()])
 
 (define-metafunction coreLang
   ;; possibleτ-postponedRead : (vName ι-var RM σ-dd) path auxξ -> ((τ Maybe) ...)
@@ -177,7 +193,7 @@
                 (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α γ ,t)))
              (range (term τ_front) (+ 1 (term τ_max)))))
    
-   (side-condition (not (term (noPostponedReads auxξ))))
+   (side-condition (not (term (noPostponedOps auxξ))))
    (where φ       (getφ auxξ))
    (where α       (getByPath path φ))
    (where γ       (getγ auxξ))
