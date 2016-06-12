@@ -25,7 +25,10 @@
 
 (define-metafunction coreLang
   isPostponedEntryIfIdentifier : any postponedEntry -> boolean
-  [(isPostponedEntryIfIdentifier vName (if vName any_1 ...)) #t]
+  [(isPostponedEntryIfIdentifier vName (if vName   any_1 ...)) #t]
+  [(isPostponedEntryIfIdentifier vName (if vName_1 Expr α_0 α_1))
+   ,(or (term (isIfInα vName α_0))
+        (term (isIfInα vName α_1)))]
   [(isPostponedEntryIfIdentifier any_0 any_1               ) #f])
 
 (define-metafunction coreLang
@@ -333,6 +336,5 @@
 
 ;; TODO
 ;; 1) Add buffer-propagation rule.
-;; 2) Add an action propagation from an `if' level to a higher one.
 
 )))
