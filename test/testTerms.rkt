@@ -898,3 +898,46 @@ Possible outcome: r = 1
         z_rlx })
 
 (define term_nOTA_rlx (concretize term_nOTA_abst "rlx rlx rlx rlx rlx"))
+
+#|
+      x_rlx = 0; y_rlx = 0;
+      z_rlx = 0; f_rlx = 0;
+if (x_mod1) {  || if (y_mod3) {
+  if (f_rlx) { ||   f_rlx  = 1
+    z_rlx  = 1 ||   x_mod4 = 1
+    y_mod2 = 1 || }
+  } else {     ||
+    y_mod2 = 1 || 
+  }            ||
+} else {       ||
+  y_mod2 = 1   ||
+}              ||
+            r = z_rlx
+
+Possible outcome: r = 1
+|#
+(define (term_nOTA_nestIf_abst mod0 mod1 mod2 mod3 mod4)
+  @prog{x_rlx := 0;
+        y_rlx := 0;
+        z_rlx := 0;
+        f_rlx := 0;
+        spw
+        {{{ r1 := x_@mod0;
+            if r1
+            then r2 := f_rlx;
+                 if r2
+                 then z_rlx   := 1;
+                      y_@mod2 := 1
+                 else y_@mod2 := 1
+                 fi
+            else y_@mod2 := 1
+            fi
+        ||| r2 := y_@mod0;
+            if r2
+            then f_rlx   := 1;
+                 x_@mod2 := 1
+            else ret 0 
+            fi }}};
+        z_rlx })
+
+(define term_nOTA_nestIf_rlx (concretize term_nOTA_nestIf_abst "rlx rlx rlx rlx rlx"))
