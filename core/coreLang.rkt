@@ -34,22 +34,22 @@
    (where τ_max (getLastTimestamp ι η))])
 
 (define-metafunction coreLang
-  isReadActionLbl : actionLbl -> boolean
-  [(isReadActionLbl (read any ...)) #t]
-  [(isReadActionLbl any           ) #f])
+  isReadPEntryLbl : pentryLbl -> boolean
+  [(isReadPEntryLbl (read any ...)) #t]
+  [(isReadPEntryLbl any           ) #f])
 
 (define-metafunction coreLang
-  getActionVName : actionLbl -> vName
+  getActionVName : pentryLbl -> vName
   [(getActionVName (read    vName any ...) vName)]
   [(getActionVName (resolve vName any ...) vName)])
 
 (define-metafunction coreLang
-  getActionτ : actionLbl -> τ
+  getActionτ : pentryLbl -> τ
   [(getActionτ (read τ)) τ]
   [(getActionτ (read vName τ any ...)) τ])
 
 (define-metafunction coreLang
-  getActionIfContext : actionLbl -> ifContext
+  getActionIfContext : pentryLbl -> ifContext
   [(getActionIfContext (read vName τ  ifContext)) ifContext]
   [(getActionIfContext (postpone      ifContext)) ifContext]
   [(getActionIfContext (resolve vName ifContext)) ifContext])
@@ -57,16 +57,16 @@
 (define-metafunction coreLang
   ;; isPossibleRead : (E | path) vName ι τ τ ifContext auxξ -> boolean 
   [(isPossibleRead path vName ι τ_front τ_read ifContext
-                   (θ_0 ... η θ_1 ... (Paths ((path actionLbl) any ...)) θ_2 ...))
+                   (θ_0 ... η θ_1 ... (Paths ((path pentryLbl) any ...)) θ_2 ...))
 
    ,(and (isPossibleτ τ_read τ_front τ_shift ι η) 
          (equal? (term vName)     (term vName_action))
          (equal? (term ifContext) (term ifContext_action)))
 
-   (side-condition (term (isReadActionLbl actionLbl)))
-   (where vName_action     (getActionVName     actionLbl))
-   (where τ_shift          (getActionτ         actionLbl))
-   (where ifContext_action (getActionIfContext actionLbl))]
+   (side-condition (term (isReadPEntryLbl pentryLbl)))
+   (where vName_action     (getActionVName     pentryLbl))
+   (where τ_shift          (getActionτ         pentryLbl))
+   (where ifContext_action (getActionIfContext pentryLbl))]
 
   [(isPossibleRead E vName ι τ_front τ_read ifContext auxξ)
    (isPossibleRead (pathE E) vName ι τ_front τ_read auxξ)]
@@ -111,12 +111,43 @@
   [(possibleTasks AST auxξ) (possibleTasks-path () AST auxξ)])
 
 (define-metafunction coreLang
+  isPostponedEntryIfIdentifier : any postponedEntry -> boolean
+  [(isPostponedEntryIfIdentifier vName (if vName   any_1 ...)) #t]
+  [(isPostponedEntryIfIdentifier vName (if vName_1 Expr α_0 α_1))
+   ,(or (term (isIfInα vName α_0))
+        (term (isIfInα vName α_1)))]
+  [(isPostponedEntryIfIdentifier any_0 any_1               ) #f])
+
+(define-metafunction coreLang
+  ;; Checks if there is a postponed operation with the `any' identifier
+  ;; (the first argument).
+  isIfInα : any α -> boolean
+  [(isIfInα any α) ,(ormap (λ (x)
+                             (term (isPostponedEntryIfIdentifier any ,x)))
+                           (term α))])
+
+(define-metafunction coreLang
+  possibleTasks-path-ifContext : AST path ifContext auxξ -> pathsτ
+  [(possibleTasks-path-ifContext (write rlx ι-var μ)         path ifContext auxξ)
+   ((paths (postpone ifContext)))]
+  [(possibleTasks-path-ifContext ((ret μ) >>= (λ vName AST)) path ifContext auxξ)
+   ((paths (postpone ifContext)))]
+
+  [(possibleTasks-path-ifContext (read RM ι-var) path ifContext auxξ)
+   ((paths (postpone ifContext)))]
+  [(possibleTasks-path-ifContext (readCon RM ι-var σ-dd) path ifContext auxξ)
+   ((paths (postpone ifContext)))]
+
+;; TODO: expand the function to if's and other stuff
+  [(possibleTasks-path-ifContext AST path ifContext auxξ) ()])
+
+(define-metafunction coreLang
   possibleTasks-path : path AST auxξ -> pathsτ
-  [(possibleTasks-path path (ret μ) auxξ) (possiblePostponedOps path auxξ)]
+  [(possibleTasks-path path (ret μ) auxξ) (possibleResolvePostOps path auxξ)]
 
   [(possibleTasks-path path ((ret μ-value) >>= K) auxξ)
    ,(cons (term (path None))
-          (term (possiblePostponedOps path auxξ)))]
+          (term (possibleResolvePostOps path auxξ)))]
   [(possibleTasks-path path (AST >>= K) auxξ) (possibleTasks-path path AST auxξ)]
 
   [(possibleTasks-path path AST auxξ)
@@ -136,10 +167,17 @@
   [(possibleTasks-path path nofuel auxξ) ()]
   [(possibleTasks-path path stuck  auxξ) ()]
   
+  [(possibleTasks-path path (if vName AST_0 AST_1) auxξ)
+   (appendT (possibleTasks-path-ifContext AST_0 path (vName) auxξ)
+            (possibleTasks-path-ifContext AST_1 path (vName) auxξ))
+   
+   (where α (getByPath path (getφ auxξ)))
+   (side-condition (term (isIfInα vName α)))]
+
 ;; Default case --- the current thread is reducable.
   [(possibleTasks-path path AST auxξ)
    ,(cons (term (path None))
-          (term (possiblePostponedOps path auxξ)))])
+          (term (possibleResolvePostOps path auxξ)))])
 
 (define-metafunction coreLang
   ιModFromReadAction : AST -> Maybe
@@ -159,7 +197,7 @@
 
   [(possibleTasks-path-read path ι RM auxξ)
    ,(map (λ (t)
-           (list (term path) (list 'read (- t (term τ_front)))))
+           (term (path (read ,(- t (term τ_front))))))
      (range (term τ_front) (+ 1 (term τ_max))))
    (where σ_read (getReadσ path auxξ))
    (where τ_sc_min ,(if (equal? (term RM) 'sc)
@@ -169,38 +207,52 @@
                         (term (fromMaybe 0 (lookup ι σ_read)))))
    (where τ_max (getLastTimestamp ι (getη auxξ)))])
 
-;; TODO: rewrite this function
 (define-metafunction coreLang
-  possiblePostponedOps : path auxξ -> pathsτ
-  [(possiblePostponedOps path auxξ) 
+  possibleResolvePostOps : path auxξ -> pathsτ
+  [(possibleResolvePostOps path auxξ) ()
+   (side-condition (term (noPostponedOps auxξ)))]
+  [(possibleResolvePostOps path auxξ) (possibleResolvePostOps_α α path () auxξ )
+   (where α (getByPath path (getφ auxξ)))])
+
+(define-metafunction coreLang
+  possibleResolvePostOps_α : α path ifContext auxξ -> pathsτ
+  [(possibleResolvePostOps_α α path ifContext auxξ) 
    ,(map (λ (x) (cons (term path) x))
          (apply append
           (map (λ (x)
-                 (term (possibleτ-postponedRead ,x path auxξ)))
-               (term α))))
-   (side-condition (not (term (noPostponedOps auxξ))))
-   (where φ (getφ auxξ))
-   (where α (getByPath path φ))]
-  [(possiblePostponedOps path auxξ) ()])
+                 (term (possibleResolvePostOps_pentry ,x path ifContext auxξ)))
+               (term α))))])
 
 (define-metafunction coreLang
-  ;; possibleτ-postponedRead : (vName ι-var RM σ-dd) path auxξ -> ((τ Maybe) ...)
-  [(possibleτ-postponedRead (vName_0 vName_1 RM σ-dd) path auxξ) ()]
-  [(possibleτ-postponedRead (vName   ι       RM σ-dd) path auxξ)
-   ,(map (λ (t) (list (- t (term τ_front)) (term (Just vName))))
-     (filter (λ (t)
-               (term
-                (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α γ ,t)))
+  possibleResolvePostOps_pentry : postponedEntry path ifContext auxξ -> (pentryLbl ...)
+
+  [(possibleResolvePostOps_pentry (let-in vName μ-value) path ifContext auxξ)
+   ((path (resolve vName ifContext)))]
+
+  [(possibleResolvePostOps_pentry (write vName ι WM μ-value) path ifContext auxξ)
+   ((path (resolve vName ifContext)))
+
+   (side-condition (term (canPostponedWriteBePerformed (vName ι) α)))
+   (where α (getByPath path (getφ auxξ)))]
+
+  [(possibleResolvePostOps_pentry (read vName ι RM σ-dd) path ifContext auxξ)
+   ,(map (λ (t) (term (path (read vName ,(- t (term τ_front)) ifContext))))
+     (filter (λ (t) (term
+                     (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α γ ,t)))
              (range (term τ_front) (+ 1 (term τ_max)))))
    
-   (side-condition (not (term (noPostponedOps auxξ))))
-   (where φ       (getφ auxξ))
-   (where α       (getByPath path φ))
+   (where α       (getByPath path (getφ auxξ)))
    (where γ       (getγ auxξ))
    (where σ_read  (getReadσ path auxξ))
-   
    (where τ_front (fromMaybe 0 (lookup ι σ_read)))
-   (where τ_max   (getLastTimestamp ι (getη auxξ)))])
+   (where τ_max   (getLastTimestamp ι (getη auxξ)))]
+
+  [(possibleResolvePostOps_pentry (if vName Expr α_0 α_1) path ifContext auxξ)
+   (appendT (possibleResolvePostOps_α α_0 path ifContext_new auxξ)
+            (possibleResolvePostOps_α α_1 path ifContext_new auxξ))
+   (where ifContex_new (consT vName ifContext))]
+  
+  [(possibleResolvePostOps_pentry postponedEntry path ifContext auxξ) ()])
 
 ;; Returns random element from the list.
 (define select-random

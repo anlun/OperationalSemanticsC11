@@ -22,23 +22,6 @@
   [(getDataDependenciesMod con ι σ η) (getDataDependencies ι σ η)]
   [(getDataDependenciesMod RM  ι σ η) ()])
 
-
-(define-metafunction coreLang
-  isPostponedEntryIfIdentifier : any postponedEntry -> boolean
-  [(isPostponedEntryIfIdentifier vName (if vName   any_1 ...)) #t]
-  [(isPostponedEntryIfIdentifier vName (if vName_1 Expr α_0 α_1))
-   ,(or (term (isIfInα vName α_0))
-        (term (isIfInα vName α_1)))]
-  [(isPostponedEntryIfIdentifier any_0 any_1               ) #f])
-
-(define-metafunction coreLang
-  ;; Checks if there is a postponed operation with the `any' identifier
-  ;; (the first argument).
-  isIfInα : any α -> boolean
-  [(isIfInα any α) ,(ormap (λ (x)
-                             (term (isPostponedEntryIfIdentifier any ,x)))
-                           (term α))])
-
 ;; TODO: Rewrite to tree traversal.
 ;; The current implementation doesn't work correctly
 ;; if a program contains a variable with name `choice`. 
@@ -240,7 +223,6 @@
         (side-condition (not (empty? (term α))))
 
         (side-condition (equal? (term Eifα) (term hole)))
-        ;; TODO: write a corresponding version for not the first level speculation.
 
         (where path (pathEp Ep))
         (side-condition (term (isPossiblePath path auxξ)))
