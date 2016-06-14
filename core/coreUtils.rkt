@@ -498,9 +498,9 @@
 (define-metafunction coreLang
   getIfContext : Eifα -> ifContext
   [(getIfContext hole) ()]
-  [(getIfContext (postponedEntry ... (if vName Expr Eifα α) postponedEntry ...))
+  [(getIfContext (postponedEntry_0 ... (if vName Expr Eifα α) postponedEntry_1 ...))
    (consT vName (getIfContext Eifα))]
-  [(getIfContext (postponedEntry ... (if vName Expr α Eifα) postponedEntry ...))
+  [(getIfContext (postponedEntry_0 ... (if vName Expr α Eifα) postponedEntry_1 ...))
    (consT vName (getIfContext Eifα))])
 
 (define-metafunction coreLang
