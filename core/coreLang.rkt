@@ -127,18 +127,26 @@
                            (term α))])
 
 (define-metafunction coreLang
-  possibleTasks-path-ifContext : AST path ifContext auxξ -> pathsτ
-  [(possibleTasks-path-ifContext (write rlx ι-var μ)         path ifContext auxξ)
-   ((paths (postpone ifContext)))]
-  [(possibleTasks-path-ifContext ((ret μ) >>= (λ vName AST)) path ifContext auxξ)
-   ((paths (postpone ifContext)))]
+  possibleTasks-path-ifContext : AST path ifContext α auxξ -> pathsτ
+  [(possibleTasks-path-ifContext (write rlx ι-var μ)         path ifContext α auxξ)
+   ((path (postpone ifContext)))]
+  [(possibleTasks-path-ifContext ((ret μ) >>= (λ vName AST)) path ifContext α auxξ)
+   ((path (postpone ifContext)))]
 
-  [(possibleTasks-path-ifContext (read RM ι-var) path ifContext auxξ)
-   ((paths (postpone ifContext)))]
-  [(possibleTasks-path-ifContext (readCon RM ι-var σ-dd) path ifContext auxξ)
-   ((paths (postpone ifContext)))]
+  [(possibleTasks-path-ifContext (read RM ι-var) path ifContext α auxξ)
+   ((path (postpone ifContext)))]
+  [(possibleTasks-path-ifContext (readCon RM ι-var σ-dd) path ifContext α auxξ)
+   ((path (postpone ifContext)))]
 
-;; TODO: expand the function to if's and other stuff
+  [(possibleTasks-path-ifContext (AST >>= K) path ifContext α auxξ)
+   (possibleTasks-path-ifContext  AST        path ifContext α auxξ)]
+
+  [(possibleTasks-path-ifContext (if vName AST_0 AST_1) path ifContext (in-hole El (if vName_0 Expr α_0 α_1)) auxξ)
+   (appendT (possibleTasks-path-ifContext AST_0 path ifContext_new α_0 auxξ)
+            (possibleTasks-path-ifContext AST_1 path ifContext_new α_1 auxξ))
+
+   (where ifContext_new (appendT ifContext (vName)))]
+
   [(possibleTasks-path-ifContext AST path ifContext auxξ) ()])
 
 (define-metafunction coreLang
@@ -168,11 +176,11 @@
   [(possibleTasks-path path stuck  auxξ) ()]
   
   [(possibleTasks-path path (if vName AST_0 AST_1) auxξ)
-   (appendT (possibleTasks-path-ifContext AST_0 path (vName) auxξ)
-            (possibleTasks-path-ifContext AST_1 path (vName) auxξ))
+   (appendT (possibleTasks-path-ifContext AST_0 path (vName) α_0 auxξ)
+            (possibleTasks-path-ifContext AST_1 path (vName) α_1 auxξ))
    
    (where α (getByPath path (getφ auxξ)))
-   (side-condition (term (isIfInα vName α)))]
+   (where (in-hole El (if vName α_0 α_1)) α)]
 
 ;; Default case --- the current thread is reducable.
   [(possibleTasks-path path AST auxξ)
@@ -202,7 +210,7 @@
    (where σ_read (getReadσ path auxξ))
    (where τ_sc_min ,(if (equal? (term RM) 'sc)
                         (term (fromMaybe 0 (lookup ι (getσSC auxξ))))
-                        0)
+                        0))
    (where τ_front ,(max (term τ_sc_min)
                         (term (fromMaybe 0 (lookup ι σ_read)))))
    (where τ_max (getLastTimestamp ι (getη auxξ)))])
@@ -217,14 +225,13 @@
 (define-metafunction coreLang
   possibleResolvePostOps_α : α path ifContext auxξ -> pathsτ
   [(possibleResolvePostOps_α α path ifContext auxξ) 
-   ,(map (λ (x) (cons (term path) x))
-         (apply append
-          (map (λ (x)
-                 (term (possibleResolvePostOps_pentry ,x path ifContext auxξ)))
-               (term α))))])
+   ,(apply append
+           (map (λ (x)
+                  (term (possibleResolvePostOps_pentry ,x path ifContext auxξ)))
+                (term α)))])
 
 (define-metafunction coreLang
-  possibleResolvePostOps_pentry : postponedEntry path ifContext auxξ -> (pentryLbl ...)
+  possibleResolvePostOps_pentry : postponedEntry path ifContext auxξ -> pathsτ
 
   [(possibleResolvePostOps_pentry (let-in vName μ-value) path ifContext auxξ)
    ((path (resolve vName ifContext)))]
@@ -232,8 +239,8 @@
   [(possibleResolvePostOps_pentry (write vName ι WM μ-value) path ifContext auxξ)
    ((path (resolve vName ifContext)))
 
-   (side-condition (term (canPostponedWriteBePerformed (vName ι) α)))
-   (where α (getByPath path (getφ auxξ)))]
+   (where α (getByPath path (getφ auxξ)))
+   (side-condition (term (canPostponedWriteBePerformed (vName ι) α)))]
 
   [(possibleResolvePostOps_pentry (read vName ι RM σ-dd) path ifContext auxξ)
    ,(map (λ (t) (term (path (read vName ,(- t (term τ_front)) ifContext))))
@@ -250,7 +257,7 @@
   [(possibleResolvePostOps_pentry (if vName Expr α_0 α_1) path ifContext auxξ)
    (appendT (possibleResolvePostOps_α α_0 path ifContext_new auxξ)
             (possibleResolvePostOps_α α_1 path ifContext_new auxξ))
-   (where ifContex_new (consT vName ifContext))]
+   (where ifContext_new (appendT ifContext (vName)))]
   
   [(possibleResolvePostOps_pentry postponedEntry path ifContext auxξ) ()])
 
