@@ -26,6 +26,19 @@
   [(isPossibleE E auxξ) (isPossiblePath (pathE E) auxξ)])
 
 (define-metafunction coreLang
+  isPossibleEEif : E Eif auxξ -> boolean
+  [(isPossibleEEif E Eif auxξ) (isPossiblePathIfContext (pathE E) (eifToIfContext Eif) auxξ)])
+
+(define-metafunction coreLang
+  isPossiblePathIfContext : path ifContext auxξ -> boolean
+  [(isPossiblePathIfContext path_0 ifContext
+                            (in-hole El (Paths ((path_0 (postpone ifContext)) any ...))))
+   #t]
+
+  [(isPossiblePathIfContext path ifContext (in-hole El (Paths ()))) #f]
+  [(isPossiblePathIfContext path ifContext auxξ) #t])
+
+(define-metafunction coreLang
   isPossibleτ : τ τ τ ι η -> boolean
   [(isPossibleτ τ_read τ_front τ_shift ι η)
    ,(equal? (term τ_read)

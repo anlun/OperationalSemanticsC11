@@ -69,7 +69,7 @@
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
 
         (side-condition (not (equal? (term sc) (term RM))))
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (term (isPossibleEEif E Eif auxξ))))
 
    (-->  ((in-hole E (in-hole Eif (readCon RM ι-var σ-dd))) auxξ)
         (normalize
@@ -87,7 +87,7 @@
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
 
         (side-condition (not (equal? (term sc) (term RM))))
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (term (isPossibleEEif E Eif auxξ))))
 
    (-->  (AST  auxξ)
         (normalize        
@@ -150,7 +150,7 @@
         ;; The substitution is needed to avoid collapse with previous
         ;; postponed operations.
         ">>=-subst-postpone"
-        (side-condition (term (isPossibleE E auxξ)))
+        (side-condition (term (isPossibleEEif E Eif auxξ)))
         
         (where μ_simplified (calcμ μ))
 
@@ -194,7 +194,7 @@
         (normalize
          ((in-hole E (in-hole Eif (ret a            ))) auxξ_new))
         "write-rlx-postpone"
-        (side-condition (term (isPossibleE E auxξ)))
+        (side-condition (term (isPossibleEEif E Eif auxξ)))
         
         (where μ_simplified (calcμ μ))
 
@@ -255,14 +255,14 @@
          ((in-hole E (in-hole Eif (branchChoose number AST_0 AST_1))) auxξ_new))
         "if-speculation-branch-choice"
 
-        (where path (pathE E))
-        (side-condition (term (isPossiblePath path auxξ)))
+        (side-condition (term (isPossibleEEif E Eif auxξ))) ;; TODO: check if it's possible to move here.
 
         (where φ (getφ auxξ))
         (where (in-hole Ep α_thread) φ)
         (where (in-hole Eifα (in-hole El (if vName number α_0 α_1))) α_thread)
 
         (where α_new (insertListInEl El (branchChoose number α_0 α_1)))
+        (where path (pathE E))
         (where φ_new (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
   
@@ -271,7 +271,7 @@
          ((in-hole E (in-hole Eif (if a    AST_0 AST_1))) auxξ_new))
         "if-speculation-init"
         
-        (side-condition (term (isPossiblePath (pathE E) auxξ)))
+        (side-condition (term (isPossibleEEif E Eif auxξ))) ;; TODO: check if it's possible to move here.
         (where Expr_simplified (calc Expr))
         (side-condition (not (redex-match coreLang number (term Expr_simplified))))
 
@@ -298,11 +298,11 @@
         (where (in-hole El_2 (write vName_2 ι WM μ-value)) α_2)
 
         (side-condition (term
-                         (canPostponedWriteBePerformed (vName_1 ι) α_1)))
+                         (canPostponedWriteBePerformed (vName_1 ι) α_1))) ;; TODO: check if it's possible to move here.
         (side-condition (term
                          (canPostponedWriteBePerformed (vName_2 ι) α_2)))
 
-        (where path (pathEp Ep))
+        (where path     (pathEp Ep))
         (side-condition (term (isPossiblePath path auxξ)))
 
         (fresh a)

@@ -484,10 +484,10 @@
   [(dupRelWriteRestrictions ι τ σ_write auxξ) auxξ])
 
 (define-metafunction coreLang
-  eifToIdList : Eif -> (vName ...)
-  [(eifToIdList Eif1) ()]
-  [(eifToIdList (if vName Eif AST)) (consT vName (eifToIdList Eif))]
-  [(eifToIdList (if vName AST Eif)) (consT vName (eifToIdList Eif))])
+  eifToIfContext : Eif -> (vName ...)
+  [(eifToIfContext Eif1) ()]
+  [(eifToIfContext (if vName Eif AST)) (consT vName (eifToIfContext Eif))]
+  [(eifToIfContext (if vName AST Eif)) (consT vName (eifToIfContext Eif))])
 
 (define-metafunction coreLang
   pathEif : Eif -> path
@@ -514,7 +514,7 @@
 
 (define-metafunction coreLang
   isCorrectEif : Eif α -> boolean
-  [(isCorrectEif Eif α) (isCorrectEifIds (eifToIdList Eif) (pathEif Eif) α)])
+  [(isCorrectEif Eif α) (isCorrectEifIds (eifToIfContext Eif) (pathEif Eif) α)])
 
 (define-metafunction coreLang
   acqFailCASσReadNew : ι η σ -> σ
