@@ -30,7 +30,7 @@
   [(isPossibleτ τ_read τ_front τ_shift ι η)
    ,(equal? (term τ_read)
             (min (term τ_max)
-                 (+ (term τ_front) (term τ_1))))
+                 (+ (term τ_front) (term τ_shift))))
    (where τ_max (getLastTimestamp ι η))])
 
 (define-metafunction coreLang
@@ -40,8 +40,8 @@
 
 (define-metafunction coreLang
   getActionVName : pentryLbl -> vName
-  [(getActionVName (read    vName any ...) vName)]
-  [(getActionVName (resolve vName any ...) vName)])
+  [(getActionVName (read    vName any ...)) vName]
+  [(getActionVName (resolve vName any ...)) vName])
 
 (define-metafunction coreLang
   getActionτ : pentryLbl -> τ
@@ -59,7 +59,7 @@
   [(isPossibleRead path vName ι τ_front τ_read ifContext
                    (θ_0 ... η θ_1 ... (Paths ((path pentryLbl) any ...)) θ_2 ...))
 
-   ,(and (isPossibleτ τ_read τ_front τ_shift ι η) 
+   ,(and (term (isPossibleτ τ_read τ_front τ_shift ι η))
          (equal? (term vName)     (term vName_action))
          (equal? (term ifContext) (term ifContext_action)))
 
