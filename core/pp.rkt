@@ -231,14 +231,38 @@
   [(ppMaybe None) "None"])
 
 (define-metafunction coreLang
+  ; ppIfContext : ifContext -> Doc
+  [(ppIfContext ifContext)
+   ,(above**
+     (map (λ (x) (term (ppι-var ,x)))
+          (term ifContext)))])
+
+(define-metafunction coreLang
+  ; ppPentryLbl : pentryLbl -> Doc
+  [(ppPentryLbl None) "None"]
+  [(ppPentryLbl (read τ)) ,(beside*/space "read" (term (ppExpr τ)))]
+  [(ppPentryLbl (read vName τ ifContext))
+   ,(beside*/space "read"
+                   (term (ppι-var vName)) (term (ppExpr τ))
+                   (term (ppIfContext ifContext)))]
+  [(ppPentryLbl (postpone ifContext))
+   ,(beside*/space "postpone"
+                   (term (ppIfContext ifContext)))]
+  [(ppPentryLbl (resolve vName ifContext))
+   ,(beside*/space "resolve"
+                   (term (ppι-var vName))
+                   (term (ppIfContext ifContext)))])
+  
+
+(define-metafunction coreLang
   ; ppPathsτ : pathsτ -> Doc
   [(ppPathsτ pathsτ) ,(above**
              (map (λ (h)
                     (match h
-                      [(list path t name)
-                       (beside*/space (term (ppPath ,path))
-                                      (number->string t)
-                                      (term (ppMaybe ,name)))]))
+                      [(list path pentry)
+                       (beside*/space
+                        (term (ppPath      ,path))
+                        (term (ppPentryLbl ,pentry)))]))
                   (term pathsτ)))])
 
 ; -----

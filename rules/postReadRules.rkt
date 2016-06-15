@@ -39,9 +39,9 @@
    (any_0 ... (if vName Expr α_0 (appendToα Eif postponedEntry α_1)) any_1 ...)])
 
 (define-metafunction coreLang
-  branchChoose : number any any -> any
-  [(branchChoose 0      any_0 any_1) any_1]
-  [(branchChoose number any_0 any_1) any_0])
+  chooseBranch : number any any -> any
+  [(chooseBranch 0      any_0 any_1) any_1]
+  [(chooseBranch number any_0 any_1) any_0])
 
 (define-metafunction coreLang
   insertListInEl : El (any ...) -> (any ...)
@@ -186,13 +186,17 @@
         (where φ        (getφ auxξ))
         (where φ_new    (updateOnPath path (in-hole Eifα α_new) φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
-        (side-condition (term (isPossiblePath path auxξ))))
+        
+        (where ifContext (getIfContext Eifα))
+        (side-condition (term (isPossiblePath_resolve (vName ifContext) path auxξ))))
 
    (-->  ((in-hole E (in-hole Eif (write rlx ι-var μ))) auxξ)
         (normalize
          ((in-hole E (in-hole Eif (ret a            ))) auxξ_new))
         "write-rlx-postpone"
-        (side-condition (term (isPossibleEEif E Eif auxξ)))
+        (side-condition (if (equal? (term Eif) (term hole))
+                            (term (isPossibleE E auxξ))
+                            (term (isPossibleEEif E Eif auxξ))))
         
         (where μ_simplified (calcμ μ))
 
@@ -222,12 +226,13 @@
 
         (side-condition (equal? (term Eifα) (term hole)))
 
-        (where path (pathEp Ep))
-        (side-condition (term (isPossiblePath path auxξ)))
-
         (where (in-hole El (write vName ι WM μ-value)) α)
         (side-condition (term
                          (canPostponedWriteBePerformed (vName ι) α)))
+
+        (where path (pathEp Ep))
+        (where ifContext (getIfContext Eifα))
+        (side-condition (term (isPossiblePath_resolve (vName ifContext) path auxξ)))
 
         (where α_new      (substμα vName μ-value () (elToList El)))
         (where φ          (getφ auxξ))
@@ -250,16 +255,18 @@
 
    (-->  ((in-hole E (in-hole Eif (if vName AST_0 AST_1))) auxξ)
         (normalize
-         ((in-hole E (in-hole Eif (branchChoose number AST_0 AST_1))) auxξ_new))
+         ((in-hole E (in-hole Eif (chooseBranch number AST_0 AST_1))) auxξ_new))
         "if-speculation-branch-choice"
-
-        (side-condition (term (isPossibleEEif E Eif auxξ))) ;; TODO: check if it's possible to move here.
+        
+        ;; TODO: check if it's possible to move here.
+        (where ifContext (eifToIfContext Eif))
+        (side-condition (term (isPossiblePath_resolve (vName ifContext) (pathE E) auxξ)))
 
         (where φ (getφ auxξ))
         (where (in-hole Ep α_thread) φ)
         (where (in-hole Eifα (in-hole El (if vName number α_0 α_1))) α_thread)
 
-        (where α_new (insertListInEl El (branchChoose number α_0 α_1)))
+        (where α_new (insertListInEl El (chooseBranch number α_0 α_1)))
         (where path (pathE E))
         (where φ_new (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
@@ -318,5 +325,4 @@
 
 ;; TODO
 ;; 1) Add buffer-propagation rule.
-
 )))

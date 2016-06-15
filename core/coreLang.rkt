@@ -14,12 +14,19 @@
 
 (define-metafunction coreLang
   isPossiblePath : path auxξ -> boolean
-  [(isPossiblePath path_0
-                   (in-hole El (Paths ((path_0 None) any ...))))
+  [(isPossiblePath path (in-hole El (Paths ((path None) any ...)))) #t]
+
+  [(isPossiblePath path (in-hole El (Paths any))) #f]
+  [(isPossiblePath path auxξ) #t])
+
+(define-metafunction coreLang
+  isPossiblePath_resolve : (vName ifContext) path auxξ -> boolean
+  [(isPossiblePath_resolve (vName ifContext) path
+                           (in-hole El (Paths ((path (resolve vName ifContext)) any ...))))
    #t]
 
-  [(isPossiblePath path (in-hole El (Paths ()))) #f]
-  [(isPossiblePath path auxξ) #t])
+  [(isPossiblePath_resolve (vName ifContext) path (in-hole El (Paths any))) #f]
+  [(isPossiblePath_resolve (vName ifContext) path auxξ) #t])
 
 (define-metafunction coreLang
   isPossibleE : E auxξ -> boolean
@@ -31,11 +38,15 @@
 
 (define-metafunction coreLang
   isPossiblePathIfContext : path ifContext auxξ -> boolean
-  [(isPossiblePathIfContext path_0 ifContext
-                            (in-hole El (Paths ((path_0 (postpone ifContext)) any ...))))
+  [(isPossiblePathIfContext path ()
+                            (in-hole El (Paths ((path None)) any ...)))
    #t]
 
-  [(isPossiblePathIfContext path ifContext (in-hole El (Paths ()))) #f]
+  [(isPossiblePathIfContext path ifContext
+                            (in-hole El (Paths ((path (postpone ifContext)) any ...))))
+   #t]
+
+  [(isPossiblePathIfContext path ifContext (in-hole El (Paths any))) #f]
   [(isPossiblePathIfContext path ifContext auxξ) #t])
 
 (define-metafunction coreLang
@@ -77,8 +88,8 @@
   [(isPossibleRead E vName ι τ_front τ_read ifContext auxξ)
    (isPossibleRead (pathE E) vName ι τ_front τ_read auxξ)]
 
-  [(isPossibleRead any vName ι τ_0 τ_1 ifContext (in-hole El (Paths any))) #f]
-  [(isPossibleRead any vName ι τ_0 τ_1 ifContext auxξ                    ) #t])
+  [(isPossibleRead any_0 vName ι τ_0 τ_1 ifContext (in-hole El (Paths any))) #f]
+  [(isPossibleRead any_0 vName ι τ_0 τ_1 ifContext auxξ                    ) #t])
 
 (define-metafunction coreLang
   isUsed : vName AST -> boolean
@@ -188,10 +199,17 @@
    (where α (getByPath path (getφ auxξ)))
    (where (in-hole El (if vName α_0 α_1)) α)]
 
+
+  [(possibleTasks-path path (spw AST_0 AST_1) auxξ)
+   ,(if (null? (term pathsτ_post))
+        (list (term (path None)))
+        (term pathsτ_post))
+   (where pathsτ_post (possibleResolvePostOps path auxξ))]
+
 ;; Default case --- the current thread is reducable.
   [(possibleTasks-path path AST auxξ)
-   ,(cons (term (path None))
-          (term (possibleResolvePostOps path auxξ)))])
+   (consT (path None) pathsτ_post)
+   (where pathsτ_post (possibleResolvePostOps path auxξ))])
 
 (define-metafunction coreLang
   ιModFromReadAction : AST -> Maybe
