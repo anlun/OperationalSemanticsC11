@@ -65,6 +65,13 @@
                                                    (write a2 "z1" rlx a1)
                                                    (write a3 "y"  rlx 1))))
               (term #t))
+  (test-equal (term (canPostponedReadBePerformed (a "x" rlx ())
+                                                 (("x" 0) ("y" 1))
+                                                 ((read a "x" rlx ())) () () 0))
+              (term #t))
+
+  (test-equal (term (isPEntryInConflictWithEifα (a2 "dataP") ((if a1 1 hole ()))))
+              (term #f))
 )
 (metafunction-tests)
 

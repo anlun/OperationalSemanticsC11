@@ -70,22 +70,15 @@
 (define-metafunction coreLang
   ;; isPossibleRead : (E | path) vName ι τ τ ifContext auxξ -> boolean 
   [(isPossibleRead path vName ι τ_front τ_read ifContext
-                   (θ_0 ... η θ_1 ... (Paths ((path pentryLbl) any ...)) θ_2 ...))
+                   (θ_0 ... η θ_1 ... (Paths ((path (read vName τ_shift ifContext)) any ...)) θ_2 ...))
 
-   ,(and (term (isPossibleτ τ_read τ_front τ_shift ι η))
-         (equal? (term vName)     (term vName_action))
-         (equal? (term ifContext) (term ifContext_action)))
-
-   (side-condition (term (isReadPEntryLbl pentryLbl)))
-   (where vName_action     (getActionVName     pentryLbl))
-   (where τ_shift          (getActionτ         pentryLbl))
-   (where ifContext_action (getActionIfContext pentryLbl))]
+   (isPossibleτ τ_read τ_front τ_shift ι η)]
 
   [(isPossibleRead E vName ι τ_front τ_read ifContext auxξ)
    (isPossibleRead (pathE E) vName ι τ_front τ_read auxξ)]
 
-  [(isPossibleRead any vName ι τ_0 τ_1 ifContext (in-hole El (Paths ()))) #f]
-  [(isPossibleRead any vName ι τ_0 τ_1 ifContext auxξ                   ) #t])
+  [(isPossibleRead any vName ι τ_0 τ_1 ifContext (in-hole El (Paths any))) #f]
+  [(isPossibleRead any vName ι τ_0 τ_1 ifContext auxξ                    ) #t])
 
 (define-metafunction coreLang
   isUsed : vName AST -> boolean
@@ -258,7 +251,7 @@
   [(possibleResolvePostOps_pentry (read vName ι RM σ-dd) path ifContext auxξ)
    ,(map (λ (t) (term (path (read vName ,(- t (term τ_front)) ifContext))))
      (filter (λ (t) (term
-                     (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α γ ,t)))
+                     (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α ifContext γ ,t)))
              (range (term τ_front) (+ 1 (term τ_max)))))
    
    (where α       (getByPath path (getφ auxξ)))

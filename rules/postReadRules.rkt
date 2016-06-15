@@ -123,10 +123,10 @@
         (where σ_to-check (frontMerge σ_read σ-dd))
         (where τ_read-min (fromMaybe 0 (lookup ι σ_to-check)))
         
-        (side-condition (term
-                         (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α γ τ)))
-      
         (where ifContext (getIfContext Eifα))
+        (side-condition (term
+                         (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α_thread ifContext γ τ)))
+      
         (side-condition (term (isPossibleRead path vName ι τ_read-min τ ifContext auxξ))))
 
    ;; TODO: update the rule to the speculative reads

@@ -696,17 +696,32 @@
    (isPEntryInConflictWithα (vName ι) (appendT α_0 α_1))])
 
 (define-metafunction coreLang
-  canPostponedReadBePerformed : (vName ι-var RM σ-dd) σ α γ τ -> boolean
+  isPEntryInConflictWithEifα : (vName ι) Eifα -> boolean
+  [(isPEntryInConflictWithEifα (vName ι) hole) #f]
+  [(isPEntryInConflictWithEifα (vName ι) (in-hole El (if vName_1 Expr Eifα α)))
+   ,(and (term (isPEntryInConflictWithα    (vName ι) (elFirstPart El)))
+         (term (isPEntryInConflictWithEifα (vName ι) Eifα)))]
+  [(isPEntryInConflictWithEifα (vName ι) (in-hole El (if vName_1 Expr α Eifα)))
+   ,(and (term (isPEntryInConflictWithα    (vName ι) (elFirstPart El)))
+         (term (isPEntryInConflictWithEifα (vName ι) Eifα)))])
+
+(define-metafunction coreLang
+  canPostponedReadBePerformed : (vName ι-var RM σ-dd) σ α ifContext γ τ -> boolean
   
   ;; Can't resolve read from not yet resolved location.
-  [(canPostponedReadBePerformed (vName_0 vName_1 RM σ-dd) σ_read α γ τ) #f]
+  [(canPostponedReadBePerformed (vName_0 vName_1 RM σ-dd) σ_read α ifContext γ τ) #f]
 
   [(canPostponedReadBePerformed (vName ι RM σ-dd) σ_read
-                                (postponedEntry ... (read vName ι RM σ-dd) any ...) γ τ)
+                                (in-hole Eifα (in-hole El (read vName ι RM σ-dd)))
+                                ifContext γ τ)
    ,(and (not (term (isRestrictedByγ ι τ RM γ)))
-         (not (term (isPEntryInConflictWithα (vName ι) (postponedEntry ...))))
+         (equal? (term ifContext) (term ifContext_check))
+         (not (term (isPEntryInConflictWithEifα (vName ι) Eifα)))
+         (not (term (isPEntryInConflictWithα    (vName ι) (elFirstPart El))))
          (term (correctτ τ ι σ_to-check)))
-   (where σ_to-check (frontMerge σ_read σ-dd))])
+
+   (where σ_to-check      (frontMerge σ_read σ-dd))
+   (where ifContext_check (getIfContext Eifα))])
 
 (define-metafunction coreLang
   canPostponedWriteBePerformed : (vName ι) α -> boolean
@@ -719,6 +734,7 @@
 
 (define-metafunction coreLang
   elFirstPart : El -> (any ...)
+  [(elFirstPart hole) ()]
   [(elFirstPart (any_0 ... hole any_1 ...)) (any_0 ...)])
 
 ;; (define (find-path red from to)
