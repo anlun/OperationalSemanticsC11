@@ -137,12 +137,10 @@
         (where η      (getη auxξ))
         (where ψ_read (getReadψ auxξ))
         (where (in-hole Ep α) (getφ auxξ))
-        (where (in-hole El_0 (read vName ι RM σ-dd)) α)
-        (side-condition (not (empty? (term α))))        
-        (side-condition (term (isFirstRecord vName ι α)))
+        (where (in-hole El (read vName ι RM σ-dd)) α)
+        (side-condition (not (term (isPEntryInConflictWithα (vName ι) (elFirstPart El)))))
         
-        (where path (pathEp Ep))
-        (side-condition (term (isLocationUninitialized ι σ-dd path auxξ))))
+        (side-condition (term (isLocationUninitialized ι σ-dd (pathEp Ep) auxξ))))
 
    (-->  ((in-hole E (in-hole Eif ((ret μ) >>= (λ vName AST)))) auxξ)
         (normalize

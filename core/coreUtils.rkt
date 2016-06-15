@@ -403,18 +403,6 @@
   [(addPostReadsToγ path ι τ auxξ) auxξ])
 
 (define-metafunction coreLang
-  isFirstRecord : vName ι α -> boolean
-  [(isFirstRecord vName_0 ι_0 ((read  vName_0 ι_0     RM  σ-dd) any ...)) #t]
-  [(isFirstRecord vName_0 ι_0 ((read  vName_1 ι_1     acq σ-dd) any ...)) #f]
-  [(isFirstRecord vName_0 ι   ((read  vName_1 vName_2 RM  σ-dd) any ...)) #f]
-
-  [(isFirstRecord vName_0 ι   ((write vName_1 vName_2 WM  μ   ) any ...)) #f]
-  [(isFirstRecord vName_0 ι   ((write vName_1 ι       WM  μ   ) any ...)) #f]
-
-  [(isFirstRecord vName_0 ι_0 (postponedEntry any ...))
-   (isFirstRecord vName_0 ι_0 (any ...))])
-
-(define-metafunction coreLang
   consT : any (any ...) -> (any ...)
   [(consT any_0 any_1) ,(cons (term any_0) (term any_1))])
 
@@ -684,40 +672,54 @@
   [(isRestrictedByγ ι τ RM γ) #f])
 
 (define-metafunction coreLang
+  isPEntryInConflictWithα : (vName ι) α -> boolean
+  [(isPEntryInConflictWithα (vName ι) α)
+   ,(ormap (λ (x) (term (isPEntryInConflictWithPEntry (vName ι) ,x)))
+           (term α))])
+
+(define-metafunction coreLang
+  isPEntryInConflictWithPEntry : (vName ι) postponedEntry -> boolean
+
+  [(isPEntryInConflictWithPEntry (vName ι) (write vName   ι       WM  μ-value  )) #f]
+  [(isPEntryInConflictWithPEntry (vName ι) (write vName_1 vName_2 WM  μ        )) #t]
+  [(isPEntryInConflictWithPEntry (vName ι) (write vName_1 ι-var   rel μ        )) #t]
+  [(isPEntryInConflictWithPEntry (vName ι) (write vName_1 ι_0     rlx μ        )) #f]
+
+  [(isPEntryInConflictWithPEntry (vName ι) (read  vName_1 ι           any ...  )) #t]
+  [(isPEntryInConflictWithPEntry (vName ι) (read  vName_1 vName_2     any ...  )) #t]
+  [(isPEntryInConflictWithPEntry (vName ι) (read  vName_1 ι-var   acq any ...  )) #t]
+  [(isPEntryInConflictWithPEntry (vName ι) (read  vName_1 ι_0         any ...  )) #f]
+
+  [(isPEntryInConflictWithPEntry (vName ι) (let-in vName_1            any ...  )) #f]
+  
+  [(isPEntryInConflictWithPEntry (vName ι) (if vName_1 Expr α_0 α_1))
+   (isPEntryInConflictWithα (vName ι) (appendT α_0 α_1))])
+
+(define-metafunction coreLang
   canPostponedReadBePerformed : (vName ι-var RM σ-dd) σ α γ τ -> boolean
   
   ;; Can't resolve read from not yet resolved location.
   [(canPostponedReadBePerformed (vName_0 vName_1 RM σ-dd) σ_read α γ τ) #f]
 
-  [(canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α γ τ)
+  [(canPostponedReadBePerformed (vName ι RM σ-dd) σ_read
+                                (postponedEntry ... (read vName ι RM σ-dd) any ...) γ τ)
    ,(and (not (term (isRestrictedByγ ι τ RM γ)))
-         (term (correctτ τ ι σ_to-check))
-         (term (isFirstRecord vName ι α)))
+         (not (term (isPEntryInConflictWithα (vName ι) (postponedEntry ...))))
+         (term (correctτ τ ι σ_to-check)))
    (where σ_to-check (frontMerge σ_read σ-dd))])
 
 (define-metafunction coreLang
   canPostponedWriteBePerformed : (vName ι) α -> boolean
-  [(canPostponedWriteBePerformed (vName ι) ((write vName   ι       WM  μ-value  ) any ...)) #t]
-  [(canPostponedWriteBePerformed (vName ι) ((write vName_1 vName_2 WM  μ        ) any ...)) #f]
-  [(canPostponedWriteBePerformed (vName ι) ((write vName_1 ι-var   rel μ        ) any ...)) #f]
+  [(canPostponedWriteBePerformed (vName ι)
+                                 (postponedEntry ... (write vName ι WM μ-value) any ...))
+   #t
+   (side-condition (not (term (isPEntryInConflictWithα (vName ι) (postponedEntry ...)))))]
 
-  [(canPostponedWriteBePerformed (vName ι) ((write vName_1 ι_0     rlx μ        ) any ...))
-   (canPostponedWriteBePerformed (vName ι) (any ...))]
+  [(canPostponedWriteBePerformed (vName ι) α) #f])
 
-  [(canPostponedWriteBePerformed (vName ι) ((read  vName_1 ι           any_1 ...  ) any ...)) #f]
-
-  [(canPostponedWriteBePerformed (vName ι) ((read  vName_1 vName_2     any_1 ...  ) any ...)) #f]
-  [(canPostponedWriteBePerformed (vName ι) ((read  vName_1 ι-var   acq any_1 ...  ) any ...)) #f]
-
-  [(canPostponedWriteBePerformed (vName ι) ((read  vName_1 ι_0         any_1 ...  ) any ...))
-   (canPostponedWriteBePerformed (vName ι) (any ...))]
-
-  [(canPostponedWriteBePerformed (vName ι) ((let-in vName_1 any_1 ...         ) any ...))
-   (canPostponedWriteBePerformed (vName ι) (any ...))]
-
-  ;; In success case we should visit the correponding to (vName ι) record in α.
-  ;; [(canPostponedWriteBePerfomed (vName ι) ()) #t]
-)
+(define-metafunction coreLang
+  elFirstPart : El -> (any ...)
+  [(elFirstPart (any_0 ... hole any_1 ...)) (any_0 ...)])
 
 ;; (define (find-path red from to)
 ;;   (define parents (make-hash))
