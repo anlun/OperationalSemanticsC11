@@ -50,3 +50,16 @@ Possible outcome: r = 1
 ;;            (term ((ret 1) defaultState)))
 
 ;; (stepper step (term (,term_nOTA_nestIf_rlx defaultState)) pretty-printer)
+
+#|
+r1 = x_rlx || r2 = x_rlx || r3 = y_rlx
+x_rlx = 1  || y_rlx = r2 || x_rlx = r3
+
+In ARM it's possible to get r1 = 1.
+|#
+(test-->>∃ step
+           (term (,term_nOTA_arm defaultState))
+          
+           (term ((ret (1 (1 1))) defaultState)))
+
+;; (stepper step (term (,term_nOTA_arm defaultState)) pretty-printer)

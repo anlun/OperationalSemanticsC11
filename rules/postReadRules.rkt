@@ -88,8 +88,7 @@
 
         (side-condition (not (equal? (term sc) (term RM))))
         (side-condition (term (isPossibleEEif E Eif auxξ))))
-
-   (-->  (AST  auxξ)
+(-->  (AST  auxξ)
         (normalize        
          ((subst vName μ-value
                  (propagateDD_vName vName path σ-dd_new AST)) auxξ_new))
@@ -128,6 +127,47 @@
                          (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α_thread ifContext γ τ)))
       
         (side-condition (term (isPossibleRead path vName ι τ_read-min τ ifContext auxξ))))
+
+   (-->  (AST  auxξ)
+        (normalize        
+         ((subst vName μ-value
+                 (propagateDD_vName vName path σ-dd_new AST)) auxξ_new))
+        "read-resolve-speculative"
+        (where φ      (getφ auxξ))
+        
+        (where (in-hole Ep α_thread) φ)
+        (where (in-hole Eifα α) α_thread)
+        (where (in-hole El_0 (read vName ι rlx σ-dd)) α)
+        
+        ;; (side-condition (writeln "1"))
+        
+        (where (in-hole Ep_1 α_write) φ)
+        (where (in-hole El_1 (write vName_1 ι rlx μ-value)) α_write)
+        ;; (side-condition (term (canPostponedWriteBePerformed (vName_1 ι) α_write)))
+
+        ;; (side-condition (writeln "2"))
+
+        (where path (pathEp Ep))
+
+        (where σ-dd_new  σ-dd) 
+        (where α_new      (substμα vName μ-value σ-dd_new (elToList El_0)))
+        (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
+        (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ))
+
+        (where γ          (getγ auxξ))
+        (where γ_new      (removeγRestrictionsByVName vName γ))
+        (where auxξ_new   (updateState (R γ) (R γ_new) auxξ_upd_φ))
+
+        ;; (where σ_read     (getByPath path ψ_read))
+        ;; (where σ_to-check (frontMerge σ_read σ-dd))
+        ;; (where τ_read-min (fromMaybe 0 (lookup ι σ_to-check)))
+        
+        ;; (where ifContext (getIfContext Eifα))
+        ;; (side-condition (term
+        ;;                  (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α_thread ifContext γ τ)))
+      
+        ;; (side-condition (term (isPossibleRead path vName ι τ_read-min τ ifContext auxξ)))
+)
 
    ;; TODO: update the rule to the speculative reads
    (--> (AST auxξ)

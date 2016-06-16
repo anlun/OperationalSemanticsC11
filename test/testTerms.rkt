@@ -941,3 +941,23 @@ Possible outcome: r = 1
         z_rlx })
 
 (define term_nOTA_nestIf_rlx (concretize term_nOTA_nestIf_abst "rlx rlx rlx rlx rlx"))
+
+#|
+r1 = x_rlx || r2 = x_rlx || r3 = y_rlx
+x_rlx = 1  || y_rlx = r2 || x_rlx = r3
+
+In ARM it's possible to get r1 = 1.
+|#
+(define term_nOTA_arm
+  @prog{x_rlx := 0;
+        y_rlx := 0;
+        spw
+        {{{ r1 := x_rlx;
+            x_rlx := 1;
+            ret r1
+        ||| spw
+            {{{ r2 := x_rlx;
+                y_rlx := r2
+            ||| r3 := y_rlx;
+                x_rlx := r3
+            }}} }}} })
