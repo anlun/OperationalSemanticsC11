@@ -411,6 +411,10 @@
   [(appendT any_0 any_1) ,(append (term any_0) (term any_1))])
 
 (define-metafunction coreLang
+  appendT3 : (any ...) (any ...) (any ...) -> (any ...)
+  [(appendT3 any_0 any_1 any_2) ,(append (term any_0) (term any_1) (term any_2))])
+
+(define-metafunction coreLang
   substμPostponedEntry : vName μ σ-dd postponedEntry -> postponedEntry
   [(substμPostponedEntry vName_0 ι-var σ-dd_0
                          (read vName_1 vName_0 RM σ-dd_1))

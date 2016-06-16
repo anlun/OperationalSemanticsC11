@@ -158,21 +158,32 @@
   [(possibleTasks-path-ifContext (AST >>= K) path ifContext α auxξ)
    (possibleTasks-path-ifContext  AST        path ifContext α auxξ)]
 
-  [(possibleTasks-path-ifContext (if vName AST_0 AST_1) path ifContext (in-hole El (if vName_0 Expr α_0 α_1)) auxξ)
-   (appendT (possibleTasks-path-ifContext AST_0 path ifContext_new α_0 auxξ)
-            (possibleTasks-path-ifContext AST_1 path ifContext_new α_1 auxξ))
+  [(possibleTasks-path-ifContext (if Expr AST_0 AST_1) path ifContext α auxξ)
+   ((path (postpone ifContext)))
+   (side-condition (not (term (isIfInα Expr α))))]
+
+  [(possibleTasks-path-ifContext (if vName AST_0 AST_1) path ifContext (in-hole El (if vName Expr α_0 α_1)) auxξ)
+   (appendT3 (possibleTasks-path-ifContext AST_0 path ifContext_new α_0 auxξ)
+             (possibleTasks-path-ifContext AST_1 path ifContext_new α_1 auxξ)
+             ,(if (redex-match coreLang number (term Expr))
+                  (term (path (resolve vName ifContext)))
+                  '()))
 
    (where ifContext_new (appendT ifContext (vName)))]
 
-  [(possibleTasks-path-ifContext AST path ifContext auxξ) ()])
+  [(possibleTasks-path-ifContext AST path ifContext α auxξ) ()])
 
 (define-metafunction coreLang
   possibleTasks-path : path AST auxξ -> pathsτ
   [(possibleTasks-path path (ret μ) auxξ) (possibleResolvePostOps path auxξ)]
 
-  [(possibleTasks-path path ((ret μ-value) >>= K) auxξ)
+  [(possibleTasks-path path ((ret μ-subst) >>= K) auxξ)
    ,(cons (term (path None))
           (term (possibleResolvePostOps path auxξ)))]
+  [(possibleTasks-path path ((ret μ) >>= K) auxξ)
+   ,(cons (term (path (postpone ())))
+          (term (possibleResolvePostOps path auxξ)))]
+
   [(possibleTasks-path path (AST >>= K) auxξ) (possibleTasks-path path AST auxξ)]
 
   [(possibleTasks-path path AST auxξ)
@@ -193,12 +204,14 @@
   [(possibleTasks-path path stuck  auxξ) ()]
   
   [(possibleTasks-path path (if vName AST_0 AST_1) auxξ)
-   (appendT (possibleTasks-path-ifContext AST_0 path (vName) α_0 auxξ)
-            (possibleTasks-path-ifContext AST_1 path (vName) α_1 auxξ))
+   (appendT3 (possibleTasks-path-ifContext AST_0 path (vName) α_0 auxξ)
+             (possibleTasks-path-ifContext AST_1 path (vName) α_1 auxξ)
+             ,(if (redex-match coreLang number (term Expr))
+                  (term (path (resolve vName ())))
+                  '()))
    
    (where α (getByPath path (getφ auxξ)))
-   (where (in-hole El (if vName α_0 α_1)) α)]
-
+   (where (in-hole El (if vName Expr α_0 α_1)) α)]
 
   [(possibleTasks-path path (spw AST_0 AST_1) auxξ)
    ,(if (null? (term pathsτ_post))
