@@ -29,6 +29,21 @@
   (not (memv 'choice (flatten mu))))
 
 (define-metafunction coreLang
+  isSyncAction : postponedEntry -> boolean
+  [(isSyncAction (read  vName ι-var acq σ-dd)) #t]
+  [(isSyncAction (read  vName ι-var con σ-dd)) #t]
+  [(isSyncAction (write vName ι-var rel μ   )) #t]
+  [(isSyncAction (if vName Expr α_0 α_1))
+   ,(or (term (existSyncAction α_0))
+        (term (existSyncAction α_1)))]
+  [(isSyncAction postponedEntry) #f])
+
+(define-metafunction coreLang
+  existSyncActions : α -> boolean
+  [(existSyncActions α)
+   ,(ormap (λ (x) (term (isSyncAction ,x))) (term α))])
+
+(define-metafunction coreLang
   appendToα : Eif postponedEntry α -> α
   [(appendToα Eif1 postponedEntry α) (appendT α (postponedEntry))]
 
@@ -137,20 +152,28 @@
         
         (where (in-hole Ep α_thread) φ)
         (where (in-hole Eifα α) α_thread)
-        (where (in-hole El_0 (read vName ι rlx σ-dd)) α)
+        (where (in-hole El_reader (read vName ι rlx σ-dd)) α)
         
-        ;; (side-condition (writeln "1"))
-        
-        (where (in-hole Ep_1 α_write) φ)
-        (where (in-hole El_1 (write vName_1 ι rlx μ-value)) α_write)
+        (where (in-hole Ep_writer α_write) φ)
+        (where (in-hole El_writer (write vName_1 ι rlx μ-value)) α_write)
         ;; (side-condition (term (canPostponedWriteBePerformed (vName_1 ι) α_write)))
 
-        ;; (side-condition (writeln "2"))
+        ;; TODO:
+        ;; 2) Add a component, that restricts writing to ι location, until
+        ;;    the write actually takes places in the history.
+        ;; 4) Forbid reading from the history after this resolving.
+        ;; 5) Forbid writing, if it contradicts observation ordering of threads.
 
         (where path (pathEp Ep))
+        (where path_writer (pathEp Ep_writer))
+        (side-condition (not (equal? (term path) (term path_writer))))
+
+        (side-condition (not (term (existSyncActions (elFirstPart El_reader))))) ;; TODO: add to `canPostponedReadBePerformed`.
+        (side-condition (not (term (existSyncActions (elFirstPart El_writer)))))
 
         (where σ-dd_new  σ-dd) 
-        (where α_new      (substμα vName μ-value σ-dd_new (elToList El_0)))
+        (where α_new      (substμα vName μ-value σ-dd_new
+                                   (elToList El_reader)))
         (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
         (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ))
 
