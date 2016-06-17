@@ -179,18 +179,14 @@
 
         (where γ          (getγ auxξ))
         (where γ_new      (removeγRestrictionsByVName vName γ))
-        (where auxξ_new   (updateState (R γ) (R γ_new) auxξ_upd_φ))
+        (where auxξ_upd_γ (updateState (R γ) (R γ_new) auxξ_upd_φ))
 
-        ;; (where σ_read     (getByPath path ψ_read))
-        ;; (where σ_to-check (frontMerge σ_read σ-dd))
-        ;; (where τ_read-min (fromMaybe 0 (lookup ι σ_to-check)))
-        
-        ;; (where ifContext (getIfContext Eifα))
-        ;; (side-condition (term
-        ;;                  (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α_thread ifContext γ τ)))
-      
-        ;; (side-condition (term (isPossibleRead path vName ι τ_read-min τ ifContext auxξ)))
-)
+        (where observedWrites     (getObservedWrites auxξ))
+        (where observedWrites_new (snocOnPath path (vName_1 ι) observedWrites))
+        (where auxξ_new           (updateState (RW observedWrites)
+                                               (RW observedWrites_new)
+                                               auxξ_upd_γ))
+        )
 
    ;; TODO: update the rule to the speculative reads
    (--> (AST auxξ)

@@ -13,6 +13,16 @@
 (define nonPostponedReadConst (term None))
 
 (define-metafunction coreLang
+  snocT : any (any ...) -> (any ...)
+  [(snocT any_0 any_1) (appendT any_1 (any_0))])
+
+(define-metafunction coreLang
+  snocOnPath : path any any -> any
+  [(snocOnPath () any_0 any_1) (snocT any_0 any_1)]
+  [(snocOnPath (L path) any_0 (par any_1 any_2)) (par (snocOnPath path any_0 any_1) any_2)]
+  [(snocOnPath (R path) any_0 (par any_1 any_2)) (par any_1 (snocOnPath path any_0 any_2))])
+
+(define-metafunction coreLang
   isPossiblePath : path auxξ -> boolean
   [(isPossiblePath path (in-hole El (Paths ((path None) any ...)))) #t]
 
