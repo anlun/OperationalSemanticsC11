@@ -6,6 +6,14 @@
 (provide define-postponedReadRules) 
 
 (define-metafunction coreLang
+  hasιInObservedWrites : path ι auxξ -> boolean
+  [(hasιInObservedWrites path ι auxξ) #t
+   (where observedWrites           (getObservedWrites auxξ))
+   (where (in-hole El ((vName ι))) (getByPath path observedWrites))]
+
+  [(hasιInObservedWrites path ι auxξ) #f])
+
+(define-metafunction coreLang
   removeγRestrictionsByVName : vName γ -> γ
   [(removeγRestrictionsByVName vName γ)
    ,(filter (λ (x) (match x [(list loc t name)
@@ -103,7 +111,8 @@
 
         (side-condition (not (equal? (term sc) (term RM))))
         (side-condition (term (isPossibleEEif E Eif auxξ))))
-(-->  (AST  auxξ)
+   
+   (-->  (AST  auxξ)
         (normalize        
          ((subst vName μ-value
                  (propagateDD_vName vName path σ-dd_new AST)) auxξ_new))
@@ -136,6 +145,9 @@
         (where σ_read     (getByPath path ψ_read))
         (where σ_to-check (frontMerge σ_read σ-dd))
         (where τ_read-min (fromMaybe 0 (lookup ι σ_to-check)))
+        
+        ;; TODO: add it to `canPostponedReadBePerformed`
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
         
         (where ifContext (getIfContext Eifα))
         (side-condition (term
@@ -185,8 +197,7 @@
         (where observedWrites_new (snocOnPath path (vName_1 ι) observedWrites))
         (where auxξ_new           (updateState (RW observedWrites)
                                                (RW observedWrites_new)
-                                               auxξ_upd_γ))
-        )
+                                               auxξ_upd_γ)))
 
    ;; TODO: update the rule to the speculative reads
    (--> (AST auxξ)
