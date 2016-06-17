@@ -71,10 +71,11 @@
   ; (NA   σ) -- location -> last NA write on it;
   ; (P    φ) -- component with thread-specific information about postponed reads;
   ; (R    γ) -- component with restiction on a resolve order for postponed reads;
+  ; (RW   observedWrites) -- (path, ι) -> observed uncommitted to history writes.
   ; θ        -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ... (NA σ) θ ... (P φ) θ ... (R γ) θ ...)])
+  [auxξ (θ ... η θ ... (Read ψ) θ ... (NA σ) θ ... (P φ) θ ... (R γ) θ ... (RW observedWrites) θ ...)])
 
-(define-term postponedReadDefaultState (() (Read ()) (NA ()) (P ()) (R ())))
+(define-term postponedReadDefaultState (() (Read ()) (NA ()) (P ()) (R ()) (RW ())))
 (define postponedReadCoreStep
   (extend-reduction-relation
    (define-coreStep postponedReadDefaultState spwST-readψ-φ joinST-readψ-φ isReadQueueEqualTo)
@@ -82,12 +83,12 @@
 (define postponedReadCoreTest (define-coreTest postponedReadCoreStep postponedReadDefaultState))
 
 (define-extended-language etaPsi2SCpostLang coreLang
-  [auxξ (η (Read ψ) (NA σ) (Write ψ) (SC σ) (P φ) (R γ))])
+  [auxξ (η (Read ψ) (NA σ) (Write ψ) (SC σ) (P φ) (R γ) (RW observedWrites))])
 
 (define-extended-language schedulerLang coreLang
-  [auxξ (η (Read ψ) (NA σ) (Write ψ) (SC σ) (P φ) (R γ) (Paths pathsτ) (Deallocated listι))])
+  [auxξ (η (Read ψ) (NA σ) (Write ψ) (SC σ) (P φ) (R γ) (RW observedWrites) (Paths pathsτ) (Deallocated listι))])
 (define-term schedulerDefaultState
-  (() (Read ()) (NA ()) (Write ()) (SC ()) (P ()) (R ()) (Paths ()) (Deallocated ())))
+  (() (Read ()) (NA ()) (Write ()) (SC ()) (P ()) (R ()) (RW ()) (Paths ()) (Deallocated ())))
 (define schedulerCoreStep
   (extend-reduction-relation
    (define-coreStep schedulerDefaultState spwST-2ψ-φ joinST-2ψ-φ isReadQueueEqualTo)

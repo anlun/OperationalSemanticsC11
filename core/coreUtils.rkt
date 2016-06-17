@@ -8,6 +8,10 @@
   [(getη (θ_0 ... η θ_1 ...)) η])
 
 (define-metafunction coreLang
+  getObservedWrites : auxξ -> observedWrites
+  [(getObservedWrites (θ_0 ... (RW observedWrites) θ_1 ...)) observedWrites])
+
+(define-metafunction coreLang
   updateState : θ θ auxξ -> auxξ
   [(updateState θ_old θ_new (θ_0 ... θ_old θ_1 ...)) (θ_0 ... θ_new θ_1 ...)])
 
@@ -219,19 +223,32 @@
                               (where auxξ_readψ (joinST-readψ path auxξ))
                               (where φ_old      (getφ auxξ_readψ))
                               (where φ_new      (updateOnPath path () φ_old))])
-
+;; (RW observedWrites)
 (define-metafunction coreLang
   spwST-2ψ-φ : path auxξ -> auxξ
-  [(spwST-2ψ-φ path auxξ) (updateState (P φ_old) (P (dup path φ_old)) auxξ_2ψ)
-                          (where auxξ_2ψ (spwST-2ψ path auxξ))
-                          (where φ_old   (getφ auxξ_2ψ))])
+  [(spwST-2ψ-φ path auxξ) auxξ_new
+                          (where auxξ_2ψ  (spwST-2ψ path auxξ))
+                          (where φ_old    (getφ auxξ_2ψ))
+                          (where auxξ_φ   (updateState (P φ_old) (P (dup path φ_old)) auxξ_2ψ))
+
+                          (where observedWrites_old (getObservedWrites auxξ_φ))
+                          (where auxξ_new (updateState (RW observedWrites_old)
+                                                       (RW (dup path observedWrites_old))
+                                                       auxξ_φ))])
 
 (define-metafunction coreLang
   joinST-2ψ-φ : path auxξ -> auxξ
-  [(joinST-2ψ-φ path auxξ) (updateState (P φ_old) (P φ_new) auxξ_2ψ)
+  [(joinST-2ψ-φ path auxξ) auxξ_new
                            (where auxξ_2ψ (joinST-2ψ path auxξ))
                            (where φ_old   (getφ auxξ_2ψ))
-                           (where φ_new   (updateOnPath path () φ_old))])
+                           (where φ_new   (updateOnPath path () φ_old))
+                           (where auxξ_φ  (updateState (P φ_old) (P φ_new) auxξ_2ψ))
+
+                           (where observedWrites_old (getObservedWrites auxξ_φ))
+                           (where observedWrites_new (updateOnPath path () observedWrites_old))
+                           (where auxξ_new (updateState (RW observedWrites_old)
+                                                        (RW observedWrites_new)
+                                                        auxξ_φ))])
 
 (define (getLastNodeNumber nodes)
       (apply max
