@@ -213,17 +213,30 @@
 
 (define-metafunction coreLang
   spwST-readψ-φ : path auxξ -> auxξ
-  [(spwST-readψ-φ path auxξ) (updateState (P φ_old) (P (dup path φ_old)) auxξ_readψ)
+  [(spwST-readψ-φ path auxξ) auxξ_new
                              (where auxξ_readψ (spwST-readψ path auxξ))
-                             (where φ_old (getφ auxξ_readψ))])
+                             (where φ_old (getφ auxξ_readψ))
+                             (where auxξ_φ (updateState (P φ_old) (P (dup path φ_old)) auxξ_readψ))
+   
+                             (where observedWrites_old (getObservedWrites auxξ_φ))
+                             (where auxξ_new (updateState (RW observedWrites_old)
+                                                          (RW (dup path observedWrites_old))
+                                                          auxξ_φ))])
 
 (define-metafunction coreLang
   joinST-readψ-φ : path auxξ -> auxξ
-  [(joinST-readψ-φ path auxξ) (updateState (P φ_old) (P φ_new) auxξ_readψ)
+  [(joinST-readψ-φ path auxξ) auxξ_new 
                               (where auxξ_readψ (joinST-readψ path auxξ))
                               (where φ_old      (getφ auxξ_readψ))
-                              (where φ_new      (updateOnPath path () φ_old))])
-;; (RW observedWrites)
+                              (where φ_new      (updateOnPath path () φ_old))
+                              (where auxξ_φ     (updateState (P φ_old) (P φ_new) auxξ_readψ))
+
+                              (where observedWrites_old (getObservedWrites auxξ_φ))
+                              (where observedWrites_new (updateOnPath path () observedWrites_old))
+                              (where auxξ_new (updateState (RW observedWrites_old)
+                                                           (RW observedWrites_new)
+                                                           auxξ_φ))])
+
 (define-metafunction coreLang
   spwST-2ψ-φ : path auxξ -> auxξ
   [(spwST-2ψ-φ path auxξ) auxξ_new

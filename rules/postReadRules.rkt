@@ -30,6 +30,36 @@
   [(getDataDependenciesMod con ι σ η) (getDataDependencies ι σ η)]
   [(getDataDependenciesMod RM  ι σ η) ()])
 
+(define-metafunction coreLang
+  resolveObservedWrite_path : path observedWrites (vName ι τ) auxξ -> auxξ
+  [(resolveObservedWrite_path path (par observedWrites_0 observedWrites_1) (vName ι τ) auxξ)
+   auxξ_1
+   (where auxξ_0 (resolveObservedWrite_path (updatePath L path) observedWrites_0 (vName ι τ) auxξ))
+   (where auxξ_1 (resolveObservedWrite_path (updatePath R path) observedWrites_1 (vName ι τ) auxξ_0))]
+
+  [(resolveObservedWrite_path path (in-hole El (vName ι)) (vName ι τ) auxξ)
+   auxξ_upd_readψ
+   
+   (where observedWrites_old (getObservedWrites auxξ))
+   (where observedWrites_new (updateOnPath path (elToList El) observedWrites_old))
+
+   (where auxξ_upd_observedWrites (updateState (RW observedWrites_old)
+                                               (RW observedWrites_new)
+                                               auxξ))
+   
+   (where ψ_old (getReadψ auxξ))
+   (where ψ_new (updateByFront path ((ι τ)) ψ_old))
+   (where auxξ_upd_readψ          (updateState (Read ψ_old)
+                                               (Read ψ_new)
+                                               auxξ_upd_observedWrites))]
+
+  [(resolveObservedWrite_path path observedWrites (vName ι τ) auxξ) auxξ])
+
+(define-metafunction coreLang
+  resolveObservedWrite : (vName ι τ) auxξ -> auxξ
+  [(resolveObservedWrite (vName ι τ) auxξ)
+   (resolveObservedWrite_path () (getObservedWrites auxξ) (vName ι τ) auxξ)])
+
 ;; TODO: Rewrite to tree traversal.
 ;; The current implementation doesn't work correctly
 ;; if a program contains a variable with name `choice`. 
@@ -170,12 +200,6 @@
         (where (in-hole El_writer (write vName_1 ι rlx μ-value)) α_write)
         ;; (side-condition (term (canPostponedWriteBePerformed (vName_1 ι) α_write)))
 
-        ;; TODO:
-        ;; 2) Add a component, that restricts writing to ι location, until
-        ;;    the write actually takes places in the history.
-        ;; 4) Forbid reading from the history after this resolving.
-        ;; 5) Forbid writing, if it contradicts observation ordering of threads.
-
         (where path (pathEp Ep))
         (where path_writer (pathEp Ep_writer))
         (side-condition (not (equal? (term path) (term path_writer))))
@@ -193,8 +217,10 @@
         (where γ_new      (removeγRestrictionsByVName vName γ))
         (where auxξ_upd_γ (updateState (R γ) (R γ_new) auxξ_upd_φ))
 
+        ;; TODO: add checking, that there is no cycle in observedWrites ordering through
+        ;;       all threads.
         (where observedWrites     (getObservedWrites auxξ))
-        (where observedWrites_new (snocOnPath path (vName_1 ι) observedWrites))
+        (where observedWrites_new (snocOnPathIfNew path (vName_1 ι) observedWrites))
         (where auxξ_new           (updateState (RW observedWrites)
                                                (RW observedWrites_new)
                                                auxξ_upd_γ)))
@@ -301,6 +327,10 @@
                          (canPostponedWriteBePerformed (vName ι) α)))
 
         (where path (pathEp Ep))
+
+        ;; TODO: add to the `canPostponedWritebePerformed`
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
+        
         (where ifContext (getIfContext Eifα))
         (side-condition (term (isPossiblePath_resolve (vName ifContext) path auxξ)))
 
@@ -321,7 +351,9 @@
         (where η_new      (updateCell  ι μ-value σ_ToWrite η))
         (where auxξ_upd_η (updateState η η_new auxξ_upd_front))
         (where auxξ_upd_γ (dupRelWriteRestrictions ι τ σ_write auxξ_upd_η))
-        (where auxξ_new   auxξ_upd_γ))
+        
+        (where auxξ_upd_observedWrites (resolveObservedWrite (vName ι τ) auxξ_upd_γ))
+        (where auxξ_new   auxξ_upd_observedWrites))
 
    (-->  ((in-hole E (in-hole Eif (if vName AST_0 AST_1))) auxξ)
         (normalize

@@ -23,6 +23,16 @@
   [(snocOnPath (R path) any_0 (par any_1 any_2)) (par any_1 (snocOnPath path any_0 any_2))])
 
 (define-metafunction coreLang
+  snocOnPathIfNew : path any any -> any
+  [(snocOnPathIfNew () any_0 (in-hole El any_0)) (in-hole El  any_0)]
+  [(snocOnPathIfNew () any_0 any_1             ) (snocT any_0 any_1)]
+
+  [(snocOnPathIfNew (L path) any_0 (par any_1 any_2))
+   (par (snocOnPathIfNew path any_0 any_1) any_2)]
+  [(snocOnPathIfNew (R path) any_0 (par any_1 any_2))
+   (par any_1 (snocOnPathIfNew path any_0 any_2))])
+
+(define-metafunction coreLang
   isPossiblePath : path auxξ -> boolean
   [(isPossiblePath path (in-hole El (Paths ((path None) any ...)))) #t]
 
