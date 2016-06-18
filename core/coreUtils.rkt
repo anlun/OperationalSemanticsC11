@@ -717,12 +717,13 @@
   [(isPEntryInConflictWithPEntry (vName ι) (write vName   ι       WM  μ-value  )) #f]
   [(isPEntryInConflictWithPEntry (vName ι) (write vName_1 vName_2 WM  μ        )) #t]
   [(isPEntryInConflictWithPEntry (vName ι) (write vName_1 ι-var   rel μ        )) #t]
-  [(isPEntryInConflictWithPEntry (vName ι) (write vName_1 ι_0     rlx μ        )) #f]
+  [(isPEntryInConflictWithPEntry (vName ι) (write vName_1 ι_0     rlx μ        ))
+   ,(equal? (term ι) (term ι_0))]
 
-  [(isPEntryInConflictWithPEntry (vName ι) (read  vName_1 ι           any ...  )) #t]
-  [(isPEntryInConflictWithPEntry (vName ι) (read  vName_1 vName_2     any ...  )) #t]
-  [(isPEntryInConflictWithPEntry (vName ι) (read  vName_1 ι-var   acq any ...  )) #t]
-  [(isPEntryInConflictWithPEntry (vName ι) (read  vName_1 ι_0         any ...  )) #f]
+  [(isPEntryInConflictWithPEntry (vName ι) (read  vName_1 vName_2 RM  σ-dd)) #t]
+  [(isPEntryInConflictWithPEntry (vName ι) (read  vName_1 ι-var   acq σ-dd)) #t]
+  [(isPEntryInConflictWithPEntry (vName ι) (read  vName_1 ι_0     RM  σ-dd))
+   ,(equal? (term ι) (term ι_0))]
 
   [(isPEntryInConflictWithPEntry (vName ι) (let-in vName_1            any ...  )) #f]
   

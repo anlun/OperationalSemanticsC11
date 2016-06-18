@@ -71,7 +71,7 @@
   hasιInObservedWrites : path ι auxξ -> boolean
   [(hasιInObservedWrites path ι auxξ) #t
    (where observedWrites           (getObservedWrites auxξ))
-   (where (in-hole El ((vName ι))) (getByPath path observedWrites))]
+   (where (in-hole El (vName ι)) (getByPath path observedWrites))]
 
   [(hasιInObservedWrites path ι auxξ) #f])
 
