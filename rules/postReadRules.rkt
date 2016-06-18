@@ -36,7 +36,8 @@
   postponedEntryToWriteVNames : ι postponedEntry -> (vName ...)
   [(postponedEntryToWriteVNames ι (read   any ...)) ()]
   [(postponedEntryToWriteVNames ι (let-in any ...)) ()]
-  [(postponedEntryToWriteVNames ι (write  vName ι any ...)) (vName)]
+  [(postponedEntryToWriteVNames ι (write  vName ι   any ...)) (vName)]
+  [(postponedEntryToWriteVNames ι (write  vName ι_0 any ...)) ()]
   [(postponedEntryToWriteVNames ι (if     vName Expr α_0 α_1))
    (appendT (αToWriteVNames ι α_0)
             (αToWriteVNames ι α_1))])
