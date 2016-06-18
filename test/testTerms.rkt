@@ -961,3 +961,21 @@ In ARM it's possible to get r1 = 1.
             ||| r3 := y_rlx;
                 x_rlx := r3
             }}} }}} })
+
+#|
+Coherence
+
+r1 = x_rlx || x_rlx = 1
+r2 = x_rlx || x_rlx = 2
+
+It should be impossible to get r1 = 2; r1 = 1
+|#
+(define term_co1
+  @prog{x_rlx := 0;
+        r0 := spw
+              {{{ r1 := x_rlx;
+                  r2 := x_rlx;
+                  ret [r1 r2]
+              ||| x_rlx := 1;
+                  x_rlx := 2  }}};
+        ret r0_1 })

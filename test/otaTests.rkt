@@ -63,3 +63,23 @@ In ARM it's possible to get r1 = 1.
            (term ((ret (1 (1 1))) defaultState)))
 
 ;; (stepper step (term (,term_nOTA_arm defaultState)) pretty-printer)
+
+#|
+Coherence
+
+r1 = x_rlx || x_rlx = 1
+r2 = x_rlx || x_rlx = 2
+
+It should be impossible to get r1 = 2; r1 = 1
+|#
+(test-->> step
+          (term (,term_co1 defaultState))
+         
+          (term ((ret (0 0)) defaultState))
+          (term ((ret (0 1)) defaultState))
+          (term ((ret (0 2)) defaultState))
+
+          (term ((ret (1 1)) defaultState))
+          (term ((ret (1 2)) defaultState))
+
+          (term ((ret (2 2)) defaultState)))
