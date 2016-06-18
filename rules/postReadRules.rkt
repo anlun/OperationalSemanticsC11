@@ -1,9 +1,71 @@
 #lang racket
 (require redex/reduction-semantics)
+(require graph)
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
 (provide define-postponedReadRules) 
+
+(define-metafunction coreLang
+  listToEdges : (any ...) -> ((any any) ...)
+  [(listToEdges ()   ) ()]
+  [(listToEdges (any)) ()]
+  [(listToEdges (any_0 any_1)) ((any_0 any_1))]
+  [(listToEdges (any_0 any_1 any_2 ...))
+   (consT (any_0 any_1)
+          (listToEdges (any_1 any_2 ...)))])
+
+(define-metafunction coreLang
+  observedWritesToEdges : ι observedWrites -> ((vName vName) ...)
+  [(observedWritesToEdges ι (par observedWrites_0 observedWrites_1))
+   (appendT (observedWritesToEdges ι observedWrites_0)
+            (observedWritesToEdges ι observedWrites_1))]
+
+  [(observedWritesToEdges ι (observedWriteLbl ...))
+   (listToEdges (vName ...))
+   (where observedWrites_ι
+          ,(filter (λ (x) (match x
+                            [(list vname loc)
+                             (equal? loc (term ι))]))
+                   (term (observedWriteLbl ...))))
+   (where (vName ...)
+          ,(map (λ (x) (match x [(list vname loc) vname]))
+                (term observedWrites_ι)))])
+
+(define-metafunction coreLang
+  postponedEntryToWriteVNames : ι postponedEntry -> (vName ...)
+  [(postponedEntryToWriteVNames ι (read   any ...)) ()]
+  [(postponedEntryToWriteVNames ι (let-in any ...)) ()]
+  [(postponedEntryToWriteVNames ι (write  vName ι any ...)) (vName)]
+  [(postponedEntryToWriteVNames ι (if     vName Expr α_0 α_1))
+   (appendT (αToWriteVNames ι α_0)
+            (αToWriteVNames ι α_1))])
+
+(define-metafunction coreLang
+  αToWriteVNames : ι α -> (vName ...)
+  [(αToWriteVNames ι α) ,(apply append
+                                (map (λ (x) (term (postponedEntryToWriteVNames ι ,x)))
+                                     (term α)))])
+
+(define-metafunction coreLang
+  αToEdges : ι α -> ((vName vName) ...)
+  [(αToEdges ι α) (listToEdges (αToWriteVNames ι α))])
+
+(define-metafunction coreLang
+  φToEdges : ι φ -> ((vName vName) ...)
+  [(φToEdges ι α) (αToEdges ι α)]
+  [(φToEdges ι (par φ_0 φ_1)) (appendT (φToEdges ι φ_0)
+                                       (φToEdges ι φ_1))])
+
+(define-metafunction coreLang
+  writesMOedges : ι φ observedWrites -> ((vName vName) ...)
+  [(writesMOedges ι φ observedWrites)
+   (appendT (φToEdges ι φ)
+            (observedWritesToEdges ι observedWrites))])
+
+(define (hasLoop edges)
+  (ormap (λ (x) (> (length x) 1))
+         (scc (unweighted-graph/directed edges))))
 
 (define-metafunction coreLang
   hasιInObservedWrites : path ι auxξ -> boolean
@@ -219,7 +281,11 @@
 
         ;; TODO: add checking, that there is no cycle in observedWrites ordering through
         ;;       all threads.
-        (where observedWrites     (getObservedWrites auxξ))
+        (where observedWrites       (getObservedWrites auxξ))
+        (where observedWrites_check (snocOnPath path (vName_1 ι) observedWrites))
+
+        (side-condition (not (hasLoop (term (writesMOedges ι φ observedWrites_check)))))
+
         (where observedWrites_new (snocOnPathIfNew path (vName_1 ι) observedWrites))
         (where auxξ_new           (updateState (RW observedWrites)
                                                (RW observedWrites_new)
