@@ -749,13 +749,27 @@
   [(canPostponedReadBePerformed (vName ι RM σ-dd) σ_read
                                 (in-hole Eifα (in-hole El (read vName ι RM σ-dd)))
                                 ifContext γ τ)
-   ,(and (not (term (isRestrictedByγ ι τ RM γ)))
-         (equal? (term ifContext) (term ifContext_check))
-         (not (term (isPEntryInConflictWithEifα (vName ι) Eifα)))
-         (not (term (isPEntryInConflictWithα    (vName ι) (elFirstPart El))))
-         (term (correctτ τ ι σ_to-check)))
+   ,(and (term (correctτ τ ι σ_to-check))
+         (not (term (isRestrictedByγ ι τ RM γ)))
+         (term (canPostponedReadBePerformedWOτ (vName ι RM σ-dd)
+                                               (in-hole Eifα (in-hole El (read vName ι RM σ-dd)))
+                                               ifContext)))
 
-   (where σ_to-check      (frontMerge σ_read σ-dd))
+   (where σ_to-check      (frontMerge σ_read σ-dd))])
+
+(define-metafunction coreLang
+  canPostponedReadBePerformedWOτ : (vName ι-var RM σ-dd) α ifContext -> boolean
+  
+  ;; Can't resolve read from not yet resolved location.
+  [(canPostponedReadBePerformedWOτ (vName_0 vName_1 RM σ-dd) α ifContext) #f]
+
+  [(canPostponedReadBePerformedWOτ (vName ι RM σ-dd)
+                                   (in-hole Eifα (in-hole El (read vName ι RM σ-dd)))
+                                   ifContext)
+   ,(and (equal? (term ifContext) (term ifContext_check))
+         (not (term (isPEntryInConflictWithEifα (vName ι) Eifα)))
+         (not (term (isPEntryInConflictWithα    (vName ι) (elFirstPart El)))))
+
    (where ifContext_check (getIfContext Eifα))])
 
 (define-metafunction coreLang

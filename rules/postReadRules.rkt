@@ -83,9 +83,9 @@
             (term γ))])
 
 (define-metafunction coreLang
-  updateByFrontMod : RM path σ ψ -> ψ
-  [(updateByFrontMod acq path σ ψ) (updateByFront path σ ψ)]
-  [(updateByFrontMod RM  path σ ψ) ψ])
+  updateByFrontMod : RM path ι τ σ ψ -> ψ
+  [(updateByFrontMod acq path ι τ σ ψ) (updateByFront path σ ψ)]
+  [(updateByFrontMod RM  path ι τ σ ψ) (updateByFront path ((ι τ)) ψ)])
 
 (define-metafunction coreLang
   getDataDependenciesMod : RM ι σ η -> σ-dd
@@ -221,7 +221,7 @@
         (where (in-hole El_1 (τ μ-value σ)) (getCellHistory ι η))
         (where path (pathEp Ep))
 
-        (where ψ_read_new (updateByFrontMod RM path σ ψ_read))
+        (where ψ_read_new (updateByFrontMod RM path ι τ σ ψ_read))
         (where auxξ_upd_ψ (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
 
         (where σ-dd_new   (frontMerge σ-dd (getDataDependenciesMod RM ι σ η)))
@@ -268,6 +268,9 @@
 
         (side-condition (not (term (existSyncActions (elFirstPart El_reader))))) ;; TODO: add to `canPostponedReadBePerformed`.
         (side-condition (not (term (existSyncActions (elFirstPart El_writer)))))
+
+        (where ifContext (getIfContext Eifα))
+        (side-condition (term (canPostponedReadBePerformedWOτ (vName ι rlx σ-dd) α_thread ifContext)))
 
         (where σ-dd_new  σ-dd) 
         (where α_new      (substμα vName μ-value σ-dd_new
@@ -409,7 +412,7 @@
         (where ψ_read  (getReadψ auxξ))
 
         (where τ              (getNextTimestamp ι η))
-        (where ψ_read_new     (updateByFront path ((ι τ)) ψ_read))
+        (where ψ_read_new     (updateByFront path ((ι τ)) ψ_read))                     ;; TODO: now it works only for relaxed writes.
         (where auxξ_upd_front (updateState (Read ψ_read) (Read ψ_read_new) auxξ_upd_φ))
 
         (where σ_write    (getWriteσ path auxξ))
