@@ -9,9 +9,9 @@
 (require "../rules/naRules.rkt")
 (require "../rules/scRules.rkt")
 (require "../core/langs.rkt")
-(provide defaultState step)
+(provide defaultState step randomStep)
 
-(define-term defaultState (() (Read ()) (NA ()) (Write ()) (SC ()) (P ()) (R ()) (RW ())))
+(define-term defaultState (() (Read ()) (NA ()) (Write ()) (SC ()) (P ()) (R ()) (RW ()) (Deallocated ())))
 (define coreStep
   (extend-reduction-relation
    (define-coreStep defaultState spwST-2ψ-φ joinST-2ψ-φ isReadQueueEqualTo)
@@ -39,3 +39,19 @@
               relAcqWriteRules
               naRules
               scRules))
+
+(define-syntax-rule (define-randomStep step)
+  (begin
+    (reduction-relation coreLang #:domain ξ
+     (--> ξ ξ_new
+          "random-step"
+          (where listξ ,(apply-reduction-relation step (term ξ)))
+          (side-condition (> (length (term listξ)) 0))
+          (where ξ_new ,(select-random (term listξ))))
+
+     (--> ξ (stuck defaultState)
+          "random-step-stuck"
+          (where (in-hole El (stuck auxξ)) ,(apply-reduction-relation step (term ξ))))
+)))
+
+(define randomStep (define-randomStep step))

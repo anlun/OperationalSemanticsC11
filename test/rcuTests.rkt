@@ -6,7 +6,7 @@
 (require "../core/coreUtils.rkt")
 (require "../core/parser.rkt")
 (require "../core/pp.rkt")
-(require "../steps/schedulerStep.rkt")
+(require "../steps/relAcqNaRlxPost.rkt")
 
 (define term_RCU
   @prog{cw_na    := 0;
@@ -167,26 +167,26 @@
             }}}
        }}} })
 
-(define-term startState
-                  (updateState (Paths ())
-                               (Paths ((() 0 None) (() 0 None) (() 0 None) (() 0 None) (() 0 None)
-                                       ((L ()) 0 None) ((L ()) 0 None)
-                                       ((L ()) 0 None) ((L ()) 0 None)
-                                       ((L ()) 0 None) ((L ()) 0 None)
-                                       ((L ()) 0 None) ((L ()) 0 None)
-                                       ((L ()) 0 None) ((L ()) 0 None)
-                                       ((L ()) 0 None) ((L ()) 0 None)
-                                       ((L ()) 0 None) ((L ()) 0 None)
-                                       ((L ()) 0 None) ((L ()) 0 None)
-                                       ((L ()) 0 None) ((L ()) 0 None)
-                                       ((L ()) 0 None)
+;; (define-term startState
+;;                   (updateState (Paths ())
+;;                                (Paths ((() 0 None) (() 0 None) (() 0 None) (() 0 None) (() 0 None)
+;;                                        ((L ()) 0 None) ((L ()) 0 None)
+;;                                        ((L ()) 0 None) ((L ()) 0 None)
+;;                                        ((L ()) 0 None) ((L ()) 0 None)
+;;                                        ((L ()) 0 None) ((L ()) 0 None)
+;;                                        ((L ()) 0 None) ((L ()) 0 None)
+;;                                        ((L ()) 0 None) ((L ()) 0 None)
+;;                                        ((L ()) 0 None) ((L ()) 0 None)
+;;                                        ((L ()) 0 None) ((L ()) 0 None)
+;;                                        ((L ()) 0 None) ((L ()) 0 None)
+;;                                        ((L ()) 0 None)
 
-                                       ((R ()) 0 None)
-                                       ))
-                               defaultState))
+;;                                        ((R ()) 0 None)
+;;                                        ))
+;;                                defaultState))
 
 (define (rcuTest)
-  (test-->> step
+  (test-->> randomStep
             ;; (term (,term_RCU startState))
             (term (,term_RCU defaultState))
             (term ((ret (0 (0 0))) defaultState))))
@@ -197,8 +197,8 @@
 ;; doesn't go beyond write-read combination of cur(1|2) in repeat loops.
 ;; If we change them to acquire reads, everything works fine.
 
-;; (traces step (term (,term_RCU defaultState)) #:pp pretty-printer)
-;; (stepper step (term (,term_RCU defaultState)) pretty-printer)
+;; (traces randomStep (term (,term_RCU defaultState)) #:pp pretty-printer)
+;; (stepper randomStep (term (,term_RCU defaultState)) pretty-printer)
 
 (define term_RCU_rlx
   @prog{cw_na    := 0;
@@ -362,7 +362,7 @@
        }}} })
 
 (define (rcuTestRlx)
-  (test-->> step
+  (test-->> randomStep
             (term (,term_RCU_rlx defaultState))
             (term ((ret (0 (0 0))) defaultState))))
 
@@ -529,6 +529,6 @@
 
 
 (define (rcuTestLessRlx)
-  (test-->> step
+  (test-->> randomStep
             (term (,term_RCU_less_rlx defaultState))
             (term ((ret (0 (0 0))) defaultState))))

@@ -529,28 +529,28 @@
         (side-condition (term (isLocationDeallocated ι auxξ)))
         (side-condition (term (isPossibleE E auxξ))))
   
-   (--> (AST auxξ)
-        (AST auxξ_new)
-        "schedule-next-step"
-        (side-condition (term (isSchedulerQueueEmpty auxξ)))
+   ;; (--> (AST auxξ)
+   ;;      (AST auxξ_new)
+   ;;      "schedule-next-step"
+   ;;      (side-condition (term (isSchedulerQueueEmpty auxξ)))
         
-        (where pathsτ   (possibleTasks AST auxξ))
-        (side-condition (not (null? (term pathsτ))))
-        (where pathτ    ,(select-random (term pathsτ)))
+   ;;      (where pathsτ   (possibleTasks AST auxξ))
+   ;;      (side-condition (not (null? (term pathsτ))))
+   ;;      (where pathτ    ,(select-random (term pathsτ)))
 
-        ;; (where τ_rand          ,(random 10))
-        ;; (where paths_reducable (reducableThreads AST))
-        ;; (side-condition        (not (null? (term paths_reducable))))
-        ;; (where path            ,(select-random
-        ;;                          (term paths_reducable)))
+   ;;      ;; (where τ_rand          ,(random 10))
+   ;;      ;; (where paths_reducable (reducableThreads AST))
+   ;;      ;; (side-condition        (not (null? (term paths_reducable))))
+   ;;      ;; (where path            ,(select-random
+   ;;      ;;                          (term paths_reducable)))
 
-        ;; (where Maybe_read     (term nonPostponedReadConst)) 
+   ;;      ;; (where Maybe_read     (term nonPostponedReadConst)) 
         
-        (where auxξ_new (updateState (Paths ())
-                                     ;; (Paths ((path τ_rand Maybe_read)))
-                                     (Paths (pathτ))
-                                     ;; (Paths ( (() 0 None)) )
-                                     auxξ)))
+   ;;      (where auxξ_new (updateState (Paths ())
+   ;;                                   ;; (Paths ((path τ_rand Maybe_read)))
+   ;;                                   (Paths (pathτ))
+   ;;                                   ;; (Paths ( (() 0 None)) )
+   ;;                                   auxξ)))
    )))
 
 ;;;;;;;;;;;;;;;;

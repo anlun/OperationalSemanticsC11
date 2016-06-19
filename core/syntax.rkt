@@ -502,4 +502,6 @@
   ; θ   -- auxiliary state.
   [θ any]
   [auxξ (θ ... η θ ...)]
-  [ξ (AST auxξ)])
+  [ξ (AST auxξ)]
+  
+  [listξ (ξ ...)])
