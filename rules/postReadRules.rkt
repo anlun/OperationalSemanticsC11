@@ -440,7 +440,7 @@
 
         (where α_new (insertListInEl El (chooseBranch number α_0 α_1)))
         (where path (pathE E))
-        (where φ_new (updateOnPath path α_new φ))
+        (where φ_new (updateOnPath path (in-hole Eifα α_new) φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
   
    (-->  ((in-hole E (in-hole Eif (if Expr AST_0 AST_1))) auxξ)
