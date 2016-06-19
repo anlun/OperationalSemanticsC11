@@ -409,7 +409,7 @@
 
         (where path (pathEp Ep))
 
-        ;; TODO: add to the `canPostponedWritebePerformed`
+        ;; TODO: add to the `canPostponedWriteBePerformed`
         (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
         
         (where ifContext (getIfContext Eifα))
