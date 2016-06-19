@@ -507,34 +507,34 @@
         )
 
    ;; Leads to very poor performance, but solves an issue with tests from etaPsi2SCpostLangTests.rkt
-   (-->  ((in-hole E (par (ret μ_0) (ret μ_1)))              auxξ)
-        (normalize 
-         ((in-hole E (ret (    μ_0       μ_1))) (joinST-2ψ path auxξ_new)))
-        "join-postponed-operations-interleaving"
-        (where path (pathE E))
+   ;; (-->  ((in-hole E (par (ret μ_0) (ret μ_1)))              auxξ)
+   ;;      (normalize 
+   ;;       ((in-hole E (ret (    μ_0       μ_1))) (joinST-2ψ path auxξ_new)))
+   ;;      "join-postponed-operations-interleaving"
+   ;;      (where path (pathE E))
 
-        (where φ             (getφ auxξ))
-        (where (par α_0 α_1) (getByPath path φ))
-        (where (in-hole El α_interleaved) ,(interleavings (term α_0) (term α_1)))
-        (where φ_new         (updateOnPath path α_interleaved φ))
-        (where auxξ_upd_φ    (updateState (P φ) (P φ_new) auxξ))
+   ;;      (where φ             (getφ auxξ))
+   ;;      (where (par α_0 α_1) (getByPath path φ))
+   ;;      (where (in-hole El α_interleaved) ,(interleavings (term α_0) (term α_1)))
+   ;;      (where φ_new         (updateOnPath path α_interleaved φ))
+   ;;      (where auxξ_upd_φ    (updateState (P φ) (P φ_new) auxξ))
         
-        (where observedWrites (getObservedWrites auxξ))
-        (where (par observedWrites_0 observedWrites_1)  (getByPath path observedWrites))
-        (side-condition (and (equal? '() (term observedWrites_0))
-                             (equal? '() (term observedWrites_1))))
+   ;;      (where observedWrites (getObservedWrites auxξ))
+   ;;      (where (par observedWrites_0 observedWrites_1)  (getByPath path observedWrites))
+   ;;      (side-condition (and (equal? '() (term observedWrites_0))
+   ;;                           (equal? '() (term observedWrites_1))))
 
-        ;; TODO: weaken the previous side-condition
-        ;; (where (in-hole El observedWrites_interleaved) ,(interleavings (term observedWrites_0)
-        ;;                                                                (term observedWrites_1)))
-        ;; (where observedWrites_new (updateOnPath path observedWrites_interleaved observedWrites))
+   ;;      ;; TODO: weaken the previous side-condition
+   ;;      ;; (where (in-hole El observedWrites_interleaved) ,(interleavings (term observedWrites_0)
+   ;;      ;;                                                                (term observedWrites_1)))
+   ;;      ;; (where observedWrites_new (updateOnPath path observedWrites_interleaved observedWrites))
 
-        (where observedWrites_new (updateOnPath path () observedWrites))
-        (where auxξ_new (updateState (RW observedWrites)
-                                     (RW observedWrites_new)
-                                     auxξ_upd_φ))
+   ;;      (where observedWrites_new (updateOnPath path () observedWrites))
+   ;;      (where auxξ_new (updateState (RW observedWrites)
+   ;;                                   (RW observedWrites_new)
+   ;;                                   auxξ_upd_φ))
 
-        (side-condition (term (isPossibleE E auxξ))))
+   ;;      (side-condition (term (isPossibleE E auxξ))))
 
 ;; TODO
 ;; 1) Add buffer-propagation rule.
