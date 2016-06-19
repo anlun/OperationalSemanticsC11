@@ -304,7 +304,7 @@
         (where ψ_read (getReadψ auxξ))
         (where (in-hole Ep α) (getφ auxξ))
         (where (in-hole El (read vName ι RM σ-dd)) α)
-        (side-condition (not (term (isPEntryInConflictWithα (vName ι) (elFirstPart El)))))
+        (side-condition (not (term (isPEntryInConflictWithα (read vName ι) (elFirstPart El)))))
         
         (side-condition (term (isLocationUninitialized ι σ-dd (pathEp Ep) auxξ))))
 

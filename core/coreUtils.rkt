@@ -706,39 +706,41 @@
   [(isRestrictedByγ ι τ RM γ) #f])
 
 (define-metafunction coreLang
-  isPEntryInConflictWithα : (vName ι) α -> boolean
-  [(isPEntryInConflictWithα (vName ι) α)
-   ,(ormap (λ (x) (term (isPEntryInConflictWithPEntry (vName ι) ,x)))
+  isPEntryInConflictWithα : (any vName ι) α -> boolean
+  [(isPEntryInConflictWithα (any vName ι) α)
+   ,(ormap (λ (x) (term (isPEntryInConflictWithPEntry (any vName ι) ,x)))
            (term α))])
 
 (define-metafunction coreLang
-  isPEntryInConflictWithPEntry : (vName ι) postponedEntry -> boolean
+  isPEntryInConflictWithPEntry : (any vName ι) postponedEntry -> boolean
 
-  [(isPEntryInConflictWithPEntry (vName ι) (write vName   ι       WM  μ-value  )) #f]
-  [(isPEntryInConflictWithPEntry (vName ι) (write vName_1 vName_2 WM  μ        )) #t]
-  [(isPEntryInConflictWithPEntry (vName ι) (write vName_1 ι-var   rel μ        )) #t]
-  [(isPEntryInConflictWithPEntry (vName ι) (write vName_1 ι_0     rlx μ        ))
+  [(isPEntryInConflictWithPEntry (any vName ι) (write vName   ι       WM  μ-value  )) #f]
+  [(isPEntryInConflictWithPEntry (any vName ι) (write vName_1 vName_2 WM  μ        )) #t]
+  [(isPEntryInConflictWithPEntry (any vName ι) (write vName_1 ι-var   rel μ        )) #t]
+  [(isPEntryInConflictWithPEntry (any vName ι) (write vName_1 ι_0     rlx μ        ))
    ,(equal? (term ι) (term ι_0))]
 
-  [(isPEntryInConflictWithPEntry (vName ι) (read  vName_1 vName_2 RM  σ-dd)) #t]
-  [(isPEntryInConflictWithPEntry (vName ι) (read  vName_1 ι-var   acq σ-dd)) #t]
-  [(isPEntryInConflictWithPEntry (vName ι) (read  vName_1 ι_0     RM  σ-dd))
+  [(isPEntryInConflictWithPEntry (any   vName ι) (read  vName_1 vName_2 RM  σ-dd)) #t]
+  [(isPEntryInConflictWithPEntry (any   vName ι) (read  vName_1 ι-var   acq σ-dd)) #t]
+  [(isPEntryInConflictWithPEntry (write vName ι) (read  vName_1 ι-var   acq σ-dd))
+   ,(equal? (term ι) (term ι-var))]
+  [(isPEntryInConflictWithPEntry (any   vName ι) (read  vName_1 ι_0     RM  σ-dd))
    ,(equal? (term ι) (term ι_0))]
 
-  [(isPEntryInConflictWithPEntry (vName ι) (let-in vName_1            any ...  )) #f]
+  [(isPEntryInConflictWithPEntry (any vName ι) (let-in vName_1         any_0 ...)) #f]
   
-  [(isPEntryInConflictWithPEntry (vName ι) (if vName_1 Expr α_0 α_1))
-   (isPEntryInConflictWithα (vName ι) (appendT α_0 α_1))])
+  [(isPEntryInConflictWithPEntry (any vName ι) (if vName_1 Expr α_0 α_1))
+   (isPEntryInConflictWithα (any vName ι) (appendT α_0 α_1))])
 
 (define-metafunction coreLang
-  isPEntryInConflictWithEifα : (vName ι) Eifα -> boolean
-  [(isPEntryInConflictWithEifα (vName ι) hole) #f]
-  [(isPEntryInConflictWithEifα (vName ι) (in-hole El (if vName_1 Expr Eifα α)))
-   ,(and (term (isPEntryInConflictWithα    (vName ι) (elFirstPart El)))
-         (term (isPEntryInConflictWithEifα (vName ι) Eifα)))]
-  [(isPEntryInConflictWithEifα (vName ι) (in-hole El (if vName_1 Expr α Eifα)))
-   ,(and (term (isPEntryInConflictWithα    (vName ι) (elFirstPart El)))
-         (term (isPEntryInConflictWithEifα (vName ι) Eifα)))])
+  isPEntryInConflictWithEifα : (any vName ι) Eifα -> boolean
+  [(isPEntryInConflictWithEifα (any vName ι) hole) #f]
+  [(isPEntryInConflictWithEifα (any vName ι) (in-hole El (if vName_1 Expr Eifα α)))
+   ,(and (term (isPEntryInConflictWithα    (any vName ι) (elFirstPart El)))
+         (term (isPEntryInConflictWithEifα (any vName ι) Eifα)))]
+  [(isPEntryInConflictWithEifα (any vName ι) (in-hole El (if vName_1 Expr α Eifα)))
+   ,(and (term (isPEntryInConflictWithα    (any vName ι) (elFirstPart El)))
+         (term (isPEntryInConflictWithEifα (any vName ι) Eifα)))])
 
 (define-metafunction coreLang
   canPostponedReadBePerformed : (vName ι-var RM σ-dd) σ α ifContext γ τ -> boolean
@@ -767,8 +769,8 @@
                                    (in-hole Eifα (in-hole El (read vName ι RM σ-dd)))
                                    ifContext)
    ,(and (equal? (term ifContext) (term ifContext_check))
-         (not (term (isPEntryInConflictWithEifα (vName ι) Eifα)))
-         (not (term (isPEntryInConflictWithα    (vName ι) (elFirstPart El)))))
+         (not (term (isPEntryInConflictWithEifα (read vName ι) Eifα)))
+         (not (term (isPEntryInConflictWithα    (read vName ι) (elFirstPart El)))))
 
    (where ifContext_check (getIfContext Eifα))])
 
@@ -777,7 +779,7 @@
   [(canPostponedWriteBePerformed (vName ι)
                                  (postponedEntry ... (write vName ι WM μ-value) any ...))
    #t
-   (side-condition (not (term (isPEntryInConflictWithα (vName ι) (postponedEntry ...)))))]
+   (side-condition (not (term (isPEntryInConflictWithα (write vName ι) (postponedEntry ...)))))]
 
   [(canPostponedWriteBePerformed (vName ι) α) #f])
 

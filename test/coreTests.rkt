@@ -70,7 +70,7 @@
                                                  ((read a "x" rlx ())) () () 0))
               (term #t))
 
-  (test-equal (term (isPEntryInConflictWithEifα (a2 "dataP") ((if a1 1 hole ()))))
+  (test-equal (term (isPEntryInConflictWithEifα (read a2 "dataP") ((if a1 1 hole ()))))
               (term #f))
 )
 (metafunction-tests)
