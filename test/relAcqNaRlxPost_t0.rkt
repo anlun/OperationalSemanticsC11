@@ -91,8 +91,6 @@ With postponed writes and reads it should be able to lead to r1 = r2 = 1.
 ;; Problem
 ;; (test_LB_use term_RrlxWrel_RrlxWrel_use)
 
-;; (stepper step (term (,term_RrlxWrlx_RrlxWrlx_use defaultState)) pretty-printer)
-
 #|
   x_mod0 = 0; y_mod0 = 0
 x_mod1 = 1; || y_mod3 = 1; 
