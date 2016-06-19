@@ -395,7 +395,7 @@
    (-->  (AST  auxξ)
         (normalize 
          ((subst vName μ-value AST) auxξ_new))
-        "write-resolve"
+        "write-rlx-resolve"
 
         (where (in-hole Ep α_thread) (getφ auxξ))
         (where (in-hole Eifα α) α_thread)
@@ -403,7 +403,7 @@
 
         (side-condition (equal? (term Eifα) (term hole)))
 
-        (where (in-hole El (write vName ι WM μ-value)) α)
+        (where (in-hole El (write vName ι rlx μ-value)) α)
         (side-condition (term
                          (canPostponedWriteBePerformed (vName ι) α)))
 
