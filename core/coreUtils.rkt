@@ -371,10 +371,9 @@
 (define-metafunction coreLang
   isPostRlx : postponedEntry -> boolean
   [(isPostRlx (read   vName ι-var rlx σ-dd)) #t]
-  [(isPostRlx (read   vName ι-var con σ-dd)) #t]  ; TODO: rename methods appropriately
+  [(isPostRlx (read   vName ι-var con σ-dd)) #t]
   [(isPostRlx (let-in vName μ))              #t]
-  ;; [(isPostRlx (write  vName ι-var rlx μ   )) #t]
-  [(isPostRlx (write  vName ι-var rlx μ   )) #f]
+  [(isPostRlx (write  vName ι-var rlx μ   )) #t]
   [(isPostRlx (if vName μ α_0 α_1))
    ,(and (term (are∀PostRlxInα α_0))
          (term (are∀PostRlxInα α_1)))]
@@ -384,6 +383,7 @@
   are∀PostRlxInα : α -> boolean
   [(are∀PostRlxInα α) ,(andmap (λ (x) (term (isPostRlx ,x))) (term α))])
 
+;; TODO: rename appropriately
 (define-metafunction coreLang
   are∀PostReadsRlx : path auxξ -> boolean
   [(are∀PostReadsRlx path (θ_0 ... (P φ_all) θ_1 ...)) (are∀PostRlxInα α)
@@ -407,6 +407,7 @@
   ιNotInα : ι α -> boolean
   [(ιNotInα ι α) ,(andmap (λ (x) (term (ιNotInPostponedEntry ι ,x))) (term α))])
    
+;; TODO: rename appropriately
 (define-metafunction coreLang
   ιNotInReadQueue : ι path auxξ -> boolean
   [(ιNotInReadQueue ι path (θ_0 ... (P φ) θ_1 ...))
@@ -419,11 +420,13 @@
   αToγRecords : ι τ α -> γ
   [(αToγRecords ι τ α) ,(apply
                          append (map
-                                 (λ (x) (match x [(list rd vName locvar mod ddFront)
+                                 (λ (x) (match x [(list 'read vName locvar mod ddFront)
                                                   (list (list (term ι) (term τ) vName))]
-                                                 [_ (list)]))
+                                                 [(list 'write vName locvar mod mu)
+                                                  (list (list (term ι) (term τ) vName))]))
                                  (term α)))])
 
+;; TODO: rename appropriately
 (define-metafunction coreLang
   addPostReadsToγ : path ι τ auxξ -> auxξ
   [(addPostReadsToγ path ι τ (θ_0 ... (P φ) θ_1 ... (R γ) θ_2 ...))

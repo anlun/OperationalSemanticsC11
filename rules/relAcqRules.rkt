@@ -57,7 +57,6 @@
         (where auxξ_upd_γ     (addPostReadsToγ path ι τ auxξ_upd_η))
         (where auxξ_new       (addWriteNode (write rel ι μ-value τ) path auxξ_upd_γ))
 
-        ;(side-condition (term (isReadQueueEqualTo () path auxξ))))
         (side-condition (term (are∀PostReadsRlx  path auxξ)))
         (side-condition (term (ιNotInReadQueue ι path auxξ)))
         (side-condition (term (isPossibleE E auxξ))))
