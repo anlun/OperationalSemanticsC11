@@ -343,7 +343,11 @@
         (where (in-hole Eifα α) α_thread)
         (where (in-hole El_reader (read vName ι rlx σ-dd)) α)
        
-        (where (Just (write vName_1 ι WM μ-value)) (getWriteToPropagate ι Eifα))
+        (where Maybe (getWriteToPropagate_α ι ,(reverse (term (elFirstPart El_reader)))))
+        (where (Just (write vName_1 ι WM μ-value))
+               ,(if (equal? (term Maybe) 'None)
+                    (term (getWriteToPropagate ι Eifα))
+                    (term Maybe)))
 
         (where path (pathEp Ep))
 
