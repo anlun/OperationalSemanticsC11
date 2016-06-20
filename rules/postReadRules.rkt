@@ -7,6 +7,34 @@
 (provide define-postponedReadRules) 
 
 (define-metafunction coreLang
+  getWriteToPropagate_α : ι α -> Maybe ;postponedEntry
+  [(getWriteToPropagate_α ι ()) None]
+  [(getWriteToPropagate_α ι ((read  vName ι-var acq σ-dd) any ...)) None]
+  [(getWriteToPropagate_α ι ((read  vName ι     RM  σ-dd) any ...)) None]
+
+  [(getWriteToPropagate_α ι ((write vName ι     WM  μ-value) any ...)) (Just (write vName ι WM μ-value))]
+  [(getWriteToPropagate_α ι ((write vName ι     WM  μ      ) any ...)) None]
+
+  [(getWriteToPropagate_α ι ((if vName Expr α_0 α_1) any ...)) None]
+
+  [(getWriteToPropagate_α ι (any_0 any ...)) (getWriteToPropagate_α ι (any ...))])
+
+(define-metafunction coreLang
+  getWriteToPropagate : ι Eifα -> Maybe ;postponedEntry
+  [(getWriteToPropagate ι hole) None]
+  [(getWriteToPropagate ι (postponedEntry ... (if vName Expr Eifα α) any ...))
+   ,(if (equal? (term Maybe) 'None)
+        (term (getWriteToPropagate_α ι ,(reverse (term (postponedEntry ...)))))
+        (term Maybe))
+   (where Maybe (getWriteToPropagate ι Eifα))]
+  [(getWriteToPropagate ι (postponedEntry ... (if vName Expr α Eifα) any ...))
+   ,(if (equal? (term Maybe) 'None)
+        (term (getWriteToPropagate_α ι ,(reverse (term (postponedEntry ...)))))
+        (term Maybe))
+   (where Maybe (getWriteToPropagate ι Eifα))]
+)
+
+(define-metafunction coreLang
   listToEdges : (any ...) -> ((any any) ...)
   [(listToEdges ()   ) ()]
   [(listToEdges (any)) ()]
@@ -294,8 +322,6 @@
         (where γ_new      (removeγRestrictionsByVName vName γ))
         (where auxξ_upd_γ (updateState (R γ) (R γ_new) auxξ_upd_φ))
 
-        ;; TODO: add checking, that there is no cycle in observedWrites ordering through
-        ;;       all threads.
         (where observedWrites       (getObservedWrites auxξ))
         (where observedWrites_check (snocOnPath path (vName_1 ι) observedWrites))
 
@@ -305,6 +331,46 @@
         (where auxξ_new           (updateState (RW observedWrites)
                                                (RW observedWrites_new)
                                                auxξ_upd_γ)))
+
+   (-->  (AST  auxξ)
+        (normalize        
+         ((subst vName μ-value
+                 (propagateDD_vName vName path σ-dd_new AST)) auxξ_new))
+        "read-propagate"
+        (where φ      (getφ auxξ))
+        
+        (where (in-hole Ep α_thread) φ)
+        (where (in-hole Eifα α) α_thread)
+        (where (in-hole El_reader (read vName ι rlx σ-dd)) α)
+       
+        (where (Just (write vName_1 ι WM μ-value)) (getWriteToPropagate ι Eifα))
+
+        (where path (pathEp Ep))
+
+        (where ifContext (getIfContext Eifα))
+        ;; (side-condition (term (canPostponedReadBePerformedWOτ (vName ι rlx σ-dd) α_thread ifContext)))
+
+        (where σ-dd_new  σ-dd) 
+        (where α_new      (substμα vName μ-value σ-dd_new
+                                   (elToList El_reader)))
+        (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
+        (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ))
+
+        (where γ          (getγ auxξ))
+        (where γ_new      (removeγRestrictionsByVName vName γ))
+        (where auxξ_upd_γ (updateState (R γ) (R γ_new) auxξ_upd_φ))
+        (where auxξ_new   auxξ_upd_γ)
+
+        ;; (where observedWrites       (getObservedWrites auxξ))
+        ;; (where observedWrites_check (snocOnPath path (vName_1 ι) observedWrites))
+
+        ;; (side-condition (not (hasLoop (term (writesMOedges ι φ observedWrites_check)))))
+
+        ;; (where observedWrites_new (snocOnPathIfNew path (vName_1 ι) observedWrites))
+        ;; (where auxξ_new           (updateState (RW observedWrites)
+                                               ;; (RW observedWrites_new)
+                                               ;; auxξ_upd_γ))
+        )
 
    ;; TODO: update the rule to the speculative reads
    (--> (AST auxξ)
@@ -535,7 +601,4 @@
    ;;                                   auxξ_upd_φ))
 
    ;;      (side-condition (term (isPossibleE E auxξ))))
-
-;; TODO
-;; 1) Add buffer-propagation rule.
 )))
