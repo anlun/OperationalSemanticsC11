@@ -95,9 +95,9 @@ if (x_mod1) { || if (y_mod3) {
 
 Possible outcome: r = 1
 |#
-;; (test-->>∃ step
-;;            (term (,term_nOTA_prop_rlx defaultState))
+(test-->>∃ step
+           (term (,term_nOTA_prop_rlx defaultState))
           
-;;            (term ((ret 1) defaultState)))
+           (term ((ret 1) defaultState)))
 
 ;; (stepper step (term (,term_nOTA_prop_rlx defaultState)) pretty-printer)

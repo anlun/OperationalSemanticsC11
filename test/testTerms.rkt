@@ -1001,7 +1001,7 @@ Possible outcome: r = 1
         {{{ r1 := x_@mod0;
             if r1
             then z_rlx   := 1;
-                 r3      := x_rlx;
+                 r3      := z_rlx;
                  y_@mod2 := r3
             else y_@mod2 := 1
             fi
