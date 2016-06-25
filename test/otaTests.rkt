@@ -82,3 +82,22 @@ Possible outcome: r = 1
 
 ;; (stepper step (term (,term_nOTA_nestIf_rlx defaultState)) pretty-printer)
 
+#|
+  x_rlx = 0; y_rlx = 0; z_rlx = 0;
+if (x_mod1) { || if (y_mod3) {
+  z_rlx  = 1  ||   x_mod4 = 1
+  r1 = z_rlx  ||
+  y_mod2 = r1 || }
+} else {      ||
+  y_mod2 = 1  ||
+}             ||
+            r = z_rlx
+
+Possible outcome: r = 1
+|#
+(test-->>∃ step
+           (term (,term_nOTA_prop_rlx defaultState))
+          
+           (term ((ret 1) defaultState)))
+
+;; (stepper step (term (,term_nOTA_prop_rlx defaultState)) pretty-printer)

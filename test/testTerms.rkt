@@ -979,3 +979,37 @@ It should be impossible to get r1 = 2; r1 = 1
               ||| x_rlx := 1;
                   x_rlx := 2  }}};
         ret r0_1 })
+
+#|
+  x_rlx = 0; y_rlx = 0; z_rlx = 0;
+if (x_mod1) { || if (y_mod3) {
+  z_rlx  = 1  ||   x_mod4 = 1
+  r1 = z_rlx  ||
+  y_mod2 = r1 || }
+} else {      ||
+  y_mod2 = 1  ||
+}             ||
+            r = z_rlx
+
+Possible outcome: r = 1
+|#
+(define (term_nOTA_prop_abst mod0 mod1 mod2 mod3 mod4)
+  @prog{x_rlx := 0;
+        y_rlx := 0;
+        z_rlx := 0;
+        spw
+        {{{ r1 := x_@mod0;
+            if r1
+            then z_rlx   := 1;
+                 r3      := z_rlx;
+                 y_@mod2 := r3
+            else y_@mod2 := 1
+            fi
+        ||| r2 := y_@mod0;
+            if r2
+            then x_@mod2 := 1
+            else ret 0 
+            fi }}};
+        z_rlx })
+
+(define term_nOTA_prop_rlx (concretize term_nOTA_prop_abst "rlx rlx rlx rlx rlx"))
