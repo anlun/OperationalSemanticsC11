@@ -725,8 +725,8 @@
    ,(equal? (term ι) (term ι_0))]
 
   [(isPEntryInConflictWithPEntry (any   vName ι) (read  vName_1 vName_2 RM  σ-dd)) #t]
-  [(isPEntryInConflictWithPEntry (write vName ι) (read  vName_1 ι-var   acq σ-dd))
-   ,(equal? (term ι) (term ι-var))]
+  ;; [(isPEntryInConflictWithPEntry (write vName ι) (read  vName_1 ι-var   acq σ-dd))
+  ;;  ,(equal? (term ι) (term ι-var))]
   [(isPEntryInConflictWithPEntry (any   vName ι) (read  vName_1 ι-var   acq σ-dd)) #t]
   [(isPEntryInConflictWithPEntry (any   vName ι) (read  vName_1 ι_0     RM  σ-dd))
    ,(equal? (term ι) (term ι_0))]
