@@ -72,7 +72,8 @@
         (side-condition (not (equal? (term μ-value)
                                      (term μ-value_expected))))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
-        (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
+        ;; (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
+        (side-condition (not (term (isRestrictedByγ_auxξ ι τ acq auxξ))))
 
         (side-condition (term (isPossibleE E auxξ))))
    
@@ -84,6 +85,7 @@
         (where ψ_read   (getReadψ auxξ))
         (where path     (pathE E))
 
+        (where τ_last        (getLastTimestamp ι η))
         (where τ             (getNextTimestamp ι η))
         (where ψ_read_new    (updateByFront path ((ι τ)) ψ_read))
         (where auxξ_upd_read (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
@@ -97,7 +99,8 @@
         (side-condition
          (term (succCAScondition ι η μ-value_expected rlx FM)))
         (side-condition (term (ιNotInReadQueue ι path auxξ)))
-        (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
+        ;; (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
+        (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
 
         (side-condition (term (isPossibleE E auxξ))))
 )))

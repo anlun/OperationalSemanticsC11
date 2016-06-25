@@ -107,7 +107,8 @@
         (side-condition
          (term (succCAScondition ι η μ-value_expected rel FM)))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
-        (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
+        ;; (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
+        (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
 
         (side-condition (term (isPossibleE E auxξ))))
    
@@ -135,7 +136,7 @@
         (side-condition
          (term (succCAScondition ι η μ-value_expected acq FM)))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
-        (side-condition (not (term (isRestrictedByγ_auxξ ι τ acq auxξ))))
+        (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
 
         (side-condition (term (isPossibleE E auxξ))))
 
@@ -166,7 +167,7 @@
         (side-condition
          (term (succCAScondition ι η μ-value_expected relAcq FM)))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
-        (side-condition (not (term (isRestrictedByγ_auxξ ι τ acq auxξ))))
+        (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
 
         (side-condition (term (isPossibleE E auxξ)))))))
 
