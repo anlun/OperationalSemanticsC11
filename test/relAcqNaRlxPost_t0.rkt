@@ -87,9 +87,7 @@ With postponed writes and reads it should be able to lead to r1 = r2 = 1.
 
 (test_LB_use term_RrlxWrlx_RrlxWrlx_use)
 (test_LB_use term_RconWrlx_RconWrlx_use)
-
-;; Problem
-;; (test_LB_use term_RrlxWrel_RrlxWrel_use)
+(test_LB_use term_RrlxWrel_RrlxWrel_use)
 
 #|
   x_mod0 = 0; y_mod0 = 0
@@ -107,12 +105,12 @@ both release accesses.
           (term ((ret (1 1)) defaultState))))
 
 (test_2+2W term_2+2W_rlx)
+(test_2+2W term_2+2W_rel1_rlx)
+(test_2+2W term_2+2W_rel3_rlx)
 
 ;; Problem
 ;; (test_2+2W term_2+2W_rel_acq)
-;; (test_2+2W term_2+2W_rel1_rlx)
 ;; (test_2+2W term_2+2W_rel2_rlx)
-;; (test_2+2W term_2+2W_rel3_rlx)
 
 #|
           x_rlx = 0; y_rlx = 0
