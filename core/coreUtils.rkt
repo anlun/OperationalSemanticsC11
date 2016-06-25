@@ -423,7 +423,8 @@
                                  (λ (x) (match x [(list 'read vName locvar mod ddFront)
                                                   (list (list (term ι) (term τ) vName))]
                                                  [(list 'write vName locvar mod mu)
-                                                  (list (list (term ι) (term τ) vName))]))
+                                                  (list (list (term ι) (term τ) vName))]
+                                                 [_ (list)]))
                                  (term α)))])
 
 ;; TODO: rename appropriately
