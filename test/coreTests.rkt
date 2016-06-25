@@ -72,6 +72,17 @@
 
   (test-equal (term (isPEntryInConflictWithEifα (read a2 "dataP") ((if a1 1 hole ()))))
               (term #f))
+  
+  (test-equal (term (resolveWriteγ_η_el a (("a" 1)) ("x" 1 a) 
+                     (("a" ((1 1 (("a" 1))) (0 0 (("a" 0)))))
+                      ("x" ((2 3 (("a" 0) ("x" 2)))
+                            (1 1 (("a" 0) ("x" 1)))
+                            (0 0 (("x" 0))))))))
+
+              (term (("a" ((1 1 (("a" 1))) (0 0 (("a" 0)))))
+                     ("x" ((2 3 (("a" 0) ("x" 2)))
+                           (1 1 (("a" 1) ("x" 1)))
+                           (0 0 (("x" 0))))))))
 )
 (metafunction-tests)
 

@@ -710,6 +710,11 @@
   [(isRestrictedByγ ι τ RM γ) #f])
 
 (define-metafunction coreLang
+  isRestrictedByγ_auxξ : ι τ RM auxξ -> boolean
+  [(isRestrictedByγ_auxξ ι τ RM (θ_0 ... (R γ) θ_1 ...)) (isRestrictedByγ ι τ RM γ)]
+  [(isRestrictedByγ_auxξ ι τ RM auxξ) #f])
+
+(define-metafunction coreLang
   isPEntryInConflictWithα : (any vName ι) α -> boolean
   [(isPEntryInConflictWithα (any vName ι) α)
    ,(ormap (λ (x) (term (isPEntryInConflictWithPEntry (any vName ι) ,x)))
@@ -791,6 +796,33 @@
   elFirstPart : El -> (any ...)
   [(elFirstPart hole) ()]
   [(elFirstPart (any_0 ... hole any_1 ...)) (any_0 ...)])
+
+(define-metafunction coreLang
+  resolveWriteγ_η_el : vName σ (ι τ vName) η -> η 
+  [(resolveWriteγ_η_el vName σ (ι τ vName) (any_0 ... (ι (any_1 ... (τ μ-value σ_rec) any_2 ...)) any_3 ...))
+   (any_0 ... (ι (any_1 ... (τ μ-value (frontMerge σ σ_rec)) any_2 ...)) any_3 ...)]
+   ;;                     (in-hole El_cell (ι (in-hole El_record (τ μ-value σ_rec))))) 
+   ;; (in-hole El_cell (ι (in-hole El_record (τ μ-value (frontMerge σ σ_rec)))))]
+  [(resolveWriteγ_η_el vName σ (ι τ vName_0) η) η])
+
+(define-metafunction coreLang
+  resolveWriteγ_ψ_el : path vName σ ψ -> ψ 
+  [(resolveWriteγ_ψ_el path vName σ ψ) (updateByFront path σ ψ)])
+
+(define-metafunction coreLang
+  resolveWriteγ : path vName σ auxξ -> auxξ
+  [(resolveWriteγ path vName σ auxξ) auxξ_new 
+   (where γ (getγ auxξ))
+   (where η (getη auxξ))
+   (where η_new ,(foldl (λ (r eta)
+                          (term (resolveWriteγ_η_el vName σ ,r ,eta)))
+                        (term η) (term γ)))
+   (where auxξ_upd_η   (updateState η η_new auxξ))
+   (where ψ_write      (getWriteψ auxξ_upd_η))
+   (where ψ_write_new ,(if (equal? (term η) (term η_new))
+                           (term ψ_write)
+                           (term (updateByFront path σ ψ_write))))
+   (where auxξ_new (updateState (Write ψ_write) (Write ψ_write_new) auxξ_upd_η))])
 
 ;; (define (find-path red from to)
 ;;   (define parents (make-hash))

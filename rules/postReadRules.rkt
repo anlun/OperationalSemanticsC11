@@ -501,7 +501,13 @@
         (where σ_ToWrite  (updateFront ι τ (getσToWrite σ_write ι η)))
         (where η_new      (updateCell  ι μ-value σ_ToWrite η))
         (where auxξ_upd_η (updateState η η_new auxξ_upd_front))
-        (where auxξ_upd_γ (dupRelWriteRestrictions ι τ σ_write auxξ_upd_η))
+        
+        (where auxξ_part1_γ (resolveWriteγ path vName ((ι τ)) auxξ_upd_η))
+        (where γ_part1      (getγ auxξ_part1_γ))
+        (where γ_part2      (removeγRestrictionsByVName vName γ_part1))
+        (where auxξ_part2_γ (updateState (R γ_part1) (R γ_part2) auxξ_part1_γ))
+        
+        (where auxξ_upd_γ  (dupRelWriteRestrictions ι τ σ_write auxξ_part2_γ))
         
         (where auxξ_upd_observedWrites (resolveObservedWrite (vName ι τ) auxξ_upd_γ))
         (where auxξ_new   auxξ_upd_observedWrites))

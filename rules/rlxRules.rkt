@@ -72,6 +72,8 @@
         (side-condition (not (equal? (term μ-value)
                                      (term μ-value_expected))))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
+
         (side-condition (term (isPossibleE E auxξ))))
    
    (-->  ((in-hole E (cas rlx FM ι μ-value_expected μ-value_new)) auxξ)
@@ -95,6 +97,8 @@
         (side-condition
          (term (succCAScondition ι η μ-value_expected rlx FM)))
         (side-condition (term (ιNotInReadQueue ι path auxξ)))
+        (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
+
         (side-condition (term (isPossibleE E auxξ))))
 )))
 

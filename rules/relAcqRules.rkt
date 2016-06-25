@@ -78,6 +78,8 @@
         (side-condition (not (equal? (term μ-value)
                                      (term μ-value_expected))))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (not (term (isRestrictedByγ_auxξ ι τ acq auxξ))))
+
         (side-condition (term (isPossibleE E auxξ))))
         
    (-->  ((in-hole E (cas rel FM ι μ-value_expected μ-value_new)) auxξ)
@@ -105,6 +107,8 @@
         (side-condition
          (term (succCAScondition ι η μ-value_expected rel FM)))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
+
         (side-condition (term (isPossibleE E auxξ))))
    
    (-->  ((in-hole E (cas acq FM ι μ-value_expected μ-value_new)) auxξ)
@@ -131,6 +135,8 @@
         (side-condition
          (term (succCAScondition ι η μ-value_expected acq FM)))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (not (term (isRestrictedByγ_auxξ ι τ acq auxξ))))
+
         (side-condition (term (isPossibleE E auxξ))))
 
    (-->  ((in-hole E (cas relAcq FM ι μ-value_expected μ-value_new)) auxξ)
@@ -160,6 +166,8 @@
         (side-condition
          (term (succCAScondition ι η μ-value_expected relAcq FM)))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (not (term (isRestrictedByγ_auxξ ι τ acq auxξ))))
+
         (side-condition (term (isPossibleE E auxξ)))))))
 
 (define-syntax-rule (define-relAcqRules lang
