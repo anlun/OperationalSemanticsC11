@@ -35,6 +35,9 @@ With postponed reads it should be able to lead to R1 = R2 = 1.
 (test_LB_11 term_RconWrel_RconWrel)
 (test_LB_11 term_RconWsc_RconWsc)
 
+;; Problem
+(test_LB_11 term_RacqWrlx_RacqWrlx)
+
 #|
 R1 = x_{acq,rlx}  || R2 = y_{acq,rlx} 
 y_rel  = 1        || x_rel  = 1

@@ -99,6 +99,16 @@ Rel modificators solve nothing here.
 (define term_RrlxWrel_RrlxWrel (concretize term_LB_abst "rlx rel rlx rel"))
 
 #|
+R1 = x_acq  || R2 = y_acq
+y_rlx   = 1 || x_rlx   = 1
+
+With postponed reads it should be able to lead to R1 = R2 = 1. 
+Acq modificators solve nothing here.
+|#
+(define term_RacqWrlx_RacqWrlx (concretize term_LB_abst "acq rlx acq rlx"))
+
+
+#|
 R1 = x_rlx || R2 = y_rlx
 y_sc   = 1 || x_sc   = 1
 
