@@ -437,6 +437,13 @@
   [(addPostReadsToγ path ι τ auxξ) auxξ])
 
 (define-metafunction coreLang
+  addPostReadsToγ_α : α ι τ auxξ -> auxξ
+  [(addPostReadsToγ_α α ι τ (θ_0 ... (P φ) θ_1 ... (R γ) θ_2 ...))
+   (θ_0 ... (P φ) θ_1 ... (R γ_new) θ_2 ...)
+   (where γ_new ,(append (term (αToγRecords ι τ α)) (term γ)))]
+  [(addPostReadsToγ_α α ι τ auxξ) auxξ])
+
+(define-metafunction coreLang
   consT : any (any ...) -> (any ...)
   [(consT any_0 any_1) ,(cons (term any_0) (term any_1))])
 

@@ -437,10 +437,10 @@
         (where ifContext (getIfContext Eifα))
         (side-condition (term (isPossiblePath_resolve (vName ifContext) path auxξ))))
 
-   (-->  ((in-hole E (in-hole Eif (write rlx ι-var μ))) auxξ)
+   (-->  ((in-hole E (in-hole Eif (write WM ι-var μ))) auxξ)
         (normalize
          ((in-hole E (in-hole Eif (ret a            ))) auxξ_new))
-        "write-rlx-postpone"
+        "write-postpone"
         (side-condition (if (equal? (term Eif) (term hole))
                             (term (isPossibleE E auxξ))
                             (term (isPossibleEEif E Eif auxξ))))
@@ -457,15 +457,17 @@
         (where α        (getByPath path φ))
 
         (side-condition (term (isCorrectEif Eif α)))
+        (side-condition (or (equal? (term WM) 'rlx)
+                            (equal? (term WM) 'rel)))
 
-        (where α_new    (appendToα Eif (write a ι-var rlx μ_simplified) α))
+        (where α_new    (appendToα Eif (write a ι-var WM μ_simplified) α))
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
 
    (-->  (AST  auxξ)
         (normalize 
          ((subst vName μ-value AST) auxξ_new))
-        "write-rlx-resolve"
+        "write-resolve"
 
         (where (in-hole Ep α_thread) (getφ auxξ))
         (where (in-hole Eifα α) α_thread)
@@ -473,7 +475,7 @@
 
         (side-condition (equal? (term Eifα) (term hole)))
 
-        (where (in-hole El (write vName ι rlx μ-value)) α)
+        (where (in-hole El (write vName ι WM μ-value)) α)
         (side-condition (term
                          (canPostponedWriteBePerformed (vName ι) α)))
 
@@ -493,12 +495,17 @@
         (where η       (getη auxξ))
         (where ψ_read  (getReadψ auxξ))
 
-        (where τ              (getNextTimestamp ι η))
-        (where ψ_read_new     (updateByFront path ((ι τ)) ψ_read))                     ;; TODO: now it works only for relaxed writes.
-        (where auxξ_upd_front (updateState (Read ψ_read) (Read ψ_read_new) auxξ_upd_φ))
+        (where τ               (getNextTimestamp ι η))
+        (where ψ_read_new      (updateByFront path ((ι τ)) ψ_read))
+        (where auxξ_read_front (updateState (Read ψ_read) (Read ψ_read_new) auxξ_upd_φ))
+        (where auxξ_upd_front  ,(if (equal? (term WM) 'rel)
+                                    (term (synchronizeWriteFront path auxξ_read_front))
+                                    (term auxξ_read_front)))
 
-        (where σ_write    (getWriteσ path auxξ))
-        (where σ_ToWrite  (updateFront ι τ (getσToWrite σ_write ι η)))
+        (where σ_write    (getWriteσ path auxξ_upd_front))
+        (where σ_ToWrite  ,(if (equal? (term WM) 'rel)
+                               (term (getReadσ path auxξ_upd_front))
+                               (term (updateFront ι τ (getσToWrite σ_write ι η)))))
         (where η_new      (updateCell  ι μ-value σ_ToWrite η))
         (where auxξ_upd_η (updateState η η_new auxξ_upd_front))
         
@@ -508,8 +515,10 @@
         (where auxξ_part2_γ (updateState (R γ_part1) (R γ_part2) auxξ_part1_γ))
         
         (where auxξ_upd_γ  (dupRelWriteRestrictions ι τ σ_write auxξ_part2_γ))
+
+        (where auxξ_upd_γ_2 (addPostReadsToγ_α (elFirstPart El) ι τ auxξ_upd_γ))
         
-        (where auxξ_upd_observedWrites (resolveObservedWrite (vName ι τ) auxξ_upd_γ))
+        (where auxξ_upd_observedWrites (resolveObservedWrite (vName ι τ) auxξ_upd_γ_2))
         (where auxξ_new   auxξ_upd_observedWrites))
 
    (-->  ((in-hole E (in-hole Eif (if vName AST_0 AST_1))) auxξ)
