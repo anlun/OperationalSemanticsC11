@@ -732,7 +732,11 @@
 
   [(isPEntryInConflictWithPEntry (any vName ι) (write vName   ι       WM  μ-value  )) #f]
   [(isPEntryInConflictWithPEntry (any vName ι) (write vName_1 vName_2 WM  μ        )) #t]
+
+  [(isPEntryInConflictWithPEntry (write vName ι) (write vName_1 ι_1       rel μ        ))
+   ,(equal? (term ι) (term ι_1))]
   [(isPEntryInConflictWithPEntry (any vName ι) (write vName_1 ι-var   rel μ        )) #t]
+
   [(isPEntryInConflictWithPEntry (any vName ι) (write vName_1 ι_0     rlx μ        ))
    ,(equal? (term ι) (term ι_0))]
 
