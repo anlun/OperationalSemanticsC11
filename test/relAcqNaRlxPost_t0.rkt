@@ -108,9 +108,7 @@ both release accesses.
 (test_2+2W term_2+2W_rel1_rlx)
 (test_2+2W term_2+2W_rel2_rlx)
 (test_2+2W term_2+2W_rel3_rlx)
-
-;; Problem
-;; (test_2+2W term_2+2W_rel_acq)
+(test_2+2W term_2+2W_rel_acq)
 
 #|
           x_rlx = 0; y_rlx = 0
