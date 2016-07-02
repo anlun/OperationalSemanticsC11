@@ -45,7 +45,8 @@
     (reduction-relation coreLang #:domain ξ
      (--> ξ ξ_new
           "random-step"
-          (where listξ ,(apply-reduction-relation step (term ξ)))
+          (where listξ ,(filter (λ (x) (not (equal? 'stuck (car x))))
+                                (apply-reduction-relation step (term ξ))))
           (side-condition (> (length (term listξ)) 0))
           (where ξ_new ,(select-random (term listξ))))
 
