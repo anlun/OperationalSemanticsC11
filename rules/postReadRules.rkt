@@ -49,13 +49,14 @@
    (appendT (observedWritesToEdges ι observedWrites_0)
             (observedWritesToEdges ι observedWrites_1))]
 
-  [(observedWritesToEdges ι (observedWriteLbl ...))
+  ;; TODO: CHANGE IT!!!! NOT LINEAR STRUCTURE ANYMORE!!!
+  [(observedWritesToEdges ι observedWriteList)
    (listToEdges (vName ...))
    (where observedWrites_ι
           ,(filter (λ (x) (match x
                             [(list vname loc)
                              (equal? loc (term ι))]))
-                   (term (observedWriteLbl ...))))
+                   (term (flat-ObservedWriteList observedWriteList))))
    (where (vName ...)
           ,(map (λ (x) (match x [(list vname loc) vname]))
                 (term observedWrites_ι)))])
@@ -112,6 +113,31 @@
   getDataDependenciesMod : RM ι σ η -> σ-dd
   [(getDataDependenciesMod con ι σ η) (getDataDependencies ι σ η)]
   [(getDataDependenciesMod RM  ι σ η) ()])
+
+  ;; [observedWriteLbl (vName ι)
+  ;;                   (par observedWrites observedWrites)]
+
+(define-metafunction coreLang
+  resolveObservedWrite_lbl : path observedWriteList (vName ι τ) auxξ -> auxξ
+  [(resolveObservedWrite_lbl path (vName_0 ι_0) (vName ι τ) auxξ)
+   auxξ_upd_readψ
+   
+   (where observedWrites_old (getObservedWrites auxξ))
+   (where observedWrites_new (updateOnPath path (elToList El) observedWrites_old))
+
+   (where auxξ_upd_observedWrites (updateState (RW observedWrites_old)
+                                               (RW observedWrites_new)
+                                               auxξ))
+   
+   (where ψ_old (getReadψ auxξ))
+   (where ψ_new (updateByFront path ((ι τ)) ψ_old))
+   (where auxξ_upd_readψ          (updateState (Read ψ_old)
+                                               (Read ψ_new)
+                                               auxξ_upd_observedWrites))]
+
+   ]
+  [(resolveObservedWrite_lbl path (vName_0 ι_0) (vName ι τ) auxξ) auxξ
+   (side-condition (not (and (equal? vN))))])
 
 (define-metafunction coreLang
   resolveObservedWrite_path : path observedWrites (vName ι τ) auxξ -> auxξ

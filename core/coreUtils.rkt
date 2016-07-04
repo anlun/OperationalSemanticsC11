@@ -232,7 +232,9 @@
                               (where auxξ_φ     (updateState (P φ_old) (P φ_new) auxξ_readψ))
 
                               (where observedWrites_old (getObservedWrites auxξ_φ))
-                              (where observedWrites_new (updateOnPath path () observedWrites_old))
+                              (where (par observedWrites_0 observedWrites_1) (getByPath path observedWrites_old))
+                              (where observedWrites_new (updateOnPath path ((par observedWrites_0 observedWrites_1))
+                                                                      observedWrites_old))
                               (where auxξ_new (updateState (RW observedWrites_old)
                                                            (RW observedWrites_new)
                                                            auxξ_φ))])
@@ -258,7 +260,9 @@
                            (where auxξ_φ  (updateState (P φ_old) (P φ_new) auxξ_2ψ))
 
                            (where observedWrites_old (getObservedWrites auxξ_φ))
-                           (where observedWrites_new (updateOnPath path () observedWrites_old))
+                           (where (par observedWrites_0 observedWrites_1) (getByPath path observedWrites_old))
+                           (where observedWrites_new (updateOnPath path ((par observedWrites_0 observedWrites_1))
+                                                                   observedWrites_old))
                            (where auxξ_new (updateState (RW observedWrites_old)
                                                         (RW observedWrites_new)
                                                         auxξ_φ))])
@@ -428,13 +432,28 @@
                                  (term α)))])
 
 (define-metafunction coreLang
+  flat-ObservedWriteList : observedWriteList -> ((vName ι) ...)
+  [(flat-ObservedWriteList observedWriteList)
+   ,(map (λ (x) (match x
+                  [(list name loc) x]
+                  [(list 'par list0 list1)
+                   (append (term (flat-ObservedWriteList list0))
+                           (term (flat-ObservedWriteList list1)))]))
+         (term observedWriteList))])
+
+(define-metafunction coreLang
+  flattenObservedWriteList : path observedWrites -> ((vName ι) ...)
+  [(flattenObservedWritesList path observedWrites)
+   (flat-ObservedWriteList (getByPath path observedWrites))])
+
+(define-metafunction coreLang
   addObservedWritesToγ : path ι τ WM auxξ -> auxξ
   [(addObservedWritesToγ path ι τ rlx auxξ) auxξ]
   [(addObservedWritesToγ path ι τ WM (θ_0 ... (R γ) θ_1 ... (RW observedWrites) θ_2 ...))
    (θ_0 ... (R γ_new) θ_1 ... (RW observedWrites) θ_2 ...)
    (where γ_new ,(append (map (λ (x) (match x [(list name loc)
                                                (list (term ι) (term τ) name)]))
-                              (term (getByPath path observedWrites)))
+                              (term (flattenObservedWriteList path observedWrites)))
                          (term γ)))]
 
   [(addObservedWritesToγ path ι τ WM auxξ) auxξ])
@@ -850,7 +869,7 @@
 (define-metafunction coreLang
   hasιInObservedWrites : path ι auxξ -> boolean
   [(hasιInObservedWrites path ι (θ_0 ... (RW observedWrites) θ_1 ...)) #t
-   (where (in-hole El (vName ι)) (getByPath path observedWrites))]
+   (where (in-hole El (vName ι)) (flattenObservedWriteList path observedWrites))]
 
   [(hasιInObservedWrites path ι auxξ) #f])
 

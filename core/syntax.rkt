@@ -158,8 +158,10 @@
         (postponedEntry ... (if vName Expr Eifα α) postponedEntry ...)
         (postponedEntry ... (if vName Expr α Eifα) postponedEntry ...)]
   
-  [observedWriteLbl (vName ι)]
-  [observedWrites (observedWriteLbl ...)
+  [observedWriteLbl (vName ι)
+                    (par observedWrites observedWrites)]
+  [observedWriteList (observedWriteLbl ...)]
+  [observedWrites observedWriteList
                   (par observedWrites observedWrites)]
 
   [Relation rf
