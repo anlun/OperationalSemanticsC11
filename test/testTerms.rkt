@@ -1023,3 +1023,28 @@ Possible outcome: r = 1
         z_rlx })
 
 (define term_nOTA_prop_rlx (concretize term_nOTA_prop_abst "rlx rlx rlx rlx rlx"))
+
+#|
+               x_rlx := 0; y_rlx := 0;
+x_rlx := 1 || x_rlx := 2 || r1 = x_rlx; || r3 = y_acq;
+           ||            || r2 = x_rlx; || r4 = x_rlx
+           ||            || y_rel := 1  ||
+                   ret [r2 [r3 r4]]
+Because of read-read coherence, if r3 == 1 then r4 == r2.
+|#
+(define term_CoRR_spec
+  @prog{x_rlx := 0;
+        y_rlx := 0;
+        r0 := spw
+              {{{ spw {{{ x_rlx := 1 ||| x_rlx := 2 }}}
+              ||| spw
+                  {{{ r1 := x_rlx;
+                      r2 := x_rlx;
+                      y_rel := 1;
+                      ret [r1 r2]
+                  ||| r3 := y_acq;
+                      r4 := x_rlx;
+                      ret [r3 r4]
+                  }}}
+              }}};
+        ret r0_2 })
