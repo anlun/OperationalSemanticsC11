@@ -4,6 +4,11 @@
 (provide (all-defined-out))
 
 (define-metafunction coreLang
+  mightBePostponed : auxξ -> boolean
+  [(mightBePostponed (θ_0 ... (P φ) θ_1 ...)) #t]
+  [(mightBePostponed auxξ) #f])
+
+(define-metafunction coreLang
   getη : auxξ -> η
   [(getη (θ_0 ... η θ_1 ...)) η])
 
@@ -223,6 +228,15 @@
                                                           (RW (dup path observedWrites_old))
                                                           auxξ_φ))])
 
+(define (list-union list1 list2)
+  (let ([listMid (filter (λ (x) (not (member x list2))) list1)])
+    (append listMid list2)))
+
+(define-metafunction coreLang
+  unionT : (any ...) (any ...) -> (any ...)
+  [(unionT any_0 any_1) ,(list-union (term any_0)
+                                     (term any_1))])
+
 (define-metafunction coreLang
   joinST-readψ-φ : path auxξ -> auxξ
   [(joinST-readψ-φ path auxξ) auxξ_new 
@@ -233,7 +247,7 @@
 
                               (where observedWrites_old (getObservedWrites auxξ_φ))
                               (where (par observedWrites_0 observedWrites_1) (getByPath path observedWrites_old))
-                              (where observedWrites_merged (appendT observedWrites_0 observedWrites_1))
+                              (where observedWrites_merged (unionT observedWrites_0 observedWrites_1))
                               (where auxξ_new (updateState (RW observedWrites_old)
                                                            (RW (updateOnPath path observedWrites_merged observedWrites_old))
                                                            auxξ_φ))])
@@ -260,14 +274,14 @@
 
                            (where observedWrites_old (getObservedWrites auxξ_φ))
                            (where (par observedWrites_0 observedWrites_1) (getByPath path observedWrites_old))
-                           (where observedWrites_merged (appendT observedWrites_0 observedWrites_1))
+                           (where observedWrites_merged (unionT observedWrites_0 observedWrites_1))
                            (where auxξ_new (updateState (RW observedWrites_old)
                                                         (RW (updateOnPath path observedWrites_merged observedWrites_old))
                                                         auxξ_φ))])
 
 (define (getLastNodeNumber nodes)
       (apply max
-             (map (lambda (x)
+             (map (λ (x)
                     (match x [(list fst snd) fst]))
              nodes)))
 

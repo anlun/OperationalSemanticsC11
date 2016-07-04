@@ -1042,7 +1042,7 @@ Because of read-read coherence, if r3 == 1 then r4 == r2.
                   {{{ r1 := x_rlx;
                       r2 := x_rlx;
                       y_rel := 1;
-                      ret r2
+                      ret [r1 r2]
                   ||| r3 := y_acq;
                       r4 := x_rlx;
                       ret [r3 r4]

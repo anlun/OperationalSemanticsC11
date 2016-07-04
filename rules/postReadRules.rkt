@@ -7,6 +7,64 @@
 (provide define-postponedReadRules) 
 
 (define-metafunction coreLang
+  getRWS : auxξ -> observedWritesSync 
+  [(getRWS (θ_0 ... (RWS observedWritesSync) θ_1 ...)) observedWritesSync])
+
+(define-metafunction coreLang
+  appendOnPath : path any any -> any
+  [(appendOnPath path any_to-append any) (updateOnPath path any_new any)
+   (where any_old (getByPath path any))
+   (where any_new (appendT any_old any_to-append))])
+
+(define-metafunction coreLang
+  addDepEdgesHistoryRead : ι τ RM path auxξ -> (auxξ boolean)
+  [(addDepEdgesHistoryRead ι τ RM path auxξ) (auxξ_new boolean)
+   (side-condition (mo<=? 'acq (term RM)))
+   (where boolean (not (term (hasιInObservedWrites path ι auxξ))))
+   (where observedWritesSync (getRWS auxξ))
+   (where (in-hole El (ι τ (observedWriteLbl ...))) observedWritesSync)
+
+   (where observedWrites     (getObservedWrites observedWrites_new))
+   (where observedWrites_new (appendOnPath path (observedWriteLbl ...) observedWrites))
+   (where auxξ_new (updateState (RW observedWrites) (RW observedWrites_new) auxξ))]
+
+  [(addDepEdgesHistoryRead ι τ RM path auxξ) (auxξ boolean)
+   (where boolean ,(not (term (hasιInObservedWrites path ι auxξ))))])
+
+(define-metafunction coreLang
+  getRWD : auxξ -> writeDependencies
+  [(getRWD (θ_0 ... (RWD writeDependencies) θ_1 ...)) writeDependencies])
+
+(define-metafunction coreLang
+  addDepEdges : vName ι path auxξ -> (auxξ boolean)
+  [(addDepEdges vName ι path auxξ) (auxξ_new boolean)
+   (where observedWrites (getObservedWrites auxξ))
+   (where (observedWriteLbl ...) (getByPath path observedWrites))
+
+   (where writeDependencies (getRWD auxξ))
+   (where writeDependencies_mid
+          (appendT writeDependencies
+                   ,(apply append
+                           (map (λ (x)
+                                  (match x [(list name loc)
+                                            (if (equal? loc (term ι))
+                                                (list (list name (term vName)))
+                                                '())]))
+                                (term (observedWriteLbl ...))))))
+   
+   (where (writeDependencies_new boolean)
+          ,(let ([graph (unweighted-graph/directed (term writeDependencies_mid))])
+             (list (get-edges graph) (isGraphAcyclic graph))))
+
+   (where auxξ_RWD (updateState (RWD writeDependencies)
+                                (RWD writeDependencies_new) auxξ))
+
+   (where observedWrites_new (snocOnPathIfNew path (vName ι) observedWrites))
+   (where auxξ_new           (updateState (RW observedWrites)
+                                          (RW observedWrites_new)
+                                          auxξ_RWD))])
+
+(define-metafunction coreLang
   getWriteToPropagate_α : ι α -> Maybe ;postponedEntry
   [(getWriteToPropagate_α ι ()) None]
   [(getWriteToPropagate_α ι ((read  vName ι-var acq σ-dd) any ...)) None]
@@ -93,8 +151,11 @@
             (observedWritesToEdges ι observedWrites))])
 
 (define (hasLoop edges)
-  (ormap (λ (x) (> (length x) 1))
-         (scc (unweighted-graph/directed edges))))
+  (not (isGraphAcyclic (unweighted-graph/directed edges))))
+
+(define (isGraphAcyclic graph)
+  (not (ormap (λ (x) (> (length x) 1))
+              (scc graph))))
 
 (define-metafunction coreLang
   hasιInObservedWrites : path ι auxξ -> boolean
@@ -147,9 +208,46 @@
   [(resolveObservedWrite_path path observedWrites (vName ι τ) auxξ) auxξ])
 
 (define-metafunction coreLang
-  resolveObservedWrite : (vName ι τ) auxξ -> auxξ
-  [(resolveObservedWrite (vName ι τ) auxξ)
-   (resolveObservedWrite_path () (getObservedWrites auxξ) (vName ι τ) auxξ)])
+  getObservedWritesSyncList : ι path auxξ -> (observedWriteLbl ...)
+  [(getObservedWritesSyncList ι path auxξ) (observedWriteLbl ...)
+   (where σ (getWriteσ_2ψ auxξ))
+   (where (Just τ) (lookup ι σ))
+   (where (any_0 ... (ι τ (observedWriteLbl ...)) any_1 ...) (getRWS auxξ))]
+
+  [(getObservedWritesSyncList ι path auxξ) ()])
+
+(define-metafunction coreLang
+  resolveObservedWrite : path (vName ι τ WM) auxξ -> auxξ
+  [(resolveObservedWrite path (vName ι τ WM) auxξ) auxξ_1
+   (where observedWrites (getObservedWrites auxξ))
+   ;; (side-condition (writeln "2"))
+   (where auxξ_0 (resolveObservedWrite_path () (getObservedWrites auxξ) (vName ι τ) auxξ))
+   ;; (side-condition (writeln "3"))
+   
+   (where observedWritesSync (getRWS auxξ_0))
+   ;; (side-condition (writeln "4"))
+   (where observedWritesSync_1
+          ,(map (λ (x)
+                  (match x [(list loc t nameList)
+                            (list loc t
+                                  (filter (λ (x) (not (equal? x (term vName)))) nameList))]))
+                (term observedWritesSync)))
+   ;; (side-condition (writeln "5"))
+  
+   (where (observedWriteLbl_to-add ...)
+          ,(if (mo=>? 'rel (term WM))
+               (term (getByPath path observedWrites))
+               (term (getObservedWritesSyncList ι τ_write observedWritesSync))))
+
+   ;; (side-condition (writeln "6"))
+   ;; (side-condition (writeln (term (observedWriteLbl_to-add ...))))
+   (where observedWritesSync_new (consT (ι τ ,(map car (term (observedWriteLbl_to-add ...))))
+                                        observedWritesSync_1))
+
+   ;; (side-condition (writeln "7"))
+   (where auxξ_1 (updateState (RWS observedWritesSync)
+                              (RWS observedWritesSync_new)
+                              auxξ_0))])
 
 ;; TODO: Rewrite to tree traversal.
 ;; The current implementation doesn't work correctly
@@ -272,14 +370,14 @@
 
         (where γ          (getγ auxξ))
         (where γ_new      (removeγRestrictionsByVName vName γ))
-        (where auxξ_new   (updateState (R γ) (R γ_new) auxξ_upd_φ))
+        (where auxξ_upd_γ (updateState (R γ) (R γ_new) auxξ_upd_φ))
 
         (where σ_read     (getByPath path ψ_read))
         (where σ_to-check (frontMerge σ_read σ-dd))
         (where τ_read-min (fromMaybe 0 (lookup ι σ_to-check)))
         
-        ;; TODO: add it to `canPostponedReadBePerformed`
-        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
+        (where (auxξ_new boolean) (addDepEdgesHistoryRead ι τ RM path auxξ_upd_γ))
+        (side-condition (term boolean))
         
         (where ifContext (getIfContext Eifα))
         (side-condition (term
@@ -322,15 +420,10 @@
         (where γ_new      (removeγRestrictionsByVName vName γ))
         (where auxξ_upd_γ (updateState (R γ) (R γ_new) auxξ_upd_φ))
 
-        (where observedWrites       (getObservedWrites auxξ))
-        (where observedWrites_check (snocOnPath path (vName_1 ι) observedWrites))
+        (where (auxξ_RWD boolean) (addDepEdges vName_1 ι path auxξ_upd_γ))
+        (side-condition (term boolean))
 
-        (side-condition (not (hasLoop (term (writesMOedges ι φ observedWrites_check)))))
-
-        (where observedWrites_new (snocOnPathIfNew path (vName_1 ι) observedWrites))
-        (where auxξ_new           (updateState (RW observedWrites)
-                                               (RW observedWrites_new)
-                                               auxξ_upd_γ)))
+        (where auxξ_new auxξ_RWD))
 
    (-->  (AST  auxξ)
         (normalize        
@@ -518,7 +611,7 @@
 
         (where auxξ_upd_γ_2 (addPostReadsToγ_α (elFirstPart El) ι τ auxξ_upd_γ))
         
-        (where auxξ_upd_observedWrites (resolveObservedWrite (vName ι τ) auxξ_upd_γ_2))
+        (where auxξ_upd_observedWrites (resolveObservedWrite path (vName ι τ WM) auxξ_upd_γ_2))
         (where auxξ_new   auxξ_upd_observedWrites))
 
    (-->  ((in-hole E (in-hole Eif (if vName AST_0 AST_1))) auxξ)

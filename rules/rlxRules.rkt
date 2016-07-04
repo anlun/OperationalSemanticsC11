@@ -54,7 +54,9 @@
 
         (side-condition (term (are∀PostReadsRlx  path auxξ)))
         (side-condition (term (ιNotInReadQueue ι path auxξ)))
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (term (isPossibleE E auxξ)))
+        
+        (side-condition (not (term (mightBePostponed auxξ)))))
 
    (-->  ((in-hole E (cas SM rlx ι μ-value_expected μ-value_new)) auxξ)
         (normalize
