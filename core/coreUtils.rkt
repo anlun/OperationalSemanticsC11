@@ -432,18 +432,31 @@
                                  (term α)))])
 
 (define-metafunction coreLang
+  flat-ObservedWrites : observedWrites -> ((vName ι) ...)
+  [(flat-ObservedWrites observedWriteList) (flat-ObservedWriteList observedWriteList)]
+  [(flat-ObservedWrites (par observedWrites_0 observedWrites_1))
+                        (appendT (flat-ObservedWrites observedWrites_0)
+                                 (flat-ObservedWrites observedWrites_1))])
+
+(define-metafunction coreLang
+  flat-ObservedWrites-ι : ι observedWrites -> ((vName ι) ...)
+  [(flat-ObservedWrites-ι ι observedWrites)
+   ,(filter (λ (x) (equal? (cadr x) (term ι))) (term (flat-ObservedWrites observedWrites)))])
+
+(define-metafunction coreLang
   flat-ObservedWriteList : observedWriteList -> ((vName ι) ...)
   [(flat-ObservedWriteList observedWriteList)
-   ,(map (λ (x) (match x
-                  [(list name loc) x]
-                  [(list 'par list0 list1)
-                   (append (term (flat-ObservedWriteList list0))
-                           (term (flat-ObservedWriteList list1)))]))
-         (term observedWriteList))])
+   ,(apply append
+           (map (λ (x) (match x
+                         [(list name loc) (list x)]
+                         [(list 'par list0 list1)
+                          (append (term (flat-ObservedWrites ,list0))
+                                  (term (flat-ObservedWrites ,list1)))]))
+                (term observedWriteList)))])
 
 (define-metafunction coreLang
   flattenObservedWriteList : path observedWrites -> ((vName ι) ...)
-  [(flattenObservedWritesList path observedWrites)
+  [(flattenObservedWriteList path observedWrites)
    (flat-ObservedWriteList (getByPath path observedWrites))])
 
 (define-metafunction coreLang

@@ -44,23 +44,44 @@
           (listToEdges (any_1 any_2 ...)))])
 
 (define-metafunction coreLang
+  observedWriteListToEdges_vName : vName ι observedWriteList -> ((vName vName) ...)
+  [(observedWriteListToEdges_vName vName ι observedWriteList)
+   ,(map (λ (x) (match x [(list name loc) (list (term vName) name)]))
+         (term observedWrites_ι))
+   (where observedWrites_ι
+          ,(filter (λ (x) (match x
+                            [(list vname loc)
+                             (equal? loc (term ι))]))
+                   (term (flat-ObservedWriteList observedWriteList))))])
+
+(define-metafunction coreLang
+  observedWriteListToEdges : ι observedWriteList -> ((vName vName) ...)
+  [(observedWriteListToEdges ι ()) ()]
+
+  [(observedWriteListToEdges ι ((vName ι) any ...))
+   (appendT (observedWriteListToEdges ι (any ...))
+            (observedWriteListToEdges_vName vName ι (any ...)))]
+
+  [(observedWriteListToEdges ι ((vName ι_0) any ...))
+   (observedWriteListToEdges ι (any ...))]
+
+  [(observedWriteListToEdges ι ((par observedWrites_0 observedWrites_1) any ...))
+   ,(append (term (observedWriteListToEdges ι (any ...)))
+            (term (observedWritesToEdges ι observedWrites_0))
+            (term (observedWritesToEdges ι observedWrites_1))
+            (apply append
+                   (map (λ (x) (term (observedWriteListToEdges_vName ,(car x) ι (any ...))))
+                        (term (flat-ObservedWrites-ι ι (par observedWrites_0 observedWrites_1))))))])
+
+(define-metafunction coreLang
   observedWritesToEdges : ι observedWrites -> ((vName vName) ...)
   [(observedWritesToEdges ι (par observedWrites_0 observedWrites_1))
    (appendT (observedWritesToEdges ι observedWrites_0)
             (observedWritesToEdges ι observedWrites_1))]
 
-  ;; TODO: CHANGE IT!!!! NOT LINEAR STRUCTURE ANYMORE!!!
   [(observedWritesToEdges ι observedWriteList)
-   (listToEdges (vName ...))
-   (where observedWrites_ι
-          ,(filter (λ (x) (match x
-                            [(list vname loc)
-                             (equal? loc (term ι))]))
-                   (term (flat-ObservedWriteList observedWriteList))))
-   (where (vName ...)
-          ,(map (λ (x) (match x [(list vname loc) vname]))
-                (term observedWrites_ι)))])
-
+   (observedWriteListToEdges ι observedWriteList)])
+   
 (define-metafunction coreLang
   postponedEntryToWriteVNames : ι postponedEntry -> (vName ...)
   [(postponedEntryToWriteVNames ι (read   any ...)) ()]
@@ -114,30 +135,37 @@
   [(getDataDependenciesMod con ι σ η) (getDataDependencies ι σ η)]
   [(getDataDependenciesMod RM  ι σ η) ()])
 
-  ;; [observedWriteLbl (vName ι)
-  ;;                   (par observedWrites observedWrites)]
-
 (define-metafunction coreLang
-  resolveObservedWrite_lbl : path observedWriteList (vName ι τ) auxξ -> auxξ
-  [(resolveObservedWrite_lbl path (vName_0 ι_0) (vName ι τ) auxξ)
-   auxξ_upd_readψ
-   
-   (where observedWrites_old (getObservedWrites auxξ))
-   (where observedWrites_new (updateOnPath path (elToList El) observedWrites_old))
-
-   (where auxξ_upd_observedWrites (updateState (RW observedWrites_old)
-                                               (RW observedWrites_new)
-                                               auxξ))
-   
+  resolveObservedWrite_lbl : path (vName ι) (vName ι τ) auxξ -> auxξ
+  [(resolveObservedWrite_lbl path (vName ι) (vName ι τ) auxξ) auxξ_upd_readψ
    (where ψ_old (getReadψ auxξ))
    (where ψ_new (updateByFront path ((ι τ)) ψ_old))
-   (where auxξ_upd_readψ          (updateState (Read ψ_old)
-                                               (Read ψ_new)
-                                               auxξ_upd_observedWrites))]
+   (where auxξ_upd_readψ (updateState (Read ψ_old) (Read ψ_new) auxξ))]
 
-   ]
-  [(resolveObservedWrite_lbl path (vName_0 ι_0) (vName ι τ) auxξ) auxξ
-   (side-condition (not (and (equal? vN))))])
+  [(resolveObservedWrite_lbl path (vName_0 ι_0) (vName ι τ) auxξ) auxξ])
+
+(define-metafunction coreLang
+  deleteFromObservedWrites : vName observedWrites -> observedWrites
+  [(deleteFromObservedWrites vName observedWriteList)
+   (deleteFromObservedWriteList vName observedWriteList)]
+
+  [(deleteFromObservedWrites vName (par observedWrites_0 observedWrites_1))
+   (par (deleteFromObservedWrites vName observedWrites_0)
+        (deleteFromObservedWrites vName observedWrites_1))])
+
+(define-metafunction coreLang
+  deleteFromObservedWriteLbl : vName  observedWriteLbl -> (observedWriteLbl ...)
+  [(deleteFromObservedWriteLbl vName (vName ι)) ()]
+  [(deleteFromObservedWriteLbl vName (par observedWrites_0 observedWrites_1))
+   ((par (deleteFromObservedWrites vName observedWrites_0)
+         (deleteFromObservedWrites vName observedWrites_1)))]
+  [(deleteFromObservedWriteLbl vName observedWriteLbl) (observedWriteLbl)])
+
+(define-metafunction coreLang
+  deleteFromObservedWriteList : vName observedWriteList -> observedWriteList
+  [(deleteFromObservedWriteList vName observedWriteList)
+   ,(apply append (map (λ (x) (term (deleteFromObservedWriteLbl vName ,x)))
+                       (term observedWriteList)))])
 
 (define-metafunction coreLang
   resolveObservedWrite_path : path observedWrites (vName ι τ) auxξ -> auxξ
@@ -146,21 +174,22 @@
    (where auxξ_0 (resolveObservedWrite_path (updatePath L path) observedWrites_0 (vName ι τ) auxξ))
    (where auxξ_1 (resolveObservedWrite_path (updatePath R path) observedWrites_1 (vName ι τ) auxξ_0))]
 
-  [(resolveObservedWrite_path path (in-hole El (vName ι)) (vName ι τ) auxξ)
-   auxξ_upd_readψ
-   
-   (where observedWrites_old (getObservedWrites auxξ))
-   (where observedWrites_new (updateOnPath path (elToList El) observedWrites_old))
+  [(resolveObservedWrite_path path observedWriteList (vName ι τ) auxξ)
+   auxξ_new
+   (where auxξ_upd_readψ
+          ,(foldl (λ (elem r) (term (resolveObservedWrite_lbl path ,elem (vName ι τ) ,r)))
+                  (term auxξ)
+                  (term (flat-ObservedWriteList observedWriteList))))
 
-   (where auxξ_upd_observedWrites (updateState (RW observedWrites_old)
-                                               (RW observedWrites_new)
-                                               auxξ))
-   
-   (where ψ_old (getReadψ auxξ))
-   (where ψ_new (updateByFront path ((ι τ)) ψ_old))
-   (where auxξ_upd_readψ          (updateState (Read ψ_old)
-                                               (Read ψ_new)
-                                               auxξ_upd_observedWrites))]
+   (where observedWrites_old (getObservedWrites auxξ))
+   (where observedWrites_new (updateOnPath
+                              path
+                              (deleteFromObservedWriteList vName observedWriteList)
+                              observedWrites_old))
+
+   (where auxξ_new (updateState (RW observedWrites_old)
+                                (RW observedWrites_new)
+                                auxξ_upd_readψ))]
 
   [(resolveObservedWrite_path path observedWrites (vName ι τ) auxξ) auxξ])
 
