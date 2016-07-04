@@ -232,9 +232,10 @@
                               (where auxξ_φ     (updateState (P φ_old) (P φ_new) auxξ_readψ))
 
                               (where observedWrites_old (getObservedWrites auxξ_φ))
-                              (where observedWrites_new (updateOnPath path () observedWrites_old))
+                              (where (par observedWrites_0 observedWrites_1) (getByPath path observedWrites_old))
+                              (where observedWrites_merged (appendT observedWrites_0 observedWrites_1))
                               (where auxξ_new (updateState (RW observedWrites_old)
-                                                           (RW observedWrites_new)
+                                                           (RW (updateOnPath path observedWrites_merged observedWrites_old))
                                                            auxξ_φ))])
 
 (define-metafunction coreLang
@@ -258,9 +259,10 @@
                            (where auxξ_φ  (updateState (P φ_old) (P φ_new) auxξ_2ψ))
 
                            (where observedWrites_old (getObservedWrites auxξ_φ))
-                           (where observedWrites_new (updateOnPath path () observedWrites_old))
+                           (where (par observedWrites_0 observedWrites_1) (getByPath path observedWrites_old))
+                           (where observedWrites_merged (appendT observedWrites_0 observedWrites_1))
                            (where auxξ_new (updateState (RW observedWrites_old)
-                                                        (RW observedWrites_new)
+                                                        (RW (updateOnPath path observedWrites_merged observedWrites_old))
                                                         auxξ_φ))])
 
 (define (getLastNodeNumber nodes)

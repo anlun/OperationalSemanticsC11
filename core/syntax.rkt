@@ -161,6 +161,9 @@
   [observedWriteLbl (vName ι)]
   [observedWrites (observedWriteLbl ...)
                   (par observedWrites observedWrites)]
+  
+  [observedWritesSync ((ι τ (vName ...)) ...)]
+  [writeDependencies  ((vName vName) ...)]
 
   [Relation rf
             sb

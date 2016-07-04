@@ -11,7 +11,7 @@
 (require "../core/langs.rkt")
 (provide defaultState step randomStep)
 
-(define-term defaultState (() (Read ()) (NA ()) (Write ()) (SC ()) (P ()) (R ()) (RW ()) (Deallocated ())))
+(define-term defaultState (() (Read ()) (NA ()) (Write ()) (SC ()) (P ()) (R ()) (RW ()) (RWD ()) (RWS ()) (Deallocated ())))
 (define coreStep
   (extend-reduction-relation
    (define-coreStep defaultState spwST-2ψ-φ joinST-2ψ-φ isReadQueueEqualTo)
