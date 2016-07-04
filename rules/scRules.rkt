@@ -37,11 +37,13 @@
         (where η_new          (updateCell  ι μ-value σ_read_new η))
         (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
         (where auxξ_upd_γ     (addPostReadsToγ path ι τ auxξ_upd_η))
-        (where auxξ_new       auxξ_upd_γ)
+        (where auxξ_upd_γ_2   (addObservedWritesToγ path ι τ sc auxξ_upd_γ))
+        (where auxξ_new       auxξ_upd_γ_2)
 
         ;(side-condition (term (isReadQueueEqualTo () path auxξ))))
         (side-condition (term (are∀PostReadsRlx  path auxξ)))
         (side-condition (term (ιNotInReadQueue ι path auxξ)))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
         (side-condition (term (isPossibleE E auxξ))))
       
    (-->  ((in-hole E (read   sc ι)) auxξ)
@@ -62,6 +64,7 @@
         (where σ_sc     (getσSC auxξ))
         (side-condition (term (correctτ τ ι (frontMerge σ_read σ_sc))))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
         (side-condition (term (isPossibleE E auxξ))))
 
    (-->  ((in-hole E (cas SM sc ι μ-value_expected μ-value_new)) auxξ)
@@ -82,7 +85,9 @@
         (where σ_sc     (getσSC auxξ))
         (side-condition (term (correctτ τ ι (frontMerge σ_read σ_sc))))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
         (side-condition (not (equal? (term μ-value) (term μ-value_expected))))
+
         (side-condition (term (isPossibleE E auxξ))))
 
    (-->  ((in-hole E (cas sc FM ι μ-value_expected μ-value_new)) auxξ)
@@ -107,13 +112,16 @@
         (where η_new          (updateCell ι μ-value_new σ_new η))
         (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
 
+        (where auxξ_upd_γ   (addObservedWritesToγ path ι τ sc auxξ_upd_η))
+
         (where τ_last     (getLastTimestamp ι η))
         (where τ          (getNextTimestamp ι η))
         (where auxξ_new       (addReadNode τ_last
                                            (rmw sc ι μ-value_expected μ-value_new τ)
-                                           path auxξ_upd_η))        
+                                           path auxξ_upd_γ)) 
         
         (side-condition
          (term (succCAScondition ι η μ-value_expected sc FM)))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
         (side-condition (term (isPossibleE E auxξ)))))))

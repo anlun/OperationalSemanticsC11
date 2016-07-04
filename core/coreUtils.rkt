@@ -427,6 +427,18 @@
                                                  [_ (list)]))
                                  (term α)))])
 
+(define-metafunction coreLang
+  addObservedWritesToγ : path ι τ WM auxξ -> auxξ
+  [(addObservedWritesToγ path ι τ rlx auxξ) auxξ]
+  [(addObservedWritesToγ path ι τ WM (θ_0 ... (R γ) θ_1 ... (RW observedWrites) θ_2 ...))
+   (θ_0 ... (R γ_new) θ_1 ... (RW observedWrites) θ_2 ...)
+   (where γ_new ,(append (map (λ (x) (match x [(list name loc)
+                                               (list (term ι) (term τ) name)]))
+                              (term (getByPath path observedWrites)))
+                         (term γ)))]
+
+  [(addObservedWritesToγ path ι τ WM auxξ) auxξ])
+
 ;; TODO: rename appropriately
 (define-metafunction coreLang
   addPostReadsToγ : path ι τ auxξ -> auxξ
@@ -834,6 +846,14 @@
                            (term ψ_write)
                            (term (updateByFront path σ ψ_write))))
    (where auxξ_new (updateState (Write ψ_write) (Write ψ_write_new) auxξ_upd_η))])
+
+(define-metafunction coreLang
+  hasιInObservedWrites : path ι auxξ -> boolean
+  [(hasιInObservedWrites path ι (θ_0 ... (RW observedWrites) θ_1 ...)) #t
+   (where (in-hole El (vName ι)) (getByPath path observedWrites))]
+
+  [(hasιInObservedWrites path ι auxξ) #f])
+
 
 ;; (define (find-path red from to)
 ;;   (define parents (make-hash))

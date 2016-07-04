@@ -97,14 +97,6 @@
          (scc (unweighted-graph/directed edges))))
 
 (define-metafunction coreLang
-  hasιInObservedWrites : path ι auxξ -> boolean
-  [(hasιInObservedWrites path ι auxξ) #t
-   (where observedWrites           (getObservedWrites auxξ))
-   (where (in-hole El (vName ι)) (getByPath path observedWrites))]
-
-  [(hasιInObservedWrites path ι auxξ) #f])
-
-(define-metafunction coreLang
   removeγRestrictionsByVName : vName γ -> γ
   [(removeγRestrictionsByVName vName γ)
    ,(filter (λ (x) (match x [(list loc t name)
@@ -514,11 +506,12 @@
         (where γ_part2      (removeγRestrictionsByVName vName γ_part1))
         (where auxξ_part2_γ (updateState (R γ_part1) (R γ_part2) auxξ_part1_γ))
         
-        (where auxξ_upd_γ  (dupRelWriteRestrictions ι τ σ_write auxξ_part2_γ))
+        (where auxξ_upd_γ   (dupRelWriteRestrictions ι τ σ_write auxξ_part2_γ))
 
         (where auxξ_upd_γ_2 (addPostReadsToγ_α (elFirstPart El) ι τ auxξ_upd_γ))
+        (where auxξ_upd_γ_3 (addObservedWritesToγ path ι τ WM auxξ_upd_γ_2))
         
-        (where auxξ_upd_observedWrites (resolveObservedWrite (vName ι τ) auxξ_upd_γ_2))
+        (where auxξ_upd_observedWrites (resolveObservedWrite (vName ι τ) auxξ_upd_γ_3))
         (where auxξ_new   auxξ_upd_observedWrites))
 
    (-->  ((in-hole E (in-hole Eif (if vName AST_0 AST_1))) auxξ)

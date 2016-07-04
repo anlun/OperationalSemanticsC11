@@ -55,7 +55,8 @@
         (where η_new          (updateCell  ι μ-value σ_new η))
         (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
         (where auxξ_upd_γ     (addPostReadsToγ path ι τ auxξ_upd_η))
-        (where auxξ_new       (addWriteNode (write rel ι μ-value τ) path auxξ_upd_γ))
+        (where auxξ_upd_γ_2   (addObservedWritesToγ path ι τ rel auxξ_upd_γ))
+        (where auxξ_new       (addWriteNode (write rel ι μ-value τ) path auxξ_upd_γ_2))
 
         (side-condition (term (are∀PostReadsRlx  path auxξ)))
         (side-condition (term (ιNotInReadQueue ι path auxξ)))
@@ -79,6 +80,7 @@
                                      (term μ-value_expected))))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ acq auxξ))))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
 
         (side-condition (term (isPossibleE E auxξ))))
         
@@ -101,14 +103,16 @@
                                            (acqSuccCASσReadNew ι η σ_new)
                                            η))
         (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
+        (where auxξ_upd_γ     (addObservedWritesToγ path ι τ rel auxξ_upd_η))
         (where auxξ_new       (addReadNode τ_last
                                            (rmw rel ι μ-value_expected μ-value_new τ)
-                                           path auxξ_upd_η))
+                                           path auxξ_upd_γ))
         (side-condition
          (term (succCAScondition ι η μ-value_expected rel FM)))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
         ;; (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
 
         (side-condition (term (isPossibleE E auxξ))))
    
@@ -137,6 +141,7 @@
          (term (succCAScondition ι η μ-value_expected acq FM)))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
 
         (side-condition (term (isPossibleE E auxξ))))
 
@@ -158,16 +163,19 @@
         (where η_new          (updateCell ι μ-value_new σ_new η))
         (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
 
+        (where auxξ_upd_γ     (addObservedWritesToγ path ι τ rel auxξ_upd_η))
+
         (where τ_last     (getLastTimestamp ι η))
         (where τ          (getNextTimestamp ι η))
         (where auxξ_new       (addReadNode τ_last
                                            (rmw relAcq ι μ-value_expected μ-value_new τ)
-                                           path auxξ_upd_η))        
+                                           path auxξ_upd_γ))        
         
         (side-condition
          (term (succCAScondition ι η μ-value_expected relAcq FM)))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
 
         (side-condition (term (isPossibleE E auxξ)))))))
 

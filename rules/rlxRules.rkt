@@ -74,6 +74,7 @@
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
         ;; (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ acq auxξ))))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
 
         (side-condition (term (isPossibleE E auxξ))))
    
@@ -90,17 +91,21 @@
         (where ψ_read_new    (updateByFront path ((ι τ)) ψ_read))
         (where auxξ_upd_read (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
 
+
         (where σ_write    (updateFront ι τ (getWriteσ path auxξ)))
         (where η_new          (updateCell  ι μ-value_new
                                            (acqSuccCASσReadNew ι η σ_write)
                                            η))
-        (where auxξ_new   (updateState η η_new auxξ_upd_read))
+        (where auxξ_upd_η (updateState η η_new auxξ_upd_read))
+
+        (where auxξ_new (dupRelWriteRestrictions ι τ (getWriteσ path auxξ) auxξ_upd_η))
 
         (side-condition
          (term (succCAScondition ι η μ-value_expected rlx FM)))
         (side-condition (term (ιNotInReadQueue ι path auxξ)))
         ;; (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
 
         (side-condition (term (isPossibleE E auxξ))))
 )))
