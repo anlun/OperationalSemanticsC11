@@ -24,9 +24,10 @@
 
 (define-metafunction coreLang
   snocOnPathIfNew : path any any -> any
-  [(snocOnPathIfNew () any_0 (in-hole El any_0)) (in-hole El  any_0)]
-  [(snocOnPathIfNew () any_0 any_1             ) (snocT any_0 any_1)]
-
+  [(snocOnPathIfNew () any_0 any_1)
+   ,(if (member (term any_0) (term any_1))
+        (term any_1)
+        (term (snocT any_0 any_1)))]
   [(snocOnPathIfNew (L path) any_0 (par any_1 any_2))
    (par (snocOnPathIfNew path any_0 any_1) any_2)]
   [(snocOnPathIfNew (R path) any_0 (par any_1 any_2))

@@ -81,6 +81,15 @@
 
   [(observedWritesToEdges ι observedWriteList)
    (observedWriteListToEdges ι observedWriteList)])
+
+(define-metafunction coreLang
+  isWriteTheOldest : vName ι auxξ -> boolean
+  [(isWriteTheOldest vName ι auxξ)
+   ,(not (ormap (λ (x) (match x [(list name0 name1)
+                                 (and (equal? name1 (term vName))
+                                      (not (equal? name0 name1)))]))
+                (term (observedWritesToEdges ι observedWrites))))
+   (where observedWrites (getObservedWrites auxξ))])
    
 (define-metafunction coreLang
   postponedEntryToWriteVNames : ι postponedEntry -> (vName ...)
@@ -525,6 +534,7 @@
         (where (in-hole El (write vName ι WM μ-value)) α)
         (side-condition (term
                          (canPostponedWriteBePerformed (vName ι) α)))
+        (side-condition (term (isWriteTheOldest vName ι auxξ)))
 
         (where path (pathEp Ep))
 
