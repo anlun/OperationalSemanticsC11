@@ -1,5 +1,5 @@
 # OperationalSemanticsC11
-An operational semantics for the C/C++11 memory model. [![Build Status](https://travis-ci.org/anlun/OperationalSemanticsC11.svg?branch=master)](https://travis-ci.org/anlun/OperationalSemanticsC11)
+An operational semantics for the C/C++11 memory model.
 
 ### Installation
 To run or compile the project for the first time you need to run
