@@ -30,7 +30,6 @@
                       addReadNode
                       synchronizeWriteFront isReadQueueEqualTo
                       are∀PostReadsRlx ιNotInReadQueue
-                      ; TODO -> addRMWnode  -- add for success CAS
                       addWriteNode)
   (begin
 

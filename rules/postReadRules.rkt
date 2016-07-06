@@ -334,7 +334,6 @@
         (where σ_to-check (frontMerge σ_read σ-dd))
         (where τ_read-min (fromMaybe 0 (lookup ι σ_to-check)))
         
-        ;; TODO: add it to `canPostponedReadBePerformed`
         (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
         
         (where ifContext (getIfContext Eifα))
@@ -362,7 +361,7 @@
         (where path_writer (pathEp Ep_writer))
         (side-condition (not (equal? (term path) (term path_writer))))
 
-        (side-condition (not (term (existSyncActions (elFirstPart El_reader))))) ;; TODO: add to `canPostponedReadBePerformed`.
+        (side-condition (not (term (existSyncActions (elFirstPart El_reader)))))
         (side-condition (not (term (existSyncActions (elFirstPart El_writer)))))
 
         (where ifContext (getIfContext Eifα))
@@ -538,7 +537,6 @@
 
         (where path (pathEp Ep))
 
-        ;; TODO: add to the `canPostponedWriteBePerformed`
         (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
         
         (where ifContext (getIfContext Eifα))
@@ -584,7 +582,6 @@
          ((in-hole E (in-hole Eif (chooseBranch number AST_0 AST_1))) auxξ_new))
         "if-speculation-branch-choice"
         
-        ;; TODO: check if it's possible to move here.
         (where ifContext (eifToIfContext Eif))
         (side-condition (term (isPossiblePath_resolve (vName ifContext) (pathE E) auxξ)))
 
@@ -602,7 +599,7 @@
          ((in-hole E (in-hole Eif (if a    AST_0 AST_1))) auxξ_new))
         "if-speculation-init"
         
-        (side-condition (term (isPossibleEEif E Eif auxξ))) ;; TODO: check if it's possible to move here.
+        (side-condition (term (isPossibleEEif E Eif auxξ)))
         (where Expr_simplified (calc Expr))
         (side-condition (not (redex-match coreLang number (term Expr_simplified))))
 
@@ -629,7 +626,7 @@
         (where (in-hole El_2 (write vName_2 ι WM μ-value)) α_2)
 
         (side-condition (term
-                         (canPostponedWriteBePerformed (vName_1 ι) α_1))) ;; TODO: check if it's possible to move here.
+                         (canPostponedWriteBePerformed (vName_1 ι) α_1)))
         (side-condition (term
                          (canPostponedWriteBePerformed (vName_2 ι) α_2)))
 
