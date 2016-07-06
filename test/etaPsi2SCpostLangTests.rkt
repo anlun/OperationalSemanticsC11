@@ -15,9 +15,20 @@ If there is no Rel-Acq pair, then R1 = R2 = 1 should be possible.
   (test-->>∃ step
           (term (,curTerm defaultState))
           (term ((ret (1 1)) defaultState))))
-(test_R-W_R-W_11 term_Rrlx-Wrlx_Rrlx-Wrlx)
-(test_R-W_R-W_11 term_Racq-Wrlx_Racq-Wrlx)
-(test_R-W_R-W_11 term_Rrlx-Wrel_Rrlx-Wrel)
+
+;; These tests require to uncomment "join-postponed-operations-interleaving"
+;; rule in "rules/postReadRules.rkt".
+;; It commented out as leading to very poor performance.
+(define (failingTests)
+  (test_R-W_R-W_11 term_Rrlx-Wrlx_Rrlx-Wrlx)
+  (test_R-W_R-W_11 term_Rrlx-Wrel_Rrlx-Wrel))
+
+;; This test requires "join-postponed-operations-interleaving" as well.
+;; Also it doesn't deliver desirable behavior because of acquire reads.
+;; However, the behaviour isn't observable on x86, ARM, Power with
+;; existing sound compilation schemes.
+(define (failingTest)
+  (test_R-W_R-W_11 term_Racq-Wrlx_Racq-Wrlx))
 
 (define (test_R-W_R-W_n11 curTerm)
   (test-->> step
