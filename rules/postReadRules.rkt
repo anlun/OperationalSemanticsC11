@@ -660,16 +660,10 @@
    ;;      (where auxξ_upd_φ    (updateState (P φ) (P φ_new) auxξ))
         
    ;;      (where observedWrites (getObservedWrites auxξ))
-   ;;      (where (par observedWrites_0 observedWrites_1)  (getByPath path observedWrites))
-   ;;      (side-condition (and (equal? '() (term observedWrites_0))
-   ;;                           (equal? '() (term observedWrites_1))))
+   ;;      (where (par observedWrites_0 observedWrites_1) (getByPath path observedWrites_old))
+   ;;      (where observedWrites_new (updateOnPath path ((par observedWrites_0 observedWrites_1))
+   ;;                                              observedWrites_old))
 
-   ;;      ;; TODO: weaken the previous side-condition
-   ;;      ;; (where (in-hole El observedWrites_interleaved) ,(interleavings (term observedWrites_0)
-   ;;      ;;                                                                (term observedWrites_1)))
-   ;;      ;; (where observedWrites_new (updateOnPath path observedWrites_interleaved observedWrites))
-
-   ;;      (where observedWrites_new (updateOnPath path () observedWrites))
    ;;      (where auxξ_new (updateState (RW observedWrites)
    ;;                                   (RW observedWrites_new)
    ;;                                   auxξ_upd_φ))
