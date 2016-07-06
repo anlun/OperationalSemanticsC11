@@ -74,7 +74,8 @@ if (x_mod1) {  || if (y_mod3) {
 
 Possible outcome: r = 1
 |#
-
+;; Unfortunately, this test takes forever to run.
+;; Randomized testing showed that everything is fine.
 ;; (test-->>∃ step
 ;;            (term (,term_nOTA_nestIf_rlx defaultState))
           

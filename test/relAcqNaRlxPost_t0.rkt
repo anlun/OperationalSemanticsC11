@@ -3,33 +3,21 @@
 (require "../steps/relAcqNaRlxPost.rkt")
 (require "testTerms.rkt")
 (require "../core/parser.rkt")
-
 #|
                x_rlx := 0; y_rlx := 0;
-x_rlx := 1 || x_rlx := 2 || r1 = x_rlx; || r3 = y_acq;
+x_rlx := 1 || x_rlx := 2 || r1 = x_rlx; || repeat y_acq end;
            ||            || r2 = x_rlx; || r4 = x_rlx
            ||            || y_rel := 1  ||
-                   ret [r2 [r3 r4]]
-Because of read-read coherence, if r3 == 1 then r4 == r2.
+                       r5 = x_rlx 
+                   ret [[r1 r2] [r3 r4]] r5
+Because of read-read coherence, if r3 == 1 then r4 value has to be not
+older than r2.
 |#
 (define (testLong)
     (test-->> randomStep
               (term (,term_CoRR_spec defaultState))
 
-              (term ((ret (0 (0 0)))))
-              ;; (term ((ret (0 (0 1)))))
-              ;; (term ((ret (0 (0 2)))))
-              ;; (term ((ret (1 (0 0)))))
-              ;; (term ((ret (1 (0 1)))))
-              ;; (term ((ret (1 (0 2)))))
-              ;; (term ((ret (2 (0 0)))))
-              ;; (term ((ret (2 (0 1)))))
-              ;; (term ((ret (2 (0 2)))))
-
-              ;; (term ((ret (0 (1 0)))))
-              ;; (term ((ret (1 (1 1)))))
-              ;; (term ((ret (2 (1 2)))))
-))
+              (term ((ret 0)))))
 
 #|
 x_{rel,rlx}  = 1 || y_{rel,rlx}  = 1
