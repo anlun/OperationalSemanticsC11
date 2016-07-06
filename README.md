@@ -6,14 +6,14 @@ To run or compile the project for the first time you need to run
 ```
 make link
 ```
-It downloads and installs dependencies (`racket-pretty-printing-combinators` library),
+It downloads and installs dependencies (`racket-pretty-printing-combinators` and `graph` libraries),
 compiles and installs the project.
 Futher you need to run
 ```
 make setup
 ```
 or just `make` to recompile it.
-The project needs a version of Racket >= 6.2.1.
+The project needs a version of Racket >= 6.4.
 
 ### How to write and execute own examples
 
