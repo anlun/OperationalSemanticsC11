@@ -1042,9 +1042,10 @@ Because of read-read coherence, if r3 == 1 then r4 == r2.
                       r2 := x_rlx;
                       y_rel := 1;
                       ret [r1 r2]
-                  ||| r3 := y_acq;
+                  ||| repeat y_acq end;
                       r4 := x_rlx;
-                      ret [r3 r4]
+                      ret r4
                   }}}
               }}};
-        ret r0_2 })
+        r5 := x_rlx;
+        ret [r0_2 r5] })
