@@ -50,11 +50,11 @@
             counter_rlx := 0;
             repeat
               rcr1 := cr1_acq;
-              ret (rcr1 > rcwn) + ((rcr1 % 2) == 0)
+              ret (rcr1 >= rcwn)
             end;
             repeat
               rcr2 := cr2_acq;
-              ret (rcr2 > rcwn) + ((rcr2 % 2) == 0)
+              ret (rcr2 >= rcwn)
             end;
             dealloc r2;
 
@@ -167,31 +167,10 @@
             }}}
        }}} })
 
-;; (define-term startState
-;;                   (updateState (Paths ())
-;;                                (Paths ((() 0 None) (() 0 None) (() 0 None) (() 0 None) (() 0 None)
-;;                                        ((L ()) 0 None) ((L ()) 0 None)
-;;                                        ((L ()) 0 None) ((L ()) 0 None)
-;;                                        ((L ()) 0 None) ((L ()) 0 None)
-;;                                        ((L ()) 0 None) ((L ()) 0 None)
-;;                                        ((L ()) 0 None) ((L ()) 0 None)
-;;                                        ((L ()) 0 None) ((L ()) 0 None)
-;;                                        ((L ()) 0 None) ((L ()) 0 None)
-;;                                        ((L ()) 0 None) ((L ()) 0 None)
-;;                                        ((L ()) 0 None) ((L ()) 0 None)
-;;                                        ((L ()) 0 None)
-
-;;                                        ((R ()) 0 None)
-;;                                        ))
-;;                                defaultState))
-
 (define (rcuTest)
   (test-->> randomStep
-            ;; (term (,term_RCU startState))
             (term (,term_RCU defaultState))
             (term ((ret (0 (0 0))) defaultState))))
-;; (rcuTest)
-;; (rcuTest)
 
 ;; Usage of consume reads leads to stuck states, because the data-dependency relation
 ;; doesn't go beyond write-read combination of cur(1|2) in repeat loops.
