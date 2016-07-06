@@ -1,0 +1,4 @@
+#!/bin/bash
+make link
+make
+make test
