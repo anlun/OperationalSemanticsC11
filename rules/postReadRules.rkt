@@ -342,50 +342,50 @@
       
         (side-condition (term (isPossibleRead path vName ι τ_read-min τ ifContext auxξ))))
 
-   (-->  (AST  auxξ)
-        (normalize        
-         ((subst vName μ-value
-                 (propagateDD_vName vName path σ-dd_new AST)) auxξ_new))
-        "read-resolve-speculative"
-        (where φ      (getφ auxξ))
+   ;; (-->  (AST  auxξ)
+   ;;      (normalize        
+   ;;       ((subst vName μ-value
+   ;;               (propagateDD_vName vName path σ-dd_new AST)) auxξ_new))
+   ;;      "read-resolve-speculative"
+   ;;      (where φ      (getφ auxξ))
         
-        (where (in-hole Ep α_thread) φ)
-        (where (in-hole Eifα α) α_thread)
-        (where (in-hole El_reader (read vName ι rlx σ-dd)) α)
+   ;;      (where (in-hole Ep α_thread) φ)
+   ;;      (where (in-hole Eifα α) α_thread)
+   ;;      (where (in-hole El_reader (read vName ι rlx σ-dd)) α)
         
-        (where (in-hole Ep_writer α_write) φ)
-        (where (in-hole El_writer (write vName_1 ι rlx μ-value)) α_write)
-        ;; (side-condition (term (canPostponedWriteBePerformed (vName_1 ι) α_write)))
+   ;;      (where (in-hole Ep_writer α_write) φ)
+   ;;      (where (in-hole El_writer (write vName_1 ι rlx μ-value)) α_write)
+   ;;      ;; (side-condition (term (canPostponedWriteBePerformed (vName_1 ι) α_write)))
 
-        (where path (pathEp Ep))
-        (where path_writer (pathEp Ep_writer))
-        (side-condition (not (equal? (term path) (term path_writer))))
+   ;;      (where path (pathEp Ep))
+   ;;      (where path_writer (pathEp Ep_writer))
+   ;;      (side-condition (not (equal? (term path) (term path_writer))))
 
-        (side-condition (not (term (existSyncActions (elFirstPart El_reader)))))
-        (side-condition (not (term (existSyncActions (elFirstPart El_writer)))))
+   ;;      (side-condition (not (term (existSyncActions (elFirstPart El_reader)))))
+   ;;      (side-condition (not (term (existSyncActions (elFirstPart El_writer)))))
 
-        (where ifContext (getIfContext Eifα))
-        (side-condition (term (canPostponedReadBePerformedWOτ (vName ι rlx σ-dd) α_thread ifContext)))
+   ;;      (where ifContext (getIfContext Eifα))
+   ;;      (side-condition (term (canPostponedReadBePerformedWOτ (vName ι rlx σ-dd) α_thread ifContext)))
 
-        (where σ-dd_new  σ-dd) 
-        (where α_new      (substμα vName μ-value σ-dd_new
-                                   (elToList El_reader)))
-        (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
-        (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ))
+   ;;      (where σ-dd_new  σ-dd) 
+   ;;      (where α_new      (substμα vName μ-value σ-dd_new
+   ;;                                 (elToList El_reader)))
+   ;;      (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
+   ;;      (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ))
 
-        (where γ          (getγ auxξ))
-        (where γ_new      (removeγRestrictionsByVName vName γ))
-        (where auxξ_upd_γ (updateState (R γ) (R γ_new) auxξ_upd_φ))
+   ;;      (where γ          (getγ auxξ))
+   ;;      (where γ_new      (removeγRestrictionsByVName vName γ))
+   ;;      (where auxξ_upd_γ (updateState (R γ) (R γ_new) auxξ_upd_φ))
 
-        (where observedWrites       (getObservedWrites auxξ))
-        (where observedWrites_check (snocOnPath path (vName_1 ι) observedWrites))
+   ;;      (where observedWrites       (getObservedWrites auxξ))
+   ;;      (where observedWrites_check (snocOnPath path (vName_1 ι) observedWrites))
 
-        (side-condition (not (hasLoop (term (writesMOedges ι φ observedWrites_check)))))
+   ;;      (side-condition (not (hasLoop (term (writesMOedges ι φ observedWrites_check)))))
 
-        (where observedWrites_new (snocOnPathIfNew path (vName_1 ι) observedWrites))
-        (where auxξ_new           (updateState (RW observedWrites)
-                                               (RW observedWrites_new)
-                                               auxξ_upd_γ)))
+   ;;      (where observedWrites_new (snocOnPathIfNew path (vName_1 ι) observedWrites))
+   ;;      (where auxξ_new           (updateState (RW observedWrites)
+   ;;                                             (RW observedWrites_new)
+   ;;                                             auxξ_upd_γ)))
 
    (-->  (AST  auxξ)
         (normalize        
@@ -431,7 +431,6 @@
                                                ;; auxξ_upd_γ))
         )
 
-   ;; TODO: update the rule to the speculative reads
    (--> (AST auxξ)
         (stuck defaultState)
         "read-resolve-stuck"
