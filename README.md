@@ -2,6 +2,8 @@
 An operational semantics for the C/C++11 memory model.
 
 ### Installation
+Short way: `./configure.in`.
+
 To run or compile the project for the first time you need to run
 ```
 make link
