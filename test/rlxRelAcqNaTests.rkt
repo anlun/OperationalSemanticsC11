@@ -45,7 +45,7 @@ Example from: Vafeiadis-Narayan:OOPSLA13 "Relaxed Separation Logic: A Program Lo
 It uses rlx writes and reads instead of rel/acq, and it leads to `stuck`.
 |#
 (test-->>∃ step
-         (term (,testTerm3-0 defaultState))
+         (term (,testMP+rlx defaultState))
          (term (stuck defaultState)))
 
 #|
@@ -55,7 +55,7 @@ c_rel = 1  ||   a_rlx = a_rlx + 1
        ret a_rlx
 |#
 (test-->> step
-         (term (,testTerm3-1 defaultState))
+         (term (,testMP-If+rel+acq defaultState))
          (term ((ret 7) defaultState))
          (term ((ret 8) defaultState)))
 #|

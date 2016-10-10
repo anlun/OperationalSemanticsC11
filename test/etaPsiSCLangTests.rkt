@@ -45,14 +45,14 @@ Example from: VafeiadisNarayan:OOPSLA13 "Relaxed Separation Logic: A Program Log
 It shouldn't get `stuck`.
 |#
 (test-->> step
-         (term (,testTerm3-2 defaultState))
+         (term (,testMP+sc defaultState))
          (term ((ret 8) defaultState)))
 
 #|
   x_rel = 0; y_rel = 0
 x_rel = 5  || y_rel = 5
 a_sc  = 0  || b_sc  = 0
-r1 = y_acq || r2 = x_acq
+
        ret r1 r2
 
 In Batty-al:POPL11 it's possible to get r1 = 0 /\ r2 = 0.
