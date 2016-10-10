@@ -18,6 +18,7 @@
                         UNDERSCORE ASSIGN CAS
                         RET STUCK
                         DEALLOC
+                        FENCE
                         EOF))
 (define-lex-trans number
   (syntax-rules ()
@@ -71,6 +72,7 @@
    ("repeat"  (token-REPEAT))
    ("end"     (token-END))
    ("repeatFuel" (token-REPEATFUEL))
+   ("fence"   (token-FENCE))
    
    ("spw" (token-SPW))
    ("{{{" (token-TOPEN))
@@ -120,6 +122,7 @@
           ((stmt SEMICOLON stmt)             (list $1 '>>= (list 'λ 'r-1 $3)))
           ((locvar UNDERSCORE MM ASSIGN exp) (list 'write $3 $1 $5))
           ((locvar UNDERSCORE MM)            (list 'read  $3 $1))
+          ((FENCE MM)                        (list 'fence $2))
           ((CAS MM UNDERSCORE MM
                 POPEN
                 locvar COMMA exp COMMA exp

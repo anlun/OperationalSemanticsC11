@@ -45,7 +45,7 @@
    ,(beside (term (ppμ μ)) "_2")])
 
 (define-metafunction coreLang
-  ; ppMod : WM/RM/SM/FM -> Doc
+  ; ppMod : WM/RM/SM/FM/FenceM -> Doc
   [(ppMod rlx   ) "rlx"]
   [(ppMod con   ) "con"]
   [(ppMod acq   ) "acq"]
@@ -79,6 +79,9 @@
      (term (ppι-var ι-var)) "_"
      (term (ppMod WM))      " := "
      (term (ppμ μ)))]
+  
+  [(pp (fence FenceM))
+   ,(beside "fence " (term ppMod FenceM))]
  
   [(pp (dealloc ι-var))
    ,(beside*

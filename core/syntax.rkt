@@ -13,6 +13,8 @@
        ; C++ Standard, 29.4-12, p.1101
        ; http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3337.pdf
        
+       (fence FenceM)
+       
        (if Expr AST AST)
        (repeat  AST    )
        (par     AST AST) ; Run-time construction.
@@ -58,6 +60,7 @@
   [WM sc rel rlx na]
   [SM sc relAcq acq rel rlx]
   [FM sc acq rlx]
+  [FenceM sc rel acq]
 
   [τ number]                         ; Timestamp
   [η-cell ((τ μ-value σ) ...)]

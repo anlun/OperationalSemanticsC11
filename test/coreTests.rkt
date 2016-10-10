@@ -250,7 +250,7 @@
               '((write rlx "x" 0) >>= (λ r-1
                ((write rlx "y" 0) >>= (λ r-1
                ((spw (ret 3) (ret 5)) >>= (λ ra
-                (ret ra)))))))))
+                (ret ra))))))))
 
   (test-equal @prog{r1 := if 0
                           then ret 0
@@ -259,6 +259,9 @@
                     ret r1}
               '((if 0 (ret 0) (ret 0)) >>= (λ r1
                 (ret r1))))
+
+  (test-equal @prog{fence sc}
+              '(fence sc)))
 (parser-tests)
 
 (define (pp-parser-test term)
