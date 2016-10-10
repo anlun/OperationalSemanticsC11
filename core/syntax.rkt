@@ -78,6 +78,12 @@
   ; Scheduler fronts for threads
   [ψ σ
      (par ψ ψ)]
+  
+  ; A function from ι to σ to represent a thread release fronts.
+  [χ ((ι σ) ...)]
+  ; A per-thread χ function.
+  [χ-tree χ
+          (par χ χ)]
     
   [E hole
      (E >>= K)
