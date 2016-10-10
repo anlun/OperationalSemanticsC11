@@ -40,13 +40,14 @@
 
 (define-extended-language etaPsi2Lang coreLang
   ; State:
-  ; AST       -- current state of program tree;
-  ; η         -- current heap history;
-  ; (Read  ψ) -- current threads read  fronts;
-  ; (NA    σ) -- location -> last NA write on it;
-  ; (Write ψ) -- current threads write fronts;
-  ; θ         -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ... (NA σ) θ ... (Write ψ) θ ...)])
+  ; AST          -- current state of program tree;
+  ; η            -- current heap history;
+  ; (Read  ψ)    -- current threads read  fronts;
+  ; (AcqFront ψ) -- current threads acquire fronts;
+  ; (NA    σ)    -- location -> last NA write on it;
+  ; (Write ψ)    -- current threads write fronts;
+  ; θ            -- extension point for auxilirary state.
+  [auxξ (θ ... η θ ... (Read ψ) θ ... (AcqFront ψ) θ ... (NA σ) θ ... (Write ψ) θ ...)])
 
 (define-extended-language etaPsi2SCLang coreLang
   ; State:
@@ -79,7 +80,7 @@
 (define postponedReadCoreTest (define-coreTest postponedReadCoreStep postponedReadDefaultState))
 
 (define-extended-language etaPsi2SCpostLang coreLang
-  [auxξ (η (Read ψ) (NA σ) (Write ψ) (SC σ) (P φ) (R γ) (RW observedWrites) (Deallocated listι))])
+  [auxξ (η (Read ψ) (AcqFront ψ) (NA σ) (Write ψ) (SC σ) (P φ) (R γ) (RW observedWrites) (Deallocated listι))])
 
 (define-extended-language graphLang coreLang
   [auxξ (η (Graph G) (GFront GF))])

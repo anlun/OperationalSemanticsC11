@@ -16,11 +16,13 @@
          ((in-hole E (ret μ-value)) auxξ_new))
         "read-rlx"
         (where η      (getη auxξ))
-        (where ψ      (getReadψ auxξ))
+        (where ψ      (getReadψ    auxξ))
+        (where ψ_acq  (getAcqFront auxξ))
         (where path   (pathE E))
 
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
-        (where auxξ_new (updateState (Read ψ) (Read (updateByFront path ((ι τ)) ψ)) auxξ))
+        (where auxξ_ψ_new (updateState (Read     ψ    ) (Read     (updateByFront path ((ι τ)) ψ)) auxξ      ))
+        (where auxξ_new   (updateState (AcqFront ψ_acq) (AcqFront (updateByFront path σ   ψ_acq)) auxξ_ψ_new))
 
         (where σ_read   (getByPath path ψ))
         (side-condition (term (correctτ τ ι σ_read)))
@@ -31,6 +33,18 @@
 
   (reduction-relation
    lang #:domain ξ
+   
+   (--> ((in-hole E (fence acq)) auxξ)
+        ((in-hole E (ret 0    )) auxξ_new)
+        "fence-acq"
+
+        (where path     (pathE E))
+        (side-condition (term (isReadQueueEqualTo () path auxξ)))
+
+        (where ψ        (getReadψ    auxξ))
+        (where ψ_acq    (getAcqFront auxξ))
+        (where σ        (getByPath path ψ_acq))
+        (where auxξ_new (updateState (Read ψ) (Read (updateByFront path σ ψ)) auxξ)))
    
    (-->  ((in-hole E (write rlx ι μ-value)) auxξ)
         (normalize

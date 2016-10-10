@@ -381,6 +381,30 @@ It shouldn't get `stuck`.
         ret r01_2 })
 
 #|
+        f_rel = 0
+        d_na  = 0
+d_na  = 239 || repeat (f_rlx) end
+f_rel = 1   || fence acq
+            || r1 = d_na
+           ret r1
+
+Example from: Vafeiadis-Narayan:OOPSLA13
+"Relaxed Separation Logic: A Program Logic for C11 Concurrency".
+It shouldn't get `stuck`.
+|#
+(define testTerm3-4
+  @prog{f_rel := 0;
+        d_na  := 0;
+        r01 := spw
+               {{{ d_na  := 239;
+                   f_rel := 1
+               ||| repeat f_rlx end;
+                   fence acq;
+                   r1 := d_na;
+                   ret r1 }}};
+        ret r01_2 })
+
+#|
 Dekker's lock doesn't work in weak memory settings (and in our model).
 
                x_rel = 0

@@ -81,7 +81,7 @@
      (term (ppμ μ)))]
   
   [(pp (fence FenceM))
-   ,(beside "fence " (term ppMod FenceM))]
+   ,(beside "fence " (term (ppMod FenceM)))]
  
   [(pp (dealloc ι-var))
    ,(beside*

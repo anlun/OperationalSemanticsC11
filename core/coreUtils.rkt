@@ -27,7 +27,11 @@
 
 (define-metafunction coreLang
   getReadψ  : auxξ -> ψ
-  [(getReadψ (θ_0 ...  (Read ψ)  θ_1 ...)) ψ])
+  [(getReadψ (θ_0 ... (Read ψ) θ_1 ...)) ψ])
+
+(define-metafunction coreLang
+  getAcqFront  : auxξ -> ψ
+  [(getAcqFront (any_0 ... (AcqFront ψ) any_1 ...)) ψ])
 
 (define-metafunction coreLang
   getWriteψ : auxξ -> ψ
@@ -156,11 +160,26 @@
                             (where ψ_old (getWriteψ auxξ))])
 
 (define-metafunction coreLang
+  spwST-acqFront : path auxξ -> auxξ
+  [(spwST-acqFront path auxξ) (updateState (AcqFront ψ_old)
+                                           (AcqFront (updateOnPath path (par σ σ) ψ_old))
+                                           auxξ)
+                              (where ψ_old (getAcqFront auxξ))
+                              (where σ     (getByPath path ψ_old))])
+
+(define-metafunction coreLang
   joinST-writeψ : path auxξ -> auxξ
   [(joinST-writeψ path auxξ) (updateState (Write ψ_old)
                                           (Write (updateOnPath path () ψ_old))
                                           auxξ)
                              (where ψ_old (getWriteψ auxξ))])
+
+(define-metafunction coreLang
+  joinST-acqFront : path auxξ -> auxξ
+  [(joinST-acqFront path auxξ) (updateState (AcqFront ψ_old)
+                                            (AcqFront (join path ψ_old))
+                                            auxξ)
+                               (where ψ_old (getAcqFront auxξ))])
 
 (define-metafunction coreLang
   getWriteσ_nil : path auxξ -> σ
@@ -175,11 +194,11 @@
 
 (define-metafunction coreLang
   spwST-2ψ : path auxξ -> auxξ
-  [(spwST-2ψ  path auxξ) (spwST-writeψ  path (spwST-readψ  path auxξ))])
+  [(spwST-2ψ  path auxξ) (spwST-acqFront path (spwST-writeψ path (spwST-readψ path auxξ)))])
 
 (define-metafunction coreLang
   joinST-2ψ : path auxξ -> auxξ
-  [(joinST-2ψ path auxξ) (joinST-writeψ path (joinST-readψ path auxξ))])
+  [(joinST-2ψ path auxξ) (joinST-acqFront path (joinST-writeψ path (joinST-readψ path auxξ)))])
 
 ;; Postponed reads part
 
