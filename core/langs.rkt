@@ -54,11 +54,12 @@
   ; AST       -- current state of program tree;
   ; η         -- current heap history;
   ; (Read  ψ) -- current threads read  fronts;
+  ; (AcqFront ψ) -- current threads acquire fronts;
   ; (NA    σ) -- location -> last NA write on it;
   ; (Write ψ) -- current threads write fronts;
   ; (SC σ)    -- front after last SC operation;
   ; θ         -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ... (NA σ) θ ... (Write ψ) θ ... (SC σ) θ ...)])
+  [auxξ (θ ... η θ ... (Read ψ) θ ... (AcqFront ψ) θ ... (NA σ) θ ... (Write ψ) θ ... (SC σ) θ ...)])
 
 (define-extended-language postReadLang coreLang
   ; State:
