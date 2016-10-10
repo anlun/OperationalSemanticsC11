@@ -32,10 +32,10 @@ Example from: VafeiadisNarayan:OOPSLA13 "Relaxed Separation Logic: A Program Log
 It shouldn't get `stuck`.
 |#
 (test-->> step
-         (term (,testTerm3 etaPsiDefaultState))
+         (term (,testMP+rel+acq etaPsiDefaultState))
          (term ((ret 8) etaPsiDefaultState)))
 
-;(traces step (term (,testTerm3 etaPsiDefaultState)))
+;(traces step (term (,testMP+rel+acq etaPsiDefaultState)))
 
 #|
 Dekker's lock doesn't work in weak memory settings (and in our model).

@@ -283,7 +283,7 @@ Example from: Vafeiadis-Narayan:OOPSLA13
 "Relaxed Separation Logic: A Program Logic for C11 Concurrency".
 It shouldn't get `stuck`.
 |#
-(define testTerm3
+(define testMP+rel+acq ; testTerm3
   @prog{c_rel := 0;
         spw
         {{{ a_na  := 7;
@@ -304,7 +304,7 @@ Example from: Vafeiadis-Narayan:OOPSLA13
 "Relaxed Separation Logic: A Program Logic for C11 Concurrency".
 It uses rlx writes and reads instead of rel/acq, and it leads to `stuck`.
 |#
-(define testTerm3-0
+(define testMP+rlx ; testTerm3-0
   @prog{c_rlx := 0;
         spw
         {{{ a_na  := 7;
@@ -321,7 +321,7 @@ a_rlx = 7 || if (c_acq)
 c_rel = 1 ||   a_rlx = a_rlx + 1
        ret a_rlx
 |#
-(define testTerm3-1
+(define testMP-If+rel+acq ; testTerm3-1
   @prog{c_rlx := 0;
         spw
         {{{ a_rlx := 7;
@@ -347,7 +347,7 @@ Example from: VafeiadisNarayan:OOPSLA13
 
 It shouldn't get `stuck`.
 |#
-(define testTerm3-2
+(define testMP+sc ; testTerm3-2
   @prog{c_sc := 0;
         spw
         {{{ a_na := 7;
@@ -357,28 +357,6 @@ It shouldn't get `stuck`.
             a_na := r1 + 1 }}};
         r0 := a_na;
         ret r0 })
-
-#|
-        f_rel = 0
-        d_na  = 0
-d_na  = 239 || repeat (f_acq) end
-f_rel = 1   || r1 = d_na
-           ret r1
-
-Example from: Vafeiadis-Narayan:OOPSLA13
-"Relaxed Separation Logic: A Program Logic for C11 Concurrency".
-It shouldn't get `stuck`.
-|#
-(define testTerm3-3
-  @prog{f_rel := 0;
-        d_na  := 0;
-        r01 := spw
-               {{{ d_na  := 239;
-                   f_rel := 1
-               ||| repeat f_acq end;
-                   r1 := d_na;
-                   ret r1 }}};
-        ret r01_2 })
 
 #|
 Dekker's lock doesn't work in weak memory settings (and in our model).
