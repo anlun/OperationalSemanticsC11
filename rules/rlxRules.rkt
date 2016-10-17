@@ -21,9 +21,9 @@
         (normalize
          ((in-hole E (ret μ-value)) auxξ_new))
         "read-rlx"
-        (where η      (getη auxξ))
-        (where ψ      (getReadψ    auxξ))
-        (where path   (pathE E))
+        (where η    (getη     auxξ))
+        (where ψ    (getReadψ auxξ))
+        (where path (pathE E))
 
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
         (where auxξ_ψ_new (updateState (Read ψ) (Read (updateByFront path ((ι τ)) ψ)) auxξ))
