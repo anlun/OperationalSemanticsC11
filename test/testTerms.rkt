@@ -1076,3 +1076,20 @@ older than r2.
               }}};
         r5 := x_rlx;
         ret [r0_2 r5] })
+
+#|
+x_rel = 1     || y_rel = 1
+fence_sc      || fence_sc
+r1 = y_acq    || r2 = x_acq
+       ret (r1, r2)
+
+r1 = 0, r2 = 0 - is not allowed
+|#
+(define testSB+fences+sc
+  @prog{spw
+        {{{ x_rel := 1;
+            fence sc;
+            y_acq
+        ||| y_rel := 1;
+            fence sc;
+            x_acq }}} })

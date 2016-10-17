@@ -138,6 +138,16 @@
   [(getWriteσ_2ψ path auxξ) (getByPath path (getWriteψ auxξ))])
 
 (define-metafunction coreLang
+  synchronizeCurReleaseFronts : path auxξ -> auxξ
+  [(synchronizeCurReleaseFronts path auxξ) (θ_0 ... (RelFront χ-tree_new) θ_1 ...)
+   (where (θ_0 ... (RelFront χ-tree) θ_1 ...) auxξ)
+   (where σ_cur (getByPath path (getReadψ auxξ)))
+   (where χ_new ,(map (λ (p) (list (car p) (term σ_cur)))
+                      (term σ_cur)))
+   (where χ-tree_new (updateOnPath path χ_new χ-tree))]
+  [(synchronizeCurReleaseFronts path auxξ) auxξ])
+
+(define-metafunction coreLang
   synchronizeWriteFront : path auxξ -> auxξ
   [(synchronizeWriteFront path auxξ)
    (updateState (Write ψ_write) (Write ψ_write_new) auxξ)
@@ -587,6 +597,18 @@
   [(getσToWrite σ_write ι η) ()])
 
 (define-metafunction coreLang
+  updateχ : ι σ χ -> χ
+  [(updateχ ι σ (θ_0 ... (ι σ_old) θ_1 ...)) (θ_0 ... (ι σ) θ_1 ...)]
+  [(updateχ ι σ χ)                           (consT (ι σ) χ)])
+
+(define-metafunction coreLang
+  updateRelFront : path ι σ auxξ -> auxξ
+  [(updateRelFront path ι σ (θ_0 ... (RelFront χ-tree) θ_1 ...)) (θ_0 ... (RelFront χ-tree_new) θ_1 ...)
+   (where χ          (getByPath path χ-tree))
+   (where χ-tree_new (updateOnPath path (updateχ ι σ χ) χ-tree))]
+  [(updateRelFront path ι σ auxξ) auxξ])
+
+(define-metafunction coreLang
   dupγ : ι τ τ γ -> γ
   [(dupγ ι τ_new τ_old γ)
    ,(append (term γ_dup) (term γ))
@@ -934,7 +956,19 @@
    (where (in-hole El (vName ι)) (flattenObservedWriteList path observedWrites))]
 
   [(hasιInObservedWrites path ι auxξ) #f])
+ 
+(define-metafunction coreLang
+  updateAcqFront : path σ auxξ -> auxξ
+  [(updateAcqFront path σ (θ_0 ... (AcqFront ψ) θ_1 ...))
+   (θ_0 ... (AcqFront (updateByFront path σ ψ)) θ_1 ...)]
+  [(updateAcqFront path σ auxξ) auxξ])
 
+(define-metafunction coreLang
+  synchronizeCurAcqFronts : path auxξ -> auxξ
+  [(synchronizeCurAcqFronts path auxξ) (updateState (Read ψ) (Read (updateByFront path σ ψ)) auxξ)
+   (where (θ_0 ... (Read ψ) θ_1 ... (AcqFront ψ_acq) θ_2 ...) auxξ)
+   (where σ        (getByPath path ψ_acq))]
+  [(synchronizeCurAcqFronts path auxξ) auxξ])
 
 ;; (define (find-path red from to)
 ;;   (define parents (make-hash))

@@ -19,6 +19,20 @@
   (reduction-relation
    lang #:domain ξ
 
+
+   (--> ((in-hole E (fence sc)) auxξ)
+        ((in-hole E (ret 0    )) auxξ_new)
+        "fence-sc"
+
+        (where path     (pathE E))
+        (side-condition (term (isReadQueueEqualTo () path auxξ)))
+
+        (where auxξ_acq (synchronizeCurAcqFronts     path auxξ    ))
+        (where auxξ_rel (synchronizeCurReleaseFronts path auxξ_acq))
+        (where σ_sc     (getσSC auxξ))
+        (where σ        (getByPath path (getReadψ auxξ_rel)))
+        (where auxξ_new (updateState (SC σ_sc) (SC (frontMerge σ σ_sc)) auxξ_rel)))
+
    (-->  ((in-hole E (write sc ι μ-value)) auxξ)
         (normalize
          ((in-hole E (ret μ-value))        auxξ_new))

@@ -5,12 +5,6 @@
 (require "../core/coreUtils.rkt")
 (provide define-rlxRules define-rlxReadRules define-rlxWriteRules)
 
-(define-metafunction coreLang
-  updateAcqFront : path σ auxξ -> auxξ
-  [(updateAcqFront path σ (θ_0 ... (AcqFront ψ) θ_1 ...))
-   (θ_0 ... (AcqFront (updateByFront path σ ψ)) θ_1 ...)]
-  [(updateAcqFront path σ auxξ) auxξ])
-
 (define-syntax-rule (define-rlxReadRules lang)
   (begin
 
@@ -33,16 +27,6 @@
         (side-condition (term (correctτ τ ι σ_read)))
         (side-condition (term (isPossibleE E auxξ)))))))
 
-(define-metafunction coreLang
-  synchronizeCurReleaseFronts : path auxξ -> auxξ
-  [(synchronizeCurReleaseFronts path auxξ) (θ_0 ... (RelFront χ-tree_new) θ_1 ...)
-   (where (θ_0 ... (RelFront χ-tree) θ_1 ...) auxξ)
-   (where σ_cur (getByPath path (getReadψ auxξ)))
-   (where χ_new ,(map (λ (p) (list (car p) (term σ_cur)))
-                      (term σ_cur)))
-   (where χ-tree_new (updateOnPath path χ_new χ-tree))]
-  [(synchronizeCurReleaseFronts path auxξ) auxξ])
-
 (define-syntax-rule (define-rlxWriteRules lang getWriteσ isReadQueueEqualTo ιNotInReadQueue)
   (begin
 
@@ -55,11 +39,7 @@
 
         (where path     (pathE E))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
-
-        (where ψ        (getReadψ    auxξ))
-        (where ψ_acq    (getAcqFront auxξ))
-        (where σ        (getByPath path ψ_acq))
-        (where auxξ_new (updateState (Read ψ) (Read (updateByFront path σ ψ)) auxξ)))
+        (where auxξ_new (synchronizeCurAcqFronts path auxξ)))
    
    (--> ((in-hole E (fence rel)) auxξ)
         ((in-hole E (ret 0    )) auxξ_new)

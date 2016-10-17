@@ -111,3 +111,18 @@ r1 = y_sc || r2 = x_acq
        ret (r1 r2)
 |#
 (test_W1R_W2R term_W1scRsc_W2scRacq)
+
+#|
+x_rel = 1     || y_rel = 1
+fence_sc      || fence_sc
+r1 = y_acq    || r2 = x_acq
+       ret (r1, r2)
+
+r1 = 0, r2 = 0 - is not allowed
+|#
+(test-->> step
+         (term (,testSB+fences+sc defaultState))
+         (term ((ret (0 1)) defaultState))
+         (term ((ret (1 0)) defaultState))
+         (term ((ret (1 1)) defaultState)))
+
