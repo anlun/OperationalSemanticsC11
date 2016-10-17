@@ -35,7 +35,8 @@
 
 (define-metafunction coreLang
   synchronizeCurReleaseFronts : path auxξ -> auxξ
-  [(synchronizeCurReleaseFronts path (θ_0 ... (RelFront χ-tree) θ_1 ...)) (θ_0 ... (RelFront χ-tree_new) θ_1 ...)
+  [(synchronizeCurReleaseFronts path auxξ) (θ_0 ... (RelFront χ-tree_new) θ_1 ...)
+   (where (θ_0 ... (RelFront χ-tree) θ_1 ...) auxξ)
    (where σ_cur (getByPath path (getReadψ auxξ)))
    (where χ_new ,(map (λ (p) (list (car p) (term σ_cur)))
                       (term σ_cur)))

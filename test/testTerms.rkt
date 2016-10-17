@@ -318,6 +318,30 @@ It shouldn't get `stuck`.
         ret r0 })
 
 #|
+       c_rel = 0
+a_na  = 7 || repeat (c_rlx) end
+fence rel || fence acq
+c_rlx = 1 || a_na = a_na + 1
+       ret a_na
+
+Example from: Vafeiadis-Narayan:OOPSLA13
+"Relaxed Separation Logic: A Program Logic for C11 Concurrency".
+It shouldn't get `stuck`.
+|#
+(define testMP+rlx+fence
+  @prog{c_rel := 0;
+        spw
+        {{{ a_na  := 7;
+            fence rel;
+            c_rlx := 1
+        ||| repeat c_rlx end;
+            fence acq;
+            r1 := a_na;
+            a_na := r1 + 1 }}};
+        r0 := a_na;
+        ret r0 })
+
+#|
        c_rlx = 0
 a_na  = 7 || repeat (c_rlx) end
 c_rlx = 1 || a_na = a_na + 1

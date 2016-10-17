@@ -34,6 +34,10 @@
   [(getAcqFront (any_0 ... (AcqFront ψ) any_1 ...)) ψ])
 
 (define-metafunction coreLang
+  getRelFront  : auxξ -> χ-tree
+  [(getRelFront (any_0 ... (RelFront χ-tree) any_1 ...)) χ-tree])
+
+(define-metafunction coreLang
   getWriteψ : auxξ -> ψ
   [(getWriteψ (θ_0 ... (Write ψ) θ_1 ...)) ψ])
 
@@ -170,7 +174,7 @@
 (define-metafunction coreLang
   spwST-relFront : path auxξ -> auxξ
   [(spwST-relFront path auxξ) (updateState (RelFront χ-tree_old)
-                                           (RelFront (updateOnPath path (par () ()) ψ_old))
+                                           (RelFront (updateOnPath path (par () ()) χ-tree_old))
                                            auxξ)
                               (where χ-tree_old (getRelFront auxξ))])
 

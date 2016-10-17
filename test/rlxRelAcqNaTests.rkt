@@ -10,7 +10,7 @@
 (require "testTerms.rkt")
 (require "../core/parser.rkt")
 
-(define-term defaultState (() (Read ()) (AcqFront ()) (NA ()) (Write ())))
+(define-term defaultState (() (Read ()) (AcqFront ()) (RelFront ()) (NA ()) (Write ())))
 
 (define coreStep
   (extend-reduction-relation
@@ -72,6 +72,21 @@ It shouldn't get `stuck`.
 |#
 (test-->> step
          (term (,testMP+rel+rlx+fence defaultState))
+         (term ((ret 8) defaultState)))
+
+#|
+       c_rel = 0
+a_na  = 7 || repeat (c_rlx) end
+fence rel || fence acq
+c_rlx = 1 || a_na = a_na + 1
+       ret a_na
+
+Example from: Vafeiadis-Narayan:OOPSLA13
+"Relaxed Separation Logic: A Program Logic for C11 Concurrency".
+It shouldn't get `stuck`.
+|#
+(test-->> step
+         (term (,testMP+rlx+fence defaultState))
          (term ((ret 8) defaultState)))
 
 #|

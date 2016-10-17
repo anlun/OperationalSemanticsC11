@@ -36,7 +36,7 @@
   updateRelFront : path ι σ auxξ -> auxξ
   [(updateRelFront path ι σ (θ_0 ... (RelFront χ-tree) θ_1 ...)) (θ_0 ... (RelFront χ-tree_new) θ_1 ...)
    (where χ          (getByPath path χ-tree))
-   (where χ-tree_new (updateOnPath path (updateχ ι σ χ)))]
+   (where χ-tree_new (updateOnPath path (updateχ ι σ χ) χ-tree))]
   [(updateRelFront path ι σ auxξ) auxξ])
 
 (define-syntax-rule (define-relAcqWriteRules lang
