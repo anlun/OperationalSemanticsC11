@@ -81,11 +81,13 @@
         (where ψ_read_new     (updateByFront path ((ι τ)) ψ_read))
         (where auxξ_upd_front (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
 
-        (where σ_write    (getWriteσ path auxξ))
-        (where σ_ToWrite  (updateFront ι τ (getσToWrite σ_write ι η)))
+        (where χ-tree     (getRelFront auxξ))
+        (where χ          (getByPath path χ-tree))
+        (where σ_ToWrite  (updateFront ι τ (getσReleaseToWrite χ ι η)))
         (where η_new      (updateCell  ι μ-value σ_ToWrite η))
         (where auxξ_upd_η (updateState η η_new auxξ_upd_front))
 
+        (where σ_write    (getWriteσ path auxξ))
         (where auxξ_upd_γ (dupRelWriteRestrictions ι τ σ_write auxξ_upd_η))
         (where auxξ_new   auxξ_upd_γ)
 

@@ -24,6 +24,7 @@ x_na = 1 || x_na = 2
 
 It should get `stuck`.
 |#
+
 (test-->>∃ naStep
           (term (,testTerm2 etaPsiDefaultState))
           (term (stuck etaPsiDefaultState)))
@@ -46,6 +47,7 @@ R1 = y_acq || R2 = x_acq
 
 Can lead to R1 = R2 = 0.
 |#
+
 (test-->>∃ relAcqStep
           (term (,term_WrelRacq_WrelRacq etaPsiDefaultState))
           (term ((ret (0 0)) etaPsiDefaultState)))
@@ -61,9 +63,12 @@ x_rel = 1 || y_rel = 1 || a = x_acq || c = y_acq
 The `ret ((1 0) (0 1))` shows that our model is more relaxed
 than x86-TSO [Sewell-al:CACM10].
 |#
+
+#|
 (test-->>∃ relAcqStep
           (term (,testTerm67 etaPsiDefaultState))
           (term ((ret ((1 0) (0 1))) etaPsiDefaultState)))
+|#
 
 #| CoRR_rel+acq (Coherence of Read-Read)
                      x_rel = 0
@@ -98,6 +103,7 @@ R1 = y_rlx || R2 = x_rlx
 
 Can lead to R1 = R2 = 0.
 |#
+
 (test-->>∃ rlxStep
           (term (,term_WrlxRrlx_WrlxRrlx  etaPsiDefaultState))
           (term ((ret (0 0)) etaPsiDefaultState)))
@@ -111,6 +117,7 @@ The execution a = d = 1 and b = c = 2 is invalid.
 As well as a = d = 2 and b = c = 1.
 I don't know how to say 'this can't be reduced to that' in tests, so this test should fail.
 |#
+
 (define (not1221 b)
   (not (or (equal? (term ((ret ((1 2) (2 1))) etaPsiDefaultState))
                    b)
@@ -135,9 +142,11 @@ x_rlx = 1 || y_rlx = 1 || a = x_rlx || c = y_rlx
 The `ret ((1 0) (0 1))` shows that our model is more relaxed
 than x86-TSO [Sewell-al:CACM10].
 |#
+
 (test-->>∃ rlxStep
           (term (,testTerm65 etaPsiDefaultState))
           (term ((ret ((1 0) (0 1))) etaPsiDefaultState)))
+
 
 #|
 Anti-TSO example.
@@ -164,6 +173,7 @@ In TSO a = 1 and b = 0 is forbidden outcome. But not in our semantics.
                              getWriteσ_nil isReadQueueEqualTo ιNotInReadQueue))
 (define postponedReadStep  (union-reduction-relations postponedReadCoreStep rlxWriteRules postponedReadRules))
 
+
 (test-->>∃ postponedReadStep
           (term (,term_WrlxRrlx_WrlxRrlx  postponedReadDefaultState))
           (term ((ret (0 0)) postponedReadDefaultState)))
@@ -178,3 +188,4 @@ With postponed reads it should be able to lead to R1 = R2 = 1.
 (test-->>∃ postponedReadStep
           (term (,term_RrlxWrlx_RrlxWrlx postponedReadDefaultState))
           (term ((ret (1 1)) postponedReadDefaultState)))
+

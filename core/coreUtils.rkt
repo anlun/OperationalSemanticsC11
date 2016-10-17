@@ -574,6 +574,12 @@
          (term α))])
 
 (define-metafunction coreLang
+  getσReleaseToWrite : χ ι η -> σ
+  [(getσReleaseToWrite χ ι η) σ
+                             (where (Just σ) (lookup ι χ))]
+  [(getσReleaseToWrite χ ι η) ()])
+
+(define-metafunction coreLang
   getσToWrite : σ ι η -> σ
   [(getσToWrite σ_write ι η) σ
                              (where (Just τ) (lookup ι σ_write))
