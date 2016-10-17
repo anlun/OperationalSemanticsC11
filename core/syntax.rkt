@@ -83,7 +83,7 @@
   [χ ((ι σ) ...)]
   ; A per-thread χ function.
   [χ-tree χ
-          (par χ χ)]
+          (par χ-tree χ-tree)]
     
   [E hole
      (E >>= K)

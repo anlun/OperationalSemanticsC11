@@ -42,24 +42,26 @@
   ; State:
   ; AST          -- current state of program tree;
   ; η            -- current heap history;
-  ; (Read  ψ)    -- current threads read  fronts;
-  ; (AcqFront ψ) -- current threads acquire fronts;
+  ; (Read  ψ)         -- per-thread read    fronts;
+  ; (AcqFront ψ)      -- per-thread acquire fronts;
+  ; (RelFront χ-tree) -- per-thread release fronts;
   ; (NA    σ)    -- location -> last NA write on it;
   ; (Write ψ)    -- current threads write fronts;
   ; θ            -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ... (AcqFront ψ) θ ... (NA σ) θ ... (Write ψ) θ ...)])
+  [auxξ (θ ... η θ ... (Read ψ) θ ... (AcqFront ψ) (RelFront χ-tree) (NA σ) θ ... (Write ψ) θ ...)])
 
 (define-extended-language etaPsi2SCLang coreLang
   ; State:
   ; AST       -- current state of program tree;
   ; η         -- current heap history;
-  ; (Read  ψ) -- current threads read  fronts;
-  ; (AcqFront ψ) -- current threads acquire fronts;
+  ; (Read  ψ)         -- per-thread read    fronts;
+  ; (AcqFront ψ)      -- per-thread acquire fronts;
+  ; (RelFront χ-tree) -- per-thread release fronts;
   ; (NA    σ) -- location -> last NA write on it;
   ; (Write ψ) -- current threads write fronts;
   ; (SC σ)    -- front after last SC operation;
   ; θ         -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ... (AcqFront ψ) θ ... (NA σ) θ ... (Write ψ) θ ... (SC σ) θ ...)])
+  [auxξ (θ ... η θ ... (Read ψ) θ ... (AcqFront ψ) (RelFront χ-tree) θ ... (NA σ) θ ... (Write ψ) θ ... (SC σ) θ ...)])
 
 (define-extended-language postReadLang coreLang
   ; State:
@@ -81,7 +83,7 @@
 (define postponedReadCoreTest (define-coreTest postponedReadCoreStep postponedReadDefaultState))
 
 (define-extended-language etaPsi2SCpostLang coreLang
-  [auxξ (η (Read ψ) (AcqFront ψ) (NA σ) (Write ψ) (SC σ) (P φ) (R γ) (RW observedWrites) (Deallocated listι))])
+  [auxξ (η (Read ψ) (AcqFront ψ) (RelFront χ-tree) (NA σ) (Write ψ) (SC σ) (P φ) (R γ) (RW observedWrites) (Deallocated listι))])
 
 (define-extended-language graphLang coreLang
   [auxξ (η (Graph G) (GFront GF))])

@@ -33,6 +33,15 @@
         (side-condition (term (correctτ τ ι σ_read)))
         (side-condition (term (isPossibleE E auxξ)))))))
 
+(define-metafunction coreLang
+  synchronizeCurReleaseFronts : path auxξ -> auxξ
+  [(synchronizeCurReleaseFronts path (θ_0 ... (RelFront χ-tree) θ_1 ...)) (θ_0 ... (RelFront χ-tree_new) θ_1 ...)
+   (where σ_cur (getByPath path (getReadψ auxξ)))
+   (where χ_new ,(map (λ (p) (list (car p) (term σ_cur)))
+                      (term σ_cur)))
+   (where χ-tree_new (updateOnPath path χ_new χ-tree))]
+  [(synchronizeCurReleaseFronts path auxξ) auxξ])
+
 (define-syntax-rule (define-rlxWriteRules lang getWriteσ isReadQueueEqualTo ιNotInReadQueue)
   (begin
 
@@ -51,6 +60,14 @@
         (where σ        (getByPath path ψ_acq))
         (where auxξ_new (updateState (Read ψ) (Read (updateByFront path σ ψ)) auxξ)))
    
+   (--> ((in-hole E (fence rel)) auxξ)
+        ((in-hole E (ret 0    )) auxξ_new)
+        "fence-rel"
+
+        (where path     (pathE E))
+        (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (where auxξ_new (synchronizeCurReleaseFronts path auxξ)))
+
    (-->  ((in-hole E (write rlx ι μ-value)) auxξ)
         (normalize
          ((in-hole E (ret μ-value))         auxξ_new))

@@ -26,6 +26,19 @@
         (side-condition (term (correctτ τ ι σ_read)))
         (side-condition (term (isPossibleE E auxξ)))))))
 
+
+(define-metafunction coreLang
+  updateχ : ι σ χ -> χ
+  [(updateχ ι σ (θ_0 ... (ι σ_old) θ_1 ...)) (θ_0 ... (ι σ) θ_1 ...)]
+  [(updateχ ι σ χ)                           (consT (ι σ) χ)])
+
+(define-metafunction coreLang
+  updateRelFront : path ι σ auxξ -> auxξ
+  [(updateRelFront path ι σ (θ_0 ... (RelFront χ-tree) θ_1 ...)) (θ_0 ... (RelFront χ-tree_new) θ_1 ...)
+   (where χ          (getByPath path χ-tree))
+   (where χ-tree_new (updateOnPath path (updateχ ι σ χ)))]
+  [(updateRelFront path ι σ auxξ) auxξ])
+
 (define-syntax-rule (define-relAcqWriteRules lang
                       addReadNode
                       synchronizeWriteFront isReadQueueEqualTo
@@ -55,7 +68,8 @@
         (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
         (where auxξ_upd_γ     (addPostReadsToγ path ι τ auxξ_upd_η))
         (where auxξ_upd_γ_2   (addObservedWritesToγ path ι τ rel auxξ_upd_γ))
-        (where auxξ_new       (addWriteNode (write rel ι μ-value τ) path auxξ_upd_γ_2))
+        (where auxξ_upd_χ     (updateRelFront path ι σ_new auxξ_upd_γ_2))
+        (where auxξ_new       (addWriteNode (write rel ι μ-value τ) path auxξ_upd_χ))
 
         (side-condition (term (are∀PostReadsRlx  path auxξ)))
         (side-condition (term (ιNotInReadQueue ι path auxξ)))
@@ -103,9 +117,10 @@
                                            η))
         (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
         (where auxξ_upd_γ     (addObservedWritesToγ path ι τ rel auxξ_upd_η))
+        (where auxξ_upd_χ     (updateRelFront path ι σ_new auxξ_upd_γ))
         (where auxξ_new       (addReadNode τ_last
                                            (rmw rel ι μ-value_expected μ-value_new τ)
-                                           path auxξ_upd_γ))
+                                           path auxξ_upd_χ))
         (side-condition
          (term (succCAScondition ι η μ-value_expected rel FM)))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
@@ -163,12 +178,13 @@
         (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
 
         (where auxξ_upd_γ     (addObservedWritesToγ path ι τ rel auxξ_upd_η))
+        (where auxξ_upd_χ     (updateRelFront path ι σ_new auxξ_upd_γ))
 
         (where τ_last     (getLastTimestamp ι η))
         (where τ          (getNextTimestamp ι η))
         (where auxξ_new       (addReadNode τ_last
                                            (rmw relAcq ι μ-value_expected μ-value_new τ)
-                                           path auxξ_upd_γ))        
+                                           path auxξ_upd_χ))        
         
         (side-condition
          (term (succCAScondition ι η μ-value_expected relAcq FM)))

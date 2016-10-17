@@ -168,6 +168,13 @@
                               (where σ     (getByPath path ψ_old))])
 
 (define-metafunction coreLang
+  spwST-relFront : path auxξ -> auxξ
+  [(spwST-relFront path auxξ) (updateState (RelFront χ-tree_old)
+                                           (RelFront (updateOnPath path (par () ()) ψ_old))
+                                           auxξ)
+                              (where χ-tree_old (getRelFront auxξ))])
+
+(define-metafunction coreLang
   joinST-writeψ : path auxξ -> auxξ
   [(joinST-writeψ path auxξ) (updateState (Write ψ_old)
                                           (Write (updateOnPath path () ψ_old))
@@ -182,6 +189,13 @@
                                (where ψ_old (getAcqFront auxξ))])
 
 (define-metafunction coreLang
+  joinST-relFront : path auxξ -> auxξ
+  [(joinST-relFront path auxξ) (updateState (RelFront χ-tree_old)
+                                            (RelFront (updateOnPath path () χ-tree_old))
+                                            auxξ)
+                               (where χ-tree_old (getRelFront auxξ))])
+
+(define-metafunction coreLang
   getWriteσ_nil : path auxξ -> σ
   [(getWriteσ_nil path auxξ) ()])
 
@@ -194,11 +208,17 @@
 
 (define-metafunction coreLang
   spwST-2ψ : path auxξ -> auxξ
-  [(spwST-2ψ  path auxξ) (spwST-acqFront path (spwST-writeψ path (spwST-readψ path auxξ)))])
+  [(spwST-2ψ  path auxξ) (spwST-relFront path
+                           (spwST-acqFront path
+                             (spwST-writeψ path
+                               (spwST-readψ path auxξ))))])
 
 (define-metafunction coreLang
   joinST-2ψ : path auxξ -> auxξ
-  [(joinST-2ψ path auxξ) (joinST-acqFront path (joinST-writeψ path (joinST-readψ path auxξ)))])
+  [(joinST-2ψ path auxξ) (joinST-relFront path
+                            (joinST-acqFront path
+                               (joinST-writeψ path
+                                  (joinST-readψ path auxξ))))])
 
 ;; Postponed reads part
 
