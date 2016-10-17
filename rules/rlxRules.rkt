@@ -5,6 +5,12 @@
 (require "../core/coreUtils.rkt")
 (provide define-rlxRules define-rlxReadRules define-rlxWriteRules)
 
+(define-metafunction coreLang
+  updateAcqFront : path σ auxξ -> auxξ
+  [(updateAcqFront path σ (θ_0 ... (AcqFront ψ) θ_1 ...))
+   (θ_0 ... (AcqFront (updateByFront path σ ψ)) θ_1 ...)]
+  [(updateAcqFront path σ auxξ) auxξ])
+
 (define-syntax-rule (define-rlxReadRules lang)
   (begin
 
@@ -15,14 +21,13 @@
         (normalize
          ((in-hole E (ret μ-value)) auxξ_new))
         "read-rlx"
-        (where η      (getη auxξ))
-        (where ψ      (getReadψ    auxξ))
-        (where ψ_acq  (getAcqFront auxξ))
-        (where path   (pathE E))
+        (where η    (getη     auxξ))
+        (where ψ    (getReadψ auxξ))
+        (where path (pathE E))
 
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
-        (where auxξ_ψ_new (updateState (Read     ψ    ) (Read     (updateByFront path ((ι τ)) ψ)) auxξ      ))
-        (where auxξ_new   (updateState (AcqFront ψ_acq) (AcqFront (updateByFront path σ   ψ_acq)) auxξ_ψ_new))
+        (where auxξ_ψ_new (updateState (Read ψ) (Read (updateByFront path ((ι τ)) ψ)) auxξ))
+        (where auxξ_new   (updateAcqFront path σ auxξ_ψ_new))
 
         (where σ_read   (getByPath path ψ))
         (side-condition (term (correctτ τ ι σ_read)))
