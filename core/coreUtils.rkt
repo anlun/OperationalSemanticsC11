@@ -298,7 +298,8 @@
                                             (term Edges)))
                          (where G_new (Nodes_new Edges_new))
                          
-                         (where GF_new (updateOnPath path number_new GF))])
+                         (where GF_new (updateOnPath path number_new GF))]
+  [(joinST-gr path auxξ) auxξ])
 
 (define-metafunction coreLang
   getWriteσ_nil : path auxξ -> σ
