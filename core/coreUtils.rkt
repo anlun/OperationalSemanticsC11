@@ -185,7 +185,7 @@
   [(spwST-acqFront path auxξ)
    (updateState (AcqFront ψ) (AcqFront (updateOnPath path (par σ σ) ψ)) auxξ)
    (where (any_0 ... (AcqFront ψ) any_1 ...) auxξ)
-   (where σ (getByPath path ψ_old))]
+   (where σ (getByPath path ψ))]
   [(spwST-acqFront path auxξ) auxξ])
 
 (define-metafunction coreLang
