@@ -33,7 +33,7 @@
    (getσReleaseToWrite ι (getByPath path χ-tree))]
   [(getσ_relFront ι path auxξ) ()])
 
-(define-syntax-rule (define-rlxWriteRules lang getWriteσ)
+(define-syntax-rule (define-rlxWriteRules lang)
   (begin
 
   (reduction-relation
@@ -133,9 +133,9 @@
         (side-condition (term (isPossibleE E auxξ))))
 )))
 
-(define-syntax-rule (define-rlxRules lang getWriteσ)
+(define-syntax-rule (define-rlxRules lang)
   (begin
 
   (union-reduction-relations
    (define-rlxReadRules  lang)
-   (define-rlxWriteRules lang getWriteσ))))
+   (define-rlxWriteRules lang))))

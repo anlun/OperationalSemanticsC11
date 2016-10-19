@@ -17,7 +17,7 @@
                       addWriteNode_t))
 (define naRules     (define-naRules     etaPsiLang
                       addReadNode_t
-                      etaPsiDefaultState getWriteσ_nil
+                      etaPsiDefaultState
                       addWriteNode_t))
 (define consumeRules (define-conReadRules etaPsiLang addReadNode_t))
 (define step        (union-reduction-relations etaPsiCoreStep relAcqRules naRules consumeRules))

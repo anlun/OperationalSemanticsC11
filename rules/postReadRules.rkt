@@ -258,7 +258,7 @@
     [(list '() ys) (list ys)]
     [(list xs '()) (list xs)]))
 
-(define-syntax-rule (define-postponedReadRules lang defaultState getWriteσ)
+(define-syntax-rule (define-postponedReadRules lang defaultState)
   (begin
 
   (reduction-relation

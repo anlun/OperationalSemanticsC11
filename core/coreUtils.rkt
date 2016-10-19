@@ -134,8 +134,10 @@
    (where ψ_new (updateByFront path σ ψ))])
 
 (define-metafunction coreLang
-  getWriteσ_2ψ : path auxξ -> σ
-  [(getWriteσ_2ψ path auxξ) (getByPath path (getWriteψ auxξ))])
+  getWriteσ : path auxξ -> σ
+  [(getWriteσ path auxξ) (getByPath path ψ)
+   (where (any_0 ... (Write ψ) any_1 ...) auxξ)]
+  [(getWriteσ path auxξ) auxξ])
 
 (define-metafunction coreLang
   synchronizeCurReleaseFronts : path auxξ -> auxξ
@@ -300,10 +302,6 @@
                          
                          (where GF_new (updateOnPath path number_new GF))]
   [(joinST-gr path auxξ) auxξ])
-
-(define-metafunction coreLang
-  getWriteσ_nil : path auxξ -> σ
-  [(getWriteσ_nil path auxξ) ()])
 
 (define-metafunction coreLang
   synchronizeWriteFront_id : path auxξ -> auxξ

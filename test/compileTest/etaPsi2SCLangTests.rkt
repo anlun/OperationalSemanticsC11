@@ -18,8 +18,7 @@
 (define coreTest (define-coreTest coreStep defaultState))
 
 (define rlxReadRules  (define-rlxReadRules  etaPsi2SCLang))
-(define rlxWriteRules (define-rlxWriteRules etaPsi2SCLang
-                        getWriteσ_2ψ))
+(define rlxWriteRules (define-rlxWriteRules etaPsi2SCLang))
 (define relAcqRules   (define-relAcqRules   etaPsi2SCLang
                         addReadNode_t
                         synchronizeWriteFront
@@ -27,9 +26,9 @@
                         addWriteNode_t))
 (define naRules       (define-naRules       etaPsi2SCLang
                        addReadNode_t
-                       defaultState getWriteσ_2ψ
+                       defaultState
                        addWriteNode_t))
-(define scRules       (define-scRules     etaPsi2SCLang
+(define scRules       (define-scRules       etaPsi2SCLang
                        getReadσ updateReadσ synchronizeWriteFront
                        are∀PostReadsRlx))
 (define step          (union-reduction-relations

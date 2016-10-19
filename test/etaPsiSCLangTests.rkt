@@ -28,7 +28,7 @@
                       addWriteNode_t))
 (define naRules     (define-naRules     etaPsiSCLang
                       addReadNode_t
-                      defaultState getWriteσ_nil
+                      defaultState
                       addWriteNode_t))
 
 (define step (union-reduction-relations coreStep relAcqRules naRules scRules))

@@ -18,14 +18,14 @@
    etaPsi2SCLang #:domain ξ))
 (define coreTest (define-coreTest coreStep defaultState))
 
-(define rlxRules    (define-rlxRules    etaPsi2SCLang getWriteσ_2ψ))
+(define rlxRules    (define-rlxRules    etaPsi2SCLang))
 (define relAcqRules (define-relAcqRules etaPsi2SCLang
                       addReadNode_t
                       synchronizeWriteFront
                       are∀PostReadsRlx
                       addWriteNode_t))
 (define naRules     (define-naWriteStuckRules  etaPsi2SCLang
-                      defaultState getWriteσ_2ψ addWriteNode_t))
+                      defaultState addWriteNode_t))
 (define scRules     (define-scRules            etaPsi2SCLang
                       getReadσ updateReadσ synchronizeWriteFront
                       are∀PostReadsRlx))

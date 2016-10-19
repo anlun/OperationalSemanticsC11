@@ -14,7 +14,7 @@
 ;;;;;;;;;;;;;;;;;;
 
 (define naRules
-  (define-naRules etaPsiLang addReadNode_t etaPsiDefaultState getWriteσ_nil addWriteNode_t))
+  (define-naRules etaPsiLang addReadNode_t etaPsiDefaultState addWriteNode_t))
 
 (define naStep
   (union-reduction-relations etaPsiCoreStep naRules))
@@ -93,8 +93,7 @@ The execution a = d = 1 and b = c = 2 should be invalid.
 ;;;;;;;;;;;;;;;;;;
 
 (define rlxReadRules  (define-rlxReadRules etaPsiLang))
-(define rlxRules      (define-rlxRules     etaPsiLang
-                        getWriteσ_nil))
+(define rlxRules      (define-rlxRules     etaPsiLang))
 (define rlxStep       (union-reduction-relations etaPsiCoreStep rlxRules))
 
 #|
@@ -167,10 +166,8 @@ In TSO a = 1 and b = 0 is forbidden outcome. But not in our semantics.
 ; Postponed Reads
 ;;;;;;;;;;;;;;;;;;
 
-(define postponedReadRules (define-postponedReadRules postReadLang
-                             postponedReadDefaultState getWriteσ_2ψ))
-(define rlxWriteRules      (define-rlxWriteRules      postReadLang
-                             getWriteσ_nil))
+(define postponedReadRules (define-postponedReadRules postReadLang postponedReadDefaultState))
+(define rlxWriteRules      (define-rlxWriteRules      postReadLang))
 (define postponedReadStep  (union-reduction-relations postponedReadCoreStep rlxWriteRules postponedReadRules))
 
 
