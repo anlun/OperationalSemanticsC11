@@ -269,7 +269,7 @@
   joinST-φ : path auxξ -> auxξ
   [(joinST-φ path auxξ) auxξ_new
    (where (any_0 ... (P φ) any_1 ... (RW observedWrites) any_2 ...) auxξ)
-   (where auxξ_φ (updateState (P φ) (P (updateOnPath path () φ)) auxξ_readψ))
+   (where auxξ_φ (updateState (P φ) (P (updateOnPath path () φ)) auxξ))
    
    (where (par observedWrites_0 observedWrites_1) (getByPath path observedWrites))
    (where observedWrites_new (updateOnPath path ((par observedWrites_0 observedWrites_1))
