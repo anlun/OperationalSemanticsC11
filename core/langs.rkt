@@ -64,13 +64,14 @@
   ; AST      -- current state of program tree;
   ; η        -- current heap history;
   ; (Read ψ) -- current threads read fronts;
+  ; (RelFront χ-tree) -- per-thread release fronts;
   ; (NA   σ) -- location -> last NA write on it;
   ; (P    φ) -- component with thread-specific information about postponed reads;
   ; (R    γ) -- component with restiction on a resolve order for postponed reads;
   ; (RW   observedWrites) -- (path, ι) -> observed uncommitted to history writes.
-  [auxξ (η (Read ψ) (NA σ) (P φ) (R γ) (RW observedWrites) (Deallocated listι))])
+  [auxξ (η (Read ψ) (RelFront χ-tree) (NA σ) (P φ) (R γ) (RW observedWrites) (Deallocated listι))])
 
-(define-term postponedReadDefaultState (() (Read ()) (NA ()) (P ()) (R ()) (RW ()) (Deallocated ())))
+(define-term postponedReadDefaultState (() (Read ()) (RelFront ()) (NA ()) (P ()) (R ()) (RW ()) (Deallocated ())))
 (define postponedReadCoreStep
   (extend-reduction-relation
    (define-coreStep postponedReadDefaultState spwST-readψ-φ joinST-readψ-φ)

@@ -27,6 +27,12 @@
         (side-condition (term (correctτ τ ι σ_read)))
         (side-condition (term (isPossibleE E auxξ)))))))
 
+(define-metafunction coreLang
+  getσ_relFront : ι path auxξ -> σ
+  [(getσ_relFront ι path (any_0 ... (RelFront χ-tree) any_1 ...))
+   (getσReleaseToWrite ι (getByPath path χ-tree))]
+  [(getσ_relFront ι path auxξ) ()])
+
 (define-syntax-rule (define-rlxWriteRules lang getWriteσ)
   (begin
 
@@ -61,9 +67,7 @@
         (where ψ_read_new     (updateByFront path ((ι τ)) ψ_read))
         (where auxξ_upd_front (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
 
-        (where χ-tree     (getRelFront auxξ))
-        (where χ          (getByPath path χ-tree))
-        (where σ_ToWrite  (updateFront ι τ (getσReleaseToWrite χ ι η)))
+        (where σ_ToWrite  (updateFront ι τ (getσ_relFront ι path auxξ)))
         (where η_new      (updateCell  ι μ-value σ_ToWrite η))
         (where auxξ_upd_η (updateState η η_new auxξ_upd_front))
 
