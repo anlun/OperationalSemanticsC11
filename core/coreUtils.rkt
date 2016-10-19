@@ -262,7 +262,7 @@
   joinST-relFront : path auxξ -> auxξ
   [(joinST-relFront path auxξ)
    (updateState (RelFront χ-tree) (RelFront (updateOnPath path () χ-tree)) auxξ)
-   (where (any_0 ... (RelFront χ-tree_old) any_1 ...) auxξ)]
+   (where (any_0 ... (RelFront χ-tree) any_1 ...) auxξ)]
   [(joinST-relFront path auxξ) auxξ])
 
 (define-metafunction coreLang
