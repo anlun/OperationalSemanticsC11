@@ -1139,3 +1139,27 @@ r1 = 2, r2 = 2 - is not allowed
             fence sc;
             cas_rlx_rlx(x, 0, 2)
         }}} })
+
+#|
+      x_na = 0; d_na = 0;
+d_na = 1      || repeat x_rlx end
+fence rel     || fence acq
+cas(x, 0, 1)  || r = d_na
+             ret r
+
+Possible outcome: r = 1 
+|#
+(define testMP+cas+rlx+fences+acq+rel
+  @prog{x_na := 0;
+        d_na := 0; 
+        r0 := spw
+             {{{ d_na := 1;
+                 fence rel;
+                 cas_rlx_rlx(y, 0, 1)      
+             ||| repeat x_rlx end;
+                 fence acq;
+                 d_na
+             }}};
+        ret r0_2 })
+
+
