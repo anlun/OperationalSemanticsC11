@@ -23,7 +23,7 @@
 
 (define etaPsiCoreStep
   (extend-reduction-relation
-    (define-coreStep etaPsiDefaultState spwST-readψ joinST-readψ)
+    (define-coreStep etaPsiDefaultState joinST-readψ)
    etaPsiLang #:domain ξ))
 (define etaPsiCoreTest (define-coreTest etaPsiCoreStep etaPsiDefaultState))
 
@@ -74,7 +74,7 @@
 (define-term postponedReadDefaultState (() (Read ()) (RelFront ()) (NA ()) (P ()) (R ()) (RW ()) (Deallocated ())))
 (define postponedReadCoreStep
   (extend-reduction-relation
-   (define-coreStep postponedReadDefaultState spwST-readψ-φ joinST-readψ-φ)
+   (define-coreStep postponedReadDefaultState joinST-readψ-φ)
    postReadLang #:domain ξ))
 (define postponedReadCoreTest (define-coreTest postponedReadCoreStep postponedReadDefaultState))
 

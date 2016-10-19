@@ -18,7 +18,7 @@
 
 (define coreStep
   (extend-reduction-relation
-   (define-coreStep defaultState spwST-readψ-gr joinST-readψ-gr)
+   (define-coreStep defaultState joinST-readψ-gr)
    etaPsiGraphLang #:domain ξ))
 (define coreTest (define-coreTest coreStep defaultState))
 
