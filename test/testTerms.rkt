@@ -1155,7 +1155,7 @@ Possible outcome: r = 1
         r0 := spw
              {{{ d_na := 1;
                  fence rel;
-                 cas_rlx_rlx(y, 0, 1)      
+                 cas_rlx_rlx(x, 0, 1)      
              ||| repeat x_rlx end;
                  fence acq;
                  d_na
