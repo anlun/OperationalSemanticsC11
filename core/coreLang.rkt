@@ -386,7 +386,7 @@
   [(isLocationUninitialized vName σ-dd path auxξ) #f])
 
 ; ST stands for `state transformer`.
-(define-syntax-rule (define-coreStep defaultState joinST)
+(define-syntax-rule (define-coreStep defaultState)
   (begin
 
   (reduction-relation coreLang #:domain ξ

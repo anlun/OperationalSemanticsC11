@@ -13,7 +13,7 @@
 
 (define coreStep
   (extend-reduction-relation
-   (define-coreStep defaultState joinST-readψ)
+   (define-coreStep defaultState)
    etaPsiSCLang #:domain ξ))
 (define coreTest (define-coreTest coreStep defaultState))
 

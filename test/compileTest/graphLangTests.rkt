@@ -12,5 +12,5 @@
 
 (define-term defaultState (() initialGraph initialGFront))
 
-(define coreStep (define-coreStep defaultState joinST-gr))
+(define coreStep (define-coreStep defaultState))
 (define coreTest (define-coreTest coreStep defaultState))

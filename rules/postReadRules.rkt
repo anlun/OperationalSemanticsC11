@@ -649,7 +649,7 @@
    ;; Leads to very poor performance, but solves an issue with tests from etaPsi2SCpostLangTests.rkt
    ;; (-->  ((in-hole E (par (ret μ_0) (ret μ_1)))              auxξ)
    ;;      (normalize 
-   ;;       ((in-hole E (ret (    μ_0       μ_1))) (joinST-2ψ path auxξ_new)))
+   ;;       ((in-hole E (ret (    μ_0       μ_1))) (joinST path auxξ_new)))
    ;;      "join-postponed-operations-interleaving"
    ;;      (where path (pathE E))
 

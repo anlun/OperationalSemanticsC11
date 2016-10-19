@@ -198,10 +198,8 @@
 (define-metafunction coreLang
   spwST-φ : path auxξ -> auxξ
   [(spwST-φ path auxξ) auxξ_new
-   (where (any_0 ... (P φ) any_1 ...) auxξ)
-   (where auxξ_φ (updateState (P φ) (P (dup path φ)) auxξ))
-   
-   (where observedWrites (getObservedWrites auxξ_φ))
+   (where (any_0 ... (P φ) any_1 ... (RW observedWrites) any_2 ...) auxξ)
+   (where auxξ_φ   (updateState (P φ) (P (dup path φ)) auxξ))
    (where auxξ_new (updateState (RW observedWrites)
                                 (RW (dup path observedWrites))
                                 auxξ_φ))]
@@ -229,66 +227,78 @@
 
   [(spwST-gr path auxξ) auxξ])
 
-
 (define-metafunction coreLang
-  joinST-readψ-φ : path auxξ -> auxξ
-  [(joinST-readψ-φ path auxξ) auxξ_new 
-                              (where auxξ_readψ (joinST-readψ path auxξ))
-                              (where φ_old      (getφ auxξ_readψ))
-                              (where φ_new      (updateOnPath path () φ_old))
-                              (where auxξ_φ     (updateState (P φ_old) (P φ_new) auxξ_readψ))
-
-                              (where observedWrites_old (getObservedWrites auxξ_φ))
-                              (where (par observedWrites_0 observedWrites_1) (getByPath path observedWrites_old))
-                              (where observedWrites_new (updateOnPath path ((par observedWrites_0 observedWrites_1))
-                                                                      observedWrites_old))
-                              (where auxξ_new (updateState (RW observedWrites_old)
-                                                           (RW observedWrites_new)
-                                                           auxξ_φ))])
-
-(define-metafunction coreLang
-  joinST-2ψ-φ : path auxξ -> auxξ
-  [(joinST-2ψ-φ path auxξ) auxξ_new
-                           (where auxξ_2ψ (joinST-2ψ path auxξ))
-                           (where φ_old   (getφ auxξ_2ψ))
-                           (where φ_new   (updateOnPath path () φ_old))
-                           (where auxξ_φ  (updateState (P φ_old) (P φ_new) auxξ_2ψ))
-
-                           (where observedWrites_old (getObservedWrites auxξ_φ))
-                           (where (par observedWrites_0 observedWrites_1) (getByPath path observedWrites_old))
-                           (where observedWrites_new (updateOnPath path ((par observedWrites_0 observedWrites_1))
-                                                                   observedWrites_old))
-                           (where auxξ_new (updateState (RW observedWrites_old)
-                                                        (RW observedWrites_new)
-                                                        auxξ_φ))])
-
+  joinST : path auxξ -> auxξ
+  [(joinST path auxξ)
+   (joinST-gr       path
+   (joinST-φ        path
+   (joinST-relFront path
+   (joinST-acqFront path
+   (joinST-writeψ   path
+   (joinST-readψ    path auxξ))))))])
 
 (define-metafunction coreLang
   joinST-readψ : path auxξ -> auxξ
-  [(joinST-readψ path auxξ) (updateState (Read ψ_old) (Read (join path ψ_old)) auxξ)
-                            (where ψ_old (getReadψ auxξ))])
-
+  [(joinST-readψ path auxξ)
+   (updateState (Read ψ) (Read (join path ψ)) auxξ)
+   (where (any_0 ... (Read ψ) any_1 ...) auxξ)]
+  [(joinST-readψ path auxξ) auxξ])
 
 (define-metafunction coreLang
   joinST-writeψ : path auxξ -> auxξ
-  [(joinST-writeψ path auxξ) (updateState (Write ψ_old)
-                                          (Write (updateOnPath path () ψ_old))
-                                          auxξ)
-                             (where ψ_old (getWriteψ auxξ))])
+  [(joinST-writeψ path auxξ)
+   (updateState (Write ψ) (Write (updateOnPath path () ψ)) auxξ)
+   (where (any_0 ... (Write ψ) any_1 ...) auxξ)]
+  [(joinST-writeψ path auxξ) auxξ])
 
 (define-metafunction coreLang
   joinST-acqFront : path auxξ -> auxξ
-  [(joinST-acqFront path auxξ) (updateState (AcqFront ψ_old)
-                                            (AcqFront (join path ψ_old))
-                                            auxξ)
-                               (where ψ_old (getAcqFront auxξ))])
+  [(joinST-acqFront path auxξ)
+   (updateState (AcqFront ψ) (AcqFront (join path ψ)) auxξ)
+   (where (any_0 ... (AcqFront ψ) any_1 ...) auxξ)]
+  [(joinST-acqFront path auxξ) auxξ])
 
 (define-metafunction coreLang
   joinST-relFront : path auxξ -> auxξ
-  [(joinST-relFront path auxξ) (updateState (RelFront χ-tree_old)
-                                            (RelFront (updateOnPath path () χ-tree_old))
-                                            auxξ)
-                               (where χ-tree_old (getRelFront auxξ))])
+  [(joinST-relFront path auxξ)
+   (updateState (RelFront χ-tree) (RelFront (updateOnPath path () χ-tree)) auxξ)
+   (where (any_0 ... (RelFront χ-tree_old) any_1 ...) auxξ)]
+  [(joinST-relFront path auxξ) auxξ])
+
+(define-metafunction coreLang
+  joinST-φ : path auxξ -> auxξ
+  [(joinST-φ path auxξ) auxξ_new
+   (where (any_0 ... (P φ) any_1 ... (RW observedWrites) any_2 ...) auxξ)
+   (where auxξ_φ (updateState (P φ) (P (updateOnPath path () φ)) auxξ_readψ))
+   
+   (where (par observedWrites_0 observedWrites_1) (getByPath path observedWrites))
+   (where observedWrites_new (updateOnPath path ((par observedWrites_0 observedWrites_1))
+                                           observedWrites))
+
+   (where auxξ_new (updateState (RW observedWrites) (RW observedWrites_new) auxξ_φ))]
+  [(joinST-φ path auxξ) auxξ])
+
+(define-metafunction coreLang
+  joinST-gr : path auxξ -> auxξ
+  [(joinST-gr path auxξ) (updateState (Graph G) (Graph G_new)
+                             (updateState (GFront GF) (GFront GF_new) auxξ))
+                         
+                         (where (any_0 ... (Graph G) any_1 ... (GFront GF) any_2 ...) auxξ)
+                         (where (Nodes Edges) G)
+                         (where number_new ,(getNextNodeNumber (term Nodes)))
+                         (where Node_join (number_new skip))
+                         
+                         (where (par number_left number_right) (getByPath path GF))
+                         
+                         (where Nodes_new ,(cons (term Node_join) (term Nodes)))
+                         (where Edges_new ,(append
+                                            (term
+                                             ((number_left  number_new sb)
+                                              (number_right number_new sb)))
+                                            (term Edges)))
+                         (where G_new (Nodes_new Edges_new))
+                         
+                         (where GF_new (updateOnPath path number_new GF))])
 
 (define-metafunction coreLang
   getWriteσ_nil : path auxξ -> σ
@@ -297,16 +307,6 @@
 (define-metafunction coreLang
   synchronizeWriteFront_id : path auxξ -> auxξ
   [(synchronizeWriteFront_id path auxξ) auxξ])
-
-; Maybe for `2ψ` rules we should add synchronization between write
-; and read fronts.
-
-(define-metafunction coreLang
-  joinST-2ψ : path auxξ -> auxξ
-  [(joinST-2ψ path auxξ) (joinST-relFront path
-                            (joinST-acqFront path
-                               (joinST-writeψ path
-                                  (joinST-readψ path auxξ))))])
 
 ;; Postponed reads part
 
@@ -354,32 +354,6 @@
 (define (getNextNodeNumber_gr graph)
   (+ 1 (getLastNodeNumber_gr graph)))
 
-(define-metafunction coreLang
-  joinST-gr : path auxξ -> auxξ
-  [(joinST-gr path auxξ) (updateState (Graph G) (Graph G_new)
-                             (updateState (GFront GF) (GFront GF_new) auxξ))
-                         
-                         (where G (getGR auxξ))
-                         (where (Nodes Edges) G)
-                         (where number_new ,(getNextNodeNumber (term Nodes)))
-                         (where Node_join (number_new skip))
-                         
-                         (where GF (getGF auxξ))
-                         (where (par number_left number_right) (getByPath path GF))
-                         
-                         (where Nodes_new ,(cons (term Node_join) (term Nodes)))
-                         (where Edges_new ,(append
-                                            (term
-                                             ((number_left  number_new sb)
-                                              (number_right number_new sb)))
-                                            (term Edges)))
-                         (where G_new (Nodes_new Edges_new))
-                         
-                         (where GF_new (updateOnPath path number_new GF))])
-
-(define-metafunction coreLang
-  joinST-readψ-gr : path auxξ -> auxξ
-  [(joinST-readψ-gr path auxξ) (joinST-gr path (joinST-readψ path auxξ))])
 
 (define-metafunction coreLang
   addReadNode_t : τ Action path auxξ -> auxξ

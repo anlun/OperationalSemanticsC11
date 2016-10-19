@@ -90,11 +90,7 @@
 ; coreLang
 ;;;;;;;;;;;;;;;;;
 (define-term defaultState (()))
-(define-metafunction coreLang
-  joinST : path auxξ -> auxξ
-  [(joinST path auxξ) auxξ])
-
-(define step (define-coreStep defaultState joinST))
+(define step (define-coreStep defaultState))
 (define test (define-coreTest step defaultState))
 
 ;;;;;;;;;;;;;;;;;
