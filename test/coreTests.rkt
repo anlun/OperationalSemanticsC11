@@ -91,13 +91,10 @@
 ;;;;;;;;;;;;;;;;;
 (define-term defaultState (()))
 (define-metafunction coreLang
-  spwST : path auxξ -> auxξ
-  [(spwST path auxξ) auxξ])
-(define-metafunction coreLang
   joinST : path auxξ -> auxξ
   [(joinST path auxξ) auxξ])
 
-(define step (define-coreStep defaultState spwST joinST))
+(define step (define-coreStep defaultState joinST))
 (define test (define-coreTest step defaultState))
 
 ;;;;;;;;;;;;;;;;;

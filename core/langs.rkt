@@ -16,15 +16,14 @@
   ; AST      -- current state of program tree;
   ; η        -- current heap history;
   ; (Read ψ) -- current threads read fronts;
-  ; (NA   σ) -- location -> last NA write on it;
-  ; θ        -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ... (NA σ) θ ...)])
+  ; (NA   σ) -- location -> last NA write on it.
+  [auxξ (η (Read ψ) (NA σ))])
 
 (define-term etaPsiDefaultState (() (Read ()) (NA ())))
 
 (define etaPsiCoreStep
   (extend-reduction-relation
-    (define-coreStep etaPsiDefaultState spwST-readψ joinST-readψ)
+    (define-coreStep etaPsiDefaultState joinST-readψ)
    etaPsiLang #:domain ξ))
 (define etaPsiCoreTest (define-coreTest etaPsiCoreStep etaPsiDefaultState))
 
@@ -34,9 +33,8 @@
   ; η        -- current heap history;
   ; (Read ψ) -- current threads read fronts;  
   ; (NA   σ) -- location -> last NA write on it;
-  ; (SC σ)   -- front after last SC operation;
-  ; θ        -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ... (NA σ) θ ... (SC σ) θ ...)])
+  ; (SC σ)   -- front after last SC operation.
+  [auxξ (η (Read ψ) (NA σ) (SC σ))])
 
 (define-extended-language etaPsi2Lang coreLang
   ; State:
@@ -46,9 +44,8 @@
   ; (AcqFront ψ)      -- per-thread acquire fronts;
   ; (RelFront χ-tree) -- per-thread release fronts;
   ; (NA    σ)    -- location -> last NA write on it;
-  ; (Write ψ)    -- current threads write fronts;
-  ; θ            -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ... (AcqFront ψ) (RelFront χ-tree) (NA σ) θ ... (Write ψ) θ ...)])
+  ; (Write ψ)    -- current threads write fronts.
+  [auxξ (η (Read ψ) (AcqFront ψ) (RelFront χ-tree) (NA σ) (Write ψ))])
 
 (define-extended-language etaPsi2SCLang coreLang
   ; State:
@@ -59,26 +56,25 @@
   ; (RelFront χ-tree) -- per-thread release fronts;
   ; (NA    σ)         -- location -> last NA write on it;
   ; (Write ψ)         -- current threads write fronts;
-  ; (SC σ)            -- front after last SC operation;
-  ; θ                 -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ... (AcqFront ψ) (RelFront χ-tree) θ ... (NA σ) θ ... (Write ψ) θ ... (SC σ) θ ...)])
+  ; (SC σ)            -- front after last SC operation.
+  [auxξ (η (Read ψ) (AcqFront ψ) (RelFront χ-tree) (NA σ) (Write ψ) (SC σ))])
 
 (define-extended-language postReadLang coreLang
   ; State:
   ; AST      -- current state of program tree;
   ; η        -- current heap history;
   ; (Read ψ) -- current threads read fronts;
+  ; (RelFront χ-tree) -- per-thread release fronts;
   ; (NA   σ) -- location -> last NA write on it;
   ; (P    φ) -- component with thread-specific information about postponed reads;
   ; (R    γ) -- component with restiction on a resolve order for postponed reads;
   ; (RW   observedWrites) -- (path, ι) -> observed uncommitted to history writes.
-  ; θ        -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) θ ... (NA σ) θ ... (P φ) θ ... (R γ) θ ... (RW observedWrites) θ ... (Deallocated listι) θ ...)])
+  [auxξ (η (Read ψ) (RelFront χ-tree) (NA σ) (P φ) (R γ) (RW observedWrites) (Deallocated listι))])
 
-(define-term postponedReadDefaultState (() (Read ()) (NA ()) (P ()) (R ()) (RW ()) (Deallocated ())))
+(define-term postponedReadDefaultState (() (Read ()) (RelFront ()) (NA ()) (P ()) (R ()) (RW ()) (Deallocated ())))
 (define postponedReadCoreStep
   (extend-reduction-relation
-   (define-coreStep postponedReadDefaultState spwST-readψ-φ joinST-readψ-φ)
+   (define-coreStep postponedReadDefaultState joinST-readψ-φ)
    postReadLang #:domain ξ))
 (define postponedReadCoreTest (define-coreTest postponedReadCoreStep postponedReadDefaultState))
 
@@ -95,6 +91,5 @@
   ; (Read ψ)    -- current threads read fronts;
   ; (NA   σ)    -- location -> last NA write on it;
   ; (Graph G)   -- current graph of memory actions;
-  ; (GFront GF) -- thread positions in the graph;
-  ; θ           -- extension point for auxilirary state.
-  [auxξ (θ ... η θ ... (Read ψ) (NA σ) θ ... θ ... (Graph G) (GFront GF) θ ...)])
+  ; (GFront GF) -- thread positions in the graph.
+  [auxξ (η (Read ψ) (NA σ) (Graph G) (GFront GF))])
