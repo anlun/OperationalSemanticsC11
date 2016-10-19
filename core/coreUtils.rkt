@@ -204,18 +204,20 @@
    (where observedWrites (getObservedWrites auxξ_φ))
    (where auxξ_new (updateState (RW observedWrites)
                                 (RW (dup path observedWrites))
-                                auxξ_φ))])
+                                auxξ_φ))]
+  [(spwST-φ path auxξ) auxξ])
+
 (define-metafunction coreLang
   spwST-gr : path auxξ -> auxξ
   [(spwST-gr path auxξ) (updateState (Graph G) (Graph G_new)
                             (updateState (GFront GF) (GFront GF_new) auxξ))
                         
-                         (where G (getGR auxξ))
+                         (where (any_0 ... (Graph G) any_1 ... (GFront GF) any_2 ...) auxξ)
+
                          (where (Nodes Edges) G)
                          (where number_new ,(getNextNodeNumber (term Nodes)))
                          (where Node_fork (number_new skip))
                          
-                         (where GF (getGF auxξ))
                          (where number_old (getByPath path GF))
                          (where Edges_new ,(cons
                                             (term (number_old number_new sb))
@@ -223,7 +225,9 @@
                          
                          (where Nodes_new ,(cons (term Node_fork) (term Nodes)))
                          (where G_new  (Nodes_new Edges_new))
-                         (where GF_new (updateOnPath path (par number_new number_new) GF))])
+                         (where GF_new (updateOnPath path (par number_new number_new) GF))]
+
+  [(spwST-gr path auxξ) auxξ])
 
 
 (define-metafunction coreLang
