@@ -1085,7 +1085,7 @@ r1 = y_acq    || r2 = x_acq
 
 r1 = 0, r2 = 0 - is not allowed
 |#
-(define testSB+fences+sc
+(define testSB+rel+acq+fences+sc
   @prog{x_rel := 0;
         y_rel := 0;
         spw

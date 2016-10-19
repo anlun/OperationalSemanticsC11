@@ -12,5 +12,5 @@
 
 (define-term defaultState (() initialGraph initialGFront))
 
-(define coreStep (define-coreStep defaultState spwST-gr joinST-gr isReadQueueEqualTo_t))
+(define coreStep (define-coreStep defaultState spwST-gr joinST-gr))
 (define coreTest (define-coreTest coreStep defaultState))

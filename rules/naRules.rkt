@@ -29,7 +29,7 @@
         (side-condition (term (isPossibleE E auxξ)))))))
 
 (define-syntax-rule (define-naWriteStuckRules lang
-                      defaultState getWriteσ ιNotInReadQueue addWriteNode)
+                      defaultState getWriteσ addWriteNode)
   (begin
 
   (reduction-relation
@@ -106,9 +106,9 @@ record (so as about a synchronization front stored in it).
         (side-condition (term (isPossibleE E auxξ)))))))
 
 (define-syntax-rule (define-naRules lang
-                      addReadNode defaultState getWriteσ ιNotInReadQueue addWriteNode)
+                      addReadNode defaultState getWriteσ addWriteNode)
   (begin
 
   (union-reduction-relations
    (define-naReadRules lang addReadNode)
-   (define-naWriteStuckRules lang defaultState getWriteσ ιNotInReadQueue addWriteNode))))
+   (define-naWriteStuckRules lang defaultState getWriteσ addWriteNode))))

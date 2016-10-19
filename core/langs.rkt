@@ -24,7 +24,7 @@
 
 (define etaPsiCoreStep
   (extend-reduction-relation
-    (define-coreStep etaPsiDefaultState spwST-readψ joinST-readψ isReadQueueEqualTo_t)
+    (define-coreStep etaPsiDefaultState spwST-readψ joinST-readψ)
    etaPsiLang #:domain ξ))
 (define etaPsiCoreTest (define-coreTest etaPsiCoreStep etaPsiDefaultState))
 
@@ -52,15 +52,15 @@
 
 (define-extended-language etaPsi2SCLang coreLang
   ; State:
-  ; AST       -- current state of program tree;
-  ; η         -- current heap history;
+  ; AST               -- current state of program tree;
+  ; η                 -- current heap history;
   ; (Read  ψ)         -- per-thread read    fronts;
   ; (AcqFront ψ)      -- per-thread acquire fronts;
   ; (RelFront χ-tree) -- per-thread release fronts;
-  ; (NA    σ) -- location -> last NA write on it;
-  ; (Write ψ) -- current threads write fronts;
-  ; (SC σ)    -- front after last SC operation;
-  ; θ         -- extension point for auxilirary state.
+  ; (NA    σ)         -- location -> last NA write on it;
+  ; (Write ψ)         -- current threads write fronts;
+  ; (SC σ)            -- front after last SC operation;
+  ; θ                 -- extension point for auxilirary state.
   [auxξ (θ ... η θ ... (Read ψ) θ ... (AcqFront ψ) (RelFront χ-tree) θ ... (NA σ) θ ... (Write ψ) θ ... (SC σ) θ ...)])
 
 (define-extended-language postReadLang coreLang
@@ -78,7 +78,7 @@
 (define-term postponedReadDefaultState (() (Read ()) (NA ()) (P ()) (R ()) (RW ()) (Deallocated ())))
 (define postponedReadCoreStep
   (extend-reduction-relation
-   (define-coreStep postponedReadDefaultState spwST-readψ-φ joinST-readψ-φ isReadQueueEqualTo)
+   (define-coreStep postponedReadDefaultState spwST-readψ-φ joinST-readψ-φ)
    postReadLang #:domain ξ))
 (define postponedReadCoreTest (define-coreTest postponedReadCoreStep postponedReadDefaultState))
 

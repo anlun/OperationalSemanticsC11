@@ -13,22 +13,22 @@
 
 (define coreStep
   (extend-reduction-relation
-   (define-coreStep defaultState spwST-readψ joinST-readψ isReadQueueEqualTo_t)
+   (define-coreStep defaultState spwST-readψ joinST-readψ)
    etaPsiSCLang #:domain ξ))
 (define coreTest (define-coreTest coreStep defaultState))
 
 (define scRules (define-scRules etaPsiSCLang
-                  getReadσ updateReadσ synchronizeWriteFront_id isReadQueueEqualTo_t
-                  are∀PostReadsRlx ιNotInReadQueue_t))
+                  getReadσ updateReadσ synchronizeWriteFront_id
+                  are∀PostReadsRlx))
 
 (define relAcqRules (define-relAcqRules etaPsiSCLang
                       addReadNode_t
-                      synchronizeWriteFront_id isReadQueueEqualTo_t
-                      are∀PostReadsRlx ιNotInReadQueue_t
+                      synchronizeWriteFront_id
+                      are∀PostReadsRlx
                       addWriteNode_t))
 (define naRules     (define-naRules     etaPsiSCLang
                       addReadNode_t
-                      defaultState getWriteσ_nil ιNotInReadQueue
+                      defaultState getWriteσ_nil
                       addWriteNode_t))
 
 (define step (union-reduction-relations coreStep relAcqRules naRules scRules))
@@ -121,7 +121,7 @@ r1 = y_acq    || r2 = x_acq
 r1 = 0, r2 = 0 - is not allowed
 |#
 (test-->> step
-         (term (,testSB+fences+sc defaultState))
+         (term (,testSB+rel+acq+fences+sc defaultState))
          (term ((ret (0 1)) defaultState))
          (term ((ret (1 0)) defaultState))
          (term ((ret (1 1)) defaultState)))

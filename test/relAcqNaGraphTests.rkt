@@ -18,18 +18,18 @@
 
 (define coreStep
   (extend-reduction-relation
-   (define-coreStep defaultState spwST-readψ-gr joinST-readψ-gr isReadQueueEqualTo_t)
+   (define-coreStep defaultState spwST-readψ-gr joinST-readψ-gr)
    etaPsiGraphLang #:domain ξ))
 (define coreTest (define-coreTest coreStep defaultState))
 
 (define relAcqRules (define-relAcqRules etaPsiGraphLang
                       addReadNode
-                      synchronizeWriteFront_id isReadQueueEqualTo_t
-                      are∀PostReadsRlx ιNotInReadQueue
+                      synchronizeWriteFront_id
+                      are∀PostReadsRlx
                       addWriteNode))
 (define naRules     (define-naRules     etaPsiGraphLang
                       addReadNode
-                      defaultState getWriteσ_nil ιNotInReadQueue
+                      defaultState getWriteσ_nil
                       addWriteNode))
 (define step        (union-reduction-relations coreStep relAcqRules naRules))
 

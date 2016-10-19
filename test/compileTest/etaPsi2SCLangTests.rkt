@@ -13,24 +13,24 @@
 
 (define coreStep
   (extend-reduction-relation
-   (define-coreStep defaultState spwST-2ψ joinST-2ψ isReadQueueEqualTo_t)
+   (define-coreStep defaultState spwST-2ψ joinST-2ψ)
    etaPsi2SCLang #:domain ξ))
 (define coreTest (define-coreTest coreStep defaultState))
 
 (define rlxReadRules  (define-rlxReadRules  etaPsi2SCLang))
 (define rlxWriteRules (define-rlxWriteRules etaPsi2SCLang
-                        getWriteσ_2ψ isReadQueueEqualTo_t ιNotInReadQueue))
+                        getWriteσ_2ψ))
 (define relAcqRules   (define-relAcqRules   etaPsi2SCLang
                         addReadNode_t
-                        synchronizeWriteFront isReadQueueEqualTo_t
-                        are∀PostReadsRlx ιNotInReadQueue
+                        synchronizeWriteFront
+                        are∀PostReadsRlx
                         addWriteNode_t))
 (define naRules       (define-naRules       etaPsi2SCLang
                        addReadNode_t
-                       defaultState getWriteσ_2ψ ιNotInReadQueue
+                       defaultState getWriteσ_2ψ
                        addWriteNode_t))
 (define scRules       (define-scRules     etaPsi2SCLang
-                       getReadσ updateReadσ synchronizeWriteFront isReadQueueEqualTo_t
-                       are∀PostReadsRlx ιNotInReadQueue))
+                       getReadσ updateReadσ synchronizeWriteFront
+                       are∀PostReadsRlx))
 (define step          (union-reduction-relations
                        coreStep rlxReadRules rlxWriteRules relAcqRules naRules scRules))

@@ -14,24 +14,24 @@
 (define-term defaultState (() (Read ()) (AcqFront ()) (RelFront ()) (NA ()) (Write ()) (SC ()) (P ()) (R ()) (RW ()) (Deallocated ())))
 (define coreStep
   (extend-reduction-relation
-   (define-coreStep defaultState spwST-2ψ-φ joinST-2ψ-φ isReadQueueEqualTo)
+   (define-coreStep defaultState spwST-2ψ-φ joinST-2ψ-φ)
    etaPsi2SCpostLang #:domain ξ))
 (define coreTest (define-coreTest coreStep defaultState))
 
 (define postponedReadRules (define-postponedReadRules etaPsi2SCpostLang
                              defaultState getWriteσ_2ψ))
 (define rlxWriteRules      (define-rlxWriteRules      etaPsi2SCpostLang
-                             getWriteσ_2ψ isReadQueueEqualTo ιNotInReadQueue))
+                             getWriteσ_2ψ))
 (define relAcqWriteRules   (define-relAcqWriteRules   etaPsi2SCpostLang
                              addReadNode_t
-                             synchronizeWriteFront isReadQueueEqualTo
-                             are∀PostReadsRlx ιNotInReadQueue 
+                             synchronizeWriteFront
+                             are∀PostReadsRlx
                              addWriteNode_t))
 (define naRules            (define-naWriteStuckRules  etaPsi2SCpostLang
-                             defaultState getWriteσ_2ψ ιNotInReadQueue addWriteNode_t))
+                             defaultState getWriteσ_2ψ addWriteNode_t))
 (define scRules            (define-scRules            etaPsi2SCpostLang
-                             getReadσ updateReadσ synchronizeWriteFront isReadQueueEqualTo
-                             are∀PostReadsRlx ιNotInReadQueue))
+                             getReadσ updateReadσ synchronizeWriteFront
+                             are∀PostReadsRlx))
 (define step (union-reduction-relations
               coreStep
               postponedReadRules

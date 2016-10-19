@@ -13,7 +13,7 @@
   ; θ      -- extension point for auxilirary state.
   [auxξ (θ ... η θ ... (SC σ) θ ...)])
 
-(define-syntax-rule (define-scRules lang getReadσ updateReadσ synchronizeWriteFront isReadQueueEqualTo are∀postReadsRlx ιNotInReadQueue)
+(define-syntax-rule (define-scRules lang getReadσ updateReadσ synchronizeWriteFront are∀postReadsRlx)
   (begin
   
   (reduction-relation

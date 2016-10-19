@@ -417,13 +417,9 @@
 (define-metafunction coreLang
   isReadQueueEqualTo : φ path auxξ -> boolean
   [(isReadQueueEqualTo φ path auxξ) ,(equal? (term φ) (term φ_path))
-                                           (where φ_all (getφ auxξ))
-                                           (where φ_path (getByPath path φ_all))])
-
-(define-metafunction coreLang
-  isReadQueueEqualTo_t : φ path auxξ -> boolean
-  [(isReadQueueEqualTo_t φ path auxξ) #t])
-
+                                           (where (any_0 ... (P φ_all) any_1 ...) auxξ)
+                                           (where φ_path (getByPath path φ_all))]
+  [(isReadQueueEqualTo φ path auxξ) #t])
 
 (define-metafunction coreLang
   isPostRlx : postponedEntry -> boolean

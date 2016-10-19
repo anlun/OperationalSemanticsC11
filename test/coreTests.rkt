@@ -97,7 +97,7 @@
   joinST : path auxξ -> auxξ
   [(joinST path auxξ) auxξ])
 
-(define step (define-coreStep defaultState spwST joinST isReadQueueEqualTo_t))
+(define step (define-coreStep defaultState spwST joinST))
 (define test (define-coreTest step defaultState))
 
 ;;;;;;;;;;;;;;;;;

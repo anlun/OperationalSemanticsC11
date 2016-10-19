@@ -28,8 +28,8 @@
 
 (define-syntax-rule (define-relAcqWriteRules lang
                       addReadNode
-                      synchronizeWriteFront isReadQueueEqualTo
-                      are∀PostReadsRlx ιNotInReadQueue
+                      synchronizeWriteFront
+                      are∀PostReadsRlx
                       addWriteNode)
   (begin
 
@@ -183,12 +183,11 @@
 
 (define-syntax-rule (define-relAcqRules lang
                       addReadNode
-                      synchronizeWriteFront isReadQueueEqualTo
-                      are∀PostReadsRlx ιNotInReadQueue
+                      synchronizeWriteFront
+                      are∀PostReadsRlx
                       addWriteNode)
   (begin
 
   (union-reduction-relations
    (define-acqReadRules     lang addReadNode)
-   (define-relAcqWriteRules lang addReadNode synchronizeWriteFront
-     isReadQueueEqualTo are∀PostReadsRlx ιNotinReadQueue addWriteNode))))
+   (define-relAcqWriteRules lang addReadNode synchronizeWriteFront are∀PostReadsRlx addWriteNode))))

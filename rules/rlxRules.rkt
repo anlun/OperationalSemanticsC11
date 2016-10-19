@@ -27,7 +27,7 @@
         (side-condition (term (correctτ τ ι σ_read)))
         (side-condition (term (isPossibleE E auxξ)))))))
 
-(define-syntax-rule (define-rlxWriteRules lang getWriteσ isReadQueueEqualTo ιNotInReadQueue)
+(define-syntax-rule (define-rlxWriteRules lang getWriteσ)
   (begin
 
   (reduction-relation
@@ -129,9 +129,9 @@
         (side-condition (term (isPossibleE E auxξ))))
 )))
 
-(define-syntax-rule (define-rlxRules lang getWriteσ isReadQueueEqualTo ιNotInReadQueue)
+(define-syntax-rule (define-rlxRules lang getWriteσ)
   (begin
 
   (union-reduction-relations
-   (define-rlxReadRules lang)
-   (define-rlxWriteRules lang getWriteσ isReadQueueEqualTo ιNotInReadQueue))))
+   (define-rlxReadRules  lang)
+   (define-rlxWriteRules lang getWriteσ))))

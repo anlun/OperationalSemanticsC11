@@ -14,7 +14,7 @@
 ;;;;;;;;;;;;;;;;;;
 
 (define naRules
-  (define-naRules etaPsiLang addReadNode_t etaPsiDefaultState getWriteσ_nil ιNotInReadQueue addWriteNode_t))
+  (define-naRules etaPsiLang addReadNode_t etaPsiDefaultState getWriteσ_nil addWriteNode_t))
 
 (define naStep
   (union-reduction-relations etaPsiCoreStep naRules))
@@ -35,8 +35,8 @@ It should get `stuck`.
 
 (define relAcqRules
   (define-relAcqRules etaPsiLang addReadNode_t
-    synchronizeWriteFront_id isReadQueueEqualTo_t
-    are∀PostReadsRlx ιNotInReadQueue
+    synchronizeWriteFront_id
+    are∀PostReadsRlx
     addWriteNode_t))
 (define relAcqStep
   (union-reduction-relations etaPsiCoreStep relAcqRules))
@@ -94,7 +94,7 @@ The execution a = d = 1 and b = c = 2 should be invalid.
 
 (define rlxReadRules  (define-rlxReadRules etaPsiLang))
 (define rlxRules      (define-rlxRules     etaPsiLang
-                        getWriteσ_nil isReadQueueEqualTo_t ιNotInReadQueue))
+                        getWriteσ_nil))
 (define rlxStep       (union-reduction-relations etaPsiCoreStep rlxRules))
 
 #|
@@ -170,7 +170,7 @@ In TSO a = 1 and b = 0 is forbidden outcome. But not in our semantics.
 (define postponedReadRules (define-postponedReadRules postReadLang
                              postponedReadDefaultState getWriteσ_2ψ))
 (define rlxWriteRules      (define-rlxWriteRules      postReadLang
-                             getWriteσ_nil isReadQueueEqualTo ιNotInReadQueue))
+                             getWriteσ_nil))
 (define postponedReadStep  (union-reduction-relations postponedReadCoreStep rlxWriteRules postponedReadRules))
 
 

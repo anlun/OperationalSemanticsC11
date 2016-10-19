@@ -12,12 +12,12 @@
 
 (define relAcqRules (define-relAcqRules etaPsiLang
                       addReadNode_t
-                      synchronizeWriteFront_id isReadQueueEqualTo_t
-                      are∀PostReadsRlx ιNotInReadQueue
+                      synchronizeWriteFront_id
+                      are∀PostReadsRlx
                       addWriteNode_t))
 (define naRules     (define-naRules     etaPsiLang
                       addReadNode_t
-                      etaPsiDefaultState getWriteσ_nil ιNotInReadQueue
+                      etaPsiDefaultState getWriteσ_nil
                       addWriteNode_t))
 (define consumeRules (define-conReadRules etaPsiLang addReadNode_t))
 (define step        (union-reduction-relations etaPsiCoreStep relAcqRules naRules consumeRules))
