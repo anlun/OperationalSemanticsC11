@@ -137,7 +137,7 @@
   getWriteσ : path auxξ -> σ
   [(getWriteσ path auxξ) (getByPath path ψ)
    (where (any_0 ... (Write ψ) any_1 ...) auxξ)]
-  [(getWriteσ path auxξ) auxξ])
+  [(getWriteσ path auxξ) ()])
 
 (define-metafunction coreLang
   synchronizeCurReleaseFronts : path auxξ -> auxξ
