@@ -44,3 +44,9 @@
          (term ((ret (0 1)) defaultState))
          (term ((ret (1 0)) defaultState))
          (term ((ret (1 1)) defaultState)))
+
+(test-->> step
+         (term (,testSB+cas+rel+acq+fences defaultState))
+         (term ((ret (0 1)) defaultState))
+         (term ((ret (1 0)) defaultState))
+         (term ((ret (1 1)) defaultState)))

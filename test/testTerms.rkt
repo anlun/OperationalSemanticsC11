@@ -1109,11 +1109,33 @@ r1 = 0, r2 = 0 - is not allowed
 (define testSB+rel+acq+fences+sc (concretize term_SB+fences_abst  "rel rel rel sc sc acq acq"))
 
 #|
+  x_rlx = 0; y_rlx = 0;
 x_rlx = 1  || y_rlx = 1
-fence_sc   || fence_sc
-r1 = y_rlx || r2 = x_rlx
+fence sc   || fence sc
+r1 = y_rlx || r2 = x_rlx 
        ret (r1, r2)
 
 r1 = 0, r2 = 0 - is not allowed
 |#
 (define testSB+rlx+fences+sc (concretize term_SB+fences_abst  "rlx rlx rlx sc sc rlx rlx"))
+
+#|
+         x_rlx = 0; y_rlx = 0;
+x_rlx = 1         || y_rlx = 1
+fence sc          || fence sc
+r1 = cas(y, 0, 2) || r2 = cas(x, 0, 2)
+       ret (r1, r2)
+
+r1 = 2, r2 = 2 - is not allowed
+|#
+(define testSB+cas+rel+acq+fences
+  @prog{x_rlx := 0;
+        y_rlx := 0; 
+        spw
+        {{{ x_rlx := 1;
+            fence sc;
+            cas_rlx_rlx(y, 0, 2)      
+        ||| y_rlx := 1;
+            fence sc;
+            cas_rlx_rlx(x, 0, 2)
+        }}} })
