@@ -1095,3 +1095,22 @@ r1 = 0, r2 = 0 - is not allowed
         ||| y_rel := 1;
             fence sc;
             x_acq }}} })
+
+#|
+x_rlx = 1  || y_rlx = 1
+fence_sc   || fence_sc
+r1 = y_rlx || r2 = x_rlx
+       ret (r1, r2)
+
+r1 = 0, r2 = 0 - is not allowed
+|#
+(define testSB+rlx+fences+sc
+  @prog{x_rlx := 0;
+        y_rlx := 0;
+        spw
+        {{{ x_rlx := 1;
+            fence sc;
+            y_rlx
+        ||| y_rlx := 1;
+            fence sc;
+            x_rlx }}} })
