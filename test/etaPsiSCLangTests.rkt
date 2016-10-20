@@ -17,8 +17,8 @@
    etaPsiSCLang #:domain ξ))
 (define coreTest (define-coreTest coreStep defaultState))
 
-(define scRules     (define-scRules     etaPsiSCLang are∀PostReadsRlx))
-(define relAcqRules (define-relAcqRules etaPsiSCLang are∀PostReadsRlx))
+(define scRules     (define-scRules     etaPsiSCLang))
+(define relAcqRules (define-relAcqRules etaPsiSCLang))
 (define naRules     (define-naRules     etaPsiSCLang defaultState))
 
 (define step (union-reduction-relations coreStep relAcqRules naRules scRules))

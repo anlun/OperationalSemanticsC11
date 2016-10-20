@@ -27,7 +27,7 @@
         (side-condition (term (correctτ τ ι σ_read)))
         (side-condition (term (isPossibleE E auxξ)))))))
 
-(define-syntax-rule (define-relAcqWriteRules lang are∀PostReadsRlx)
+(define-syntax-rule (define-relAcqWriteRules lang) 
   (begin
 
   (reduction-relation
@@ -178,10 +178,8 @@
 
         (side-condition (term (isPossibleE E auxξ)))))))
 
-(define-syntax-rule (define-relAcqRules lang
-                      are∀PostReadsRlx)
+(define-syntax-rule (define-relAcqRules lang)
   (begin
-
-  (union-reduction-relations
-   (define-acqReadRules     lang)
-   (define-relAcqWriteRules lang are∀PostReadsRlx))))
+    (union-reduction-relations
+     (define-acqReadRules     lang)
+     (define-relAcqWriteRules lang))))

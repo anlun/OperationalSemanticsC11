@@ -34,7 +34,7 @@ It should get `stuck`.
 ;;;;;;;;;;;;;;;;;;
 
 (define relAcqRules
-  (define-relAcqRules etaPsiLang are∀PostReadsRlx))
+  (define-relAcqRules etaPsiLang))
 (define relAcqStep
   (union-reduction-relations etaPsiCoreStep relAcqRules))
 
