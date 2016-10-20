@@ -18,9 +18,10 @@
         (where η    (getη     auxξ))
         (where ψ    (getReadψ auxξ))
         (where path (pathE E))
+        (where  (in-hole El (τ μ-value σ)) (getCellHistory ι η))
 
-        (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
-        (where auxξ_ψ_new (updateState (Read ψ) (Read (updateByFront path ((ι τ)) ψ)) auxξ))
+        (where ψ_new      (updateByFront path ((ι τ)) ψ))
+        (where auxξ_ψ_new (updateState (Read ψ) (Read ψ_new) auxξ))
         (where auxξ_new   (updateAcqFront path σ auxξ_ψ_new))
 
         (where σ_read   (getByPath path ψ))
@@ -87,7 +88,9 @@
         (where ψ_read   (getReadψ auxξ))
         (where path     (pathE E))
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
-        (where auxξ_new (updateState (Read ψ_read) (Read (updateByFront path ((ι τ)) ψ_read)) auxξ))
+
+        (where ψ_read_new    (updateByFront path ((ι τ)) ψ_read))
+        (where auxξ_new (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
 
         (where σ_read   (getReadσ path auxξ))
         (side-condition (equal? (term τ) (term (getLastTimestamp ι η))))
@@ -111,17 +114,23 @@
 
         (where τ_last        (getLastTimestamp ι η))
         (where τ             (getNextTimestamp ι η))
+        (where σ             (getLastFront ι η))
+        
+        ; update read front
         (where ψ_read_new    (updateByFront path ((ι τ)) ψ_read))
         (where auxξ_upd_read (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
 
+        ; update acq front
+        (where auxξ_upd_acq  (updateAcqFront path σ auxξ_upd_read))
 
-        (where σ_write    (updateFront ι τ (getWriteσ path auxξ)))
-        (where η_new          (updateCell  ι μ-value_new
-                                           (acqSuccCASσReadNew ι η σ_write)
-                                           η))
-        (where auxξ_upd_η (updateState η η_new auxξ_upd_read))
+        ; create message and update history
+        (where σ_ToWrite  ((updateFront ι τ (getσ_relFront ι path auxξ))))
+        (where η_new      (updateCell ι μ-value_new (acqSuccCASσReadNew ι η σ_ToWrite)))
+        (where auxξ_upd_η (updateState η η_new auxξ_upd_acq))
 
-        (where auxξ_new (dupRelWriteRestrictions ι τ (getWriteσ path auxξ) auxξ_upd_η))
+        ; update operation buffer
+        (where σ_write  (getWriteσ path auxξ))
+        (where auxξ_new (dupRelWriteRestrictions ι τ σ_write auxξ_upd_η))
 
         (side-condition
          (term (succCAScondition ι η μ-value_expected rlx FM)))

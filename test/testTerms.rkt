@@ -1124,9 +1124,9 @@ r1 = 0, r2 = 0 - is not allowed
 x_rlx = 1         || y_rlx = 1
 fence sc          || fence sc
 r1 = cas(y, 0, 2) || r2 = cas(x, 0, 2)
-       ret (r1, r2)
+            ret (r1, r2)
 
-r1 = 2, r2 = 2 - is not allowed
+r1 = 0, r2 = 0 - is not allowed
 |#
 (define testSB+cas+rel+acq+fences
   @prog{x_rlx := 0;
