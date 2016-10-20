@@ -120,8 +120,7 @@
 
 )))
 
-(define-syntax-rule (define-conSCReadRules lang
-                      getReadσ updateReadσ)
+(define-syntax-rule (define-conSCReadRules lang)
   (begin
 
   (reduction-relation

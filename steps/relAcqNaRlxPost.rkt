@@ -20,10 +20,9 @@
 
 (define postponedReadRules (define-postponedReadRules etaPsi2SCpostLang defaultState))
 (define rlxWriteRules      (define-rlxWriteRules      etaPsi2SCpostLang))
-(define relAcqWriteRules   (define-relAcqWriteRules   etaPsi2SCpostLang
-                             are∀PostReadsRlx))
+(define relAcqWriteRules   (define-relAcqWriteRules   etaPsi2SCpostLang are∀PostReadsRlx))
 (define naRules            (define-naWriteStuckRules  etaPsi2SCpostLang defaultState))
-(define scRules            (define-scRules            etaPsi2SCpostLang getReadσ updateReadσ are∀PostReadsRlx))
+(define scRules            (define-scRules            etaPsi2SCpostLang are∀PostReadsRlx))
 (define step (union-reduction-relations
               coreStep
               postponedReadRules

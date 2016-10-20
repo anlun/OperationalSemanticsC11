@@ -17,9 +17,7 @@
    etaPsiSCLang #:domain ξ))
 (define coreTest (define-coreTest coreStep defaultState))
 
-(define scRules (define-scRules etaPsiSCLang
-                  getReadσ updateReadσ are∀PostReadsRlx))
-
+(define scRules     (define-scRules     etaPsiSCLang are∀PostReadsRlx))
 (define relAcqRules (define-relAcqRules etaPsiSCLang are∀PostReadsRlx))
 (define naRules     (define-naRules     etaPsiSCLang defaultState))
 
