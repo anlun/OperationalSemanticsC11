@@ -122,13 +122,6 @@
 
         ; update acq front
         (where auxξ_upd_acq  (updateAcqFront path σ auxξ_upd_read))
-        
-        ;(where σ_write    (updateFront ι τ (getWriteσ path auxξ)))
-        ;(where η_new          (updateCell  ι μ-value_new
-        ;                                   (acqSuccCASσReadNew ι η σ_write)
-        ;                                   η))
-        ;(where auxξ_upd_η (updateState η η_new auxξ_upd_acq))
-        ;(where auxξ_new (dupRelWriteRestrictions ι τ (getWriteσ path auxξ) auxξ_upd_η))
 
         ; create message and update history
         (where σ_ToWrite  (updateFront ι τ (getσ_relFront ι path auxξ)))
