@@ -24,7 +24,6 @@
 (define rlxWriteRules (define-rlxWriteRules etaPsi2Lang))
 (define relAcqRules   (define-relAcqRules   etaPsi2Lang
                         addReadNode_t
-                        synchronizeWriteFront
                         are∀PostReadsRlx
                         addWriteNode_t))
 (define naRules       (define-naRules       etaPsi2Lang

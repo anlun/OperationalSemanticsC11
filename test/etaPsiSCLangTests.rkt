@@ -18,12 +18,10 @@
 (define coreTest (define-coreTest coreStep defaultState))
 
 (define scRules (define-scRules etaPsiSCLang
-                  getReadσ updateReadσ synchronizeWriteFront_id
-                  are∀PostReadsRlx))
+                  getReadσ updateReadσ are∀PostReadsRlx))
 
 (define relAcqRules (define-relAcqRules etaPsiSCLang
                       addReadNode_t
-                      synchronizeWriteFront_id
                       are∀PostReadsRlx
                       addWriteNode_t))
 (define naRules     (define-naRules     etaPsiSCLang

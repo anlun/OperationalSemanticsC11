@@ -121,7 +121,6 @@
 
 (define-syntax-rule (define-conSCReadRules lang
                       getReadσ updateReadσ
-                      synchronizeWriteFront
                       addReadNode)
   (begin
 

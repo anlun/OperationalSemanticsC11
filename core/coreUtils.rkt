@@ -153,10 +153,10 @@
   synchronizeWriteFront : path auxξ -> auxξ
   [(synchronizeWriteFront path auxξ)
    (updateState (Write ψ_write) (Write ψ_write_new) auxξ)
-   (where ψ_read      (getReadψ auxξ))
-   (where σ           (getByPath path ψ_read))
-   (where ψ_write     (getWriteψ auxξ))
-   (where ψ_write_new (updateByFront path σ ψ_write))])
+   (where (any_0 ... (Read ψ_read) any_1 ... (Write ψ_write) any_2 ...) auxξ)
+   (where σ           (getByPath     path   ψ_read))
+   (where ψ_write_new (updateByFront path σ ψ_write))]
+  [(synchronizeWriteFront path auxξ) auxξ])
 
 (define-metafunction coreLang
   spwST : path auxξ -> auxξ
@@ -302,10 +302,6 @@
                          
                          (where GF_new (updateOnPath path number_new GF))]
   [(joinST-gr path auxξ) auxξ])
-
-(define-metafunction coreLang
-  synchronizeWriteFront_id : path auxξ -> auxξ
-  [(synchronizeWriteFront_id path auxξ) auxξ])
 
 ;; Postponed reads part
 
