@@ -122,10 +122,17 @@
 
         ; update acq front
         (where auxξ_upd_acq  (updateAcqFront path σ auxξ_upd_read))
+        
+        ;(where σ_write    (updateFront ι τ (getWriteσ path auxξ)))
+        ;(where η_new          (updateCell  ι μ-value_new
+        ;                                   (acqSuccCASσReadNew ι η σ_write)
+        ;                                   η))
+        ;(where auxξ_upd_η (updateState η η_new auxξ_upd_acq))
+        ;(where auxξ_new (dupRelWriteRestrictions ι τ (getWriteσ path auxξ) auxξ_upd_η))
 
         ; create message and update history
-        (where σ_ToWrite  ((updateFront ι τ (getσ_relFront ι path auxξ))))
-        (where η_new      (updateCell ι μ-value_new (acqSuccCASσReadNew ι η σ_ToWrite)))
+        (where σ_ToWrite  (updateFront ι τ (getσ_relFront ι path auxξ)))
+        (where η_new      (updateCell ι μ-value_new (acqSuccCASσReadNew ι η σ_ToWrite) η))
         (where auxξ_upd_η (updateState η η_new auxξ_upd_acq))
 
         ; update operation buffer
@@ -133,9 +140,9 @@
         (where auxξ_new (dupRelWriteRestrictions ι τ σ_write auxξ_upd_η))
 
         (side-condition
-         (term (succCAScondition ι η μ-value_expected rlx FM)))
+            (term (succCAScondition ι η μ-value_expected rlx FM)))
         (side-condition (term (ιNotInReadQueue ι path auxξ)))
-        ;; (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
+        (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
         (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
 

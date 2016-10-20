@@ -1,5 +1,5 @@
 #lang racket
-(require redex/reduction-semantics)
+(require redex)
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
@@ -10,6 +10,7 @@
 (require "../rules/scRules.rkt")
 (require "../core/langs.rkt")
 (require "../test/testTerms.rkt")
+(require "../core/pp.rkt")
 
 (define-term defaultState (() (Read ()) (AcqFront ()) (RelFront ()) (NA ()) (Write ()) (SC ())))
 (define coreStep
@@ -20,7 +21,7 @@
 
 (define rlxRules    (define-rlxRules          etaPsi2SCLang))
 (define relAcqRules (define-relAcqRules       etaPsi2SCLang))
-(define naRules     (define-naWriteStuckRules etaPsi2SCLang defaultState))
+(define naRules     (define-naRules           etaPsi2SCLang defaultState))
 (define scRules     (define-scRules           etaPsi2SCLang))
 
 (define step (union-reduction-relations
@@ -43,6 +44,8 @@
          (term ((ret (0 1)) defaultState))
          (term ((ret (1 0)) defaultState))
          (term ((ret (1 1)) defaultState)))
+
+;(stepper step (term (,testSB+cas+rel+acq+fences defaultState)) pretty-printer)
 
 (test-->> step
          (term (,testMP+cas+rlx+fences+acq+rel defaultState))
