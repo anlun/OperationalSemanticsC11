@@ -29,8 +29,7 @@
         (side-condition (term (nonNegativeτ τ)))
         (side-condition (term (isPossibleE E auxξ)))))))
 
-(define-syntax-rule (define-naWriteStuckRules lang
-                      defaultState addWriteNode)
+(define-syntax-rule (define-naWriteStuckRules lang defaultState)
   (begin
 
   (reduction-relation
