@@ -102,7 +102,7 @@
 (define-metafunction coreLang
   ;; isPossibleRead : (E | path) vName ι τ τ ifContext auxξ -> boolean 
   [(isPossibleRead path vName ι τ_front τ_read ifContext
-                   (θ_0 ... η θ_1 ... (Paths ((path (read vName τ_shift ifContext)) any ...)) θ_2 ...))
+                   (any_0 ... η any_1 ... (Paths ((path (read vName τ_shift ifContext)) any ...)) any_2 ...))
 
    (isPossibleτ τ_read τ_front τ_shift ι η)]
 
@@ -255,7 +255,7 @@
 
 (define-metafunction coreLang
   noPostponedOps : auxξ -> boolean
-  [(noPostponedOps (θ_0 ... (P φ) θ_1 ...)) #f]
+  [(noPostponedOps (any_0 ... (P φ) any_1 ...)) #f]
   [(noPostponedOps auxξ) #t])
 
 (define-metafunction coreLang
@@ -327,7 +327,7 @@
 
 (define-metafunction coreLang
   isSchedulerQueueEmpty : auxξ -> boolean
-  [(isSchedulerQueueEmpty (θ_0 ... (Paths ()) θ_1 ...)) #t]
+  [(isSchedulerQueueEmpty (any_0 ... (Paths ()) any_1 ...)) #t]
   [(isSchedulerQueueEmpty auxξ) #f])
 
 (define-metafunction coreLang
@@ -354,10 +354,10 @@
 
 (define-metafunction coreLang
   schedulerStep : auxξ -> auxξ
-  [(schedulerStep (θ_0 ... (Paths ()) θ_1 ...))
-   (θ_0 ... (Paths ()) θ_1 ...)]
-  [(schedulerStep (θ_0 ... (Paths pathsτ) θ_1 ...))
-   (θ_0 ... (Paths ,(cdr (term pathsτ))) θ_1 ...)]
+  [(schedulerStep (any_0 ... (Paths ()) any_1 ...))
+   (any_0 ... (Paths ()) any_1 ...)]
+  [(schedulerStep (any_0 ... (Paths pathsτ) any_1 ...))
+   (any_0 ... (Paths ,(cdr (term pathsτ))) any_1 ...)]
   [(schedulerStep auxξ) auxξ])
 
 (define-metafunction coreLang
@@ -366,14 +366,14 @@
 
 (define-metafunction coreLang
   isLocationDeallocated : ι-var auxξ -> boolean
-  [(isLocationDeallocated ι (θ_0 ... (Deallocated listι) θ_1 ...))
+  [(isLocationDeallocated ι (any_0 ... (Deallocated listι) any_1 ...))
    ,(not (false? (member (term ι) (term listι))))]
   [(isLocationDeallocated ι-var auxξ) #f])
 
 (define-metafunction coreLang
   deallocate : ι auxξ -> auxξ
-  [(deallocate ι (θ_0 ... (Deallocated listι) θ_1 ...))
-   (θ_0 ... (Deallocated ,(cons (term ι) (term listι))) θ_1 ...)])
+  [(deallocate ι (any_0 ... (Deallocated listι) any_1 ...))
+   (any_0 ... (Deallocated ,(cons (term ι) (term listι))) any_1 ...)])
 
 (define-metafunction coreLang
   isLocationUninitialized : ι-var σ-dd path auxξ -> boolean

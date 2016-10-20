@@ -17,8 +17,8 @@
          ((in-hole E (ret μ-value)) auxξ_new))
         "read-na"
         (where η       (getη     auxξ))
-        (where ψ       (getReadψ auxξ))
-        (where σ_read  (getByPath (pathE E) ψ))
+        (where σ-tree       (getReadσ-tree auxξ))
+        (where σ_read  (getByPath (pathE E) σ-tree))
         (where τ       (getLastTimestamp ι η))
         (where μ-value (getValueByCorrectTimestamp ι τ η))
 
@@ -48,8 +48,8 @@
         (side-condition (term (isPossibleE E auxξ))))
         #|
         (where η        (getη     auxξ))
-        (where ψ        (getReadψ auxξ))
-        (where σ_read   (getByPath (pathE E) ψ))
+        (where σ-tree        (getReadσ-tree auxξ))
+        (where σ_read   (getByPath (pathE E) σ-tree))
         (side-condition (term (dontSeeLast ι η σ_read)))
         |#
    
@@ -67,8 +67,8 @@
         (side-condition (term (isPossibleE E auxξ))))
         #|
         (where η      (getη     auxξ))
-        (where ψ      (getReadψ auxξ))
-        (where σ_read (getByPath (pathE E) ψ))
+        (where σ-tree      (getReadσ-tree auxξ))
+        (where σ_read (getByPath (pathE E) σ-tree))
         (side-condition
          (or (term (dontSeeLast ι η σ_read))
              (term (negativeτ (getLastTimestamp ι η)))))
@@ -84,13 +84,13 @@ record (so as about a synchronization front stored in it).
          ((in-hole E (ret μ-value))        auxξ_new))
         "write-na"
         (where η      (getη     auxξ))
-        (where ψ      (getReadψ auxξ))
+        (where σ-tree      (getReadσ-tree auxξ))
         (where path   (pathE E))
         
         (where τ       (getNextTimestamp ι η))
-        (where ψ_new   (updateByFront path ((ι τ)) ψ))
+        (where σ-tree_new   (updateByFront path ((ι τ)) σ-tree))
 
-        (where auxξ_upd_front (updateState (Read ψ) (Read ψ_new) auxξ))
+        (where auxξ_upd_front (updateState (Read σ-tree) (Read σ-tree_new) auxξ))
         (where η_new          (updateCell  ι μ-value ((ι τ)) η))
         (where auxξ_upd_η     (updateState η η_new auxξ_upd_front))
 
@@ -100,7 +100,7 @@ record (so as about a synchronization front stored in it).
 
         (where auxξ_new       (addWriteNode (write na ι μ-value τ) path auxξ_upd_na))
 
-        (where σ_read   (getByPath path ψ))
+        (where σ_read   (getByPath path σ-tree))
         (side-condition (term (seeLast ι η σ_read)))
         (side-condition (term (ιNotInReadQueue ι path auxξ)))
         (side-condition (term (isPossibleE E auxξ)))))))

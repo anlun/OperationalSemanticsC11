@@ -76,8 +76,8 @@
   ; Or at least actual one must be placed first.
   
   ; Scheduler fronts for threads
-  [ψ σ
-     (par ψ ψ)]
+  [σ-tree σ
+          (par σ-tree σ-tree)]
   
   ; A function from ι to σ to represent a thread release fronts.
   [χ ((ι σ) ...)]
@@ -90,8 +90,8 @@
      (par E AST)
      (par AST E)]
   [Ef hole
-      (par Ef ψ)
-      (par ψ Ef)]
+      (par Ef σ-tree)
+      (par σ-tree Ef)]
 
   ; Expression usage
   [EU hole
@@ -241,9 +241,9 @@
   [(sortσ σ) ,(sort (term σ) pair<?)])
 
 (define-metafunction syntax
-  sortψ : ψ -> ψ
-  [(sortψ σ) (sortσ σ)]
-  [(sortψ (par ψ_1 ψ_2)) (par (sortψ ψ_1) (sortψ ψ_2))])
+  sortσ-tree : σ-tree -> σ-tree
+  [(sortσ-tree σ) (sortσ σ)]
+  [(sortσ-tree (par σ-tree_1 σ-tree_2)) (par (sortσ-tree σ-tree_1) (sortσ-tree σ-tree_2))])
 
 (define-metafunction syntax
   sortη : η -> η
@@ -301,8 +301,8 @@
 (define-metafunction syntax
   pathEf : Ef -> path
   [(pathEf hole) ()]
-  [(pathEf (par Ef ψ)) (L (pathEf Ef))]
-  [(pathEf (par ψ Ef)) (R (pathEf Ef))])
+  [(pathEf (par Ef σ-tree)) (L (pathEf Ef))]
+  [(pathEf (par σ-tree Ef)) (R (pathEf Ef))])
 
 (define-metafunction syntax
   substι : vName μ ι-var -> ι-var
@@ -509,10 +509,8 @@
 
 (define-extended-language coreLang syntax
   ; State:
-  ; AST -- current state of program tree;
-  ; θ   -- auxiliary state.
-  [θ any]
-  [auxξ (θ ... η θ ...)]
+  ; AST -- current state of program tree.
+  [auxξ (any ... η any ...)]
   [ξ (AST auxξ)]
   
   [listξ (ξ ...)])

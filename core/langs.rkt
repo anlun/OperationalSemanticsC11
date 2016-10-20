@@ -14,11 +14,11 @@
 ; State:
 ; AST                   -- current state of program tree;
 ; η                     -- current heap history;
-; (Read  ψ)             -- per-thread read    fronts;
-; (AcqFront ψ)          -- per-thread acquire fronts;
+; (Read  σ-tree)             -- per-thread read    fronts;
+; (AcqFront σ-tree)          -- per-thread acquire fronts;
 ; (RelFront χ-tree)     -- per-thread release fronts;
 ; (NA    σ)             -- location -> last NA write on it;
-; (Write ψ)             -- current threads write fronts;
+; (Write σ-tree)             -- current threads write fronts;
 ; (SC σ)                -- front after last SC operation.
 ; (P    φ)              -- component with thread-specific information about postponed reads;
 ; (R    γ)              -- component with restiction on a resolve order for postponed reads;
@@ -28,28 +28,28 @@
 ; (GFront GF)           -- thread positions in the graph.
 
 (define-extended-language etaPsiLang coreLang
-  [auxξ (η (Read ψ) (NA σ))])
+  [auxξ (η (Read σ-tree) (NA σ))])
 
 (define-extended-language etaPsiSCLang coreLang
-  [auxξ (η (Read ψ) (NA σ) (SC σ))])
+  [auxξ (η (Read σ-tree) (NA σ) (SC σ))])
 
 (define-extended-language etaPsi2Lang coreLang
-  [auxξ (η (Read ψ) (AcqFront ψ) (RelFront χ-tree) (NA σ) (Write ψ))])
+  [auxξ (η (Read σ-tree) (AcqFront σ-tree) (RelFront χ-tree) (NA σ) (Write σ-tree))])
 
 (define-extended-language etaPsi2SCLang coreLang
-  [auxξ (η (Read ψ) (AcqFront ψ) (RelFront χ-tree) (NA σ) (Write ψ) (SC σ))])
+  [auxξ (η (Read σ-tree) (AcqFront σ-tree) (RelFront χ-tree) (NA σ) (Write σ-tree) (SC σ))])
 
 (define-extended-language postReadLang coreLang
-  [auxξ (η (Read ψ) (RelFront χ-tree) (NA σ) (P φ) (R γ) (RW observedWrites) (Deallocated listι))])
+  [auxξ (η (Read σ-tree) (RelFront χ-tree) (NA σ) (P φ) (R γ) (RW observedWrites) (Deallocated listι))])
 
 (define-extended-language etaPsi2SCpostLang coreLang
-  [auxξ (η (Read ψ) (AcqFront ψ) (RelFront χ-tree) (NA σ) (Write ψ) (SC σ) (P φ) (R γ) (RW observedWrites) (Deallocated listι))])
+  [auxξ (η (Read σ-tree) (AcqFront σ-tree) (RelFront χ-tree) (NA σ) (Write σ-tree) (SC σ) (P φ) (R γ) (RW observedWrites) (Deallocated listι))])
 
 (define-extended-language graphLang coreLang
   [auxξ (η (Graph G) (GFront GF))])
 
 (define-extended-language etaPsiGraphLang coreLang
-  [auxξ (η (Read ψ) (NA σ) (Graph G) (GFront GF))])
+  [auxξ (η (Read σ-tree) (NA σ) (Graph G) (GFront GF))])
 
 (define-term etaPsiDefaultState (() (Read ()) (NA ())))
 

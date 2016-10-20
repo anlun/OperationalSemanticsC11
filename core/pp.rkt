@@ -163,11 +163,11 @@
                       (λ (h) (term (ppι-η-cell ,h)))
                       (term η)))])
 (define-metafunction coreLang
-  ; ppψ : ψ -> Doc
-  [(ppψ σ) (ppσ σ)]
-  [(ppψ (par ψ_0 ψ_1))
-   ,(pp-par "par" (term (ppψ ψ_0))
-                  (term (ppψ ψ_1)))])
+  ; ppσ-tree : σ-tree -> Doc
+  [(ppσ-tree σ) (ppσ σ)]
+  [(ppσ-tree (par σ-tree_0 σ-tree_1))
+   ,(pp-par "par" (term (ppσ-tree σ-tree_0))
+                  (term (ppσ-tree σ-tree_1)))])
 
 (define-metafunction coreLang
   ; ppα : α -> Doc
@@ -271,49 +271,49 @@
 ; -----
 (define-metafunction coreLang
   ; ppStateη : auxξ -> Doc
-  [(ppStateη (θ_0 ... η θ_1 ...))
+  [(ppStateη (any_0 ... η any_1 ...))
    ,(above* "--- η" (term (ppη η)))]
   [(ppStateη auxξ) ,(empty-doc)])
 
 (define-metafunction coreLang
-  ; ppStateψ : auxξ -> Doc
-  [(ppStateψ (θ_0 ... (Read ψ) θ_1 ...))
-   ,(above* "--- Read ψ" (term (ppψ ψ)))]
-  [(ppStateψ auxξ) ,(empty-doc)])
+  ; ppStateσ-tree : auxξ -> Doc
+  [(ppStateσ-tree (any_0 ... (Read σ-tree) any_1 ...))
+   ,(above* "--- Read σ-tree" (term (ppσ-tree σ-tree)))]
+  [(ppStateσ-tree auxξ) ,(empty-doc)])
 
 (define-metafunction coreLang
   ; ppStateσ : auxξ -> Doc
-  [(ppStateσ (θ_0 ... (SC σ) θ_1 ...))
+  [(ppStateσ (any_0 ... (SC σ) any_1 ...))
    ,(above* "--- SC σ" (term (ppσ σ)))]
   [(ppStateσ auxξ) ,(empty-doc)])
 
 (define-metafunction coreLang
   ; ppStateφ : auxξ -> Doc
-  [(ppStateφ (θ_0 ... (P φ) θ_1 ...))
+  [(ppStateφ (any_0 ... (P φ) any_1 ...))
    ,(above* "--- P φ" (term (ppφ φ)))]
   [(ppStateφ auxξ) ,(empty-doc)])
 
 (define-metafunction coreLang
   ; ppStateγ : auxξ -> Doc
-  [(ppStateγ (θ_0 ... (R γ) θ_1 ...))
+  [(ppStateγ (any_0 ... (R γ) any_1 ...))
    ,(above* "--- R γ" " " (term (ppγ γ)))]
   [(ppStateγ auxξ) ,(empty-doc)])
 
 (define-metafunction coreLang
-  ; ppStateψ : auxξ -> Doc
-  [(ppStateψWrite (θ_0 ... (Write ψ) θ_1 ...))
-   ,(above* "--- Write ψ" (term (ppψ ψ)))]
-  [(ppStateψWrite auxξ) ,(empty-doc)])
+  ; ppStateσ-tree : auxξ -> Doc
+  [(ppStateσ-treeWrite (any_0 ... (Write σ-tree) any_1 ...))
+   ,(above* "--- Write σ-tree" (term (ppσ-tree σ-tree)))]
+  [(ppStateσ-treeWrite auxξ) ,(empty-doc)])
 
 (define-metafunction coreLang
   ; ppStatePathsτ : auxξ -> Doc
-  [(ppStatePathsτ (θ_0 ... (Paths pathsτ) θ_1 ...))
+  [(ppStatePathsτ (any_0 ... (Paths pathsτ) any_1 ...))
    ,(above* "--- Paths" (term (ppPathsτ pathsτ)))]
   [(ppStatePathsτ auxξ) ,(empty-doc)])
 
 (define-metafunction coreLang
   ; ppStateDealloc : auxξ -> Doc
-  [(ppStateDealloc (θ_0 ... (Deallocated listι) θ_1 ...))
+  [(ppStateDealloc (any_0 ... (Deallocated listι) any_1 ...))
    ,(above* "--- Deallocated" (term (ppListι listι)))]
   [(ppStateDealloc auxξ) ,(empty-doc)])
 
@@ -328,8 +328,8 @@
   ;ppState : auxξ -> Doc
   [(ppState auxξ)
    ,(above* (term (ppStateη auxξ))
-            (term (ppStateψ auxξ))
-            (term (ppStateψWrite auxξ))
+            (term (ppStateσ-tree auxξ))
+            (term (ppStateσ-treeWrite auxξ))
             (term (ppStateσ auxξ))
             (term (ppStateφ auxξ))
             (term (ppStateγ auxξ))
@@ -559,7 +559,7 @@
 
 (define-metafunction coreLang
   has-graph : ξ -> boolean
-  [(has-graph (AST (θ_0 ... (Graph G) θ_1 ...))) #t]
+  [(has-graph (AST (any_0 ... (Graph G) any_1 ...))) #t]
   [(has-graph ξ)                                 #f])
 
 (define pretty-printer

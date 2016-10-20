@@ -18,15 +18,15 @@
           (in-hole E (ret μ-value))) auxξ_new))
         "read-con"
         (where η      (getη auxξ))
-        (where ψ      (getReadψ auxξ))
+        (where σ-tree      (getReadσ-tree auxξ))
         (where path   (pathE E))
 
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
         (where σ-dd     (getDataDependencies ι σ η))
-        (where auxξ_upd_ψ (updateState (Read ψ) (Read (updateByFront path ((ι τ)) ψ)) auxξ))
-        (where auxξ_new   (addReadNode τ (read con ι μ-value) path auxξ_upd_ψ))
+        (where auxξ_upd_σ-tree (updateState (Read σ-tree) (Read (updateByFront path ((ι τ)) σ-tree)) auxξ))
+        (where auxξ_new   (addReadNode τ (read con ι μ-value) path auxξ_upd_σ-tree))
 
-        (where σ_read   (getByPath path ψ))
+        (where σ_read   (getByPath path σ-tree))
         (side-condition (term (correctτ τ ι σ_read)))
         (side-condition (term (isPossibleE E auxξ))))
 
@@ -36,15 +36,15 @@
           (in-hole E (ret μ-value))) auxξ_new))
         "readCon-con"
         (where η      (getη auxξ))
-        (where ψ      (getReadψ auxξ))
+        (where σ-tree      (getReadσ-tree auxξ))
         (where path   (pathE E))
 
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
         (where σ-dd_new (getDataDependecies ι σ η))
-        (where auxξ_upd_ψ (updateState (Read ψ) (Read (updateByFront path ((ι τ)) ψ)) auxξ))
-        (where auxξ_new   (addReadNode τ (read con ι μ-value) path auxξ_upd_ψ))
+        (where auxξ_upd_σ-tree (updateState (Read σ-tree) (Read (updateByFront path ((ι τ)) σ-tree)) auxξ))
+        (where auxξ_new   (addReadNode τ (read con ι μ-value) path auxξ_upd_σ-tree))
 
-        (where σ_read   (getByPath path ψ))
+        (where σ_read   (getByPath path σ-tree))
         (side-condition (term (correctτ τ ι (frontMerge σ_read σ-dd))))
         (side-condition (term (isPossibleE E auxξ))))
 
@@ -54,13 +54,13 @@
            (in-hole E (ret μ-value))) auxξ_new))
         "readCon-acq"
         (where η      (getη auxξ))
-        (where ψ      (getReadψ auxξ))
+        (where σ-tree      (getReadσ-tree auxξ))
         (where path   (pathE E))
 
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
-        (where auxξ_upd_ψ (updateState (Read ψ) (Read (updateByFront path σ ψ)) auxξ))
-        (where auxξ_new   (addReadNode τ (read acq ι μ-value) path auxξ_upd_ψ))
-        (where σ_read     (getByPath path ψ))
+        (where auxξ_upd_σ-tree (updateState (Read σ-tree) (Read (updateByFront path σ σ-tree)) auxξ))
+        (where auxξ_new   (addReadNode τ (read acq ι μ-value) path auxξ_upd_σ-tree))
+        (where σ_read     (getByPath path σ-tree))
 
         (side-condition (term (correctτ τ ι
                                         (frontMerge σ_read σ-dd))))
@@ -72,13 +72,13 @@
            (in-hole E (ret μ-value))) auxξ_new))
         "readCon-rlx"
         (where η      (getη auxξ))
-        (where ψ      (getReadψ auxξ))
+        (where σ-tree      (getReadσ-tree auxξ))
         (where path   (pathE E))
 
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
-        (where auxξ_upd_ψ (updateState (Read ψ) (Read (updateByFront path ((ι τ)) ψ)) auxξ))
-        (where auxξ_new   (addReadNode τ (read rlx ι μ-value) path auxξ_upd_ψ))
-        (where σ_read     (getByPath path ψ))
+        (where auxξ_upd_σ-tree (updateState (Read σ-tree) (Read (updateByFront path ((ι τ)) σ-tree)) auxξ))
+        (where auxξ_new   (addReadNode τ (read rlx ι μ-value) path auxξ_upd_σ-tree))
+        (where σ_read     (getByPath path σ-tree))
 
         (side-condition (term (correctτ τ ι
                                         (frontMerge σ_read σ-dd))))
@@ -90,15 +90,15 @@
            (in-hole E (ret μ-value))) auxξ_new))
         "readCon-na"
         (where η      (getη auxξ))
-        (where ψ      (getReadψ auxξ))
+        (where σ-tree      (getReadσ-tree auxξ))
         (where path   (pathE E))
 
         (where τ       (getLastTimestamp ι η))
         (where μ-value (getValueByCorrectTimestamp ι τ η))
 
-        (where auxξ_upd_ψ (updateState (Read ψ) (Read (updateByFront path ((ι τ)) ψ)) auxξ))
-        (where auxξ_new   (addReadNode τ (read na ι μ-value) path auxξ_upd_ψ))
-        (where σ_read     (getByPath path ψ))
+        (where auxξ_upd_σ-tree (updateState (Read σ-tree) (Read (updateByFront path ((ι τ)) σ-tree)) auxξ))
+        (where auxξ_new   (addReadNode τ (read na ι μ-value) path auxξ_upd_σ-tree))
+        (where σ_read     (getByPath path σ-tree))
 
         (side-condition (term (seeLast ι η (frontMerge σ_read σ-dd))))
         (side-condition (term (nonNegativeτ τ)))

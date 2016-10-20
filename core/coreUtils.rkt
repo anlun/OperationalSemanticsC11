@@ -5,15 +5,15 @@
 
 (define-metafunction coreLang
   getη : auxξ -> η
-  [(getη (θ_0 ... η θ_1 ...)) η])
+  [(getη (any_0 ... η any_1 ...)) η])
 
 (define-metafunction coreLang
   getObservedWrites : auxξ -> observedWrites
-  [(getObservedWrites (θ_0 ... (RW observedWrites) θ_1 ...)) observedWrites])
+  [(getObservedWrites (any_0 ... (RW observedWrites) any_1 ...)) observedWrites])
 
 (define-metafunction coreLang
-  updateState : θ θ auxξ -> auxξ
-  [(updateState θ_old θ_new (θ_0 ... θ_old θ_1 ...)) (θ_0 ... θ_new θ_1 ...)])
+  updateState : any any auxξ -> auxξ
+  [(updateState any_old any_new (any_0 ... any_old any_1 ...)) (any_0 ... any_new any_1 ...)])
 
 (define-metafunction coreLang
   holeIndex : El -> number
@@ -26,41 +26,41 @@
    ,(>= (term τ) (term (fromMaybe -1 (lookup ι σ))))])
 
 (define-metafunction coreLang
-  getReadψ  : auxξ -> ψ
-  [(getReadψ (θ_0 ... (Read ψ) θ_1 ...)) ψ])
+  getReadσ-tree  : auxξ -> σ-tree
+  [(getReadσ-tree (any_0 ... (Read σ-tree) any_1 ...)) σ-tree])
 
 (define-metafunction coreLang
-  getAcqFront  : auxξ -> ψ
-  [(getAcqFront (any_0 ... (AcqFront ψ) any_1 ...)) ψ])
+  getAcqFront  : auxξ -> σ-tree
+  [(getAcqFront (any_0 ... (AcqFront σ-tree) any_1 ...)) σ-tree])
 
 (define-metafunction coreLang
   getRelFront  : auxξ -> χ-tree
   [(getRelFront (any_0 ... (RelFront χ-tree) any_1 ...)) χ-tree])
 
 (define-metafunction coreLang
-  getWriteψ : auxξ -> ψ
-  [(getWriteψ (θ_0 ... (Write ψ) θ_1 ...)) ψ])
+  getWriteσ-tree : auxξ -> σ-tree
+  [(getWriteσ-tree (any_0 ... (Write σ-tree) any_1 ...)) σ-tree])
 
 (define-metafunction coreLang
   getσSC : auxξ -> σ
-  [(getσSC (θ_0 ... (SC σ) θ_1 ...)) σ])
+  [(getσSC (any_0 ... (SC σ) any_1 ...)) σ])
 
 (define-metafunction coreLang
   getσNA : auxξ -> σ
-  [(getσNA (θ_0 ... (NA σ) θ_1 ...)) σ])
+  [(getσNA (any_0 ... (NA σ) any_1 ...)) σ])
 
 (define-metafunction coreLang
   getGR : auxξ -> G
-  [(getGR (θ_0 ... (Graph G) θ_1 ...)) G])
+  [(getGR (any_0 ... (Graph G) any_1 ...)) G])
 
 (define-metafunction coreLang
   getGF : auxξ -> GF
-  [(getGF (θ_0 ... (GFront GF) θ_1 ...)) GF])
+  [(getGF (any_0 ... (GFront GF) any_1 ...)) GF])
 
 #|
 (define-metafunction coreLang
-  updateStateF : θ (θ -> θ) auxξ -> auxξ
-  [(updateStateF θ_old f (θ_0 ... θ_old θ_1 ...)) (θ_0 ... (f θ_old) θ_1 ...)])
+  updateStateF : any (any -> any) auxξ -> auxξ
+  [(updateStateF any_old f (any_0 ... any_old any_1 ...)) (any_0 ... (f any_old) any_1 ...)])
 |#
 
 (define-metafunction coreLang
@@ -70,10 +70,10 @@
   [(dup (R path) (par any_0 any_1)) (par any_0 (dup path any_1))])
 
 (define-metafunction coreLang
-  join : path ψ -> any
+  join : path σ-tree -> any
   [(join ()       (par σ_0 σ_1)) (frontMerge σ_0 σ_1)]
-  [(join (L path) (par ψ_0 ψ_1)) (par (join path ψ_0) ψ_1)]
-  [(join (R path) (par ψ_0 ψ_1)) (par ψ_0 (join path ψ_1))])
+  [(join (L path) (par σ-tree_0 σ-tree_1)) (par (join path σ-tree_0) σ-tree_1)]
+  [(join (R path) (par σ-tree_0 σ-tree_1)) (par σ-tree_0 (join path σ-tree_1))])
 
 (define-metafunction coreLang
   [(getByPath () any) any]
@@ -81,10 +81,10 @@
   [(getByPath (R path) (par any_0 any_1)) (getByPath path any_1)])
 
 (define-metafunction coreLang
-  updateByFront : path σ ψ -> ψ
+  updateByFront : path σ σ-tree -> σ-tree
   [(updateByFront ()       σ_delta            σ)  (frontMerge σ_delta σ)]
-  [(updateByFront (L path) σ_delta (par ψ_0 ψ_1)) (par (updateByFront path σ_delta ψ_0) ψ_1)]
-  [(updateByFront (R path) σ_delta (par ψ_0 ψ_1)) (par ψ_0 (updateByFront path σ_delta ψ_1))])
+  [(updateByFront (L path) σ_delta (par σ-tree_0 σ-tree_1)) (par (updateByFront path σ_delta σ-tree_0) σ-tree_1)]
+  [(updateByFront (R path) σ_delta (par σ-tree_0 σ-tree_1)) (par σ-tree_0 (updateByFront path σ_delta σ-tree_1))])
 
 (define-metafunction coreLang
   seeLast : ι η σ -> boolean
@@ -107,7 +107,7 @@
 
 (define-metafunction coreLang
   getReadσ : path auxξ -> σ
-  [(getReadσ path auxξ) (getByPath path (getReadψ auxξ))])
+  [(getReadσ path auxξ) (getByPath path (getReadσ-tree auxξ))])
 
 (define-relation coreLang
   failCAScondition ⊆ ι × η × μ-value × SM × FM
@@ -129,21 +129,21 @@
 (define-metafunction coreLang
   updateReadσ : path σ auxξ -> auxξ
   [(updateReadσ path σ auxξ)
-   (updateState (Read ψ) (Read ψ_new) auxξ)
-   (where ψ     (getReadψ auxξ))
-   (where ψ_new (updateByFront path σ ψ))])
+   (updateState (Read σ-tree) (Read σ-tree_new) auxξ)
+   (where σ-tree     (getReadσ-tree auxξ))
+   (where σ-tree_new (updateByFront path σ σ-tree))])
 
 (define-metafunction coreLang
   getWriteσ : path auxξ -> σ
-  [(getWriteσ path auxξ) (getByPath path ψ)
-   (where (any_0 ... (Write ψ) any_1 ...) auxξ)]
+  [(getWriteσ path auxξ) (getByPath path σ-tree)
+   (where (any_0 ... (Write σ-tree) any_1 ...) auxξ)]
   [(getWriteσ path auxξ) ()])
 
 (define-metafunction coreLang
   synchronizeCurReleaseFronts : path auxξ -> auxξ
-  [(synchronizeCurReleaseFronts path auxξ) (θ_0 ... (RelFront χ-tree_new) θ_1 ...)
-   (where (θ_0 ... (RelFront χ-tree) θ_1 ...) auxξ)
-   (where σ_cur (getByPath path (getReadψ auxξ)))
+  [(synchronizeCurReleaseFronts path auxξ) (any_0 ... (RelFront χ-tree_new) any_1 ...)
+   (where (any_0 ... (RelFront χ-tree) any_1 ...) auxξ)
+   (where σ_cur (getByPath path (getReadσ-tree auxξ)))
    (where χ_new ,(map (λ (p) (list (car p) (term σ_cur)))
                       (term σ_cur)))
    (where χ-tree_new (updateOnPath path χ_new χ-tree))]
@@ -152,10 +152,10 @@
 (define-metafunction coreLang
   synchronizeWriteFront : path auxξ -> auxξ
   [(synchronizeWriteFront path auxξ)
-   (updateState (Write ψ_write) (Write ψ_write_new) auxξ)
-   (where (any_0 ... (Read ψ_read) any_1 ... (Write ψ_write) any_2 ...) auxξ)
-   (where σ           (getByPath     path   ψ_read))
-   (where ψ_write_new (updateByFront path σ ψ_write))]
+   (updateState (Write σ-tree_write) (Write σ-tree_write_new) auxξ)
+   (where (any_0 ... (Read σ-tree_read) any_1 ... (Write σ-tree_write) any_2 ...) auxξ)
+   (where σ           (getByPath     path   σ-tree_read))
+   (where σ-tree_write_new (updateByFront path σ σ-tree_write))]
   [(synchronizeWriteFront path auxξ) auxξ])
 
 (define-metafunction coreLang
@@ -165,29 +165,29 @@
    (spwST-φ        path
    (spwST-relFront path
    (spwST-acqFront path
-   (spwST-writeψ   path
-   (spwST-readψ    path auxξ))))))])
+   (spwST-writeσ-tree   path
+   (spwST-readσ-tree    path auxξ))))))])
 
 (define-metafunction coreLang
-  spwST-readψ : path auxξ -> auxξ
-  [(spwST-readψ path auxξ)
-   (updateState (Read ψ) (Read (dup path ψ)) auxξ)
-   (where (any_0 ... (Read ψ) any_1 ...) auxξ)]
-  [(spwST-readψ path auxξ) auxξ])
+  spwST-readσ-tree : path auxξ -> auxξ
+  [(spwST-readσ-tree path auxξ)
+   (updateState (Read σ-tree) (Read (dup path σ-tree)) auxξ)
+   (where (any_0 ... (Read σ-tree) any_1 ...) auxξ)]
+  [(spwST-readσ-tree path auxξ) auxξ])
 
 (define-metafunction coreLang
-  spwST-writeψ : path auxξ -> auxξ
-  [(spwST-writeψ path auxξ)
-   (updateState (Write ψ) (Write (updateOnPath path (par () ()) ψ)) auxξ)
-   (where (any_0 ... (Write ψ) any_1 ...) auxξ)]
-  [(spwST-writeψ path auxξ) auxξ])
+  spwST-writeσ-tree : path auxξ -> auxξ
+  [(spwST-writeσ-tree path auxξ)
+   (updateState (Write σ-tree) (Write (updateOnPath path (par () ()) σ-tree)) auxξ)
+   (where (any_0 ... (Write σ-tree) any_1 ...) auxξ)]
+  [(spwST-writeσ-tree path auxξ) auxξ])
 
 (define-metafunction coreLang
   spwST-acqFront : path auxξ -> auxξ
   [(spwST-acqFront path auxξ)
-   (updateState (AcqFront ψ) (AcqFront (updateOnPath path (par σ σ) ψ)) auxξ)
-   (where (any_0 ... (AcqFront ψ) any_1 ...) auxξ)
-   (where σ (getByPath path ψ))]
+   (updateState (AcqFront σ-tree) (AcqFront (updateOnPath path (par σ σ) σ-tree)) auxξ)
+   (where (any_0 ... (AcqFront σ-tree) any_1 ...) auxξ)
+   (where σ (getByPath path σ-tree))]
   [(spwST-acqFront path auxξ) auxξ])
 
 (define-metafunction coreLang
@@ -236,28 +236,28 @@
    (joinST-φ        path
    (joinST-relFront path
    (joinST-acqFront path
-   (joinST-writeψ   path
-   (joinST-readψ    path auxξ))))))])
+   (joinST-writeσ-tree   path
+   (joinST-readσ-tree    path auxξ))))))])
 
 (define-metafunction coreLang
-  joinST-readψ : path auxξ -> auxξ
-  [(joinST-readψ path auxξ)
-   (updateState (Read ψ) (Read (join path ψ)) auxξ)
-   (where (any_0 ... (Read ψ) any_1 ...) auxξ)]
-  [(joinST-readψ path auxξ) auxξ])
+  joinST-readσ-tree : path auxξ -> auxξ
+  [(joinST-readσ-tree path auxξ)
+   (updateState (Read σ-tree) (Read (join path σ-tree)) auxξ)
+   (where (any_0 ... (Read σ-tree) any_1 ...) auxξ)]
+  [(joinST-readσ-tree path auxξ) auxξ])
 
 (define-metafunction coreLang
-  joinST-writeψ : path auxξ -> auxξ
-  [(joinST-writeψ path auxξ)
-   (updateState (Write ψ) (Write (updateOnPath path () ψ)) auxξ)
-   (where (any_0 ... (Write ψ) any_1 ...) auxξ)]
-  [(joinST-writeψ path auxξ) auxξ])
+  joinST-writeσ-tree : path auxξ -> auxξ
+  [(joinST-writeσ-tree path auxξ)
+   (updateState (Write σ-tree) (Write (updateOnPath path () σ-tree)) auxξ)
+   (where (any_0 ... (Write σ-tree) any_1 ...) auxξ)]
+  [(joinST-writeσ-tree path auxξ) auxξ])
 
 (define-metafunction coreLang
   joinST-acqFront : path auxξ -> auxξ
   [(joinST-acqFront path auxξ)
-   (updateState (AcqFront ψ) (AcqFront (join path ψ)) auxξ)
-   (where (any_0 ... (AcqFront ψ) any_1 ...) auxξ)]
+   (updateState (AcqFront σ-tree) (AcqFront (join path σ-tree)) auxξ)
+   (where (any_0 ... (AcqFront σ-tree) any_1 ...) auxξ)]
   [(joinST-acqFront path auxξ) auxξ])
 
 (define-metafunction coreLang
@@ -307,11 +307,11 @@
 
 (define-metafunction coreLang
   getφ : auxξ -> φ
-  [(getφ (θ_0 ... (P φ) θ_1 ...)) φ])
+  [(getφ (any_0 ... (P φ) any_1 ...)) φ])
 
 (define-metafunction coreLang
   getγ : auxξ -> γ
-  [(getγ (θ_0 ... (R γ) θ_1 ...)) γ])
+  [(getγ (any_0 ... (R γ) any_1 ...)) γ])
 
 (define-metafunction coreLang
   pathEp : Ep -> path
@@ -394,7 +394,7 @@
 ;; TODO: rename appropriately
 (define-metafunction coreLang
   are∀PostReadsRlx : path auxξ -> boolean
-  [(are∀PostReadsRlx path (θ_0 ... (P φ_all) θ_1 ...)) (are∀PostRlxInα α)
+  [(are∀PostReadsRlx path (any_0 ... (P φ_all) any_1 ...)) (are∀PostRlxInα α)
                                                        (where α (getByPath path φ_all))]
   [(are∀PostReadsRlx path auxξ) #t])
 
@@ -418,7 +418,7 @@
 ;; TODO: rename appropriately
 (define-metafunction coreLang
   ιNotInReadQueue : ι path auxξ -> boolean
-  [(ιNotInReadQueue ι path (θ_0 ... (P φ) θ_1 ...))
+  [(ιNotInReadQueue ι path (any_0 ... (P φ) any_1 ...))
                                  (ιNotInα ι α)
                                  (where α (getByPath path φ))]
   [(ιNotInReadQueue ι path auxξ) #t])
@@ -466,8 +466,8 @@
 (define-metafunction coreLang
   addObservedWritesToγ : path ι τ WM auxξ -> auxξ
   [(addObservedWritesToγ path ι τ rlx auxξ) auxξ]
-  [(addObservedWritesToγ path ι τ WM (θ_0 ... (R γ) θ_1 ... (RW observedWrites) θ_2 ...))
-   (θ_0 ... (R γ_new) θ_1 ... (RW observedWrites) θ_2 ...)
+  [(addObservedWritesToγ path ι τ WM (any_0 ... (R γ) any_1 ... (RW observedWrites) any_2 ...))
+   (any_0 ... (R γ_new) any_1 ... (RW observedWrites) any_2 ...)
    (where γ_new ,(append (map (λ (x) (match x [(list name loc)
                                                (list (term ι) (term τ) name)]))
                               (term (flattenObservedWriteList path observedWrites)))
@@ -478,16 +478,16 @@
 ;; TODO: rename appropriately
 (define-metafunction coreLang
   addPostReadsToγ : path ι τ auxξ -> auxξ
-  [(addPostReadsToγ path ι τ (θ_0 ... (P φ) θ_1 ... (R γ) θ_2 ...))
-   (θ_0 ... (P φ) θ_1 ... (R γ_new) θ_2 ...)
+  [(addPostReadsToγ path ι τ (any_0 ... (P φ) any_1 ... (R γ) any_2 ...))
+   (any_0 ... (P φ) any_1 ... (R γ_new) any_2 ...)
    (where α (getByPath path φ))
    (where γ_new ,(append (term (αToγRecords ι τ α)) (term γ)))]
   [(addPostReadsToγ path ι τ auxξ) auxξ])
 
 (define-metafunction coreLang
   addPostReadsToγ_α : α ι τ auxξ -> auxξ
-  [(addPostReadsToγ_α α ι τ (θ_0 ... (P φ) θ_1 ... (R γ) θ_2 ...))
-   (θ_0 ... (P φ) θ_1 ... (R γ_new) θ_2 ...)
+  [(addPostReadsToγ_α α ι τ (any_0 ... (P φ) any_1 ... (R γ) any_2 ...))
+   (any_0 ... (P φ) any_1 ... (R γ_new) any_2 ...)
    (where γ_new ,(append (term (αToγRecords ι τ α)) (term γ)))]
   [(addPostReadsToγ_α α ι τ auxξ) auxξ])
 
@@ -549,12 +549,12 @@
 
 (define-metafunction coreLang
   updateχ : ι σ χ -> χ
-  [(updateχ ι σ (θ_0 ... (ι σ_old) θ_1 ...)) (θ_0 ... (ι σ) θ_1 ...)]
+  [(updateχ ι σ (any_0 ... (ι σ_old) any_1 ...)) (any_0 ... (ι σ) any_1 ...)]
   [(updateχ ι σ χ)                           (consT (ι σ) χ)])
 
 (define-metafunction coreLang
   updateRelFront : path ι σ auxξ -> auxξ
-  [(updateRelFront path ι σ (θ_0 ... (RelFront χ-tree) θ_1 ...)) (θ_0 ... (RelFront χ-tree_new) θ_1 ...)
+  [(updateRelFront path ι σ (any_0 ... (RelFront χ-tree) any_1 ...)) (any_0 ... (RelFront χ-tree_new) any_1 ...)
    (where χ          (getByPath path χ-tree))
    (where χ-tree_new (updateOnPath path (updateχ ι σ χ) χ-tree))]
   [(updateRelFront path ι σ auxξ) auxξ])
@@ -576,8 +576,8 @@
 
 (define-metafunction coreLang
   dupRelWriteRestrictions : ι τ σ auxξ -> auxξ
-  [(dupRelWriteRestrictions ι τ_rlx σ_write (θ_0 ... (R γ) θ_1 ...))
-   (θ_0 ... (R γ_new) θ_1 ...)
+  [(dupRelWriteRestrictions ι τ_rlx σ_write (any_0 ... (R γ) any_1 ...))
+   (any_0 ... (R γ_new) any_1 ...)
    (where (Just τ_rel) (lookup ι σ_write))
    (where γ_new (dupγ ι τ_rlx τ_rel γ))]
   [(dupRelWriteRestrictions ι τ σ_write auxξ) auxξ])
@@ -784,7 +784,7 @@
 
 (define-metafunction coreLang
   isRestrictedByγ_auxξ : ι τ RM auxξ -> boolean
-  [(isRestrictedByγ_auxξ ι τ RM (θ_0 ... (R γ) θ_1 ...)) (isRestrictedByγ ι τ RM γ)]
+  [(isRestrictedByγ_auxξ ι τ RM (any_0 ... (R γ) any_1 ...)) (isRestrictedByγ ι τ RM γ)]
   [(isRestrictedByγ_auxξ ι τ RM auxξ) #f])
 
 (define-metafunction coreLang
@@ -883,8 +883,8 @@
   [(resolveWriteγ_η_el vName σ (ι τ vName_0) η) η])
 
 (define-metafunction coreLang
-  resolveWriteγ_ψ_el : path vName σ ψ -> ψ 
-  [(resolveWriteγ_ψ_el path vName σ ψ) (updateByFront path σ ψ)])
+  resolveWriteγ_σ-tree_el : path vName σ σ-tree -> σ-tree 
+  [(resolveWriteγ_σ-tree_el path vName σ σ-tree) (updateByFront path σ σ-tree)])
 
 (define-metafunction coreLang
   resolveWriteγ : path vName σ auxξ -> auxξ
@@ -895,30 +895,30 @@
                           (term (resolveWriteγ_η_el vName σ ,r ,eta)))
                         (term η) (term γ)))
    (where auxξ_upd_η   (updateState η η_new auxξ))
-   (where ψ_write      (getWriteψ auxξ_upd_η))
-   (where ψ_write_new ,(if (equal? (term η) (term η_new))
-                           (term ψ_write)
-                           (term (updateByFront path σ ψ_write))))
-   (where auxξ_new (updateState (Write ψ_write) (Write ψ_write_new) auxξ_upd_η))])
+   (where σ-tree_write      (getWriteσ-tree auxξ_upd_η))
+   (where σ-tree_write_new ,(if (equal? (term η) (term η_new))
+                           (term σ-tree_write)
+                           (term (updateByFront path σ σ-tree_write))))
+   (where auxξ_new (updateState (Write σ-tree_write) (Write σ-tree_write_new) auxξ_upd_η))])
 
 (define-metafunction coreLang
   hasιInObservedWrites : path ι auxξ -> boolean
-  [(hasιInObservedWrites path ι (θ_0 ... (RW observedWrites) θ_1 ...)) #t
+  [(hasιInObservedWrites path ι (any_0 ... (RW observedWrites) any_1 ...)) #t
    (where (in-hole El (vName ι)) (flattenObservedWriteList path observedWrites))]
 
   [(hasιInObservedWrites path ι auxξ) #f])
  
 (define-metafunction coreLang
   updateAcqFront : path σ auxξ -> auxξ
-  [(updateAcqFront path σ (θ_0 ... (AcqFront ψ) θ_1 ...))
-   (θ_0 ... (AcqFront (updateByFront path σ ψ)) θ_1 ...)]
+  [(updateAcqFront path σ (any_0 ... (AcqFront σ-tree) any_1 ...))
+   (any_0 ... (AcqFront (updateByFront path σ σ-tree)) any_1 ...)]
   [(updateAcqFront path σ auxξ) auxξ])
 
 (define-metafunction coreLang
   synchronizeCurAcqFronts : path auxξ -> auxξ
-  [(synchronizeCurAcqFronts path auxξ) (updateState (Read ψ) (Read (updateByFront path σ ψ)) auxξ)
-   (where (θ_0 ... (Read ψ) θ_1 ... (AcqFront ψ_acq) θ_2 ...) auxξ)
-   (where σ        (getByPath path ψ_acq))]
+  [(synchronizeCurAcqFronts path auxξ) (updateState (Read σ-tree) (Read (updateByFront path σ σ-tree)) auxξ)
+   (where (any_0 ... (Read σ-tree) any_1 ... (AcqFront σ-tree_acq) any_2 ...) auxξ)
+   (where σ        (getByPath path σ-tree_acq))]
   [(synchronizeCurAcqFronts path auxξ) auxξ])
 
 ;; (define (find-path red from to)

@@ -135,9 +135,9 @@
             (term γ))])
 
 (define-metafunction coreLang
-  updateByFrontMod : RM path ι τ σ ψ -> ψ
-  [(updateByFrontMod acq path ι τ σ ψ) (updateByFront path σ ψ)]
-  [(updateByFrontMod RM  path ι τ σ ψ) (updateByFront path ((ι τ)) ψ)])
+  updateByFrontMod : RM path ι τ σ σ-tree -> σ-tree
+  [(updateByFrontMod acq path ι τ σ σ-tree) (updateByFront path σ σ-tree)]
+  [(updateByFrontMod RM  path ι τ σ σ-tree) (updateByFront path ((ι τ)) σ-tree)])
 
 (define-metafunction coreLang
   getDataDependenciesMod : RM ι σ η -> σ-dd
@@ -146,10 +146,10 @@
 
 (define-metafunction coreLang
   resolveObservedWrite_lbl : path (vName ι) (vName ι τ) auxξ -> auxξ
-  [(resolveObservedWrite_lbl path (vName ι) (vName ι τ) auxξ) auxξ_upd_readψ
-   (where ψ_old (getReadψ auxξ))
-   (where ψ_new (updateByFront path ((ι τ)) ψ_old))
-   (where auxξ_upd_readψ (updateState (Read ψ_old) (Read ψ_new) auxξ))]
+  [(resolveObservedWrite_lbl path (vName ι) (vName ι τ) auxξ) auxξ_upd_readσ-tree
+   (where σ-tree_old (getReadσ-tree auxξ))
+   (where σ-tree_new (updateByFront path ((ι τ)) σ-tree_old))
+   (where auxξ_upd_readσ-tree (updateState (Read σ-tree_old) (Read σ-tree_new) auxξ))]
 
   [(resolveObservedWrite_lbl path (vName_0 ι_0) (vName ι τ) auxξ) auxξ])
 
@@ -185,7 +185,7 @@
 
   [(resolveObservedWrite_path path observedWriteList (vName ι τ) auxξ)
    auxξ_new
-   (where auxξ_upd_readψ
+   (where auxξ_upd_readσ-tree
           ,(foldl (λ (elem r) (term (resolveObservedWrite_lbl path ,elem (vName ι τ) ,r)))
                   (term auxξ)
                   (term (flat-ObservedWriteList observedWriteList))))
@@ -198,7 +198,7 @@
 
    (where auxξ_new (updateState (RW observedWrites_old)
                                 (RW observedWrites_new)
-                                auxξ_upd_readψ))]
+                                auxξ_upd_readσ-tree))]
 
   [(resolveObservedWrite_path path observedWrites (vName ι τ) auxξ) auxξ])
 
@@ -307,7 +307,7 @@
         "read-resolve"
         (where φ      (getφ auxξ))
         (where η      (getη auxξ))
-        (where ψ_read (getReadψ auxξ))
+        (where σ-tree_read (getReadσ-tree auxξ))
         
         (where (in-hole Ep α_thread) (getφ auxξ))
         (where (in-hole Eifα α) α_thread)
@@ -317,20 +317,20 @@
         (where (in-hole El_1 (τ μ-value σ)) (getCellHistory ι η))
         (where path (pathEp Ep))
 
-        (where ψ_read_new (updateByFrontMod RM path ι τ σ ψ_read))
-        (where auxξ_upd_ψ (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
+        (where σ-tree_read_new (updateByFrontMod RM path ι τ σ σ-tree_read))
+        (where auxξ_upd_σ-tree (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ))
 
         (where σ-dd_new   (frontMerge σ-dd (getDataDependenciesMod RM ι σ η)))
 
         (where α_new      (substμα vName μ-value σ-dd_new (elToList El_0)))
         (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
-        (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ_upd_ψ))
+        (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ_upd_σ-tree))
 
         (where γ          (getγ auxξ))
         (where γ_new      (removeγRestrictionsByVName vName γ))
         (where auxξ_new   (updateState (R γ) (R γ_new) auxξ_upd_φ))
 
-        (where σ_read     (getByPath path ψ_read))
+        (where σ_read     (getByPath path σ-tree_read))
         (where σ_to-check (frontMerge σ_read σ-dd))
         (where τ_read-min (fromMaybe 0 (lookup ι σ_to-check)))
         
@@ -437,7 +437,7 @@
         "read-resolve-stuck"
         (where φ      (getφ auxξ))
         (where η      (getη auxξ))
-        (where ψ_read (getReadψ auxξ))
+        (where σ-tree_read (getReadσ-tree auxξ))
         (where (in-hole Ep α) (getφ auxξ))
         (where (in-hole El (read vName ι RM σ-dd)) α)
         (side-condition (not (term (isPEntryInConflictWithα (read vName ι) (elFirstPart El)))))
@@ -548,11 +548,11 @@
         (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ))
 
         (where η       (getη auxξ))
-        (where ψ_read  (getReadψ auxξ))
+        (where σ-tree_read  (getReadσ-tree auxξ))
 
         (where τ               (getNextTimestamp ι η))
-        (where ψ_read_new      (updateByFront path ((ι τ)) ψ_read))
-        (where auxξ_read_front (updateState (Read ψ_read) (Read ψ_read_new) auxξ_upd_φ))
+        (where σ-tree_read_new      (updateByFront path ((ι τ)) σ-tree_read))
+        (where auxξ_read_front (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ_upd_φ))
         (where auxξ_upd_front  ,(if (equal? (term WM) 'rel)
                                     (term (synchronizeWriteFront path auxξ_read_front))
                                     (term auxξ_read_front)))
