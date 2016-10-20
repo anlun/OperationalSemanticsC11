@@ -349,21 +349,12 @@
 (define (getNextNodeNumber_gr graph)
   (+ 1 (getLastNodeNumber_gr graph)))
 
-
-(define-metafunction coreLang
-  addReadNode_t : τ Action path auxξ -> auxξ
-  [(addReadNode_t τ Action path auxξ) auxξ])
-
-(define-metafunction coreLang
-  addWriteNode_t : Action path auxξ -> auxξ
-  [(addWriteNode_t Action path auxξ) auxξ])
-
 (define-metafunction coreLang
   addWriteNode : Action path auxξ -> auxξ
   [(addWriteNode (write WM ι μ-value τ) path auxξ)
                  (updateState (Graph G) (Graph G_new)
                      (updateState (GFront GF) (GFront GF_new) auxξ))
-                     (where G (getGR auxξ))
+                     (where (any_0 ... (Graph G) any_1 ... (GFront GF) any_2 ...) auxξ)
                      (where (Nodes Edges) G)
                      (where number_new ,(getNextNodeNumber (term Nodes)))                   
                      (where Node_write
@@ -375,7 +366,8 @@
                      (where Edges_new ,(cons (term (number_old number_new sb))
                                              (term Edges)))                                         
                      (where G_new  (Nodes_new Edges_new))
-                     (where GF_new (updateOnPath path number_new GF))])
+                     (where GF_new (updateOnPath path number_new GF))]
+  [(addWriteNode Action path auxξ) auxξ])
 
 (define-metafunction coreLang
   isReadQueueEqualTo : φ path auxξ -> boolean

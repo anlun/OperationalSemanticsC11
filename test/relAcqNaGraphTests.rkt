@@ -22,14 +22,8 @@
    etaPsiGraphLang #:domain ξ))
 (define coreTest (define-coreTest coreStep defaultState))
 
-(define relAcqRules (define-relAcqRules etaPsiGraphLang
-                      addReadNode
-                      are∀PostReadsRlx
-                      addWriteNode))
-(define naRules     (define-naRules     etaPsiGraphLang
-                      addReadNode
-                      defaultState
-                      addWriteNode))
+(define relAcqRules (define-relAcqRules etaPsiGraphLang are∀PostReadsRlx))
+(define naRules     (define-naRules     etaPsiGraphLang defaultState))
 (define step        (union-reduction-relations coreStep relAcqRules naRules))
 
 #|

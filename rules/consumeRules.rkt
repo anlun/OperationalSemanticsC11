@@ -3,9 +3,10 @@
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
+(require "../core/graphUtils.rkt")
 (provide define-conReadRules)
 
-(define-syntax-rule (define-conReadRules lang addReadNode)
+(define-syntax-rule (define-conReadRules lang)
   (begin
 
   (reduction-relation
@@ -120,8 +121,7 @@
 )))
 
 (define-syntax-rule (define-conSCReadRules lang
-                      getReadσ updateReadσ
-                      addReadNode)
+                      getReadσ updateReadσ)
   (begin
 
   (reduction-relation

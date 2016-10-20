@@ -22,14 +22,8 @@
 
 (define rlxReadRules  (define-rlxReadRules  etaPsi2Lang))
 (define rlxWriteRules (define-rlxWriteRules etaPsi2Lang))
-(define relAcqRules   (define-relAcqRules   etaPsi2Lang
-                        addReadNode_t
-                        are∀PostReadsRlx
-                        addWriteNode_t))
-(define naRules       (define-naRules       etaPsi2Lang
-                        addReadNode_t
-                        defaultState
-                        addWriteNode_t))
+(define relAcqRules   (define-relAcqRules   etaPsi2Lang are∀PostReadsRlx))
+(define naRules       (define-naRules       etaPsi2Lang defaultState))
 (define step          (union-reduction-relations
                        coreStep rlxReadRules rlxWriteRules relAcqRules naRules))
 

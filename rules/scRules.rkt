@@ -3,6 +3,7 @@
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
+(require "../core/graphUtils.rkt")
 (provide define-scRules)
 
 (define-extended-language scLang coreLang

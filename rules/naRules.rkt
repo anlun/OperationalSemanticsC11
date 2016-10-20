@@ -3,9 +3,10 @@
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
+(require "../core/graphUtils.rkt")
 (provide define-naRules define-naReadRules define-naWriteStuckRules)
 
-(define-syntax-rule (define-naReadRules lang addReadNode)
+(define-syntax-rule (define-naReadRules lang)
   (begin
 
   (reduction-relation
@@ -105,10 +106,9 @@ record (so as about a synchronization front stored in it).
         (side-condition (term (ιNotInReadQueue ι path auxξ)))
         (side-condition (term (isPossibleE E auxξ)))))))
 
-(define-syntax-rule (define-naRules lang
-                      addReadNode defaultState addWriteNode)
+(define-syntax-rule (define-naRules lang defaultState)
   (begin
 
   (union-reduction-relations
-   (define-naReadRules lang addReadNode)
-   (define-naWriteStuckRules lang defaultState addWriteNode))))
+   (define-naReadRules lang)
+   (define-naWriteStuckRules lang defaultState))))

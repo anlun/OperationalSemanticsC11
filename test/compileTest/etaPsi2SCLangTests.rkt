@@ -19,14 +19,8 @@
 
 (define rlxReadRules  (define-rlxReadRules  etaPsi2SCLang))
 (define rlxWriteRules (define-rlxWriteRules etaPsi2SCLang))
-(define relAcqRules   (define-relAcqRules   etaPsi2SCLang
-                        addReadNode_t
-                        are∀PostReadsRlx
-                        addWriteNode_t))
-(define naRules       (define-naRules       etaPsi2SCLang
-                       addReadNode_t
-                       defaultState
-                       addWriteNode_t))
+(define relAcqRules   (define-relAcqRules   etaPsi2SCLang are∀PostReadsRlx))
+(define naRules       (define-naRules       etaPsi2SCLang defaultState))
 (define scRules       (define-scRules       etaPsi2SCLang getReadσ updateReadσ are∀PostReadsRlx))
 (define step          (union-reduction-relations
                        coreStep rlxReadRules rlxWriteRules relAcqRules naRules scRules))

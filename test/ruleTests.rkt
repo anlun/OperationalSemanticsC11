@@ -14,7 +14,7 @@
 ;;;;;;;;;;;;;;;;;;
 
 (define naRules
-  (define-naRules etaPsiLang addReadNode_t etaPsiDefaultState addWriteNode_t))
+  (define-naRules etaPsiLang etaPsiDefaultState))
 
 (define naStep
   (union-reduction-relations etaPsiCoreStep naRules))
@@ -34,9 +34,7 @@ It should get `stuck`.
 ;;;;;;;;;;;;;;;;;;
 
 (define relAcqRules
-  (define-relAcqRules etaPsiLang addReadNode_t
-    are∀PostReadsRlx
-    addWriteNode_t))
+  (define-relAcqRules etaPsiLang are∀PostReadsRlx))
 (define relAcqStep
   (union-reduction-relations etaPsiCoreStep relAcqRules))
 

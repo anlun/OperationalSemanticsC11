@@ -3,9 +3,10 @@
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
+(require "../core/graphUtils.rkt")
 (provide define-relAcqRules define-acqReadRules define-relAcqWriteRules)
 
-(define-syntax-rule (define-acqReadRules lang addReadNode)
+(define-syntax-rule (define-acqReadRules lang)
   (begin
 
   (reduction-relation
@@ -26,10 +27,7 @@
         (side-condition (term (correctτ τ ι σ_read)))
         (side-condition (term (isPossibleE E auxξ)))))))
 
-(define-syntax-rule (define-relAcqWriteRules lang
-                      addReadNode
-                      are∀PostReadsRlx
-                      addWriteNode)
+(define-syntax-rule (define-relAcqWriteRules lang are∀PostReadsRlx)
   (begin
 
   (reduction-relation
@@ -181,11 +179,9 @@
         (side-condition (term (isPossibleE E auxξ)))))))
 
 (define-syntax-rule (define-relAcqRules lang
-                      addReadNode
-                      are∀PostReadsRlx
-                      addWriteNode)
+                      are∀PostReadsRlx)
   (begin
 
   (union-reduction-relations
-   (define-acqReadRules     lang addReadNode)
-   (define-relAcqWriteRules lang addReadNode are∀PostReadsRlx addWriteNode))))
+   (define-acqReadRules     lang)
+   (define-relAcqWriteRules lang are∀PostReadsRlx))))

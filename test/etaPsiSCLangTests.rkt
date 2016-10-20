@@ -20,14 +20,8 @@
 (define scRules (define-scRules etaPsiSCLang
                   getReadσ updateReadσ are∀PostReadsRlx))
 
-(define relAcqRules (define-relAcqRules etaPsiSCLang
-                      addReadNode_t
-                      are∀PostReadsRlx
-                      addWriteNode_t))
-(define naRules     (define-naRules     etaPsiSCLang
-                      addReadNode_t
-                      defaultState
-                      addWriteNode_t))
+(define relAcqRules (define-relAcqRules etaPsiSCLang are∀PostReadsRlx))
+(define naRules     (define-naRules     etaPsiSCLang defaultState))
 
 (define step (union-reduction-relations coreStep relAcqRules naRules scRules))
 

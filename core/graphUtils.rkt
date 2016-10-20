@@ -205,12 +205,11 @@
   [(addReadNode τ Action path auxξ)
                 (updateState (Graph G) (Graph G_new)
                              (updateState (GFront GF) (GFront GF_new) auxξ))
-                   (where G  (getGR auxξ))
+                   (where (any_0 ... (Graph G) any_1 ... (GFront GF) any_2 ...) auxξ)
                    (where (Nodes Edges) G)
                    (where number_new ,(getNextNodeNumber (term Nodes)))
                    (where Node_read (number_new Action))
 
-                   (where GF (getGF auxξ))
                    (where number_old (getByPath path GF))
                    (where (Just number_write) (getWriteNumber τ (getι Action) Nodes))
                    (where Nodes_new ,(cons (term Node_read) (term Nodes)))
@@ -222,4 +221,5 @@
 
                    (where G_rf   (Nodes_new Edges_rf))
                    (where G_new  (addSWedges number_new G_rf))
-                   (where GF_new (updateOnPath path number_new GF))])
+                   (where GF_new (updateOnPath path number_new GF))]
+  [(addReadNode τ Action path auxξ) auxξ])

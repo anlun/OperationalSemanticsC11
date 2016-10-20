@@ -10,15 +10,9 @@
 (require "../core/langs.rkt")
 (require "../core/parser.rkt")
 
-(define relAcqRules (define-relAcqRules etaPsiLang
-                      addReadNode_t
-                      are∀PostReadsRlx
-                      addWriteNode_t))
-(define naRules     (define-naRules     etaPsiLang
-                      addReadNode_t
-                      etaPsiDefaultState
-                      addWriteNode_t))
-(define consumeRules (define-conReadRules etaPsiLang addReadNode_t))
+(define relAcqRules (define-relAcqRules   etaPsiLang are∀PostReadsRlx))
+(define naRules     (define-naRules       etaPsiLang etaPsiDefaultState))
+(define consumeRules (define-conReadRules etaPsiLang))
 (define step        (union-reduction-relations etaPsiCoreStep relAcqRules naRules consumeRules))
 
 #|
