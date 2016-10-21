@@ -24,8 +24,7 @@
         (where auxξ_new   (updateAcqFront path σ auxξ_σ-tree_new))
 
         (where σ_read   (getByPath path σ-tree))
-        (side-condition (term (correctτ τ ι σ_read)))
-        (side-condition (term (isPossibleE E auxξ)))))))
+        (side-condition (term (correctτ τ ι σ_read)))))))
 
 (define-metafunction coreLang
   getσ_relFront : ι path auxξ -> σ
@@ -76,8 +75,7 @@
         (where auxξ_new   auxξ_upd_γ)
 
         (side-condition (term (are∀PostReadsRlx  path auxξ)))
-        (side-condition (term (ιNotInReadQueue ι path auxξ)))
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (term (ιNotInReadQueue ι path auxξ))))
 
    (-->  ((in-hole E (cas SM rlx ι μ-value_expected μ-value_new)) auxξ)
         (normalize
@@ -97,9 +95,7 @@
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
         ;; (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ acq auxξ))))
-        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
-
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
    
    (-->  ((in-hole E (cas rlx FM ι μ-value_expected μ-value_new)) auxξ)
         (normalize
@@ -128,9 +124,7 @@
         (side-condition (term (ιNotInReadQueue ι path auxξ)))
         ;; (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
-        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
-
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
 )))
 
 (define-syntax-rule (define-rlxRules lang)

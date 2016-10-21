@@ -25,8 +25,7 @@
         (where auxξ_new        (addReadNode τ (read acq ι μ-value) path auxξ_upd_σ-tree))
 
         (where σ_read          (getByPath path σ-tree))
-        (side-condition (term (correctτ τ ι σ_read)))
-        (side-condition (term (isPossibleE E auxξ)))))))
+        (side-condition (term (correctτ τ ι σ_read)))))))
 
 (define-syntax-rule (define-relAcqWriteRules lang) 
   (begin
@@ -57,8 +56,7 @@
         (where auxξ_new       (addWriteNode (write rel ι μ-value τ) path auxξ_upd_χ))
 
         (side-condition (term (are∀PostReadsRlx  path auxξ)))
-        (side-condition (term (ιNotInReadQueue ι path auxξ)))
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (term (ιNotInReadQueue ι path auxξ))))
    
    (-->  ((in-hole E (cas SM acq ι μ-value_expected μ-value_to_write)) auxξ)
         (normalize
@@ -78,9 +76,7 @@
                                      (term μ-value_expected))))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ acq auxξ))))
-        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
-
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
         
    (-->  ((in-hole E (cas rel FM ι μ-value_expected μ-value_new)) auxξ)
         (normalize
@@ -111,9 +107,7 @@
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
         ;; (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
-        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
-
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
    
    (-->  ((in-hole E (cas acq FM ι μ-value_expected μ-value_new)) auxξ)
         (normalize
@@ -140,9 +134,7 @@
          (term (succCAScondition ι η μ-value_expected acq FM)))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
-        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
-
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
 
    (-->  ((in-hole E (cas relAcq FM ι μ-value_expected μ-value_new)) auxξ)
         (normalize
@@ -175,9 +167,7 @@
          (term (succCAScondition ι η μ-value_expected relAcq FM)))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
-        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
-
-        (side-condition (term (isPossibleE E auxξ)))))))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))))))
 
 (define-syntax-rule (define-relAcqRules lang)
   (begin

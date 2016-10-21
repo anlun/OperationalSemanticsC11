@@ -7,6 +7,39 @@
 (provide define-postponedReadRules) 
 
 (define-metafunction coreLang
+  snocOnPathIfNew : path any any -> any
+  [(snocOnPathIfNew () any_0 any_1)
+   ,(if (member (term any_0) (term any_1))
+        (term any_1)
+        (term (snocT any_0 any_1)))]
+  [(snocOnPathIfNew (L path) any_0 (par any_1 any_2))
+   (par (snocOnPathIfNew path any_0 any_1) any_2)]
+  [(snocOnPathIfNew (R path) any_0 (par any_1 any_2))
+   (par any_1 (snocOnPathIfNew path any_0 any_2))])
+
+(define-metafunction coreLang
+  snocOnPath : path any any -> any
+  [(snocOnPath () any_0 any_1) (snocT any_0 any_1)]
+  [(snocOnPath (L path) any_0 (par any_1 any_2)) (par (snocOnPath path any_0 any_1) any_2)]
+  [(snocOnPath (R path) any_0 (par any_1 any_2)) (par any_1 (snocOnPath path any_0 any_2))])
+
+(define-metafunction coreLang
+  isPostponedEntryIfIdentifier : any postponedEntry -> boolean
+  [(isPostponedEntryIfIdentifier vName (if vName   any_1 ...)) #t]
+  [(isPostponedEntryIfIdentifier vName (if vName_1 Expr α_0 α_1))
+   ,(or (term (isIfInα vName α_0))
+        (term (isIfInα vName α_1)))]
+  [(isPostponedEntryIfIdentifier any_0 any_1               ) #f])
+
+(define-metafunction coreLang
+  ;; Checks if there is a postponed operation with the `any' identifier
+  ;; (the first argument).
+  isIfInα : any α -> boolean
+  [(isIfInα any α) ,(ormap (λ (x)
+                             (term (isPostponedEntryIfIdentifier any ,x)))
+                           (term α))])
+
+(define-metafunction coreLang
   getWriteToPropagate_α : ι α -> Maybe ;postponedEntry
   [(getWriteToPropagate_α ι ()) None]
   [(getWriteToPropagate_α ι ((read  vName ι-var acq σ-dd) any ...)) None]
@@ -279,8 +312,7 @@
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
 
-        (side-condition (not (equal? (term sc) (term RM))))
-        (side-condition (term (isPossibleEEif E Eif auxξ))))
+        (side-condition (not (equal? (term sc) (term RM)))))
 
    (-->  ((in-hole E (in-hole Eif (readCon RM ι-var σ-dd))) auxξ)
         (normalize
@@ -297,8 +329,7 @@
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
 
-        (side-condition (not (equal? (term sc) (term RM))))
-        (side-condition (term (isPossibleEEif E Eif auxξ))))
+        (side-condition (not (equal? (term sc) (term RM)))))
    
    (-->  (AST  auxξ)
         (normalize        
@@ -338,9 +369,7 @@
         
         (where ifContext (getIfContext Eifα))
         (side-condition (term
-                         (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α_thread ifContext γ τ)))
-      
-        (side-condition (term (isPossibleRead path vName ι τ_read-min τ ifContext auxξ))))
+                         (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α_thread ifContext γ τ))))
 
    (-->  (AST  auxξ)
         (normalize        
@@ -406,7 +435,7 @@
 
         (where path (pathEp Ep))
 
-        (where ifContext (getIfContext Eifα))
+        ;; (where ifContext (getIfContext Eifα))
         ;; (side-condition (term (canPostponedReadBePerformedWOτ (vName ι rlx σ-dd) α_thread ifContext)))
 
         (where σ-dd_new  σ-dd) 
@@ -450,8 +479,6 @@
         ;; The substitution is needed to avoid collapse with previous
         ;; postponed operations.
         ">>=-subst-postpone"
-        (side-condition (term (isPossibleEEif E Eif auxξ)))
-        
         (where μ_simplified (calcμ μ))
 
         ;; μ can't be substituted immediately
@@ -487,19 +514,12 @@
         (where α_new    (substμα vName μ-value () (elToList El)))
         (where φ        (getφ auxξ))
         (where φ_new    (updateOnPath path (in-hole Eifα α_new) φ))
-        (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
-        
-        (where ifContext (getIfContext Eifα))
-        (side-condition (term (isPossiblePath_resolve (vName ifContext) path auxξ))))
+        (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
 
    (-->  ((in-hole E (in-hole Eif (write WM ι-var μ))) auxξ)
         (normalize
          ((in-hole E (in-hole Eif (ret a            ))) auxξ_new))
         "write-postpone"
-        (side-condition (if (equal? (term Eif) (term hole))
-                            (term (isPossibleE E auxξ))
-                            (term (isPossibleEEif E Eif auxξ))))
-        
         (where μ_simplified (calcμ μ))
 
         ;; μ doesnt contain `choice` operator --- they should be resolved before
@@ -539,9 +559,6 @@
 
         (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
         
-        (where ifContext (getIfContext Eifα))
-        (side-condition (term (isPossiblePath_resolve (vName ifContext) path auxξ)))
-
         (where α_new      (substμα vName μ-value () (elToList El)))
         (where φ          (getφ auxξ))
         (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
@@ -581,10 +598,6 @@
         (normalize
          ((in-hole E (in-hole Eif (chooseBranch number AST_0 AST_1))) auxξ_new))
         "if-speculation-branch-choice"
-        
-        (where ifContext (eifToIfContext Eif))
-        (side-condition (term (isPossiblePath_resolve (vName ifContext) (pathE E) auxξ)))
-
         (where φ (getφ auxξ))
         (where (in-hole Ep α_thread) φ)
         (where (in-hole Eifα (in-hole El (if vName number α_0 α_1))) α_thread)
@@ -599,7 +612,6 @@
          ((in-hole E (in-hole Eif (if a    AST_0 AST_1))) auxξ_new))
         "if-speculation-init"
         
-        (side-condition (term (isPossibleEEif E Eif auxξ)))
         (where Expr_simplified (calc Expr))
         (side-condition (not (redex-match coreLang number (term Expr_simplified))))
 
@@ -630,8 +642,6 @@
         (side-condition (term
                          (canPostponedWriteBePerformed (vName_2 ι) α_2)))
 
-        (where path     (pathEp Ep))
-        (side-condition (term (isPossiblePath path auxξ)))
 
         (fresh a)
         (where α_1_new (substμα vName_1 a () (elToList El_1)))
@@ -641,10 +651,10 @@
                       ((write a ι WM μ-value)
                        (if vName_0 Expr α_1_new α_2_new))))
 
+        (where path     (pathEp Ep))
         (where φ          (getφ auxξ))
         (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
-        (where auxξ_new   (updateState (P φ) (P φ_new) auxξ))
-        )
+        (where auxξ_new   (updateState (P φ) (P φ_new) auxξ)))
 
    ;; Leads to very poor performance, but solves an issue with tests from etaPsi2SCpostLangTests.rkt
    ;; (-->  ((in-hole E (par (ret μ_0) (ret μ_1)))              auxξ)
@@ -666,7 +676,5 @@
 
    ;;      (where auxξ_new (updateState (RW observedWrites)
    ;;                                   (RW observedWrites_new)
-   ;;                                   auxξ_upd_φ))
-
-   ;;      (side-condition (term (isPossibleE E auxξ))))
+   ;;                                   auxξ_upd_φ)))
 )))

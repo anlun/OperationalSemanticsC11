@@ -51,8 +51,7 @@
         ;(side-condition (term (isReadQueueEqualTo () path auxξ))))
         (side-condition (term (are∀PostReadsRlx  path auxξ)))
         (side-condition (term (ιNotInReadQueue ι path auxξ)))
-        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
       
    (-->  ((in-hole E (read   sc ι)) auxξ)
         (normalize
@@ -72,8 +71,7 @@
         (where σ_sc     (getσSC auxξ))
         (side-condition (term (correctτ τ ι (frontMerge σ_read σ_sc))))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
-        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
 
    (-->  ((in-hole E (cas SM sc ι μ-value_expected μ-value_new)) auxξ)
         (normalize
@@ -94,9 +92,7 @@
         (side-condition (term (correctτ τ ι (frontMerge σ_read σ_sc))))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
         (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
-        (side-condition (not (equal? (term μ-value) (term μ-value_expected))))
-
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (not (equal? (term μ-value) (term μ-value_expected)))))
 
    (-->  ((in-hole E (cas sc FM ι μ-value_expected μ-value_new)) auxξ)
         (normalize
@@ -131,5 +127,5 @@
         (side-condition
          (term (succCAScondition ι η μ-value_expected sc FM)))
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
-        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
-        (side-condition (term (isPossibleE E auxξ)))))))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
+)))
