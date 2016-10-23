@@ -70,8 +70,8 @@ Possible outcome: r = 1
 |#
 ;; Unfortunately, this test takes forever to run.
 ;; Randomized testing showed that everything is fine.
-(test-->>∃ step term_nOTA_nestIf_rlx
-           (term (ret 1)))
+;; (test-->>∃ step term_nOTA_nestIf_rlx
+;;            (term (ret 1)))
 
 ;; (stepper step (term (,term_nOTA_nestIf_rlx defaultState)) pretty-printer)
 
