@@ -60,8 +60,6 @@ rX |rA
           
           (term (ret (2 1))))
 
-
-
 #|
              x_rlx = 0; a_rlx = 0
 a_rlx = 1 || cas_rlx_rlx(x, 1, 2) || rX = x_acq
