@@ -147,15 +147,14 @@ In TSO a = 1 and b = 0 is forbidden outcome. But not in our semantics.
 
 
 ;;;;;;;;;;;;;;;;;;
-; Postponed Reads
+; Postponed Operations
 ;;;;;;;;;;;;;;;;;;
 
-(define postponedReadRules (define-postponedReadRules postReadLang postponedReadDefaultState))
-(define rlxWriteRules      (define-rlxWriteRules      postReadLang))
-(define postponedReadStep  (union-reduction-relations postponedReadCoreStep rlxWriteRules postponedReadRules))
+(define postRules     (define-postRules          postReadLang postponedReadDefaultState))
+(define rlxWriteRules (define-rlxWriteRules      postReadLang))
+(define postStep      (union-reduction-relations postponedReadCoreStep rlxWriteRules postRules))
 
-
-(test-->>∃ postponedReadStep term_WrlxRrlx_WrlxRrlx
+(test-->>∃ postStep term_WrlxRrlx_WrlxRrlx
           (term (ret (0 0))))
 
 #|
@@ -164,6 +163,6 @@ y_rlx  = 1 || x_rlx  = 1
 
 With postponed reads it should be able to lead to R1 = R2 = 1.
 |#
-(test-->>∃ postponedReadStep term_RrlxWrlx_RrlxWrlx
+(test-->>∃ postStep term_RrlxWrlx_RrlxWrlx
           (term (ret (1 1))))
 

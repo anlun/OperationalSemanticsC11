@@ -4,7 +4,7 @@
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
-(provide define-postponedReadRules) 
+(provide define-postRules) 
 
 (define-metafunction coreLang
   snocOnPathIfNew : path any any -> any
@@ -291,7 +291,7 @@
     [(list '() ys) (list ys)]
     [(list xs '()) (list xs)]))
 
-(define-syntax-rule (define-postponedReadRules lang defaultState)
+(define-syntax-rule (define-postRules lang defaultState)
   (begin
 
   (reduction-relation
