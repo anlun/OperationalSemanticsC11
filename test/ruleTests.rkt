@@ -7,7 +7,7 @@
 (require "../rules/relAcqRules.rkt")
 (require "../rules/scRules.rkt")
 (require "../rules/rlxRules.rkt")
-(require "../rules/postReadRules.rkt")
+(require "../rules/postRules.rkt")
 
 ;;;;;;;;;;;;;;;;;;
 ; NA

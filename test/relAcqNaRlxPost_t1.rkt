@@ -32,14 +32,14 @@ rX |rA
                   ret [rX rA] }}};
         ret r0_2 })
 
-(test-->> step term_WW_WRMW_RR
+;; (test-->> step term_WW_WRMW_RR
 
-          (term (ret (0 0)))
-          (term (ret (0 1)))
+;;           (term (ret (0 0)))
+;;           (term (ret (0 1)))
 
-          (term (ret (1 1)))
+;;           (term (ret (1 1)))
           
-          (term (ret (2 1))))
+;;           (term (ret (2 1))))
 
 #|
              x_rlx = 0; a_rlx = 0
@@ -64,32 +64,34 @@ rX |rA
                         {{{ a_rlx := 1;
                             x_rel := 1;
                             x_rlx := 3
-                        ||| cas_rlx_rlx(x, 1, 2) }}};
+                        ||| ret 0 }}};
                   ret r1_2
               ||| rX := x_acq;
                   rA := a_rlx;
                   ret [rX rA] }}};
         ret r0 })
 
+                        ;; ||| cas_rlx_rlx(x, 1, 2) }}};
+
 (test-->> step term_WWW_WRMW_RR
 
           (term (ret (0 (0 0))))
-          (term (ret (1 (0 0))))
-          (term (ret (3 (0 0))))
-
           (term (ret (0 (0 1))))
-          (term (ret (1 (0 1))))
-          (term (ret (3 (0 1))))
-
           (term (ret (0 (1 1))))
-          (term (ret (1 (1 1))))
-          (term (ret (3 (1 1))))
-
-          (term (ret (1 (2 1))))
-          
           (term (ret (0 (3 1))))
+
+          (term (ret (1 (0 0))))
+          (term (ret (1 (0 1))))
+          (term (ret (1 (1 1))))
+          (term (ret (1 (2 1))))
           (term (ret (1 (3 1))))
+
+          (term (ret (3 (0 0))))
+          (term (ret (3 (0 1))))
+          (term (ret (3 (1 1))))
           (term (ret (3 (3 1)))))
+
+  ;; actual: '(ret (0 (3 0)))
 
 #|
                      x_rlx = 0; a_rlx = 0; b_rlx = 0

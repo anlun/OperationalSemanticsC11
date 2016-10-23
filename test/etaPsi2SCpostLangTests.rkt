@@ -16,7 +16,7 @@ If there is no Rel-Acq pair, then R1 = R2 = 1 should be possible.
           (term (ret (1 1)))))
 
 ;; These tests require to uncomment "join-postponed-operations-interleaving"
-;; rule in "rules/postReadRules.rkt".
+;; rule in "rules/postRules.rkt".
 ;; It commented out as leading to very poor performance.
 (define (failingTests)
   (test_R-W_R-W_11 term_Rrlx-Wrlx_Rrlx-Wrlx)
