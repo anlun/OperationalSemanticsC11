@@ -32,14 +32,35 @@ rX |rA
                   ret [rX rA] }}};
         ret r0_2 })
 
-;; (test-->> step term_WW_WRMW_RR
+(test-->> step term_WW_WRMW_RR
+          (term (ret (0 0)))
+          (term (ret (0 1)))
 
-;;           (term (ret (0 0)))
-;;           (term (ret (0 1)))
-
-;;           (term (ret (1 1)))
+          (term (ret (1 1)))
           
-;;           (term (ret (2 1))))
+          (term (ret (2 1))))
+
+(define term_WWW_RR
+  @prog{x_rlx := 0;
+        a_rlx := 0;
+        r0 := spw
+              {{{ a_rlx := 1;
+                  x_rel := 1;
+                  x_rlx := 2
+              ||| rX := x_acq;
+                  rA := a_rlx;
+                  ret [rX rA] }}};
+        ret r0_2 })
+
+(test-->> step term_WWW_RR
+          (term (ret (0 0)))
+          (term (ret (0 1)))
+
+          (term (ret (1 1)))
+          
+          (term (ret (2 1))))
+
+
 
 #|
              x_rlx = 0; a_rlx = 0
@@ -64,14 +85,12 @@ rX |rA
                         {{{ a_rlx := 1;
                             x_rel := 1;
                             x_rlx := 3
-                        ||| ret 0 }}};
+                        ||| cas_rlx_rlx(x, 1, 2) }}};
                   ret r1_2
               ||| rX := x_acq;
                   rA := a_rlx;
                   ret [rX rA] }}};
         ret r0 })
-
-                        ;; ||| cas_rlx_rlx(x, 1, 2) }}};
 
 (test-->> step term_WWW_WRMW_RR
 
@@ -90,8 +109,6 @@ rX |rA
           (term (ret (3 (0 1))))
           (term (ret (3 (1 1))))
           (term (ret (3 (3 1)))))
-
-  ;; actual: '(ret (0 (3 0)))
 
 #|
                      x_rlx = 0; a_rlx = 0; b_rlx = 0
