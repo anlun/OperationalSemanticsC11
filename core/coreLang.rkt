@@ -189,10 +189,16 @@
      
    ; For test results brevity only.
    (--> ((ret μ-value) auxξ)
-        ((ret μ-value) defaultState)
-        "heap-info-erasure"
-        (side-condition     ; To eliminate cycle.
-         (not (equal? (term auxξ) (term defaultState)))))
+         (ret μ-value)
+        "auxξ-erasure")
+        ;; (side-condition     ; Not to introduce a cycle rule.
+        ;;  (not (equal? (term auxξ) (term defaultState)))))
+   
+   (-->  AST
+        (AST defaultState)
+        "add-default-auxξ"
+        (side-condition     ; Not to introduce a cycle with "auxξ-erasure" rule.
+         (not (redex-match coreLang (ret μ-value) (term AST)))))
 
    (-->  ((in-hole E (dealloc ι)) auxξ)
         (normalize
@@ -224,9 +230,9 @@ ret 5 < 5
 (define-syntax-rule (define-coreTest step defaultState)
   (begin
 (test-->> step
-          (term (,testTerm-112 defaultState))
-          (term ((ret (3 12)) defaultState)))
+          testTerm-112
+          (term (ret (3 12))))
 (test-->> step
-          (term (,testTerm-2 defaultState))
-          (term ((ret 0) defaultState)))
+          testTerm-2
+          (term (ret 0)))
 ))

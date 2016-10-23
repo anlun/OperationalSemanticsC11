@@ -25,9 +25,8 @@ x_na = 1 || x_na = 2
 It should get `stuck`.
 |#
 
-(test-->>∃ naStep
-          (term (,testTerm2 etaPsiDefaultState))
-          (term (stuck etaPsiDefaultState)))
+(test-->>∃ naStep testTerm2
+          (term stuck))
 
 ;;;;;;;;;;;;;;;;;;
 ; Rel/Acq
@@ -45,9 +44,8 @@ R1 = y_acq || R2 = x_acq
 Can lead to R1 = R2 = 0.
 |#
 
-(test-->>∃ relAcqStep
-          (term (,term_WrelRacq_WrelRacq etaPsiDefaultState))
-          (term ((ret (0 0)) etaPsiDefaultState)))
+(test-->>∃ relAcqStep term_WrelRacq_WrelRacq
+          (term (ret (0 0))))
 
 #|
 IRIW. Anti-TSO example. (Release+Acquire)
@@ -61,11 +59,8 @@ The `ret ((1 0) (0 1))` shows that our model is more relaxed
 than x86-TSO [Sewell-al:CACM10].
 |#
 
-#|
-(test-->>∃ relAcqStep
-          (term (,testTerm67 etaPsiDefaultState))
-          (term ((ret ((1 0) (0 1))) etaPsiDefaultState)))
-|#
+;; (test-->>∃ relAcqStep testTerm67
+;;           (term (ret ((1 0) (0 1)))))
 
 #| CoRR_rel+acq (Coherence of Read-Read)
                      x_rel = 0
@@ -74,15 +69,13 @@ x_rel = 1 || x_rel = 2 || a = x_acq || c = x_acq
 
 The execution a = d = 1 and b = c = 2 should be invalid.
 |#
-;; (test-->>∃ relAcqStep
-;;           (term (,test_CoRR_rel+acq etaPsiDefaultState))
-;;           (term ((ret ((0 0) (0 0))) etaPsiDefaultState))
-;;           (term ((ret ((0 0) (0 1))) etaPsiDefaultState))
-;;           (term ((ret ((0 0) (1 1))) etaPsiDefaultState))
-;;           (term ((ret ((0 1) (0 0))) etaPsiDefaultState))
-;;           (term ((ret ((0 1) (0 1))) etaPsiDefaultState))
-;;           (term ((ret ((0 1) (0 1))) etaPsiDefaultState))
-;; )
+;; (test-->>∃ relAcqStep test_CoRR_rel+acq
+;;           (term (ret ((0 0) (0 0))))
+;;           (term (ret ((0 0) (0 1))))
+;;           (term (ret ((0 0) (1 1))))
+;;           (term (ret ((0 1) (0 0))))
+;;           (term (ret ((0 1) (0 1))))
+;;           (term (ret ((0 1) (0 1)))))
 
 
 ;;;;;;;;;;;;;;;;;;
@@ -99,10 +92,8 @@ R1 = y_rlx || R2 = x_rlx
 
 Can lead to R1 = R2 = 0.
 |#
-
-(test-->>∃ rlxStep
-          (term (,term_WrlxRrlx_WrlxRrlx  etaPsiDefaultState))
-          (term ((ret (0 0)) etaPsiDefaultState)))
+(test-->>∃ rlxStep term_WrlxRrlx_WrlxRrlx 
+          (term (ret (0 0))))
 
 #|
                      x_rlx = 0
@@ -120,12 +111,10 @@ I don't know how to say 'this can't be reduced to that' in tests, so this test s
            (equal? (term ((ret ((2 1) (1 2))) etaPsiDefaultState))
                    b))))
 
-;(test-->> rlxStep
-;          (term (,testTerm6  etaPsiDefaultState))
-;          )
-
-;          (term ((ret ((1 2) (2 1))) etaPsiDefaultState))
-;          (term ((ret ((2 1) (1 2))) etaPsiDefaultState)))
+;; (test-->> rlxStep testTerm6 
+;;          )
+;;          (term (ret ((1 2) (2 1))))
+;;          (term (ret ((2 1) (1 2))))
 
 #|
 IRIW. Anti-TSO example.
@@ -139,9 +128,8 @@ The `ret ((1 0) (0 1))` shows that our model is more relaxed
 than x86-TSO [Sewell-al:CACM10].
 |#
 
-(test-->>∃ rlxStep
-          (term (,testTerm65 etaPsiDefaultState))
-          (term ((ret ((1 0) (0 1))) etaPsiDefaultState)))
+(test-->>∃ rlxStep testTerm65
+          (term (ret ((1 0) (0 1)))))
 
 
 #|
@@ -154,9 +142,8 @@ y_rlx = 1  || b = x_rlx
 
 In TSO a = 1 and b = 0 is forbidden outcome. But not in our semantics.
 |#
-(test-->>∃ rlxStep
-           (term (,testTerm7 etaPsiDefaultState))
-           (term ((ret (1 0)) etaPsiDefaultState)))
+(test-->>∃ rlxStep testTerm7
+           (term (ret (1 0))))
 
 
 ;;;;;;;;;;;;;;;;;;
@@ -168,9 +155,8 @@ In TSO a = 1 and b = 0 is forbidden outcome. But not in our semantics.
 (define postponedReadStep  (union-reduction-relations postponedReadCoreStep rlxWriteRules postponedReadRules))
 
 
-(test-->>∃ postponedReadStep
-          (term (,term_WrlxRrlx_WrlxRrlx  postponedReadDefaultState))
-          (term ((ret (0 0)) postponedReadDefaultState)))
+(test-->>∃ postponedReadStep term_WrlxRrlx_WrlxRrlx
+          (term (ret (0 0))))
 
 #|
 R1 = x_rlx || R2 = y_rlx
@@ -178,8 +164,6 @@ y_rlx  = 1 || x_rlx  = 1
 
 With postponed reads it should be able to lead to R1 = R2 = 1.
 |#
-
-(test-->>∃ postponedReadStep
-          (term (,term_RrlxWrlx_RrlxWrlx postponedReadDefaultState))
-          (term ((ret (1 1)) postponedReadDefaultState)))
+(test-->>∃ postponedReadStep term_RrlxWrlx_RrlxWrlx
+          (term (ret (1 1))))
 

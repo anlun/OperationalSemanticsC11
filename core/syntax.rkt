@@ -511,6 +511,7 @@
   ; State:
   ; AST -- current state of program tree.
   [auxξ (any ... η any ...)]
-  [ξ (AST auxξ)]
+  [ξ (AST auxξ)
+     AST]
   
   [listξ (ξ ...)])

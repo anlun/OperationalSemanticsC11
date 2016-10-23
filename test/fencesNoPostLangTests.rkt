@@ -26,14 +26,12 @@
 (define step (union-reduction-relations
               coreStep rlxRules relAcqRules naRules scRules))
 
-(test-->> step
-         (term (,testSB+rel+acq+fences+sc defaultState))
-         (term ((ret (0 1)) defaultState))
-         (term ((ret (1 0)) defaultState))
-         (term ((ret (1 1)) defaultState)))
+(test-->> step testSB+rel+acq+fences+sc
+         (term (ret (0 1)))
+         (term (ret (1 0)))
+         (term (ret (1 1))))
 
-(test-->> step
-         (term (,testSB+rlx+fences+sc defaultState))
-         (term ((ret (0 1)) defaultState))
-         (term ((ret (1 0)) defaultState))
-         (term ((ret (1 1)) defaultState)))
+(test-->> step testSB+rlx+fences+sc
+         (term (ret (0 1)))
+         (term (ret (1 0)))
+         (term (ret (1 1))))

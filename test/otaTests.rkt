@@ -19,10 +19,8 @@ if (x_rlx) { || if (y_rlx) {
 
 Possible outcome: r = 1
 |#
-(test-->>∃ step
-           (term (,term_nOTA_rlx defaultState))
-          
-           (term ((ret 1) defaultState)))
+(test-->>∃ step term_nOTA_rlx
+           (term (ret 1)))
 
 #|
 r1 = x_rlx || r2 = x_rlx || r3 = y_rlx
@@ -30,10 +28,8 @@ x_rlx = 1  || y_rlx = r2 || x_rlx = r3
 
 In ARM it's possible to get r1 = 1.
 |#
-(test-->>∃ step
-           (term (,term_nOTA_arm defaultState))
-          
-           (term ((ret (1 (1 1))) defaultState)))
+(test-->>∃ step term_nOTA_arm
+           (term (ret (1 (1 1)))))
 
 ;; (stepper step (term (,term_nOTA_arm defaultState)) pretty-printer)
 
@@ -45,17 +41,15 @@ r2 = x_rlx || x_rlx = 2
 
 It should be impossible to get r1 = 2; r1 = 1
 |#
-(test-->> step
-          (term (,term_co1 defaultState))
-         
-          (term ((ret (0 0)) defaultState))
-          (term ((ret (0 1)) defaultState))
-          (term ((ret (0 2)) defaultState))
+(test-->> step term_co1
+          (term (ret (0 0)))
+          (term (ret (0 1)))
+          (term (ret (0 2)))
 
-          (term ((ret (1 1)) defaultState))
-          (term ((ret (1 2)) defaultState))
+          (term (ret (1 1)))
+          (term (ret (1 2)))
 
-          (term ((ret (2 2)) defaultState)))
+          (term (ret (2 2))))
 
 #|
       x_rlx = 0; y_rlx = 0;
@@ -76,10 +70,8 @@ Possible outcome: r = 1
 |#
 ;; Unfortunately, this test takes forever to run.
 ;; Randomized testing showed that everything is fine.
-;; (test-->>∃ step
-;;            (term (,term_nOTA_nestIf_rlx defaultState))
-          
-;;            (term ((ret 1) defaultState)))
+(test-->>∃ step term_nOTA_nestIf_rlx
+           (term (ret 1)))
 
 ;; (stepper step (term (,term_nOTA_nestIf_rlx defaultState)) pretty-printer)
 
@@ -96,9 +88,7 @@ if (x_mod1) { || if (y_mod3) {
 
 Possible outcome: r = 1
 |#
-(test-->>∃ step
-           (term (,term_nOTA_prop_rlx defaultState))
-          
-           (term ((ret 1) defaultState)))
+(test-->>∃ step term_nOTA_prop_rlx
+           (term (ret 1)))
 
 ;; (stepper step (term (,term_nOTA_prop_rlx defaultState)) pretty-printer)
