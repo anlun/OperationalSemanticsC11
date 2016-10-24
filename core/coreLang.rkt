@@ -200,7 +200,9 @@
         (AST defaultState)
         "add-default-auxξ"
         (side-condition     ; Not to introduce a cycle with "auxξ-erasure" rule.
-         (not (redex-match coreLang (ret μ-value) (term AST)))))
+         (not (redex-match coreLang (ret μ-value) (term AST))))
+        (side-condition     ; Not to introduce a cycle with "auxξ-erasure" rule.
+         (not (redex-match coreLang  stuck        (term AST)))))
 
    (-->  ((in-hole E (dealloc ι)) auxξ)
         (normalize

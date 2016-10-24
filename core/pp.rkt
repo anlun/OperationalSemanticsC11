@@ -337,10 +337,15 @@
             (term (ppStatePathsτ  auxξ))
             (term (ppStateDealloc auxξ)))])
 
+(define-metafunction coreLang
+  ;ppξ : ξ -> Doc
+  [(ppξ  AST     )  (pp AST)]
+  [(ppξ (AST auxξ))
+     ,(above* (term (pp      AST )) ""
+              (term (ppState auxξ)))])
+
 (define (print-state t)
-  (doc->string
-     (above* (term (pp ,(list-ref t 0))) ""
-             (term (ppState ,(list-ref t 1))))))
+  (doc->string (term (ppξ ,t))))
 
 (define (print-TeX t)
   (doc->string (term (ppTeX-in-listing ,t))))
