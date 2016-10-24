@@ -1078,39 +1078,88 @@ older than r2.
         ret [r0_2 r5] })
 
 #|
+   x_imod = 0; y_imod = 0
+x_wmod1  = 1 || y_wmod2  = 1
+fence fmod1  || fence fmod2
+r1 = x_rmod1 || r2 = y_rmod2
+        ret (r1, r2)
+|#
+(define (term_SB+fences_abst imod wmod1 wmod2 fmod1 fmod2 rmod1 rmod2)
+  @prog{x_@imod := 0;
+        y_@imod := 0;
+        spw
+        {{{ x_@wmod1 := 1;
+            fence @fmod1;
+            y_@rmod1
+        ||| y_@wmod2 := 1;
+            fence @fmod2;
+            x_@rmod2
+        }}} })
+
+
+#|
+     x_rel = 0; y_rel = 0;
 x_rel = 1     || y_rel = 1
 fence_sc      || fence_sc
 r1 = y_acq    || r2 = x_acq
-       ret (r1, r2)
+        ret (r1, r2)
 
 r1 = 0, r2 = 0 - is not allowed
 |#
-(define testSB+rel+acq+fences+sc
-  @prog{x_rel := 0;
-        y_rel := 0;
-        spw
-        {{{ x_rel := 1;
-            fence sc;
-            y_acq
-        ||| y_rel := 1;
-            fence sc;
-            x_acq }}} })
+(define testSB+rel+acq+fences+sc (concretize term_SB+fences_abst  "rel rel rel sc sc acq acq"))
 
 #|
+  x_rlx = 0; y_rlx = 0;
 x_rlx = 1  || y_rlx = 1
-fence_sc   || fence_sc
-r1 = y_rlx || r2 = x_rlx
+fence sc   || fence sc
+r1 = y_rlx || r2 = x_rlx 
        ret (r1, r2)
 
 r1 = 0, r2 = 0 - is not allowed
 |#
-(define testSB+rlx+fences+sc
+(define testSB+rlx+fences+sc (concretize term_SB+fences_abst  "rlx rlx rlx sc sc rlx rlx"))
+
+#|
+         x_rlx = 0; y_rlx = 0;
+x_rlx = 1         || y_rlx = 1
+fence sc          || fence sc
+r1 = cas(y, 0, 2) || r2 = cas(x, 0, 2)
+            ret (r1, r2)
+
+r1 = 0, r2 = 0 - is not allowed
+|#
+(define testSB+cas+rel+acq+fences
   @prog{x_rlx := 0;
-        y_rlx := 0;
+        y_rlx := 0; 
         spw
         {{{ x_rlx := 1;
             fence sc;
-            y_rlx
+            cas_rlx_rlx(y, 0, 2)      
         ||| y_rlx := 1;
             fence sc;
-            x_rlx }}} })
+            cas_rlx_rlx(x, 0, 2)
+        }}} })
+
+#|
+      x_na = 0; d_na = 0;
+d_na = 1      || repeat x_rlx end
+fence rel     || fence acq
+cas(x, 0, 1)  || r = d_na
+             ret r
+
+Possible outcome: r = 1 
+|#
+(define testMP+cas+rlx+fences+acq+rel
+  @prog{x_na := 0;
+        d_na := 0; 
+        r0 := spw
+             {{{ d_na := 1;
+                 fence rel;
+                 cas_rlx_rlx(x, 0, 1)      
+             ||| repeat x_rlx end;
+                 fence acq;
+                 d_na
+             }}};
+        ret r0_2 })
+
+

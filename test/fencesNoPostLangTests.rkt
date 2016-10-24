@@ -10,6 +10,7 @@
 (require "../rules/scRules.rkt")
 (require "../core/langs.rkt")
 (require "../test/testTerms.rkt")
+(require "../core/pp.rkt")
 
 (define-term defaultState (() (Read ()) (AcqFront ()) (RelFront ()) (NA ()) (Write ()) (SC ())))
 (define coreStep
@@ -20,7 +21,7 @@
 
 (define rlxRules    (define-rlxRules          etaPsi2SCLang))
 (define relAcqRules (define-relAcqRules       etaPsi2SCLang))
-(define naRules     (define-naWriteStuckRules etaPsi2SCLang defaultState))
+(define naRules     (define-naRules           etaPsi2SCLang defaultState))
 (define scRules     (define-scRules           etaPsi2SCLang))
 
 (define step (union-reduction-relations
@@ -35,3 +36,11 @@
          (term (ret (0 1)))
          (term (ret (1 0)))
          (term (ret (1 1))))
+
+(test-->> step testSB+cas+rel+acq+fences
+         (term (ret (0 1)))
+         (term (ret (1 0)))
+         (term (ret (1 1))))
+
+(test-->> step testMP+cas+rlx+fences+acq+rel
+         (term (ret 1)))

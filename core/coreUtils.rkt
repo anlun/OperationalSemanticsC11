@@ -616,12 +616,15 @@
   [(isCorrectEif Eif α) (isCorrectEifIds (eifToIfContext Eif) (pathEif Eif) α)])
 
 (define-metafunction coreLang
+  getLastFront : ι η -> σ
+  [(getLastFront ι η)
+   (fromMaybe () (getFrontByTimestamp ι τ_last η))
+   (where τ_last (getLastTimestamp ι η))])
+
+(define-metafunction coreLang
   acqFailCASσReadNew : ι η σ -> σ
   [(acqFailCASσReadNew ι η σ_read)
-   (frontMerge σ_read σ_record_front)
-   
-   (where τ_last         (getLastTimestamp ι η))
-   (where σ_record_front (fromMaybe () (getFrontByTimestamp ι τ_last η)))])
+   (frontMerge σ_read (getLastFront ι η))])
 
 (define-metafunction coreLang
   acqSuccCASσReadNew : ι η σ -> σ

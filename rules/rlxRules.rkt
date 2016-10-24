@@ -18,9 +18,10 @@
         (where η    (getη     auxξ))
         (where σ-tree    (getReadσ-tree auxξ))
         (where path (pathE E))
+        (where  (in-hole El (τ μ-value σ)) (getCellHistory ι η))
 
-        (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
-        (where auxξ_σ-tree_new (updateState (Read σ-tree) (Read (updateByFront path ((ι τ)) σ-tree)) auxξ))
+        (where σ-tree_new      (updateByFront path ((ι τ)) σ-tree))
+        (where auxξ_σ-tree_new (updateState (Read σ-tree) (Read σ-tree_new) auxξ))
         (where auxξ_new   (updateAcqFront path σ auxξ_σ-tree_new))
 
         (where σ_read   (getByPath path σ-tree))
@@ -92,7 +93,9 @@
         (where σ-tree_read   (getReadσ-tree auxξ))
         (where path     (pathE E))
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
-        (where auxξ_new (updateState (Read σ-tree_read) (Read (updateByFront path ((ι τ)) σ-tree_read)) auxξ))
+
+        (where σ-tree_read_new    (updateByFront path ((ι τ)) σ-tree_read))
+        (where auxξ_new (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ))
 
         (where σ_read   (getReadσ path auxξ))
         (side-condition (equal? (term τ) (term (getLastTimestamp ι η))))
@@ -114,22 +117,28 @@
 
         (where τ_last        (getLastTimestamp ι η))
         (where τ             (getNextTimestamp ι η))
+        (where σ             (getLastFront ι η))
+        
+        ; update read front
         (where σ-tree_read_new    (updateByFront path ((ι τ)) σ-tree_read))
         (where auxξ_upd_read (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ))
 
+        ; update acq front
+        (where auxξ_upd_acq  (updateAcqFront path σ auxξ_upd_read))
 
-        (where σ_write    (updateFront ι τ (getWriteσ path auxξ)))
-        (where η_new          (updateCell  ι μ-value_new
-                                           (acqSuccCASσReadNew ι η σ_write)
-                                           η))
-        (where auxξ_upd_η (updateState η η_new auxξ_upd_read))
+        ; create message and update history
+        (where σ_ToWrite  (updateFront ι τ (getσ_relFront ι path auxξ)))
+        (where η_new      (updateCell ι μ-value_new (acqSuccCASσReadNew ι η σ_ToWrite) η))
+        (where auxξ_upd_η (updateState η η_new auxξ_upd_acq))
 
-        (where auxξ_new (dupRelWriteRestrictions ι τ (getWriteσ path auxξ) auxξ_upd_η))
+        ; update operation buffer
+        (where σ_write  (getWriteσ path auxξ))
+        (where auxξ_new (dupRelWriteRestrictions ι τ σ_write auxξ_upd_η))
 
         (side-condition
-         (term (succCAScondition ι η μ-value_expected rlx FM)))
+            (term (succCAScondition ι η μ-value_expected rlx FM)))
         (side-condition (term (ιNotInReadQueue ι path auxξ)))
-        ;; (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
+        (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
         (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
 )))
