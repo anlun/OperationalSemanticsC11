@@ -3,7 +3,7 @@
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
-(provide define-rlxRules define-rlxReadRules define-rlxWriteRules)
+(provide define-rlxRules define-rlxReadRules define-rlxWriteRules define-rlxCasRules)
 
 (define-syntax-rule (define-rlxReadRules lang)
   (begin
@@ -32,7 +32,7 @@
    (getσReleaseToWrite ι (getByPath path χ-tree))]
   [(getσ_relFront ι path auxξ) ()])
 
-(define-syntax-rule (define-rlxWriteRules lang)
+(define-syntax-rule (define-rlxWriteRulesWOcas lang)
   (begin
 
   (reduction-relation
@@ -76,6 +76,13 @@
 
         (side-condition (term (are∀PostReadsRlx  path auxξ)))
         (side-condition (term (ιNotInReadQueue ι path auxξ))))
+)))
+
+(define-syntax-rule (define-rlxCasRules lang)
+  (begin
+
+  (reduction-relation
+   lang #:domain ξ
 
    (-->  ((in-hole E (cas SM rlx ι μ-value_expected μ-value_new)) auxξ)
         (normalize
@@ -126,6 +133,12 @@
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
         (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
 )))
+
+(define-syntax-rule (define-rlxWriteRules lang)
+  (begin
+  (union-reduction-relations
+   (define-rlxCasRules        lang)
+   (define-rlxWriteRulesWOcas lang))))
 
 (define-syntax-rule (define-rlxRules lang)
   (begin

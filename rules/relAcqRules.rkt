@@ -4,7 +4,7 @@
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
 (require "../core/graphUtils.rkt")
-(provide define-relAcqRules define-acqReadRules define-relAcqWriteRules)
+(provide define-relAcqRules define-acqReadRules define-relAcqWriteRules define-relAcqCasRules)
 
 (define-syntax-rule (define-acqReadRules lang)
   (begin
@@ -27,7 +27,7 @@
         (where σ_read          (getByPath path σ-tree))
         (side-condition (term (correctτ τ ι σ_read)))))))
 
-(define-syntax-rule (define-relAcqWriteRules lang) 
+(define-syntax-rule (define-relWriteRules lang) 
   (begin
 
   (reduction-relation
@@ -56,8 +56,15 @@
         (where auxξ_new       (addWriteNode (write rel ι μ-value τ) path auxξ_upd_χ))
 
         (side-condition (term (are∀PostReadsRlx  path auxξ)))
-        (side-condition (term (ιNotInReadQueue ι path auxξ))))
-   
+        (side-condition (term (ιNotInReadQueue ι path auxξ)))))))
+
+(define-syntax-rule (define-relAcqCasRules lang) 
+  (begin
+
+  (reduction-relation
+   lang #:domain ξ
+
+
    (-->  ((in-hole E (cas SM acq ι μ-value_expected μ-value_to_write)) auxξ)
         (normalize
          ((in-hole E (ret μ-value                                   )) auxξ_new))
@@ -168,6 +175,12 @@
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
         (side-condition (not (term (hasιInObservedWrites path ι auxξ))))))))
+
+(define-syntax-rule (define-relAcqWriteRules lang)
+  (begin
+    (union-reduction-relations
+     (define-relWriteRules  lang)
+     (define-relAcqCasRules lang))))
 
 (define-syntax-rule (define-relAcqRules lang)
   (begin

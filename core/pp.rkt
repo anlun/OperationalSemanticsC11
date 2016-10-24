@@ -326,6 +326,7 @@
 
 (define-metafunction coreLang
   ;ppState : auxξ -> Doc
+  [(ppState AST) (empty-doc)]
   [(ppState auxξ)
    ,(above* (term (ppStateη auxξ))
             (term (ppStateσ-tree auxξ))

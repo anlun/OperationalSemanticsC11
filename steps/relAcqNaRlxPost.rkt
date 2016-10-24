@@ -19,15 +19,15 @@
 (define coreTest (define-coreTest coreStep defaultState))
 
 (define postRules        (define-postRules         etaPsi2SCpostLang defaultState))
-(define rlxWriteRules    (define-rlxWriteRules     etaPsi2SCpostLang))
-(define relAcqWriteRules (define-relAcqWriteRules  etaPsi2SCpostLang))
+;; (define rlxWriteRules    (define-rlxWriteRules     etaPsi2SCpostLang))
+;; (define relAcqWriteRules (define-relAcqWriteRules  etaPsi2SCpostLang))
 (define naRules          (define-naWriteStuckRules etaPsi2SCpostLang defaultState))
 (define scRules          (define-scRules           etaPsi2SCpostLang))
 (define step (union-reduction-relations
               coreStep
               postRules
-              rlxWriteRules
-              relAcqWriteRules
+              (define-rlxCasRules    etaPsi2SCpostLang)
+              (define-relAcqCasRules etaPsi2SCpostLang)
               naRules
               scRules))
 
