@@ -15,7 +15,7 @@ older than r2.
 |#
 (define (testLong)
     (test-->> randomStep
-              (term (,term_CoRR_spec defaultState))
+              term_CoRR_spec
 
               (term ((ret 0)))))
 
@@ -26,9 +26,8 @@ R1 = y_{acq,rlx} || R2 = x_{acq,rlx}
 Can lead to R1 = R2 = 0.
 |#
 (define (test_SB_00 curTerm)
-  (test-->>∃ step
-          (term (,curTerm  defaultState))
-          (term ((ret (0 0)) defaultState))))
+  (test-->>∃ step curTerm
+          (term (ret (0 0)))))
 (test_SB_00 term_WrlxRrlx_WrlxRrlx)
 (test_SB_00 term_WrelRacq_WrelRacq)
 
@@ -39,9 +38,8 @@ y_{sc, rel, rlx}  = 1 || x_{sc, rel, rlx}  = 1
 With postponed reads it should be able to lead to R1 = R2 = 1.
 |#
 (define (test_LB_11 curTerm)
-  (test-->>∃ step
-          (term (,curTerm defaultState))
-          (term ((ret (1 1)) defaultState))))
+  (test-->>∃ step curTerm
+          (term (ret (1 1)))))
 (test_LB_11 term_RrlxWrlx_RrlxWrlx)
 (test_LB_11 term_RrlxWrel_RrlxWrel)
 (test_LB_11 term_RrlxWsc_RrlxWsc)
@@ -62,11 +60,10 @@ y_rel  = 1        || x_rel  = 1
 Without rlx/rlx combination it's impossible to get R1 = R2 = 1.
 |#
 (define (test_LB_n11 curTerm)
-  (test-->> step
-          (term (,curTerm defaultState))
-          (term ((ret (0 0)) defaultState))
-          (term ((ret (1 0)) defaultState))
-          (term ((ret (0 1)) defaultState))))
+  (test-->> step curTerm 
+          (term (ret (0 0)))
+          (term (ret (1 0)))
+          (term (ret (0 1)))))
 (test_LB_n11 term_RacqWrel_RrlxWrel)
 (test_LB_n11 term_RrlxWrel_RacqWrel)
 (test_LB_n11 term_RacqWrel_RacqWrel)
@@ -79,9 +76,8 @@ y_{sc, rel, rlx}  = 1 || x_{sc, rel, rlx}  = 1
 With postponed lets and reads it should be able to lead to R1' = R2' = 2.
 |#
 (define (test_LB_let_22 curTerm)
-  (test-->>∃ step
-          (term (,curTerm defaultState))
-          (term ((ret (2 2)) defaultState))))
+  (test-->>∃ step curTerm
+          (term (ret (2 2)))))
 (test_LB_let_22 term_RrlxWrlx_RrlxWrlx_let)
 (test_LB_let_22 term_RrlxWrel_RrlxWrel_let)
 (test_LB_let_22 term_RrlxWsc_RrlxWsc_let)
@@ -101,9 +97,8 @@ With postponed writes and reads it should be able to lead to r1 = r2 = 1.
 |#
 
 (define (test_LB_use curTerm)
-  (test-->>∃ step
-          (term (,curTerm defaultState))
-          (term ((ret (1 1)) defaultState))))
+  (test-->>∃ step curTerm
+          (term (ret (1 1)))))
 
 (test_LB_use term_RrlxWrlx_RrlxWrlx_use)
 (test_LB_use term_RconWrlx_RconWrlx_use)
@@ -120,9 +115,8 @@ It should be possible to get r1 = r2 = 1, if there is no thread with
 both release accesses. 
 |#
 (define (test_2+2W curTerm)
-  (test-->>∃ step
-          (term (,curTerm defaultState))
-          (term ((ret (1 1)) defaultState))))
+  (test-->>∃ step curTerm
+          (term (ret (1 1)))))
 
 (test_2+2W term_2+2W_rlx)
 (test_2+2W term_2+2W_rel1_rlx)
@@ -140,9 +134,8 @@ x_rlx = 2 || ret 0 || } else {
 According to Batty-al:POPL11 it's possible to get r1 = 0, because
 there is no release sequence between x_rel = 1 and x_rlx = 2.
 |#
-(test-->>∃ step
-           (term (,term_Wrel_Wrlx_Racq defaultState))
-           (term ((ret 0) defaultState)))
+(test-->>∃ step term_Wrel_Wrlx_Racq
+           (term (ret 0)))
  
 #|
         c_rlx = 0
@@ -161,10 +154,9 @@ x_rel = a    || res = b_rlx
                   r1_rlx }}};
         ret r0_2 })
 
-(test-->> step
-          (term (,testTerm11 defaultState))
-          (term ((ret 0) defaultState))
-          (term ((ret 239) defaultState)))
+(test-->> step testTerm11
+          (term (ret 0))
+          (term (ret 239)))
 
 #|
    x_rlx = 0; y_rlx = 0;
@@ -174,12 +166,11 @@ y_rlx  = 1 || x_rel  = 1
 
 With postponed reads it shouldn't lead to R1 = {1, 2} \/ R2 = 1.
 |#
-(test-->> step
-          (term (,term_RacqWrlx_RrlxWrelWrlx defaultState))
-          (term ((ret (0 0)) defaultState))
-          (term ((ret (1 0)) defaultState))
-          (term ((ret (2 0)) defaultState))
-          (term ((ret (0 1)) defaultState)))
+(test-->> step term_RacqWrlx_RrlxWrelWrlx
+          (term (ret (0 0)))
+          (term (ret (1 0)))
+          (term (ret (2 0)))
+          (term (ret (0 1))))
 
 #|
      data_na  = 0
@@ -195,11 +186,9 @@ p_rel    = &dataP || if (r1 != 0) {
 
 Possible outcomes for r2 are 1 and 5.
 |#
-(test-->> step
-          (term (,term_MP_pointer_consume defaultState))
-
-          (term ((ret 1) defaultState))
-          (term ((ret 5) defaultState)))
+(test-->> step term_MP_pointer_consume
+          (term (ret 1))
+          (term (ret 5)))
 
 #|
      data_na  = 0
@@ -222,14 +211,12 @@ x_rlx = 1 || r1 = x_rlx || r2 = y_rlx
 
 Possible outcome: r2 = 1 /\ r3 = 0.
 |#
-(test-->> step
-          (term (,term_WRC_rlx defaultState))
+(test-->> step term_WRC_rlx
+          (term (ret (0 0)))
+          (term (ret (0 1)))
+          (term (ret (1 1)))
 
-          (term ((ret (0 0)) defaultState))
-          (term ((ret (0 1)) defaultState))
-          (term ((ret (1 1)) defaultState))
-
-          (term ((ret (1 0)) defaultState)))
+          (term (ret (1 0))))
 
 #|
 WRC_rel+acq
@@ -240,9 +227,7 @@ x_rel = 1 || r1 = x_acq || r2 = y_acq
 
 Impossible outcome: r2 = 1 /\ r3 = 0.
 |#
-(test-->> step
-          (term (,term_WRC_rel+acq defaultState))
-
-          (term ((ret (0 0)) defaultState))
-          (term ((ret (0 1)) defaultState))
-          (term ((ret (1 1)) defaultState)))
+(test-->> step term_WRC_rel+acq
+          (term (ret (0 0)))
+          (term (ret (0 1)))
+          (term (ret (1 1))))

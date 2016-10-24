@@ -3,7 +3,7 @@
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
-(require "../rules/postReadRules.rkt")
+(require "../rules/postRules.rkt")
 (require "../rules/rlxRules.rkt")
 (require "../rules/relAcqRules.rkt")
 (require "../rules/naRules.rkt")
@@ -18,16 +18,16 @@
    etaPsi2SCpostLang #:domain ξ))
 (define coreTest (define-coreTest coreStep defaultState))
 
-(define postponedReadRules (define-postponedReadRules etaPsi2SCpostLang defaultState))
-(define rlxWriteRules      (define-rlxWriteRules      etaPsi2SCpostLang))
-(define relAcqWriteRules   (define-relAcqWriteRules   etaPsi2SCpostLang))
-(define naRules            (define-naWriteStuckRules  etaPsi2SCpostLang defaultState))
-(define scRules            (define-scRules            etaPsi2SCpostLang))
+(define postRules        (define-postRules         etaPsi2SCpostLang defaultState))
+;; (define rlxWriteRules    (define-rlxWriteRules     etaPsi2SCpostLang))
+;; (define relAcqWriteRules (define-relAcqWriteRules  etaPsi2SCpostLang))
+(define naRules          (define-naWriteStuckRules etaPsi2SCpostLang defaultState))
+(define scRules          (define-scRules           etaPsi2SCpostLang))
 (define step (union-reduction-relations
               coreStep
-              postponedReadRules
-              rlxWriteRules
-              relAcqWriteRules
+              postRules
+              (define-rlxCasRules    etaPsi2SCpostLang)
+              (define-relAcqCasRules etaPsi2SCpostLang)
               naRules
               scRules))
 

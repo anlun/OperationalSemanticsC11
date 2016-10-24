@@ -1,9 +1,9 @@
 #lang racket
-(require redex)
+(require redex/reduction-semantics)
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
-(require "../rules/postReadRules.rkt")
+(require "../rules/postRules.rkt")
 (require "../rules/rlxRules.rkt")
 (require "../rules/relAcqRules.rkt")
 (require "../rules/naRules.rkt")
@@ -27,26 +27,20 @@
 (define step (union-reduction-relations
               coreStep rlxRules relAcqRules naRules scRules))
 
-(test-->> step
-         (term (,testSB+rel+acq+fences+sc defaultState))
-         (term ((ret (0 1)) defaultState))
-         (term ((ret (1 0)) defaultState))
-         (term ((ret (1 1)) defaultState)))
+(test-->> step testSB+rel+acq+fences+sc
+         (term (ret (0 1)))
+         (term (ret (1 0)))
+         (term (ret (1 1))))
 
-(test-->> step
-         (term (,testSB+rlx+fences+sc defaultState))
-         (term ((ret (0 1)) defaultState))
-         (term ((ret (1 0)) defaultState))
-         (term ((ret (1 1)) defaultState)))
+(test-->> step testSB+rlx+fences+sc
+         (term (ret (0 1)))
+         (term (ret (1 0)))
+         (term (ret (1 1))))
 
-(test-->> step
-         (term (,testSB+cas+rel+acq+fences defaultState))
-         (term ((ret (0 1)) defaultState))
-         (term ((ret (1 0)) defaultState))
-         (term ((ret (1 1)) defaultState)))
+(test-->> step testSB+cas+rel+acq+fences
+         (term (ret (0 1)))
+         (term (ret (1 0)))
+         (term (ret (1 1))))
 
-;(stepper step (term (,testSB+cas+rel+acq+fences defaultState)) pretty-printer)
-
-(test-->> step
-         (term (,testMP+cas+rlx+fences+acq+rel defaultState))
-         (term ((ret 1) defaultState)))
+(test-->> step testMP+cas+rlx+fences+acq+rel
+         (term (ret 1)))

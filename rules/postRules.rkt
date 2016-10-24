@@ -4,7 +4,40 @@
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
-(provide define-postponedReadRules) 
+(provide define-postRules) 
+
+(define-metafunction coreLang
+  snocOnPathIfNew : path any any -> any
+  [(snocOnPathIfNew () any_0 any_1)
+   ,(if (member (term any_0) (term any_1))
+        (term any_1)
+        (term (snocT any_0 any_1)))]
+  [(snocOnPathIfNew (L path) any_0 (par any_1 any_2))
+   (par (snocOnPathIfNew path any_0 any_1) any_2)]
+  [(snocOnPathIfNew (R path) any_0 (par any_1 any_2))
+   (par any_1 (snocOnPathIfNew path any_0 any_2))])
+
+(define-metafunction coreLang
+  snocOnPath : path any any -> any
+  [(snocOnPath () any_0 any_1) (snocT any_0 any_1)]
+  [(snocOnPath (L path) any_0 (par any_1 any_2)) (par (snocOnPath path any_0 any_1) any_2)]
+  [(snocOnPath (R path) any_0 (par any_1 any_2)) (par any_1 (snocOnPath path any_0 any_2))])
+
+(define-metafunction coreLang
+  isPostponedEntryIfIdentifier : any postponedEntry -> boolean
+  [(isPostponedEntryIfIdentifier vName (if vName   any_1 ...)) #t]
+  [(isPostponedEntryIfIdentifier vName (if vName_1 Expr α_0 α_1))
+   ,(or (term (isIfInα vName α_0))
+        (term (isIfInα vName α_1)))]
+  [(isPostponedEntryIfIdentifier any_0 any_1               ) #f])
+
+(define-metafunction coreLang
+  ;; Checks if there is a postponed operation with the `any' identifier
+  ;; (the first argument).
+  isIfInα : any α -> boolean
+  [(isIfInα any α) ,(ormap (λ (x)
+                             (term (isPostponedEntryIfIdentifier any ,x)))
+                           (term α))])
 
 (define-metafunction coreLang
   getWriteToPropagate_α : ι α -> Maybe ;postponedEntry
@@ -135,9 +168,9 @@
             (term γ))])
 
 (define-metafunction coreLang
-  updateByFrontMod : RM path ι τ σ ψ -> ψ
-  [(updateByFrontMod acq path ι τ σ ψ) (updateByFront path σ ψ)]
-  [(updateByFrontMod RM  path ι τ σ ψ) (updateByFront path ((ι τ)) ψ)])
+  updateByFrontMod : RM path ι τ σ σ-tree -> σ-tree
+  [(updateByFrontMod acq path ι τ σ σ-tree) (updateByFront path σ σ-tree)]
+  [(updateByFrontMod RM  path ι τ σ σ-tree) (updateByFront path ((ι τ)) σ-tree)])
 
 (define-metafunction coreLang
   getDataDependenciesMod : RM ι σ η -> σ-dd
@@ -146,10 +179,10 @@
 
 (define-metafunction coreLang
   resolveObservedWrite_lbl : path (vName ι) (vName ι τ) auxξ -> auxξ
-  [(resolveObservedWrite_lbl path (vName ι) (vName ι τ) auxξ) auxξ_upd_readψ
-   (where ψ_old (getReadψ auxξ))
-   (where ψ_new (updateByFront path ((ι τ)) ψ_old))
-   (where auxξ_upd_readψ (updateState (Read ψ_old) (Read ψ_new) auxξ))]
+  [(resolveObservedWrite_lbl path (vName ι) (vName ι τ) auxξ) auxξ_upd_readσ-tree
+   (where σ-tree_old (getReadσ-tree auxξ))
+   (where σ-tree_new (updateByFront path ((ι τ)) σ-tree_old))
+   (where auxξ_upd_readσ-tree (updateState (Read σ-tree_old) (Read σ-tree_new) auxξ))]
 
   [(resolveObservedWrite_lbl path (vName_0 ι_0) (vName ι τ) auxξ) auxξ])
 
@@ -185,7 +218,7 @@
 
   [(resolveObservedWrite_path path observedWriteList (vName ι τ) auxξ)
    auxξ_new
-   (where auxξ_upd_readψ
+   (where auxξ_upd_readσ-tree
           ,(foldl (λ (elem r) (term (resolveObservedWrite_lbl path ,elem (vName ι τ) ,r)))
                   (term auxξ)
                   (term (flat-ObservedWriteList observedWriteList))))
@@ -198,7 +231,7 @@
 
    (where auxξ_new (updateState (RW observedWrites_old)
                                 (RW observedWrites_new)
-                                auxξ_upd_readψ))]
+                                auxξ_upd_readσ-tree))]
 
   [(resolveObservedWrite_path path observedWrites (vName ι τ) auxξ) auxξ])
 
@@ -258,7 +291,7 @@
     [(list '() ys) (list ys)]
     [(list xs '()) (list xs)]))
 
-(define-syntax-rule (define-postponedReadRules lang defaultState)
+(define-syntax-rule (define-postRules lang defaultState)
   (begin
 
   (reduction-relation
@@ -279,8 +312,7 @@
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
 
-        (side-condition (not (equal? (term sc) (term RM))))
-        (side-condition (term (isPossibleEEif E Eif auxξ))))
+        (side-condition (not (equal? (term sc) (term RM)))))
 
    (-->  ((in-hole E (in-hole Eif (readCon RM ι-var σ-dd))) auxξ)
         (normalize
@@ -297,8 +329,7 @@
         (where φ_new    (updateOnPath path α_new φ))
         (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
 
-        (side-condition (not (equal? (term sc) (term RM))))
-        (side-condition (term (isPossibleEEif E Eif auxξ))))
+        (side-condition (not (equal? (term sc) (term RM)))))
    
    (-->  (AST  auxξ)
         (normalize        
@@ -307,7 +338,7 @@
         "read-resolve"
         (where φ      (getφ auxξ))
         (where η      (getη auxξ))
-        (where ψ_read (getReadψ auxξ))
+        (where σ-tree_read (getReadσ-tree auxξ))
         
         (where (in-hole Ep α_thread) (getφ auxξ))
         (where (in-hole Eifα α) α_thread)
@@ -317,20 +348,20 @@
         (where (in-hole El_1 (τ μ-value σ)) (getCellHistory ι η))
         (where path (pathEp Ep))
 
-        (where ψ_read_new (updateByFrontMod RM path ι τ σ ψ_read))
-        (where auxξ_upd_ψ (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
+        (where σ-tree_read_new (updateByFrontMod RM path ι τ σ σ-tree_read))
+        (where auxξ_upd_σ-tree (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ))
 
         (where σ-dd_new   (frontMerge σ-dd (getDataDependenciesMod RM ι σ η)))
 
         (where α_new      (substμα vName μ-value σ-dd_new (elToList El_0)))
         (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
-        (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ_upd_ψ))
+        (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ_upd_σ-tree))
 
         (where γ          (getγ auxξ))
         (where γ_new      (removeγRestrictionsByVName vName γ))
         (where auxξ_new   (updateState (R γ) (R γ_new) auxξ_upd_φ))
 
-        (where σ_read     (getByPath path ψ_read))
+        (where σ_read     (getByPath path σ-tree_read))
         (where σ_to-check (frontMerge σ_read σ-dd))
         (where τ_read-min (fromMaybe 0 (lookup ι σ_to-check)))
         
@@ -338,9 +369,7 @@
         
         (where ifContext (getIfContext Eifα))
         (side-condition (term
-                         (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α_thread ifContext γ τ)))
-      
-        (side-condition (term (isPossibleRead path vName ι τ_read-min τ ifContext auxξ))))
+                         (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α_thread ifContext γ τ))))
 
    (-->  (AST  auxξ)
         (normalize        
@@ -406,7 +435,7 @@
 
         (where path (pathEp Ep))
 
-        (where ifContext (getIfContext Eifα))
+        ;; (where ifContext (getIfContext Eifα))
         ;; (side-condition (term (canPostponedReadBePerformedWOτ (vName ι rlx σ-dd) α_thread ifContext)))
 
         (where σ-dd_new  σ-dd) 
@@ -437,7 +466,7 @@
         "read-resolve-stuck"
         (where φ      (getφ auxξ))
         (where η      (getη auxξ))
-        (where ψ_read (getReadψ auxξ))
+        (where σ-tree_read (getReadσ-tree auxξ))
         (where (in-hole Ep α) (getφ auxξ))
         (where (in-hole El (read vName ι RM σ-dd)) α)
         (side-condition (not (term (isPEntryInConflictWithα (read vName ι) (elFirstPart El)))))
@@ -450,8 +479,6 @@
         ;; The substitution is needed to avoid collapse with previous
         ;; postponed operations.
         ">>=-subst-postpone"
-        (side-condition (term (isPossibleEEif E Eif auxξ)))
-        
         (where μ_simplified (calcμ μ))
 
         ;; μ can't be substituted immediately
@@ -487,19 +514,12 @@
         (where α_new    (substμα vName μ-value () (elToList El)))
         (where φ        (getφ auxξ))
         (where φ_new    (updateOnPath path (in-hole Eifα α_new) φ))
-        (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
-        
-        (where ifContext (getIfContext Eifα))
-        (side-condition (term (isPossiblePath_resolve (vName ifContext) path auxξ))))
+        (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
 
    (-->  ((in-hole E (in-hole Eif (write WM ι-var μ))) auxξ)
         (normalize
          ((in-hole E (in-hole Eif (ret a            ))) auxξ_new))
         "write-postpone"
-        (side-condition (if (equal? (term Eif) (term hole))
-                            (term (isPossibleE E auxξ))
-                            (term (isPossibleEEif E Eif auxξ))))
-        
         (where μ_simplified (calcμ μ))
 
         ;; μ doesnt contain `choice` operator --- they should be resolved before
@@ -539,20 +559,17 @@
 
         (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
         
-        (where ifContext (getIfContext Eifα))
-        (side-condition (term (isPossiblePath_resolve (vName ifContext) path auxξ)))
-
         (where α_new      (substμα vName μ-value () (elToList El)))
         (where φ          (getφ auxξ))
         (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
         (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ))
 
         (where η       (getη auxξ))
-        (where ψ_read  (getReadψ auxξ))
+        (where σ-tree_read  (getReadσ-tree auxξ))
 
         (where τ               (getNextTimestamp ι η))
-        (where ψ_read_new      (updateByFront path ((ι τ)) ψ_read))
-        (where auxξ_read_front (updateState (Read ψ_read) (Read ψ_read_new) auxξ_upd_φ))
+        (where σ-tree_read_new      (updateByFront path ((ι τ)) σ-tree_read))
+        (where auxξ_read_front (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ_upd_φ))
         (where auxξ_upd_front  ,(if (equal? (term WM) 'rel)
                                     (term (synchronizeWriteFront path auxξ_read_front))
                                     (term auxξ_read_front)))
@@ -581,10 +598,6 @@
         (normalize
          ((in-hole E (in-hole Eif (chooseBranch number AST_0 AST_1))) auxξ_new))
         "if-speculation-branch-choice"
-        
-        (where ifContext (eifToIfContext Eif))
-        (side-condition (term (isPossiblePath_resolve (vName ifContext) (pathE E) auxξ)))
-
         (where φ (getφ auxξ))
         (where (in-hole Ep α_thread) φ)
         (where (in-hole Eifα (in-hole El (if vName number α_0 α_1))) α_thread)
@@ -599,7 +612,6 @@
          ((in-hole E (in-hole Eif (if a    AST_0 AST_1))) auxξ_new))
         "if-speculation-init"
         
-        (side-condition (term (isPossibleEEif E Eif auxξ)))
         (where Expr_simplified (calc Expr))
         (side-condition (not (redex-match coreLang number (term Expr_simplified))))
 
@@ -630,8 +642,6 @@
         (side-condition (term
                          (canPostponedWriteBePerformed (vName_2 ι) α_2)))
 
-        (where path     (pathEp Ep))
-        (side-condition (term (isPossiblePath path auxξ)))
 
         (fresh a)
         (where α_1_new (substμα vName_1 a () (elToList El_1)))
@@ -641,10 +651,10 @@
                       ((write a ι WM μ-value)
                        (if vName_0 Expr α_1_new α_2_new))))
 
+        (where path     (pathEp Ep))
         (where φ          (getφ auxξ))
         (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
-        (where auxξ_new   (updateState (P φ) (P φ_new) auxξ))
-        )
+        (where auxξ_new   (updateState (P φ) (P φ_new) auxξ)))
 
    ;; Leads to very poor performance, but solves an issue with tests from etaPsi2SCpostLangTests.rkt
    ;; (-->  ((in-hole E (par (ret μ_0) (ret μ_1)))              auxξ)
@@ -666,7 +676,5 @@
 
    ;;      (where auxξ_new (updateState (RW observedWrites)
    ;;                                   (RW observedWrites_new)
-   ;;                                   auxξ_upd_φ))
-
-   ;;      (side-condition (term (isPossibleE E auxξ))))
+   ;;                                   auxξ_upd_φ)))
 )))

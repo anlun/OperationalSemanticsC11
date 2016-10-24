@@ -11,13 +11,45 @@
          graphLang etaPsiGraphLang
 )
 
+; State:
+; AST                   -- current state of program tree;
+; η                     -- current heap history;
+; (Read  σ-tree)             -- per-thread read    fronts;
+; (AcqFront σ-tree)          -- per-thread acquire fronts;
+; (RelFront χ-tree)     -- per-thread release fronts;
+; (NA    σ)             -- location -> last NA write on it;
+; (Write σ-tree)             -- current threads write fronts;
+; (SC σ)                -- front after last SC operation.
+; (P    φ)              -- component with thread-specific information about postponed reads;
+; (R    γ)              -- component with restiction on a resolve order for postponed reads;
+; (RW   observedWrites) -- (path, ι) -> observed uncommitted to history writes.
+
+; (Graph G)             -- current graph of memory actions;
+; (GFront GF)           -- thread positions in the graph.
+
 (define-extended-language etaPsiLang coreLang
-  ; State:
-  ; AST      -- current state of program tree;
-  ; η        -- current heap history;
-  ; (Read ψ) -- current threads read fronts;
-  ; (NA   σ) -- location -> last NA write on it.
-  [auxξ (η (Read ψ) (NA σ))])
+  [auxξ (η (Read σ-tree) (NA σ))])
+
+(define-extended-language etaPsiSCLang coreLang
+  [auxξ (η (Read σ-tree) (NA σ) (SC σ))])
+
+(define-extended-language etaPsi2Lang coreLang
+  [auxξ (η (Read σ-tree) (AcqFront σ-tree) (RelFront χ-tree) (NA σ) (Write σ-tree))])
+
+(define-extended-language etaPsi2SCLang coreLang
+  [auxξ (η (Read σ-tree) (AcqFront σ-tree) (RelFront χ-tree) (NA σ) (Write σ-tree) (SC σ))])
+
+(define-extended-language postReadLang coreLang
+  [auxξ (η (Read σ-tree) (RelFront χ-tree) (NA σ) (P φ) (R γ) (RW observedWrites) (Deallocated listι))])
+
+(define-extended-language etaPsi2SCpostLang coreLang
+  [auxξ (η (Read σ-tree) (AcqFront σ-tree) (RelFront χ-tree) (NA σ) (Write σ-tree) (SC σ) (P φ) (R γ) (RW observedWrites) (Deallocated listι))])
+
+(define-extended-language graphLang coreLang
+  [auxξ (η (Graph G) (GFront GF))])
+
+(define-extended-language etaPsiGraphLang coreLang
+  [auxξ (η (Read σ-tree) (NA σ) (Graph G) (GFront GF))])
 
 (define-term etaPsiDefaultState (() (Read ()) (NA ())))
 
@@ -27,50 +59,6 @@
    etaPsiLang #:domain ξ))
 (define etaPsiCoreTest (define-coreTest etaPsiCoreStep etaPsiDefaultState))
 
-(define-extended-language etaPsiSCLang coreLang
-  ; State:
-  ; AST      -- current state of program tree;
-  ; η        -- current heap history;
-  ; (Read ψ) -- current threads read fronts;  
-  ; (NA   σ) -- location -> last NA write on it;
-  ; (SC σ)   -- front after last SC operation.
-  [auxξ (η (Read ψ) (NA σ) (SC σ))])
-
-(define-extended-language etaPsi2Lang coreLang
-  ; State:
-  ; AST          -- current state of program tree;
-  ; η            -- current heap history;
-  ; (Read  ψ)         -- per-thread read    fronts;
-  ; (AcqFront ψ)      -- per-thread acquire fronts;
-  ; (RelFront χ-tree) -- per-thread release fronts;
-  ; (NA    σ)    -- location -> last NA write on it;
-  ; (Write ψ)    -- current threads write fronts.
-  [auxξ (η (Read ψ) (AcqFront ψ) (RelFront χ-tree) (NA σ) (Write ψ))])
-
-(define-extended-language etaPsi2SCLang coreLang
-  ; State:
-  ; AST               -- current state of program tree;
-  ; η                 -- current heap history;
-  ; (Read  ψ)         -- per-thread read    fronts;
-  ; (AcqFront ψ)      -- per-thread acquire fronts;
-  ; (RelFront χ-tree) -- per-thread release fronts;
-  ; (NA    σ)         -- location -> last NA write on it;
-  ; (Write ψ)         -- current threads write fronts;
-  ; (SC σ)            -- front after last SC operation.
-  [auxξ (η (Read ψ) (AcqFront ψ) (RelFront χ-tree) (NA σ) (Write ψ) (SC σ))])
-
-(define-extended-language postReadLang coreLang
-  ; State:
-  ; AST      -- current state of program tree;
-  ; η        -- current heap history;
-  ; (Read ψ) -- current threads read fronts;
-  ; (RelFront χ-tree) -- per-thread release fronts;
-  ; (NA   σ) -- location -> last NA write on it;
-  ; (P    φ) -- component with thread-specific information about postponed reads;
-  ; (R    γ) -- component with restiction on a resolve order for postponed reads;
-  ; (RW   observedWrites) -- (path, ι) -> observed uncommitted to history writes.
-  [auxξ (η (Read ψ) (RelFront χ-tree) (NA σ) (P φ) (R γ) (RW observedWrites) (Deallocated listι))])
-
 (define-term postponedReadDefaultState (() (Read ()) (RelFront ()) (NA ()) (P ()) (R ()) (RW ()) (Deallocated ())))
 (define postponedReadCoreStep
   (extend-reduction-relation
@@ -78,18 +66,3 @@
    postReadLang #:domain ξ))
 (define postponedReadCoreTest (define-coreTest postponedReadCoreStep postponedReadDefaultState))
 
-(define-extended-language etaPsi2SCpostLang coreLang
-  [auxξ (η (Read ψ) (AcqFront ψ) (RelFront χ-tree) (NA σ) (Write ψ) (SC σ) (P φ) (R γ) (RW observedWrites) (Deallocated listι))])
-
-(define-extended-language graphLang coreLang
-  [auxξ (η (Graph G) (GFront GF))])
-
-(define-extended-language etaPsiGraphLang coreLang
-  ; State:
-  ; AST         -- current state of program tree;
-  ; η           -- current heap history;
-  ; (Read ψ)    -- current threads read fronts;
-  ; (NA   σ)    -- location -> last NA write on it;
-  ; (Graph G)   -- current graph of memory actions;
-  ; (GFront GF) -- thread positions in the graph.
-  [auxξ (η (Read ψ) (NA σ) (Graph G) (GFront GF))])

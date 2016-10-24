@@ -10,10 +10,10 @@
 (require "../core/langs.rkt")
 (require "../core/parser.rkt")
 
-(define relAcqRules (define-relAcqRules   etaPsiLang))
-(define naRules     (define-naRules       etaPsiLang etaPsiDefaultState))
+(define relAcqRules  (define-relAcqRules  etaPsiLang))
+(define naRules      (define-naRules      etaPsiLang etaPsiDefaultState))
 (define consumeRules (define-conReadRules etaPsiLang))
-(define step        (union-reduction-relations etaPsiCoreStep relAcqRules naRules consumeRules))
+(define step (union-reduction-relations etaPsiCoreStep relAcqRules naRules consumeRules))
 
 #|
        c_rel = 0;
@@ -24,9 +24,8 @@ c_rel = 1  || a_na = a_na + 1
 Example from: VafeiadisNarayan:OOPSLA13 "Relaxed Separation Logic: A Program Logic for C11 Concurrency".
 It shouldn't get `stuck`.
 |#
-(test-->> step
-         (term (,testMP+rel+acq etaPsiDefaultState))
-         (term ((ret 8) etaPsiDefaultState)))
+(test-->> step testMP+rel+acq
+         '(ret 8))
 
 ;(traces step (term (,testMP+rel+acq etaPsiDefaultState)))
 
@@ -41,9 +40,8 @@ if y_acq == 0 then || if x_acq == 0 then
 
 It should get `stuck` because of concurrent non-atomic writes.
 |#
-(test-->>∃ step
-         (term (,testTerm4 etaPsiDefaultState))
-         (term (stuck etaPsiDefaultState)))
+(test-->>∃ step testTerm4
+         'stuck)
 
 ;(traces step (term (,testTerm4 etaPsiDefaultState)) #:pp pretty-printer)
 ;(stepper step (term (,testTerm4 etaPsiDefaultState)) pretty-printer)
@@ -60,10 +58,9 @@ if x_acq == y_acq then || if x_acq != y_acq then
   a_na = 239           ||   a_na = 239
 
 |#
-(test-->> step
-         (term (,testTerm5 etaPsiDefaultState))
-         (term ((ret (0 239)) etaPsiDefaultState))
-         (term ((ret (239 0)) etaPsiDefaultState)))
+(test-->> step testTerm5
+         '(ret (0 239))
+         '(ret (239 0)))
 
 #|
       x_rel = 0
@@ -73,9 +70,8 @@ x_na  = 2 ||
 Should lead to `stuck` because of VafeiadisNarayan:OOPSLA (ConsistentRFna) ---
 `x_na = 2` and `r = x_acq` aren't happens-before ordered.
 |#
-(test-->>∃ step
-           (term (,term_WrelWna_Racq etaPsiDefaultState))
-           (term (stuck etaPsiDefaultState)))
+(test-->>∃ step term_WrelWna_Racq
+           'stuck)
 
 #|
      data_na = 0
@@ -101,11 +97,9 @@ Possible outcomes for r2 are 1 and 5.
                   fi }}};
         ret r0_2 })
 
-(test-->> step
-          (term (,term_MP_consume etaPsiDefaultState))
-
-          (term ((ret 1) etaPsiDefaultState))
-          (term ((ret 5) etaPsiDefaultState)))
+(test-->> step term_MP_consume
+          '(ret 1)
+          '(ret 5))
 
 #|
      data_na = 0
@@ -134,11 +128,9 @@ memory loads in the right subthread.
                   fi }}};
         ret r0_2 })
 
-(test-->> step
-          (term (,term_MP_consume_stuck etaPsiDefaultState))
-
-          (term ((ret 1) etaPsiDefaultState))
-          (term (stuck   etaPsiDefaultState)))
+(test-->> step term_MP_consume_stuck
+          '(ret 1)
+          'stuck)
 
 #|
      data_na  = 0
@@ -154,8 +146,6 @@ p_rel    = &dataP || if (r1 != 0) {
 
 Possible outcomes for r2 are 1 and 5.
 |#
-(test-->> step
-          (term (,term_MP_pointer_consume etaPsiDefaultState))
-
-          (term ((ret 1) etaPsiDefaultState))
-          (term ((ret 5) etaPsiDefaultState)))
+(test-->> step term_MP_pointer_consume
+          '(ret 1)
+          '(ret 5))

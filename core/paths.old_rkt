@@ -1,0 +1,271 @@
+;; coreLang.rkt
+(define-metafunction coreLang
+  isPossiblePath : path auxξ -> boolean
+  [(isPossiblePath path (in-hole El (Paths ((path None) any ...)))) #t]
+
+  [(isPossiblePath path (in-hole El (Paths any))) #f]
+  [(isPossiblePath path auxξ) #t])
+
+(define-metafunction coreLang
+  isPossiblePath_resolve : (vName ifContext) path auxξ -> boolean
+  [(isPossiblePath_resolve (vName ifContext) path
+                           (in-hole El (Paths ((path (resolve vName ifContext)) any ...))))
+   #t]
+
+  [(isPossiblePath_resolve (vName ifContext) path (in-hole El (Paths any))) #f]
+  [(isPossiblePath_resolve (vName ifContext) path auxξ) #t])
+
+(define-metafunction coreLang
+  isPossibleE : E auxξ -> boolean
+  [(isPossibleE E auxξ) (isPossiblePath (pathE E) auxξ)])
+
+(define-metafunction coreLang
+  isPossibleEEif : E Eif auxξ -> boolean
+  [(isPossibleEEif E Eif auxξ) (isPossiblePathIfContext (pathE E) (eifToIfContext Eif) auxξ)])
+
+(define-metafunction coreLang
+  isPossiblePathIfContext : path ifContext auxξ -> boolean
+  [(isPossiblePathIfContext path ()
+                            (in-hole El (Paths ((path None)) any ...)))
+   #t]
+
+  [(isPossiblePathIfContext path ifContext
+                            (in-hole El (Paths ((path (postpone ifContext)) any ...))))
+   #t]
+
+  [(isPossiblePathIfContext path ifContext (in-hole El (Paths any))) #f]
+  [(isPossiblePathIfContext path ifContext auxξ) #t])
+
+(define-metafunction coreLang
+  isPossibleτ : τ τ τ ι η -> boolean
+  [(isPossibleτ τ_read τ_front τ_shift ι η)
+   ,(equal? (term τ_read)
+            (min (term τ_max)
+                 (+ (term τ_front) (term τ_shift))))
+   (where τ_max (getLastTimestamp ι η))])
+
+(define-metafunction coreLang
+  ;; isPossibleRead : (E | path) vName ι τ τ ifContext auxξ -> boolean 
+  [(isPossibleRead path vName ι τ_front τ_read ifContext
+                   (any_0 ... η any_1 ... (Paths ((path (read vName τ_shift ifContext)) any ...)) any_2 ...))
+
+   (isPossibleτ τ_read τ_front τ_shift ι η)]
+
+  [(isPossibleRead E vName ι τ_front τ_read ifContext auxξ)
+   (isPossibleRead (pathE E) vName ι τ_front τ_read auxξ)]
+
+  [(isPossibleRead any_0 vName ι τ_0 τ_1 ifContext (in-hole El (Paths any))) #f]
+  [(isPossibleRead any_0 vName ι τ_0 τ_1 ifContext auxξ                    ) #t])
+
+(define-metafunction coreLang
+  reducableThreads : AST -> paths
+  [(reducableThreads (ret μ-value)) ()]
+  [(reducableThreads (AST >>= K)) (reducableThreads AST)]
+  [(reducableThreads (par (ret μ-value_0)
+                          (ret μ-value_1)))
+                     (())]
+
+  [(reducableThreads nofuel) ()]
+  [(reducableThreads stuck ) ()]
+
+  [(reducableThreads (par AST_0 AST_1))
+   ,(append (term (incPaths L paths_left ))
+            (term (incPaths R paths_right)))
+   (where paths_left  (reducableThreads AST_0))
+   (where paths_right (reducableThreads AST_1))]
+
+;; Default case --- the current thread is reducable.
+  [(reducableThreads AST) (())])
+
+(define-metafunction coreLang
+  possibleTasks-path-ifContext : AST path ifContext α auxξ -> pathsτ
+  [(possibleTasks-path-ifContext (write rlx ι-var μ)         path ifContext α auxξ)
+   ((path (postpone ifContext)))]
+  [(possibleTasks-path-ifContext ((ret μ) >>= (λ vName AST)) path ifContext α auxξ)
+   ((path (postpone ifContext)))]
+
+  [(possibleTasks-path-ifContext (read RM ι-var) path ifContext α auxξ)
+   ((path (postpone ifContext)))]
+  [(possibleTasks-path-ifContext (readCon RM ι-var σ-dd) path ifContext α auxξ)
+   ((path (postpone ifContext)))]
+
+  [(possibleTasks-path-ifContext (AST >>= K) path ifContext α auxξ)
+   (possibleTasks-path-ifContext  AST        path ifContext α auxξ)]
+
+  [(possibleTasks-path-ifContext (if Expr AST_0 AST_1) path ifContext α auxξ)
+   ((path (postpone ifContext)))
+   (side-condition (not (term (isIfInα Expr α))))]
+
+  [(possibleTasks-path-ifContext (if vName AST_0 AST_1) path ifContext (in-hole El (if vName Expr α_0 α_1)) auxξ)
+   (appendT3 (possibleTasks-path-ifContext AST_0 path ifContext_new α_0 auxξ)
+             (possibleTasks-path-ifContext AST_1 path ifContext_new α_1 auxξ)
+             ,(if (redex-match coreLang number (term Expr))
+                  (term (path (resolve vName ifContext)))
+                  '()))
+
+   (where ifContext_new (appendT ifContext (vName)))]
+
+  [(possibleTasks-path-ifContext AST path ifContext α auxξ) ()])
+
+(define-metafunction coreLang
+  possibleTasks-path : path AST auxξ -> pathsτ
+  [(possibleTasks-path path (ret μ) auxξ) (possibleResolvePostOps path auxξ)]
+
+  [(possibleTasks-path path ((ret μ-subst) >>= K) auxξ)
+   ,(cons (term (path None))
+          (term (possibleResolvePostOps path auxξ)))]
+  [(possibleTasks-path path ((ret μ) >>= K) auxξ)
+   ,(cons (term (path (postpone ())))
+          (term (possibleResolvePostOps path auxξ)))]
+
+  [(possibleTasks-path path (AST >>= K) auxξ) (possibleTasks-path path AST auxξ)]
+
+  [(possibleTasks-path path AST auxξ)
+   (possibleTasks-path-read path ι RM auxξ)
+   (side-condition (term (noPostponedOps auxξ)))
+   (where (Just (ι RM)) (ιModFromReadAction AST))]
+
+  [(possibleTasks-path path (par AST_0 AST_1) auxξ)
+   ,(if (and (null? (term pathsτ_left ))
+             (null? (term pathsτ_right)))
+        (term ((path None)))
+        (append (term pathsτ_left )
+                (term pathsτ_right)))
+   (where pathsτ_left  (possibleTasks-path (updatePath L path) AST_0 auxξ))
+   (where pathsτ_right (possibleTasks-path (updatePath R path) AST_1 auxξ))]
+
+  [(possibleTasks-path path nofuel auxξ) ()]
+  [(possibleTasks-path path stuck  auxξ) ()]
+  
+  [(possibleTasks-path path (if vName AST_0 AST_1) auxξ)
+   (appendT3 (possibleTasks-path-ifContext AST_0 path (vName) α_0 auxξ)
+             (possibleTasks-path-ifContext AST_1 path (vName) α_1 auxξ)
+             ,(if (redex-match coreLang number (term Expr))
+                  (term (path (resolve vName ())))
+                  '()))
+   
+   (where α (getByPath path (getφ auxξ)))
+   (where (in-hole El (if vName Expr α_0 α_1)) α)]
+
+  [(possibleTasks-path path (spw AST_0 AST_1) auxξ)
+   ,(if (null? (term pathsτ_post))
+        (list (term (path None)))
+        (term pathsτ_post))
+   (where pathsτ_post (possibleResolvePostOps path auxξ))]
+
+;; Default case --- the current thread is reducable.
+  [(possibleTasks-path path AST auxξ)
+   (consT (path None) pathsτ_post)
+   (where pathsτ_post (possibleResolvePostOps path auxξ))])
+
+(define-metafunction coreLang
+  possibleResolvePostOps : path auxξ -> pathsτ
+  [(possibleResolvePostOps path auxξ) ()
+   (side-condition (term (noPostponedOps auxξ)))]
+  [(possibleResolvePostOps path auxξ) (possibleResolvePostOps_α α path () auxξ )
+   (where α (getByPath path (getφ auxξ)))])
+
+(define-metafunction coreLang
+  possibleResolvePostOps_α : α path ifContext auxξ -> pathsτ
+  [(possibleResolvePostOps_α α path ifContext auxξ) 
+   ,(apply append
+           (map (λ (x)
+                  (term (possibleResolvePostOps_pentry ,x path ifContext auxξ)))
+                (term α)))])
+
+(define-metafunction coreLang
+  possibleResolvePostOps_pentry : postponedEntry path ifContext auxξ -> pathsτ
+
+  [(possibleResolvePostOps_pentry (let-in vName μ-value) path ifContext auxξ)
+   ((path (resolve vName ifContext)))]
+
+  [(possibleResolvePostOps_pentry (write vName ι WM μ-value) path ifContext auxξ)
+   ((path (resolve vName ifContext)))
+
+   (where α (getByPath path (getφ auxξ)))
+   (side-condition (term (canPostponedWriteBePerformed (vName ι) α)))]
+
+  [(possibleResolvePostOps_pentry (read vName ι RM σ-dd) path ifContext auxξ)
+   ,(map (λ (t) (term (path (read vName ,(- t (term τ_front)) ifContext))))
+     (filter (λ (t) (term
+                     (canPostponedReadBePerformed (vName ι RM σ-dd) σ_read α ifContext γ ,t)))
+             (range (term τ_front) (+ 1 (term τ_max)))))
+   
+   (where α       (getByPath path (getφ auxξ)))
+   (where γ       (getγ auxξ))
+   (where σ_read  (getReadσ path auxξ))
+   (where τ_front (fromMaybe 0 (lookup ι σ_read)))
+   (where τ_max   (getLastTimestamp ι (getη auxξ)))]
+
+  [(possibleResolvePostOps_pentry (if vName Expr α_0 α_1) path ifContext auxξ)
+   (appendT (possibleResolvePostOps_α α_0 path ifContext_new auxξ)
+            (possibleResolvePostOps_α α_1 path ifContext_new auxξ))
+   (where ifContext_new (appendT ifContext (vName)))]
+  
+  [(possibleResolvePostOps_pentry postponedEntry path ifContext auxξ) ()])
+
+(define-metafunction coreLang
+  isSchedulerQueueEmpty : auxξ -> boolean
+  [(isSchedulerQueueEmpty (any_0 ... (Paths ()) any_1 ...)) #t]
+  [(isSchedulerQueueEmpty auxξ) #f])
+
+(define-metafunction coreLang
+  schedulerStep : auxξ -> auxξ
+  [(schedulerStep (any_0 ... (Paths ()) any_1 ...))
+   (any_0 ... (Paths ()) any_1 ...)]
+  [(schedulerStep (any_0 ... (Paths pathsτ) any_1 ...))
+   (any_0 ... (Paths ,(cdr (term pathsτ))) any_1 ...)]
+  [(schedulerStep auxξ) auxξ])
+
+(define-metafunction coreLang
+  noPostponedOps : auxξ -> boolean
+  [(noPostponedOps (any_0 ... (P φ) any_1 ...)) #f]
+  [(noPostponedOps auxξ) #t])
+
+(define-metafunction coreLang
+  possibleTasks-path-read : path ι RM auxξ -> pathsτ
+
+  [(possibleTasks-path-read path ι RM auxξ)
+   ,(map (λ (t)
+           (term (path (read ,(- t (term τ_front))))))
+     (range (term τ_front) (+ 1 (term τ_max))))
+   (where σ_read (getReadσ path auxξ))
+   (where τ_sc_min ,(if (equal? (term RM) 'sc)
+                        (term (fromMaybe 0 (lookup ι (getσSC auxξ))))
+                        0))
+   (where τ_front ,(max (term τ_sc_min)
+                        (term (fromMaybe 0 (lookup ι σ_read)))))
+   (where τ_max (getLastTimestamp ι (getη auxξ)))])
+
+(define-metafunction coreLang
+  isReadPEntryLbl : pentryLbl -> boolean
+  [(isReadPEntryLbl (read any ...)) #t]
+  [(isReadPEntryLbl any           ) #f])
+
+(define-metafunction coreLang
+  getActionVName : pentryLbl -> vName
+  [(getActionVName (read    vName any ...)) vName]
+  [(getActionVName (resolve vName any ...)) vName])
+
+(define-metafunction coreLang
+  getActionτ : pentryLbl -> τ
+  [(getActionτ (read τ)) τ]
+  [(getActionτ (read vName τ any ...)) τ])
+
+(define-metafunction coreLang
+  getActionIfContext : pentryLbl -> ifContext
+  [(getActionIfContext (read vName τ  ifContext)) ifContext]
+  [(getActionIfContext (postpone      ifContext)) ifContext]
+  [(getActionIfContext (resolve vName ifContext)) ifContext])
+
+(define-metafunction coreLang
+  possibleTasks : AST auxξ -> pathsτ
+  [(possibleTasks AST auxξ) (possibleTasks-path () AST auxξ)])
+
+(define-metafunction coreLang
+  ιModFromReadAction : AST -> Maybe
+  [(ιModFromReadAction (read      RM ι     )) (Just (ι RM))]
+  [(ιModFromReadAction (readCon   RM ι σ-dd)) (Just (ι RM))]
+  [(ιModFromReadAction (cas    SM FM ι     )) (Just (ι SM))] ;; TODO: 
+  [(ιModFromReadAction (casCon SM FM ι σ-dd)) (Just (ι SM))] ;; Maybe smth other then SM.
+  [(ιModFromReadAction AST) None])

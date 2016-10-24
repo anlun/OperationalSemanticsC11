@@ -3,7 +3,7 @@
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
-(provide define-rlxRules define-rlxReadRules define-rlxWriteRules)
+(provide define-rlxRules define-rlxReadRules define-rlxWriteRules define-rlxCasRules)
 
 (define-syntax-rule (define-rlxReadRules lang)
   (begin
@@ -16,17 +16,16 @@
          ((in-hole E (ret μ-value)) auxξ_new))
         "read-rlx"
         (where η    (getη     auxξ))
-        (where ψ    (getReadψ auxξ))
+        (where σ-tree    (getReadσ-tree auxξ))
         (where path (pathE E))
         (where  (in-hole El (τ μ-value σ)) (getCellHistory ι η))
 
-        (where ψ_new      (updateByFront path ((ι τ)) ψ))
-        (where auxξ_ψ_new (updateState (Read ψ) (Read ψ_new) auxξ))
-        (where auxξ_new   (updateAcqFront path σ auxξ_ψ_new))
+        (where σ-tree_new      (updateByFront path ((ι τ)) σ-tree))
+        (where auxξ_σ-tree_new (updateState (Read σ-tree) (Read σ-tree_new) auxξ))
+        (where auxξ_new   (updateAcqFront path σ auxξ_σ-tree_new))
 
-        (where σ_read   (getByPath path ψ))
-        (side-condition (term (correctτ τ ι σ_read)))
-        (side-condition (term (isPossibleE E auxξ)))))))
+        (where σ_read   (getByPath path σ-tree))
+        (side-condition (term (correctτ τ ι σ_read)))))))
 
 (define-metafunction coreLang
   getσ_relFront : ι path auxξ -> σ
@@ -34,7 +33,7 @@
    (getσReleaseToWrite ι (getByPath path χ-tree))]
   [(getσ_relFront ι path auxξ) ()])
 
-(define-syntax-rule (define-rlxWriteRules lang)
+(define-syntax-rule (define-rlxWriteRulesWOcas lang)
   (begin
 
   (reduction-relation
@@ -61,12 +60,12 @@
          ((in-hole E (ret μ-value))         auxξ_new))
         "write-rlx"
         (where η       (getη auxξ))
-        (where ψ_read  (getReadψ auxξ))
+        (where σ-tree_read  (getReadσ-tree auxξ))
         (where path    (pathE E))
 
         (where τ              (getNextTimestamp ι η))
-        (where ψ_read_new     (updateByFront path ((ι τ)) ψ_read))
-        (where auxξ_upd_front (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
+        (where σ-tree_read_new     (updateByFront path ((ι τ)) σ-tree_read))
+        (where auxξ_upd_front (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ))
 
         (where σ_ToWrite  (updateFront ι τ (getσ_relFront ι path auxξ)))
         (where η_new      (updateCell  ι μ-value σ_ToWrite η))
@@ -77,20 +76,26 @@
         (where auxξ_new   auxξ_upd_γ)
 
         (side-condition (term (are∀PostReadsRlx  path auxξ)))
-        (side-condition (term (ιNotInReadQueue ι path auxξ)))
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (term (ιNotInReadQueue ι path auxξ))))
+)))
+
+(define-syntax-rule (define-rlxCasRules lang)
+  (begin
+
+  (reduction-relation
+   lang #:domain ξ
 
    (-->  ((in-hole E (cas SM rlx ι μ-value_expected μ-value_new)) auxξ)
         (normalize
          ((in-hole E (ret μ-value                              )) auxξ_new))
         "cas-fail-rlx"
         (where η        (getη     auxξ))
-        (where ψ_read   (getReadψ auxξ))
+        (where σ-tree_read   (getReadσ-tree auxξ))
         (where path     (pathE E))
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
 
-        (where ψ_read_new    (updateByFront path ((ι τ)) ψ_read))
-        (where auxξ_new (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
+        (where σ-tree_read_new    (updateByFront path ((ι τ)) σ-tree_read))
+        (where auxξ_new (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ))
 
         (where σ_read   (getReadσ path auxξ))
         (side-condition (equal? (term τ) (term (getLastTimestamp ι η))))
@@ -100,16 +105,14 @@
         (side-condition (term (isReadQueueEqualTo () path auxξ)))
         ;; (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ acq auxξ))))
-        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
-
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
    
    (-->  ((in-hole E (cas rlx FM ι μ-value_expected μ-value_new)) auxξ)
         (normalize
          ((in-hole E (ret μ-value_expected                     )) auxξ_new))
         "cas-succ-rlx"
         (where η        (getη     auxξ))
-        (where ψ_read   (getReadψ auxξ))
+        (where σ-tree_read   (getReadσ-tree auxξ))
         (where path     (pathE E))
 
         (where τ_last        (getLastTimestamp ι η))
@@ -117,8 +120,8 @@
         (where σ             (getLastFront ι η))
         
         ; update read front
-        (where ψ_read_new    (updateByFront path ((ι τ)) ψ_read))
-        (where auxξ_upd_read (updateState (Read ψ_read) (Read ψ_read_new) auxξ))
+        (where σ-tree_read_new    (updateByFront path ((ι τ)) σ-tree_read))
+        (where auxξ_upd_read (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ))
 
         ; update acq front
         (where auxξ_upd_acq  (updateAcqFront path σ auxξ_upd_read))
@@ -137,10 +140,14 @@
         (side-condition (term (ιNotInReadQueue ι path auxξ)))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
-        (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
-
-        (side-condition (term (isPossibleE E auxξ))))
+        (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
 )))
+
+(define-syntax-rule (define-rlxWriteRules lang)
+  (begin
+  (union-reduction-relations
+   (define-rlxCasRules        lang)
+   (define-rlxWriteRulesWOcas lang))))
 
 (define-syntax-rule (define-rlxRules lang)
   (begin
