@@ -10,10 +10,10 @@
 (require "../core/langs.rkt")
 (require "../core/parser.rkt")
 
-(define relAcqRules (define-relAcqRules   etaPsiLang))
-(define naRules     (define-naRules       etaPsiLang etaPsiDefaultState))
+(define relAcqRules  (define-relAcqRules  etaPsiLang))
+(define naRules      (define-naRules      etaPsiLang etaPsiDefaultState))
 (define consumeRules (define-conReadRules etaPsiLang))
-(define step        (union-reduction-relations etaPsiCoreStep relAcqRules naRules consumeRules))
+(define step (union-reduction-relations etaPsiCoreStep relAcqRules naRules consumeRules))
 
 #|
        c_rel = 0;
@@ -25,7 +25,7 @@ Example from: VafeiadisNarayan:OOPSLA13 "Relaxed Separation Logic: A Program Log
 It shouldn't get `stuck`.
 |#
 (test-->> step testMP+rel+acq
-         (term (ret 8)))
+         '(ret 8))
 
 ;(traces step (term (,testMP+rel+acq etaPsiDefaultState)))
 
@@ -41,7 +41,7 @@ if y_acq == 0 then || if x_acq == 0 then
 It should get `stuck` because of concurrent non-atomic writes.
 |#
 (test-->>∃ step testTerm4
-         (term stuck))
+         'stuck)
 
 ;(traces step (term (,testTerm4 etaPsiDefaultState)) #:pp pretty-printer)
 ;(stepper step (term (,testTerm4 etaPsiDefaultState)) pretty-printer)
@@ -59,8 +59,8 @@ if x_acq == y_acq then || if x_acq != y_acq then
 
 |#
 (test-->> step testTerm5
-         (term (ret (0 239)))
-         (term (ret (239 0))))
+         '(ret (0 239))
+         '(ret (239 0)))
 
 #|
       x_rel = 0
@@ -71,7 +71,7 @@ Should lead to `stuck` because of VafeiadisNarayan:OOPSLA (ConsistentRFna) ---
 `x_na = 2` and `r = x_acq` aren't happens-before ordered.
 |#
 (test-->>∃ step term_WrelWna_Racq
-           (term stuck))
+           'stuck)
 
 #|
      data_na = 0
@@ -98,8 +98,8 @@ Possible outcomes for r2 are 1 and 5.
         ret r0_2 })
 
 (test-->> step term_MP_consume
-          (term (ret 1))
-          (term (ret 5)))
+          '(ret 1)
+          '(ret 5))
 
 #|
      data_na = 0
@@ -129,8 +129,8 @@ memory loads in the right subthread.
         ret r0_2 })
 
 (test-->> step term_MP_consume_stuck
-          (term (ret 1))
-          (term stuck  ))
+          '(ret 1)
+          'stuck)
 
 #|
      data_na  = 0
@@ -147,5 +147,5 @@ p_rel    = &dataP || if (r1 != 0) {
 Possible outcomes for r2 are 1 and 5.
 |#
 (test-->> step term_MP_pointer_consume
-          (term (ret 1))
-          (term (ret 5)))
+          '(ret 1)
+          '(ret 5))
