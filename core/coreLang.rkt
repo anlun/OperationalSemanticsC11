@@ -191,9 +191,11 @@
    (--> ((ret μ-value) auxξ)
          (ret μ-value)
         "auxξ-erasure")
-        ;; (side-condition     ; Not to introduce a cycle rule.
-        ;;  (not (equal? (term auxξ) (term defaultState)))))
-   
+
+   (--> (stuck auxξ)
+         stuck
+        "stuck-auxξ-erasure")
+  
    (-->  AST
         (AST defaultState)
         "add-default-auxξ"
