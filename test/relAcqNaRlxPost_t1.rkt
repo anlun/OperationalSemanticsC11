@@ -33,12 +33,12 @@ rX |rA
         ret r0_2 })
 
 (test-->> step term_WW_WRMW_RR
-          (term (ret (0 0)))
-          (term (ret (0 1)))
+          '(0 0)
+          '(0 1)
 
-          (term (ret (1 1)))
+          '(1 1)
           
-          (term (ret (2 1))))
+          '(2 1))
 
 (define term_WWW_RR
   @prog{x_rlx := 0;
@@ -53,12 +53,12 @@ rX |rA
         ret r0_2 })
 
 (test-->> step term_WWW_RR
-          (term (ret (0 0)))
-          (term (ret (0 1)))
+          '(0 0)
+          '(0 1)
 
-          (term (ret (1 1)))
+          '(1 1)
           
-          (term (ret (2 1))))
+          '(2 1))
 
 #|
              x_rlx = 0; a_rlx = 0
@@ -92,21 +92,21 @@ rX |rA
 
 (test-->> step term_WWW_WRMW_RR
 
-          (term (ret (0 (0 0))))
-          (term (ret (0 (0 1))))
-          (term (ret (0 (1 1))))
-          (term (ret (0 (3 1))))
+          '(0 (0 0))
+          '(0 (0 1))
+          '(0 (1 1))
+          '(0 (3 1))
 
-          (term (ret (1 (0 0))))
-          (term (ret (1 (0 1))))
-          (term (ret (1 (1 1))))
-          (term (ret (1 (2 1))))
-          (term (ret (1 (3 1))))
+          '(1 (0 0))
+          '(1 (0 1))
+          '(1 (1 1))
+          '(1 (2 1))
+          '(1 (3 1))
 
-          (term (ret (3 (0 0))))
-          (term (ret (3 (0 1))))
-          (term (ret (3 (1 1))))
-          (term (ret (3 (3 1)))))
+          '(3 (0 0))
+          '(3 (0 1))
+          '(3 (1 1))
+          '(3 (3 1)))
 
 #|
                      x_rlx = 0; a_rlx = 0; b_rlx = 0
@@ -148,20 +148,20 @@ rX |rA  |rB
 
 ;; (test-->> step term_WW_WRMW_W_RRR
 
-;;           (term (ret (0 (0 0))))
-;;           (term (ret (0 (0 1))))
-;;           (term (ret (0 (1 0))))
-;;           (term (ret (0 (1 1))))
+;;           '(0 (0 0))
+;;           '(0 (0 1))
+;;           '(0 (1 0))
+;;           '(0 (1 1))
 
-;;           (term (ret (1 (1 0))))
-;;           (term (ret (1 (1 1))))
+;;           '(1 (1 0))
+;;           '(1 (1 1))
           
-;;           (term (ret (2 (1 1))))
+;;           '(2 (1 1))
 
-;;           (term (ret (3 (0 0))))
-;;           (term (ret (3 (0 1))))
-;;           (term (ret (3 (1 0))))
-;;           (term (ret (3 (1 1)))))
+;;           '(3 (0 0))
+;;           '(3 (0 1))
+;;           '(3 (1 0))
+;;           '(3 (1 1)))
 
 ;(traces step term_WW_WRMW_W_RRR #:pp pretty-printer)
 

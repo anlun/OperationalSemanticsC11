@@ -339,7 +339,8 @@
 
 (define-metafunction coreLang
   ;ppξ : ξ -> Doc
-  [(ppξ  AST     )  (pp AST)]
+  [(ppξ  μ       )  (ppμ μ)]
+  [(ppξ  AST     )  (pp  AST)]
   [(ppξ (AST auxξ))
      ,(above* (term (pp      AST )) ""
               (term (ppState auxξ)))])

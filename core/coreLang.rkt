@@ -189,7 +189,7 @@
      
    ; For test results brevity only.
    (--> ((ret μ-value) auxξ)
-         (ret μ-value)
+              μ-value
         "auxξ-erasure")
 
    (--> (stuck auxξ)
@@ -235,8 +235,8 @@ ret 5 < 5
   (begin
 (test-->> step
           testTerm-112
-          (term (ret (3 12))))
+          '(3 12))
 (test-->> step
           testTerm-2
-          (term (ret 0)))
+          0)
 ))

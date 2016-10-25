@@ -512,6 +512,9 @@
   ; AST -- current state of program tree.
   [auxξ (any ... η any ...)]
   [ξ (AST auxξ)
-     AST]
+
+     ; These ξ-variations exist only for convenience.
+     AST
+     μ-value]
   
   [listξ (ξ ...)])

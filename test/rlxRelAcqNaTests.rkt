@@ -37,7 +37,7 @@ Example from: Vafeiadis-Narayan:OOPSLA13 "Relaxed Separation Logic: A Program Lo
 It uses rlx writes and reads instead of rel/acq, and it leads to `stuck`.
 |#
 (test-->>∃ step testMP+rlx
-         (term stuck))
+         'stuck)
 
 #|
        c_rlx = 0;
@@ -46,8 +46,8 @@ c_rel = 1  ||   a_rlx = a_rlx + 1
        ret a_rlx
 |#
 (test-->> step testMP-If+rel+acq
-         (term (ret 7))
-         (term (ret 8)))
+         7
+         8)
 
 #|
        c_rel = 0
@@ -61,7 +61,7 @@ Example from: Vafeiadis-Narayan:OOPSLA13
 It shouldn't get `stuck`.
 |#
 (test-->> step testMP+rel+rlx+fence
-         (term (ret 8)))
+         8)
 
 #|
        c_rel = 0
@@ -75,7 +75,7 @@ Example from: Vafeiadis-Narayan:OOPSLA13
 It shouldn't get `stuck`.
 |#
 (test-->> step testMP+rlx+fence
-         (term (ret 8)))
+         8)
 
 #|
 An example from Vafeiadis-Narayan:OOPSLA13. It shouldn't get `stuck`.
@@ -88,9 +88,9 @@ lock_rel = 0 ||     == 0)                  ||     == 0)
              || else (ret -1)              || else (ret -1)
 |#
 (test-->> step testTerm9
-          (term (ret (-1 -1)))
-          (term (ret (-1  2)))
-          (term (ret ( 3 -1))))
+          '(-1 -1)
+          '(-1  2)
+          '( 3 -1))
 
 #|
      x_rel = 0; y_rel = 0
@@ -112,7 +112,7 @@ It's possible to get r0 = 1 /\ r1 = 0 in Batty-al:POPL11.
         ret r01_2 })
 
 (test-->>∃ step term_Wrel0Wrlx1_Racq1Rrlx0
-          (term (ret (1 0))))
+          '(1 0))
 
 
 #|
@@ -138,8 +138,8 @@ It should be impossible to get r0 = 2 /\ r1 = 0 according to release sequence ru
         ret r01_2 })
 
 (test-->> step term_WrlxWrelWrlx_RacqRrlx
-          (term (ret (0 0)))
-          (term (ret (0 5)))
+          '(0 0)
+          '(0 5)
 
-          (term (ret (1 5)))
-          (term (ret (2 5))))
+          '(1 5)
+          '(2 5))

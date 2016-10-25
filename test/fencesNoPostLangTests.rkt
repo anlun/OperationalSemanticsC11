@@ -28,19 +28,19 @@
               coreStep rlxRules relAcqRules naRules scRules))
 
 (test-->> step testSB+rel+acq+fences+sc
-         (term (ret (0 1)))
-         (term (ret (1 0)))
-         (term (ret (1 1))))
+         '(0 1)
+         '(1 0)
+         '(1 1))
 
 (test-->> step testSB+rlx+fences+sc
-         (term (ret (0 1)))
-         (term (ret (1 0)))
-         (term (ret (1 1))))
+         '(0 1)
+         '(1 0)
+         '(1 1))
 
 (test-->> step testSB+cas+rel+acq+fences
-         (term (ret (0 1)))
-         (term (ret (1 0)))
-         (term (ret (1 1))))
+         '(0 1)
+         '(1 0)
+         '(1 1))
 
 (test-->> step testMP+cas+rlx+fences+acq+rel
-         (term (ret 1)))
+         1)

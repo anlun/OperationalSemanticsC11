@@ -38,7 +38,7 @@ if y_acq == 0 then || if x_acq == 0 then
 It should get `stuck` because of concurrent non-atomic writes.
 |#
 (test-->>∃ step testTerm4
-         (term stuck))
+         'stuck)
 
 ;; (traces step (term (,testTerm4 defaultState)) #:pp pretty-printer)
 ;; (stepper step (term (,testTerm4 defaultState)) pretty-printer)
@@ -71,4 +71,4 @@ It should get `stuck` because of concurrent non-atomic writes.
             fi }}} })
 
 (test-->>∃ step term_CASif_CASif
-         (term stuck))
+         'stuck)
