@@ -99,20 +99,20 @@
          ((in-hole E (ret μ-value_expected                    )) auxξ_new))
         "cas-succ-sc"
         (where η          (getη     auxξ))
-        (where σ-tree_read     (getReadσ-tree auxξ))
+        (where σ-tree     (getReadσ-tree auxξ))
         (where path       (pathE E))
         (where τ          (getNextTimestamp ι η))
-        (where σ_read_new    (acqSuccCASσReadNew ι η (getReadσ path auxξ)))
-        (where σ-tree_read_new    (updateByFront path σ_read_new σ-tree_read))
+        (where σ_new      (acqSuccCASσReadNew ι η (getReadσ path auxξ)))
+        (where σ-tree_new (updateByFront path σ_new σ-tree))
 
         (where σ_sc       (getσSC auxξ))
         (where σ_sc_new   (updateFront ι τ σ_sc))
 
         (where auxξ_upd_sc    (updateState (SC σ_sc) (SC σ_sc_new) auxξ))
-        (where auxξ_upd_read  (updateState (Read σ-tree_read) (Read σ-tree_new) auxξ_sc))
+        (where auxξ_upd_read  (updateState (Read σ-tree) (Read σ-tree_new) auxξ_upd_sc))
         (where auxξ_upd_write (synchronizeWriteFront path auxξ_upd_read))
 
-        (where σ_new          (getByPath path σ-tree_read_new))
+        (where σ_new          (getByPath path σ-tree_new))
         (where η_new          (updateCell ι μ-value_new σ_new η))
         (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
 
