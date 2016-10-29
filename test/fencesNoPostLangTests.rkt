@@ -1,6 +1,6 @@
 #lang racket
 (require redex)
-;(require redex/reduction-semantics)
+(require redex/reduction-semantics)
 (require "../core/syntax.rkt")
 (require "../core/coreLang.rkt")
 (require "../core/coreUtils.rkt")
@@ -33,14 +33,12 @@
          (term (ret (1 0)))
          (term (ret (1 1))))
 
-;;(stepper step testSB+rel+acq+fences+sc pretty-printer)
-
 (test-->> step testSB+rlx+fences+sc
          (term (ret (0 1)))
          (term (ret (1 0)))
          (term (ret (1 1))))
 
-(test-->> step testSB+cas+rel+acq+fences
+(test-->> step testSB+cas+rel+acq+fences+sc
          (term (ret (0 1)))
          (term (ret (1 0)))
          (term (ret (1 1))))

@@ -1128,7 +1128,7 @@ r1 = cas(y, 0, 2) || r2 = cas(x, 0, 2)
 
 r1 = 0, r2 = 0 - is not allowed
 |#
-(define testSB+cas+rel+acq+fences
+(define testSB+cas+rel+acq+fences+sc
   @prog{x_rlx := 0;
         y_rlx := 0; 
         spw

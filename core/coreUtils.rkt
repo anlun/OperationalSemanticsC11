@@ -919,9 +919,10 @@
 
 (define-metafunction coreLang
   synchronizeCurAcqFronts : path auxξ -> auxξ
-  [(synchronizeCurAcqFronts path auxξ) (updateState (Read σ-tree) (Read (updateByFront path σ σ-tree)) auxξ)
+  [(synchronizeCurAcqFronts path auxξ) (updateState (Read σ-tree) (Read σ-tree_new) auxξ)
    (where (any_0 ... (Read σ-tree) any_1 ... (AcqFront σ-tree_acq) any_2 ...) auxξ)
-   (where σ        (getByPath path σ-tree_acq))]
+   (where σ          (getByPath path σ-tree_acq))
+   (where σ-tree_new (updateByFront path σ σ-tree))]
   [(synchronizeCurAcqFronts path auxξ) auxξ])
 
 ;; (define (find-path red from to)

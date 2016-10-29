@@ -23,8 +23,9 @@
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
         
         (where σ-tree_new      (updateByFront path σ σ-tree))
-        (where auxξ_upd_σ-tree (updateState (Read σ-tree) (Read σ-tree_new) auxξ))
-        (where auxξ_new        (addReadNode τ (read acq ι μ-value) path auxξ_upd_σ-tree))
+        (where auxξ_upd_read   (updateState (Read σ-tree) (Read σ-tree_new) auxξ))
+        (where auxξ_upd_acq    (updateAcqFront path σ auxξ_upd_read))
+        (where auxξ_new        (addReadNode τ (read acq ι μ-value) path auxξ_upd_acq))
 
         (where σ_read (getByPath path σ-tree))
         (side-condition (term (correctτ τ ι σ_read)))))))
@@ -49,7 +50,8 @@
         (where σ_new        (getByPath path σ-tree_new))
 
         (where auxξ_upd_read  (updateState (Read σ-tree) (Read σ-tree_new) auxξ))
-        (where auxξ_upd_write (synchronizeWriteFront path auxξ_upd_read))
+        (where auxξ_upd_acq   (updateAcqFront path σ_delta auxξ_upd_read))
+        (where auxξ_upd_write (synchronizeWriteFront path auxξ_upd_acq))
         (where η_new          (updateCell  ι μ-value σ_new η))
         (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
         (where auxξ_upd_γ     (addPostReadsToγ path ι τ auxξ_upd_η))
@@ -78,8 +80,9 @@
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
 
         (where σ-tree_new      (updateByFront path σ σ-tree))
-        (where auxξ_upd_σ-tree (updateState (Read σ-tree) (Read σ-tree_new) auxξ))
-        (where auxξ_new        (addReadNode τ (read acq ι μ-value) path auxξ_upd_σ-tree))
+        (where auxξ_upd_read   (updateState (Read σ-tree) (Read σ-tree_new) auxξ))
+        (where auxξ_upd_acq    (updateAcqFront path σ auxξ_upd_read))
+        (where auxξ_new        (addReadNode τ (read acq ι μ-value) path auxξ_upd_acq))
 
         (side-condition (equal? (term τ) (term (getLastTimestamp ι η))))
         ;(side-condition (term (correctτ τ ι σ_read))) ; <- Previous condition implies it.
@@ -94,15 +97,17 @@
         (normalize
          ((in-hole E (ret μ-value_expected                     )) auxξ_new))
         "cas-succ-rel"
-        (where η          (getη     auxξ))
+        (where η               (getη     auxξ))
         (where σ-tree_read     (getReadσ-tree auxξ))
-        (where path       (pathE E))
-        (where τ_last     (getLastTimestamp ι η))
-        (where τ          (getNextTimestamp ι η))
-        (where σ-tree_read_new (updateByFront path ((ι τ)) σ-tree_read))
-
-        (where auxξ_upd_read  (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ))
-        (where auxξ_upd_write (synchronizeWriteFront path auxξ_upd_read))
+        (where path            (pathE E))
+        (where τ_last          (getLastTimestamp ι η))
+        (where τ               (getNextTimestamp ι η))
+        
+        (where σ_delta         ((ι τ)))
+        (where σ-tree_read_new (updateByFront path σ_delta σ-tree_read))
+        (where auxξ_upd_read   (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ))
+        (where auxξ_upd_acq    (updateAcqFront path σ_delta auxξ_upd_read))
+        (where auxξ_upd_write  (synchronizeWriteFront path auxξ_upd_acq))
 
         (where σ_new          (getByPath path σ-tree_read_new))
         (where η_new          (updateCell  ι μ-value_new
@@ -128,16 +133,18 @@
         (normalize
          ((in-hole E (ret μ-value_expected                     )) auxξ_new))
         "cas-succ-acq"
-        (where η       (getη     auxξ))
+        (where η            (getη     auxξ))
         (where σ-tree_read  (getReadσ-tree auxξ))
-        (where path    (pathE E))
-        (where σ_read_new    (acqSuccCASσReadNew ι η (getReadσ path auxξ)))
+        (where path         (pathE E))
+
+        (where σ_read_new         (acqSuccCASσReadNew ι η (getReadσ path auxξ)))
         (where σ-tree_read_new    (updateByFront path σ_read_new σ-tree_read))
-        (where auxξ_upd_read (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ))
+        (where auxξ_upd_read      (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ))
+        (where auxξ_upd_acq       (updateAcqFront path σ_read_new auxξ_upd_read))
         ; Maybe we should update write front on this operation
         
         (where η_new          (updateCell  ι μ-value_new σ_read_new η))
-        (where auxξ_upd_η     (updateState η η_new auxξ_upd_read))
+        (where auxξ_upd_η     (updateState η η_new auxξ_upd_acq))
         
         (where τ_last     (getLastTimestamp ι η))
         (where τ          (getNextTimestamp ι η))
@@ -163,7 +170,8 @@
         (where σ-tree_new      (updateByFront path σ_new σ-tree))
 
         (where auxξ_upd_read  (updateState (Read σ-tree) (Read σ-tree_new) auxξ))
-        (where auxξ_upd_write (synchronizeWriteFront path auxξ_upd_read))
+        (where auxξ_upd_acq   (updateAcqFront path σ_new auxξ_upd_read))
+        (where auxξ_upd_write (synchronizeWriteFront path auxξ_upd_acq))
 
         (where σ_new          (getByPath path σ-tree_new))
         (where η_new          (updateCell ι μ-value_new σ_new η))

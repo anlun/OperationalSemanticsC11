@@ -63,13 +63,15 @@
         (where σ-tree_read  (getReadσ-tree auxξ))
         (where path    (pathE E))
 
-        (where τ              (getNextTimestamp ι η))
-        (where σ-tree_read_new     (updateByFront path ((ι τ)) σ-tree_read))
-        (where auxξ_upd_front (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ))
+        (where τ                  (getNextTimestamp ι η))
+        (where σ_delta            ((ι τ)))
+        (where σ-tree_read_new    (updateByFront path σ_delta σ-tree_read))
+        (where auxξ_upd_read      (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ))
+        (where auxξ_upd_acq       (updateAcqFront path σ_delta auxξ_upd_read))
 
         (where σ_ToWrite  (updateFront ι τ (getσ_relFront ι path auxξ)))
         (where η_new      (updateCell  ι μ-value σ_ToWrite η))
-        (where auxξ_upd_η (updateState η η_new auxξ_upd_front))
+        (where auxξ_upd_η (updateState η η_new auxξ_upd_acq))
 
         (where σ_write    (getWriteσ path auxξ))
         (where auxξ_upd_γ (dupRelWriteRestrictions ι τ σ_write auxξ_upd_η))
@@ -122,11 +124,12 @@
         (where σ             (getLastFront ι η))
         
         ; update read front
-        (where σ-tree_new    (updateByFront path ((ι τ)) σ-tree))
+        (where σ_delta       ((ι τ)))
+        (where σ-tree_new    (updateByFront path σ_delta σ-tree))
         (where auxξ_upd_read (updateState (Read σ-tree) (Read σ-tree_new) auxξ))
-
+        
         ; update acq front
-        (where auxξ_upd_acq  (updateAcqFront path σ auxξ_upd_read))
+        (where auxξ_upd_acq  (updateAcqFront path (frontMerge σ σ_delta) auxξ_upd_read))
 
         ; create message and update history
         (where σ_ToWrite  (updateFront ι τ (getσ_relFront ι path auxξ)))
