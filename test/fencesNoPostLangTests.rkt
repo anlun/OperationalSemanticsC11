@@ -37,10 +37,17 @@
          '(1 0)
          '(1 1))
 
-(test-->> step testSB+cas+rel+acq+fences
+(test-->> step testMP+cas+relAcq+fences+acq
+         1) 
+
+(test-->> step testMP+cas+sc+fences+sc
+         1) 
+
+(test-->> step testSB+cas+rel+acq+fences+sc
          '(0 1)
          '(1 0)
          '(1 1))
 
 (test-->> step testMP+cas+rlx+fences+acq+rel
          1)
+

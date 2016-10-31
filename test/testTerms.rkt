@@ -1128,7 +1128,7 @@ r1 = cas(y, 0, 2) || r2 = cas(x, 0, 2)
 
 r1 = 0, r2 = 0 - is not allowed
 |#
-(define testSB+cas+rel+acq+fences
+(define testSB+cas+rel+acq+fences+sc
   @prog{x_rlx := 0;
         y_rlx := 0; 
         spw
@@ -1140,12 +1140,29 @@ r1 = 0, r2 = 0 - is not allowed
             cas_rlx_rlx(x, 0, 2)
         }}} })
 
+#| 
+How several sequantial substitutions are handled ???
+
+(define (termMP+cas+fences_abst fmod1 fmod2 casmods casmodf)
+  @prog{x_na := 0;
+        d_na := 0; 
+        r0 := spw
+             {{{ d_na := 1;
+                 fence @fmod1;
+                 cas_@casmods_@casmodf(x, 0, 1)      
+             ||| repeat x_rlx end;
+                 fence @fmod2;
+                 d_na
+             }}};
+        ret r0_2 })
+|#
+
 #|
-      x_na = 0; d_na = 0;
-d_na = 1      || repeat x_rlx end
-fence rel     || fence acq
-cas(x, 0, 1)  || r = d_na
-             ret r
+              x_na = 0; d_na = 0;
+d_na = 1              || repeat x_rlx end
+fence rel             || fence acq
+cas_rlx_rlx(x, 0, 1)  || r = d_na
+                     ret r
 
 Possible outcome: r = 1 
 |#
@@ -1162,4 +1179,47 @@ Possible outcome: r = 1
              }}};
         ret r0_2 })
 
+
+#|
+                 x_na = 0; d_na = 0;
+d_na = 1                 || repeat x_rlx end
+cas_relAcq_acq(x, 0, 1)  || fence acq
+                         || r = d_na
+                       ret r
+
+Possible outcome: r = 1 
+|#
+(define testMP+cas+relAcq+fences+acq
+  @prog{x_na := 0;
+        d_na := 0; 
+        r0 := spw
+             {{{ d_na := 1;
+                 cas_relAcq_acq(x, 0, 1)      
+             ||| repeat x_rlx end;
+                 fence acq;
+                 d_na
+             }}};
+        ret r0_2 })
+
+
+#|
+                 x_na = 0; d_na = 0;
+d_na = 1                 || repeat x_rlx end
+cas_sc_sc(x, 0, 1)       || fence sc
+                         || r = d_na
+                       ret r
+
+Possible outcome: r = 1 
+|#
+(define testMP+cas+sc+fences+sc
+  @prog{x_na := 0;
+        d_na := 0; 
+        r0 := spw
+             {{{ d_na := 1;
+                 cas_sc_sc(x, 0, 1)      
+             ||| repeat x_rlx end;
+                 fence sc;
+                 d_na
+             }}};
+        ret r0_2 })
 
