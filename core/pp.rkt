@@ -240,34 +240,6 @@
      (map (λ (x) (term (ppι-var ,x)))
           (term ifContext)))])
 
-(define-metafunction coreLang
-  ; ppPentryLbl : pentryLbl -> Doc
-  [(ppPentryLbl None) "None"]
-  [(ppPentryLbl (read τ)) ,(beside*/space "read" (term (ppExpr τ)))]
-  [(ppPentryLbl (read vName τ ifContext))
-   ,(beside*/space "read"
-                   (term (ppι-var vName)) (term (ppExpr τ))
-                   (term (ppIfContext ifContext)))]
-  [(ppPentryLbl (postpone ifContext))
-   ,(beside*/space "postpone"
-                   (term (ppIfContext ifContext)))]
-  [(ppPentryLbl (resolve vName ifContext))
-   ,(beside*/space "resolve"
-                   (term (ppι-var vName))
-                   (term (ppIfContext ifContext)))])
-  
-
-(define-metafunction coreLang
-  ; ppPathsτ : pathsτ -> Doc
-  [(ppPathsτ pathsτ) ,(above**
-             (map (λ (h)
-                    (match h
-                      [(list path pentry)
-                       (beside*/space
-                        (term (ppPath      ,path))
-                        (term (ppPentryLbl ,pentry)))]))
-                  (term pathsτ)))])
-
 ; -----
 (define-metafunction coreLang
   ; ppStateη : auxξ -> Doc
@@ -306,12 +278,6 @@
   [(ppStateσ-treeWrite auxξ) ,(empty-doc)])
 
 (define-metafunction coreLang
-  ; ppStatePathsτ : auxξ -> Doc
-  [(ppStatePathsτ (any_0 ... (Paths pathsτ) any_1 ...))
-   ,(above* "--- Paths" (term (ppPathsτ pathsτ)))]
-  [(ppStatePathsτ auxξ) ,(empty-doc)])
-
-(define-metafunction coreLang
   ; ppStateDealloc : auxξ -> Doc
   [(ppStateDealloc (any_0 ... (Deallocated listι) any_1 ...))
    ,(above* "--- Deallocated" (term (ppListι listι)))]
@@ -334,7 +300,6 @@
             (term (ppStateσ auxξ))
             (term (ppStateφ auxξ))
             (term (ppStateγ auxξ))
-            (term (ppStatePathsτ  auxξ))
             (term (ppStateDealloc auxξ)))])
 
 (define-metafunction coreLang

@@ -119,18 +119,7 @@
 
   [ifContext (vName ...)]
 
-  ;; A next postponed entry path/identifier
-  [pentryLbl None                   ;; For non speculative/postponed actions, except for reads
-             (read τ)               ;; For non postponed reads
-             
-             (read vName τ ifContext)    ;;  For speculative/postponed actions
-             (postpone ifContext)
-             (resolve vName ifContext)]
-  [pathτ  (path pentryLbl)]
-  
-  [pathsτ (pathτ ...)] ;; Maybe vName --- a name of thunk to resolve.
   [paths  (path  ...)]
-  
   [listι  (ι ...)]
 
   [Maybe (Just any)
