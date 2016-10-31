@@ -125,7 +125,7 @@
   [Maybe (Just any)
          None]
 
-  ;; For postponed operations.
+  ;; Defintions related to postponed operations:
   [postponedEntry (read   vName ι-var RM σ-dd) ;; postponed read
                   (let-in vName μ)             ;; postponed let expression
                   (write  vName ι-var WM μ)    ;; postponed write
@@ -134,14 +134,13 @@
                   ;; vName --- an unique identifier;
                   ;; Expr  --- an `if' condition;
                   ;; α's   --- postponed operations of `then' and `else' branches;
-                  (if     vName Expr α α)
-                  ]
+                  (if     vName Expr α α)]
   [α-tree α
           (par α-tree α-tree)]
   [α (postponedEntry ...)]
   [γ ((ι τ vName) ...)]
 
-  ;; Speculative `if' context.
+  ;; Speculative `if' context
   [Eif Eif1
        (if vName Eif AST)
        (if vName AST Eif)]
@@ -162,6 +161,8 @@
   [observedWrites observedWriteList
                   (par observedWrites observedWrites)]
 
+
+  ;; Graph related defintions:
   [Relation rf
             sb
             sw

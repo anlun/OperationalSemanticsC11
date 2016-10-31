@@ -44,7 +44,7 @@
         "fence-acq"
 
         (where path     (pathE E))
-        (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (term (is-α-empty path auxξ)))
         (where auxξ_new (synchronizeCurAcqFronts path auxξ)))
    
    (--> ((in-hole E (fence rel)) auxξ)
@@ -52,7 +52,7 @@
         "fence-rel"
 
         (where path     (pathE E))
-        (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (term (is-α-empty path auxξ)))
         (where auxξ_new (synchronizeCurReleaseFronts path auxξ)))
 
    (-->  ((in-hole E (write rlx ι μ-value)) auxξ)
@@ -76,7 +76,7 @@
         (where auxξ_new   auxξ_upd_γ)
 
         (side-condition (term (are∀PostReadsRlx  path auxξ)))
-        (side-condition (term (ιNotInReadQueue ι path auxξ))))
+        (side-condition (term (ι-not-in-α-tree ι path auxξ))))
 )))
 
 (define-syntax-rule (define-rlxCasRules lang)
@@ -102,7 +102,7 @@
         ;(side-condition (term (correctτ τ ι σ_read))) ; <- Previous condition implies it.
         (side-condition (not (equal? (term μ-value)
                                      (term μ-value_expected))))
-        (side-condition (term (isReadQueueEqualTo () path auxξ)))
+        (side-condition (term (is-α-empty path auxξ)))
         ;; (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ acq auxξ))))
         (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
@@ -137,7 +137,7 @@
 
         (side-condition
             (term (succCAScondition ι η μ-value_expected rlx FM)))
-        (side-condition (term (ιNotInReadQueue ι path auxξ)))
+        (side-condition (term (ι-not-in-α-tree ι path auxξ)))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
         (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))

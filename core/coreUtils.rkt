@@ -370,11 +370,15 @@
   [(addWriteNode Action path auxξ) auxξ])
 
 (define-metafunction coreLang
-  isReadQueueEqualTo : α-tree path auxξ -> boolean
-  [(isReadQueueEqualTo α-tree path auxξ) ,(equal? (term α-tree) (term α-tree_path))
-                                           (where (any_0 ... (P α-tree_all) any_1 ...) auxξ)
-                                           (where α-tree_path (getByPath path α-tree_all))]
-  [(isReadQueueEqualTo α-tree path auxξ) #t])
+  is-α-== : α-tree path auxξ -> boolean
+  [(is-α-== α-tree path auxξ) ,(equal? (term α-tree) (term α-tree_path))
+                              (where (any_0 ... (P α-tree_all) any_1 ...) auxξ)
+                              (where α-tree_path (getByPath path α-tree_all))]
+  [(is-α-== α-tree path auxξ) #t])
+
+(define-metafunction coreLang
+  is-α-empty : path auxξ -> boolean
+  [(is-α-empty path auxξ) (is-α-== () path auxξ)])
 
 (define-metafunction coreLang
   isPostRlx : postponedEntry -> boolean
@@ -406,23 +410,21 @@
   [(ιNotInPostponedEntry ι (write vName_0 vName_1 WM μ   )) #f]
 
   [(ιNotInPostponedEntry ι (if vName μ α_0 α_1))
-   ,(and (term (ιNotInα ι α_0))
-         (term (ιNotInα ι α_1)))]
+   ,(and (term (ι-not-in-α ι α_0))
+         (term (ι-not-in-α ι α_1)))]
 
   [(ιNotInPostponedEntry ι postponedEntry)                  #t])
 
 (define-metafunction coreLang
-  ιNotInα : ι α -> boolean
-  [(ιNotInα ι α) ,(andmap (λ (x) (term (ιNotInPostponedEntry ι ,x))) (term α))])
+  ι-not-in-α : ι α -> boolean
+  [(ι-not-in-α ι α) ,(andmap (λ (x) (term (ιNotInPostponedEntry ι ,x))) (term α))])
    
-;; TODO: rename appropriately
 (define-metafunction coreLang
-  ιNotInReadQueue : ι path auxξ -> boolean
-  [(ιNotInReadQueue ι path (any_0 ... (P α-tree) any_1 ...))
-                                 (ιNotInα ι α)
+  ι-not-in-α-tree : ι path auxξ -> boolean
+  [(ι-not-in-α-tree ι path (any_0 ... (P α-tree) any_1 ...))
+                                 (ι-not-in-α ι α)
                                  (where α (getByPath path α-tree))]
-  [(ιNotInReadQueue ι path auxξ) #t])
-
+  [(ι-not-in-α-tree ι path auxξ) #t])
 
 (define-metafunction coreLang
   αToγRecords : ι τ α -> γ

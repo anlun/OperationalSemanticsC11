@@ -14,17 +14,17 @@
 ; State:
 ; AST                   -- current state of program tree;
 ; η                     -- current heap history;
-; (Read  σ-tree)             -- per-thread read    fronts;
-; (AcqFront σ-tree)          -- per-thread acquire fronts;
+; (Read     σ-tree)     -- per-thread read    fronts;
+; (AcqFront σ-tree)     -- per-thread acquire fronts;
 ; (RelFront χ-tree)     -- per-thread release fronts;
-; (NA    σ)             -- location -> last NA write on it;
-; (Write σ-tree)             -- current threads write fronts;
-; (SC σ)                -- front after last SC operation.
-; (P    α-tree)              -- component with thread-specific information about postponed reads;
-; (R    γ)              -- component with restiction on a resolve order for postponed reads;
-; (RW   observedWrites) -- (path, ι) -> observed uncommitted to history writes.
+; (NA       σ     )     -- location -> last NA write on it;
+; (Write    σ-tree)     -- current threads write fronts;
+; (SC       σ     )     -- front after last SC operation.
+; (P        α-tree)     -- component with thread-specific information about postponed reads;
+; (R        γ     )     -- component with restiction on a resolve order for postponed reads;
+; (RW observedWrites)   -- (path, ι) -> observed uncommitted to history writes.
 
-; (Graph G)             -- current graph of memory actions;
+; (Graph  G )           -- current graph of memory actions;
 ; (GFront GF)           -- thread positions in the graph.
 
 (define-extended-language etaPsiLang coreLang
