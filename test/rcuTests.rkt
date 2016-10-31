@@ -169,7 +169,7 @@
 
 (define (rcuTest)
   (test-->> randomStep term_RCU
-            (term (ret (0 (0 0))))))
+            '(0 (0 0))))
 
 ;; Usage of consume reads leads to stuck states, because the data-dependency relation
 ;; doesn't go beyond write-read combination of cur(1|2) in repeat loops.
@@ -341,7 +341,7 @@
 
 (define (rcuTestRlx)
   (test-->> randomStep term_RCU_rlx
-            (term (ret (0 (0 0))))))
+            '(0 (0 0))))
 
 (define term_RCU_less_rlx
   @prog{cw_na    := 0;
@@ -507,4 +507,4 @@
 
 (define (rcuTestLessRlx)
   (test-->> randomStep term_RCU_less_rlx
-            (term (ret (0 (0 0))))))
+            '(0 (0 0))))

@@ -20,34 +20,35 @@
    etaPsi2SCLang #:domain ξ))
 (define coreTest (define-coreTest coreStep defaultState))
 
-(define rlxRules    (define-rlxRules          etaPsi2SCLang))
-(define relAcqRules (define-relAcqRules       etaPsi2SCLang))
-(define naRules     (define-naRules           etaPsi2SCLang defaultState))
-(define scRules     (define-scRules           etaPsi2SCLang))
+(define rlxRules    (define-rlxRules    etaPsi2SCLang))
+(define relAcqRules (define-relAcqRules etaPsi2SCLang))
+(define naRules     (define-naRules     etaPsi2SCLang defaultState))
+(define scRules     (define-scRules     etaPsi2SCLang))
 
 (define step (union-reduction-relations
               coreStep rlxRules relAcqRules naRules scRules))
 
 (test-->> step testSB+rel+acq+fences+sc
-         (term (ret (0 1)))
-         (term (ret (1 0)))
-         (term (ret (1 1))))
+         '(0 1)
+         '(1 0)
+         '(1 1))
 
 (test-->> step testSB+rlx+fences+sc
-         (term (ret (0 1)))
-         (term (ret (1 0)))
-         (term (ret (1 1))))
-
-(test-->> step testSB+cas+rel+acq+fences+sc
-         (term (ret (0 1)))
-         (term (ret (1 0)))
-         (term (ret (1 1))))
-
-(test-->> step testMP+cas+rlx+fences+acq+rel
-         (term (ret 1)))
+         '(0 1)
+         '(1 0)
+         '(1 1))
 
 (test-->> step testMP+cas+relAcq+fences+acq
-         (term (ret 1))) 
+         1) 
 
 (test-->> step testMP+cas+sc+fences+sc
-         (term (ret 1))) 
+         1) 
+
+(test-->> step testSB+cas+rel+acq+fences+sc
+         '(0 1)
+         '(1 0)
+         '(1 1))
+
+(test-->> step testMP+cas+rlx+fences+acq+rel
+         1)
+

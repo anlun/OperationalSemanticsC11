@@ -177,7 +177,7 @@
          ((in-hole E (ret (    μ-value_0       μ-value_1))) (joinST path auxξ)))
         "join"
         (where path (pathE E))
-        (side-condition (term (isReadQueueEqualTo (par () ()) path auxξ))))
+        (side-condition (term (is-α-== (par () ()) path auxξ))))
 
    (-->  ((in-hole E (spw AST_0 AST_1)) auxξ)
         (normalize 
@@ -185,11 +185,11 @@
         "spw"
         (where path (pathE E))
         (where auxξ_new (spwST path auxξ))
-        (side-condition (term (isReadQueueEqualTo () path auxξ))))
+        (side-condition (term (is-α-empty path auxξ))))
      
    ; For test results brevity only.
    (--> ((ret μ-value) auxξ)
-         (ret μ-value)
+              μ-value
         "auxξ-erasure")
 
    (--> (stuck auxξ)
@@ -235,8 +235,8 @@ ret 5 < 5
   (begin
 (test-->> step
           testTerm-112
-          (term (ret (3 12))))
+          '(3 12))
 (test-->> step
           testTerm-2
-          (term (ret 0)))
+          0)
 ))

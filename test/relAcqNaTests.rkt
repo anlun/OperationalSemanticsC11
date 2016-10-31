@@ -25,7 +25,7 @@ Example from: VafeiadisNarayan:OOPSLA13 "Relaxed Separation Logic: A Program Log
 It shouldn't get `stuck`.
 |#
 (test-->> step testMP+rel+acq
-         '(ret 8))
+         8)
 
 ;(traces step (term (,testMP+rel+acq etaPsiDefaultState)))
 
@@ -59,8 +59,8 @@ if x_acq == y_acq then || if x_acq != y_acq then
 
 |#
 (test-->> step testTerm5
-         '(ret (0 239))
-         '(ret (239 0)))
+         '(0 239)
+         '(239 0))
 
 #|
       x_rel = 0
@@ -98,8 +98,8 @@ Possible outcomes for r2 are 1 and 5.
         ret r0_2 })
 
 (test-->> step term_MP_consume
-          '(ret 1)
-          '(ret 5))
+          1
+          5)
 
 #|
      data_na = 0
@@ -129,7 +129,7 @@ memory loads in the right subthread.
         ret r0_2 })
 
 (test-->> step term_MP_consume_stuck
-          '(ret 1)
+          1
           'stuck)
 
 #|
@@ -147,5 +147,5 @@ p_rel    = &dataP || if (r1 != 0) {
 Possible outcomes for r2 are 1 and 5.
 |#
 (test-->> step term_MP_pointer_consume
-          '(ret 1)
-          '(ret 5))
+          1
+          5)

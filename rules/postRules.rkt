@@ -145,15 +145,15 @@
   [(αToEdges ι α) (listToEdges (αToWriteVNames ι α))])
 
 (define-metafunction coreLang
-  φToEdges : ι φ -> ((vName vName) ...)
-  [(φToEdges ι α) (αToEdges ι α)]
-  [(φToEdges ι (par φ_0 φ_1)) (appendT (φToEdges ι φ_0)
-                                       (φToEdges ι φ_1))])
+  α-treeToEdges : ι α-tree -> ((vName vName) ...)
+  [(α-treeToEdges ι α) (αToEdges ι α)]
+  [(α-treeToEdges ι (par α-tree_0 α-tree_1)) (appendT (α-treeToEdges ι α-tree_0)
+                                       (α-treeToEdges ι α-tree_1))])
 
 (define-metafunction coreLang
-  writesMOedges : ι φ observedWrites -> ((vName vName) ...)
-  [(writesMOedges ι φ observedWrites)
-   (appendT (φToEdges ι φ)
+  writesMOedges : ι α-tree observedWrites -> ((vName vName) ...)
+  [(writesMOedges ι α-tree observedWrites)
+   (appendT (α-treeToEdges ι α-tree)
             (observedWritesToEdges ι observedWrites))])
 
 (define (hasLoop edges)
@@ -303,14 +303,14 @@
         "read-postponed"
         (fresh a)
         (where path     (pathE E))
-        (where φ        (getφ auxξ))
-        (where α        (getByPath path φ))
+        (where α-tree        (getα-tree auxξ))
+        (where α        (getByPath path α-tree))
         
         (side-condition (term (isCorrectEif Eif α)))
 
         (where α_new    (appendToα Eif (read a ι-var RM ()) α))
-        (where φ_new    (updateOnPath path α_new φ))
-        (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
+        (where α-tree_new    (updateOnPath path α_new α-tree))
+        (where auxξ_new (updateState (P α-tree) (P α-tree_new) auxξ))
 
         (side-condition (not (equal? (term sc) (term RM)))))
 
@@ -320,14 +320,14 @@
         "readCon-postponed"
         (fresh a)
         (where path     (pathE E))
-        (where φ        (getφ auxξ))
-        (where α        (getByPath path φ))
+        (where α-tree        (getα-tree auxξ))
+        (where α        (getByPath path α-tree))
 
         (side-condition (term (isCorrectEif Eif α)))
 
         (where α_new    (appendToα Eif (read a ι-var RM σ-dd) α))
-        (where φ_new    (updateOnPath path α_new φ))
-        (where auxξ_new (updateState (P φ) (P φ_new) auxξ))
+        (where α-tree_new    (updateOnPath path α_new α-tree))
+        (where auxξ_new (updateState (P α-tree) (P α-tree_new) auxξ))
 
         (side-condition (not (equal? (term sc) (term RM)))))
    
@@ -336,11 +336,11 @@
          ((subst vName μ-value
                  (propagateDD_vName vName path σ-dd_new AST)) auxξ_new))
         "read-resolve"
-        (where φ      (getφ auxξ))
+        (where α-tree      (getα-tree auxξ))
         (where η      (getη auxξ))
         (where σ-tree_read (getReadσ-tree auxξ))
         
-        (where (in-hole Ep α_thread) (getφ auxξ))
+        (where (in-hole Ep α_thread) (getα-tree auxξ))
         (where (in-hole Eifα α) α_thread)
         (side-condition (not (empty? (term α))))
 
@@ -354,12 +354,12 @@
         (where σ-dd_new   (frontMerge σ-dd (getDataDependenciesMod RM ι σ η)))
 
         (where α_new      (substμα vName μ-value σ-dd_new (elToList El_0)))
-        (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
-        (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ_upd_σ-tree))
+        (where α-tree_new      (updateOnPath path (in-hole Eifα α_new) α-tree))
+        (where auxξ_upd_α-tree (updateState (P α-tree) (P α-tree_new) auxξ_upd_σ-tree))
 
         (where γ          (getγ auxξ))
         (where γ_new      (removeγRestrictionsByVName vName γ))
-        (where auxξ_new   (updateState (R γ) (R γ_new) auxξ_upd_φ))
+        (where auxξ_new   (updateState (R γ) (R γ_new) auxξ_upd_α-tree))
 
         (where σ_read     (getByPath path σ-tree_read))
         (where σ_to-check (frontMerge σ_read σ-dd))
@@ -376,13 +376,13 @@
          ((subst vName μ-value
                  (propagateDD_vName vName path σ-dd_new AST)) auxξ_new))
         "read-resolve-speculative"
-        (where φ      (getφ auxξ))
+        (where α-tree      (getα-tree auxξ))
         
-        (where (in-hole Ep α_thread) φ)
+        (where (in-hole Ep α_thread) α-tree)
         (where (in-hole Eifα α) α_thread)
         (where (in-hole El_reader (read vName ι rlx σ-dd)) α)
         
-        (where (in-hole Ep_writer α_write) φ)
+        (where (in-hole Ep_writer α_write) α-tree)
         (where (in-hole El_writer (write vName_1 ι rlx μ-value)) α_write)
         ;; (side-condition (term (canPostponedWriteBePerformed (vName_1 ι) α_write)))
 
@@ -399,17 +399,17 @@
         (where σ-dd_new  σ-dd) 
         (where α_new      (substμα vName μ-value σ-dd_new
                                    (elToList El_reader)))
-        (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
-        (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ))
+        (where α-tree_new      (updateOnPath path (in-hole Eifα α_new) α-tree))
+        (where auxξ_upd_α-tree (updateState (P α-tree) (P α-tree_new) auxξ))
 
         (where γ          (getγ auxξ))
         (where γ_new      (removeγRestrictionsByVName vName γ))
-        (where auxξ_upd_γ (updateState (R γ) (R γ_new) auxξ_upd_φ))
+        (where auxξ_upd_γ (updateState (R γ) (R γ_new) auxξ_upd_α-tree))
 
         (where observedWrites       (getObservedWrites auxξ))
         (where observedWrites_check (snocOnPath path (vName_1 ι) observedWrites))
 
-        (side-condition (not (hasLoop (term (writesMOedges ι φ observedWrites_check)))))
+        (side-condition (not (hasLoop (term (writesMOedges ι α-tree observedWrites_check)))))
 
         (where observedWrites_new (snocOnPathIfNew path (vName_1 ι) observedWrites))
         (where auxξ_new           (updateState (RW observedWrites)
@@ -421,9 +421,9 @@
          ((subst vName μ-value
                  (propagateDD_vName vName path σ-dd_new AST)) auxξ_new))
         "read-propagate"
-        (where φ      (getφ auxξ))
+        (where α-tree      (getα-tree auxξ))
         
-        (where (in-hole Ep α_thread) φ)
+        (where (in-hole Ep α_thread) α-tree)
         (where (in-hole Eifα α) α_thread)
         (where (in-hole El_reader (read vName ι rlx σ-dd)) α)
        
@@ -441,18 +441,18 @@
         (where σ-dd_new  σ-dd) 
         (where α_new      (substμα vName μ-value σ-dd_new
                                    (elToList El_reader)))
-        (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
-        (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ))
+        (where α-tree_new      (updateOnPath path (in-hole Eifα α_new) α-tree))
+        (where auxξ_upd_α-tree (updateState (P α-tree) (P α-tree_new) auxξ))
 
         (where γ          (getγ auxξ))
         (where γ_new      (removeγRestrictionsByVName vName γ))
-        (where auxξ_upd_γ (updateState (R γ) (R γ_new) auxξ_upd_φ))
+        (where auxξ_upd_γ (updateState (R γ) (R γ_new) auxξ_upd_α-tree))
         (where auxξ_new   auxξ_upd_γ)
 
         ;; (where observedWrites       (getObservedWrites auxξ))
         ;; (where observedWrites_check (snocOnPath path (vName_1 ι) observedWrites))
 
-        ;; (side-condition (not (hasLoop (term (writesMOedges ι φ observedWrites_check)))))
+        ;; (side-condition (not (hasLoop (term (writesMOedges ι α-tree observedWrites_check)))))
 
         ;; (where observedWrites_new (snocOnPathIfNew path (vName_1 ι) observedWrites))
         ;; (where auxξ_new           (updateState (RW observedWrites)
@@ -464,10 +464,10 @@
    (--> (AST auxξ)
         (stuck defaultState)
         "read-resolve-stuck"
-        (where φ      (getφ auxξ))
+        (where α-tree      (getα-tree auxξ))
         (where η      (getη auxξ))
         (where σ-tree_read (getReadσ-tree auxξ))
-        (where (in-hole Ep α) (getφ auxξ))
+        (where (in-hole Ep α) (getα-tree auxξ))
         (where (in-hole El (read vName ι RM σ-dd)) α)
         (side-condition (not (term (isPEntryInConflictWithα (read vName ι) (elFirstPart El)))))
         
@@ -490,21 +490,21 @@
 
         (fresh a)
         (where path     (pathE E))
-        (where φ        (getφ auxξ))
-        (where α        (getByPath path φ))
+        (where α-tree        (getα-tree auxξ))
+        (where α        (getByPath path α-tree))
 
         (side-condition (term (isCorrectEif Eif α)))
 
         (where α_new    (appendToα Eif (let-in a μ_simplified) α))
-        (where φ_new    (updateOnPath path α_new φ))
-        (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
+        (where α-tree_new    (updateOnPath path α_new α-tree))
+        (where auxξ_new (updateState (P α-tree) (P α-tree_new) auxξ)))
 
    (-->  (AST  auxξ)
         (normalize        
          ((subst vName μ-value AST) auxξ_new))
         ">>=-subst-resolve"
 
-        (where (in-hole Ep α_thread) (getφ auxξ))
+        (where (in-hole Ep α_thread) (getα-tree auxξ))
         (where (in-hole Eifα α) α_thread)
         (side-condition (not (empty? (term α))))
 
@@ -512,9 +512,9 @@
         (where path (pathEp Ep))
 
         (where α_new    (substμα vName μ-value () (elToList El)))
-        (where φ        (getφ auxξ))
-        (where φ_new    (updateOnPath path (in-hole Eifα α_new) φ))
-        (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
+        (where α-tree        (getα-tree auxξ))
+        (where α-tree_new    (updateOnPath path (in-hole Eifα α_new) α-tree))
+        (where auxξ_new (updateState (P α-tree) (P α-tree_new) auxξ)))
 
    (-->  ((in-hole E (in-hole Eif (write WM ι-var μ))) auxξ)
         (normalize
@@ -528,23 +528,23 @@
 
         (fresh a)
         (where path     (pathE E))
-        (where φ        (getφ auxξ))
-        (where α        (getByPath path φ))
+        (where α-tree        (getα-tree auxξ))
+        (where α        (getByPath path α-tree))
 
         (side-condition (term (isCorrectEif Eif α)))
         (side-condition (or (equal? (term WM) 'rlx)
                             (equal? (term WM) 'rel)))
 
         (where α_new    (appendToα Eif (write a ι-var WM μ_simplified) α))
-        (where φ_new    (updateOnPath path α_new φ))
-        (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
+        (where α-tree_new    (updateOnPath path α_new α-tree))
+        (where auxξ_new (updateState (P α-tree) (P α-tree_new) auxξ)))
 
    (-->  (AST  auxξ)
         (normalize 
          ((subst vName μ-value AST) auxξ_new))
         "write-resolve"
 
-        (where (in-hole Ep α_thread) (getφ auxξ))
+        (where (in-hole Ep α_thread) (getα-tree auxξ))
         (where (in-hole Eifα α) α_thread)
         (side-condition (not (empty? (term α))))
 
@@ -560,16 +560,16 @@
         (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
         
         (where α_new      (substμα vName μ-value () (elToList El)))
-        (where φ          (getφ auxξ))
-        (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
-        (where auxξ_upd_φ (updateState (P φ) (P φ_new) auxξ))
+        (where α-tree          (getα-tree auxξ))
+        (where α-tree_new      (updateOnPath path (in-hole Eifα α_new) α-tree))
+        (where auxξ_upd_α-tree (updateState (P α-tree) (P α-tree_new) auxξ))
 
         (where η       (getη auxξ))
         (where σ-tree_read  (getReadσ-tree auxξ))
 
         (where τ               (getNextTimestamp ι η))
         (where σ-tree_read_new      (updateByFront path ((ι τ)) σ-tree_read))
-        (where auxξ_read_front (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ_upd_φ))
+        (where auxξ_read_front (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ_upd_α-tree))
         (where auxξ_upd_front  ,(if (equal? (term WM) 'rel)
                                     (term (synchronizeWriteFront path auxξ_read_front))
                                     (term auxξ_read_front)))
@@ -598,14 +598,14 @@
         (normalize
          ((in-hole E (in-hole Eif (chooseBranch number AST_0 AST_1))) auxξ_new))
         "if-speculation-branch-choice"
-        (where φ (getφ auxξ))
-        (where (in-hole Ep α_thread) φ)
+        (where α-tree (getα-tree auxξ))
+        (where (in-hole Ep α_thread) α-tree)
         (where (in-hole Eifα (in-hole El (if vName number α_0 α_1))) α_thread)
 
         (where α_new (insertListInEl El (chooseBranch number α_0 α_1)))
         (where path (pathE E))
-        (where φ_new (updateOnPath path (in-hole Eifα α_new) φ))
-        (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
+        (where α-tree_new (updateOnPath path (in-hole Eifα α_new) α-tree))
+        (where auxξ_new (updateState (P α-tree) (P α-tree_new) auxξ)))
   
    (-->  ((in-hole E (in-hole Eif (if Expr AST_0 AST_1))) auxξ)
         (normalize
@@ -616,21 +616,21 @@
         (side-condition (not (redex-match coreLang number (term Expr_simplified))))
 
         (where path     (pathE E))
-        (where φ        (getφ auxξ))
-        (where α        (getByPath path φ))
+        (where α-tree        (getα-tree auxξ))
+        (where α        (getByPath path α-tree))
         (side-condition (not (term (isIfInα Expr_simplified α))))
 
         (fresh a)
         (where α_new    (appendToα Eif (if a Expr_simplified () ()) α))
-        (where φ_new    (updateOnPath path α_new φ))
-        (where auxξ_new (updateState (P φ) (P φ_new) auxξ)))
+        (where α-tree_new    (updateOnPath path α_new α-tree))
+        (where auxξ_new (updateState (P α-tree) (P α-tree_new) auxξ)))
    
    (-->  (AST auxξ)
         (normalize
          ((subst vName_2 a (subst vName_1 a AST)) auxξ_new))
         "if-speculation-write-promoting"
 
-        (where (in-hole Ep α_thread) (getφ auxξ))
+        (where (in-hole Ep α_thread) (getα-tree auxξ))
         (where (in-hole Eifα α) α_thread)
         
         (where (in-hole El_0 (if vName_0 Expr α_1 α_2)) α)
@@ -652,9 +652,9 @@
                        (if vName_0 Expr α_1_new α_2_new))))
 
         (where path     (pathEp Ep))
-        (where φ          (getφ auxξ))
-        (where φ_new      (updateOnPath path (in-hole Eifα α_new) φ))
-        (where auxξ_new   (updateState (P φ) (P φ_new) auxξ)))
+        (where α-tree          (getα-tree auxξ))
+        (where α-tree_new      (updateOnPath path (in-hole Eifα α_new) α-tree))
+        (where auxξ_new   (updateState (P α-tree) (P α-tree_new) auxξ)))
 
    ;; Leads to very poor performance, but solves an issue with tests from etaPsi2SCpostLangTests.rkt
    ;; (-->  ((in-hole E (par (ret μ_0) (ret μ_1)))              auxξ)
@@ -663,11 +663,11 @@
    ;;      "join-postponed-operations-interleaving"
    ;;      (where path (pathE E))
 
-   ;;      (where φ             (getφ auxξ))
-   ;;      (where (par α_0 α_1) (getByPath path φ))
+   ;;      (where α-tree             (getα-tree auxξ))
+   ;;      (where (par α_0 α_1) (getByPath path α-tree))
    ;;      (where (in-hole El α_interleaved) ,(interleavings (term α_0) (term α_1)))
-   ;;      (where φ_new         (updateOnPath path α_interleaved φ))
-   ;;      (where auxξ_upd_φ    (updateState (P φ) (P φ_new) auxξ))
+   ;;      (where α-tree_new         (updateOnPath path α_interleaved α-tree))
+   ;;      (where auxξ_upd_α-tree    (updateState (P α-tree) (P α-tree_new) auxξ))
         
    ;;      (where observedWrites (getObservedWrites auxξ))
    ;;      (where (par observedWrites_0 observedWrites_1) (getByPath path observedWrites_old))
@@ -676,5 +676,5 @@
 
    ;;      (where auxξ_new (updateState (RW observedWrites)
    ;;                                   (RW observedWrites_new)
-   ;;                                   auxξ_upd_φ)))
+   ;;                                   auxξ_upd_α-tree)))
 )))

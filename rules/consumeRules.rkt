@@ -137,5 +137,5 @@
         (where σ_sc     (getσSC auxξ))
         (side-condition (term (correctτ τ ι 
                                         ((frontMerge σ_read σ_sc) σ-dd))))
-        (side-condition (term (isReadQueueEqualTo () path auxξ))))
+        (side-condition (term (is-α-empty path auxξ))))
 )))

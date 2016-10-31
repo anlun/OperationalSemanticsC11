@@ -99,7 +99,7 @@ record (so as about a synchronization front stored in it).
 
         (where σ_read   (getByPath path σ-tree))
         (side-condition (term (seeLast ι η σ_read)))
-        (side-condition (term (ιNotInReadQueue ι path auxξ)))))))
+        (side-condition (term (ι-not-in-α-tree ι path auxξ)))))))
 
 (define-syntax-rule (define-naRules lang defaultState)
   (begin

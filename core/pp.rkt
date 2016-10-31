@@ -205,11 +205,11 @@
            (beside right " }}}"))))
 
 (define-metafunction coreLang
-  ; ppφ : φ -> Doc
-  [(ppφ α) (ppα α)]
-  [(ppφ (par φ_0 φ_1))
-   ,(pp-par "par" (term (ppφ φ_0))
-                  (term (ppφ φ_1)))])
+  ; ppα-tree : α-tree -> Doc
+  [(ppα-tree α) (ppα α)]
+  [(ppα-tree (par α-tree_0 α-tree_1))
+   ,(pp-par "par" (term (ppα-tree α-tree_0))
+                  (term (ppα-tree α-tree_1)))])
 
 (define-metafunction coreLang
   ; ppγ : γ -> Doc
@@ -240,34 +240,6 @@
      (map (λ (x) (term (ppι-var ,x)))
           (term ifContext)))])
 
-(define-metafunction coreLang
-  ; ppPentryLbl : pentryLbl -> Doc
-  [(ppPentryLbl None) "None"]
-  [(ppPentryLbl (read τ)) ,(beside*/space "read" (term (ppExpr τ)))]
-  [(ppPentryLbl (read vName τ ifContext))
-   ,(beside*/space "read"
-                   (term (ppι-var vName)) (term (ppExpr τ))
-                   (term (ppIfContext ifContext)))]
-  [(ppPentryLbl (postpone ifContext))
-   ,(beside*/space "postpone"
-                   (term (ppIfContext ifContext)))]
-  [(ppPentryLbl (resolve vName ifContext))
-   ,(beside*/space "resolve"
-                   (term (ppι-var vName))
-                   (term (ppIfContext ifContext)))])
-  
-
-(define-metafunction coreLang
-  ; ppPathsτ : pathsτ -> Doc
-  [(ppPathsτ pathsτ) ,(above**
-             (map (λ (h)
-                    (match h
-                      [(list path pentry)
-                       (beside*/space
-                        (term (ppPath      ,path))
-                        (term (ppPentryLbl ,pentry)))]))
-                  (term pathsτ)))])
-
 ; -----
 (define-metafunction coreLang
   ; ppStateη : auxξ -> Doc
@@ -288,10 +260,10 @@
   [(ppStateσ auxξ) ,(empty-doc)])
 
 (define-metafunction coreLang
-  ; ppStateφ : auxξ -> Doc
-  [(ppStateφ (any_0 ... (P φ) any_1 ...))
-   ,(above* "--- P φ" (term (ppφ φ)))]
-  [(ppStateφ auxξ) ,(empty-doc)])
+  ; ppStateα-tree : auxξ -> Doc
+  [(ppStateα-tree (any_0 ... (P α-tree) any_1 ...))
+   ,(above* "--- P α-tree" (term (ppα-tree α-tree)))]
+  [(ppStateα-tree auxξ) ,(empty-doc)])
 
 (define-metafunction coreLang
   ; ppStateγ : auxξ -> Doc
@@ -304,12 +276,6 @@
   [(ppStateσ-treeWrite (any_0 ... (Write σ-tree) any_1 ...))
    ,(above* "--- Write σ-tree" (term (ppσ-tree σ-tree)))]
   [(ppStateσ-treeWrite auxξ) ,(empty-doc)])
-
-(define-metafunction coreLang
-  ; ppStatePathsτ : auxξ -> Doc
-  [(ppStatePathsτ (any_0 ... (Paths pathsτ) any_1 ...))
-   ,(above* "--- Paths" (term (ppPathsτ pathsτ)))]
-  [(ppStatePathsτ auxξ) ,(empty-doc)])
 
 (define-metafunction coreLang
   ; ppStateDealloc : auxξ -> Doc
@@ -332,14 +298,14 @@
             (term (ppStateσ-tree auxξ))
             (term (ppStateσ-treeWrite auxξ))
             (term (ppStateσ auxξ))
-            (term (ppStateφ auxξ))
+            (term (ppStateα-tree auxξ))
             (term (ppStateγ auxξ))
-            (term (ppStatePathsτ  auxξ))
             (term (ppStateDealloc auxξ)))])
 
 (define-metafunction coreLang
   ;ppξ : ξ -> Doc
-  [(ppξ  AST     )  (pp AST)]
+  [(ppξ  μ       )  (ppμ μ)]
+  [(ppξ  AST     )  (pp  AST)]
   [(ppξ (AST auxξ))
      ,(above* (term (pp      AST )) ""
               (term (ppState auxξ)))])

@@ -35,7 +35,7 @@ Example from: VafeiadisNarayan:OOPSLA13 "Relaxed Separation Logic: A Program Log
 It shouldn't get `stuck`.
 |#
 (test-->> step testMP+sc
-         (term (ret 8)))
+         8)
 
 #|
   x_rel = 0; y_rel = 0
@@ -47,7 +47,7 @@ a_sc  = 0  || b_sc  = 0
 In Batty-al:POPL11 it's possible to get r1 = 0 /\ r2 = 0.
 |#
 (test-->>∃ step testTerm10
-           (term (ret (0 0))))
+           '(0 0))
 
 #|
   x_rel = 0; y_rel = 0
@@ -56,14 +56,14 @@ r1 = y_sc  || r2 = x_sc
        ret r1 r2
 |#
 (test-->>∃ step term_WscRsc_WscRsc
-           (term (ret (1 1))))
+           '(1 1))
 
 (define (runTestTerm12 curTerm)
   (test-->> step curTerm
-           (term (ret (0 0)))
-           (term (ret (0 1)))
-           (term (ret (1 0)))
-           (term (ret (1 1)))))
+           '(0 0)
+           '(0 1)
+           '(1 0)
+           '(1 1)))
 (runTestTerm12 term_WrelRsc_WscRsc)
 (runTestTerm12 term_WscRacq_WscRsc)
 (runTestTerm12 term_WscRsc_WrelRsc)
@@ -77,7 +77,7 @@ r1 = y_mod1 || r2 = x_mod3
 |#
 (define (test_W1R_W2R curTerm)
   (test-->>∃ step curTerm
-           (term (ret (1 0)))))
+           '(1 0)))
 
 (test_W1R_W2R term_W1relRacq_W2relRacq)
 
@@ -106,7 +106,6 @@ r1 = y_acq    || r2 = x_acq
 r1 = 0, r2 = 0 - is not allowed
 |#
 (test-->> step testSB+rel+acq+fences+sc
-         (term (ret (0 1)))
-         (term (ret (1 0)))
-         (term (ret (1 1))))
-
+         '(0 1)
+         '(1 0)
+         '(1 1))

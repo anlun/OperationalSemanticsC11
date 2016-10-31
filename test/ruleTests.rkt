@@ -45,7 +45,7 @@ Can lead to R1 = R2 = 0.
 |#
 
 (test-->>∃ relAcqStep term_WrelRacq_WrelRacq
-          (term (ret (0 0))))
+          '(0 0))
 
 #|
 IRIW. Anti-TSO example. (Release+Acquire)
@@ -60,7 +60,7 @@ than x86-TSO [Sewell-al:CACM10].
 |#
 
 ;; (test-->>∃ relAcqStep testTerm67
-;;           (term (ret ((1 0) (0 1)))))
+;;           '((1 0) (0 1)))
 
 #| CoRR_rel+acq (Coherence of Read-Read)
                      x_rel = 0
@@ -70,12 +70,12 @@ x_rel = 1 || x_rel = 2 || a = x_acq || c = x_acq
 The execution a = d = 1 and b = c = 2 should be invalid.
 |#
 ;; (test-->>∃ relAcqStep test_CoRR_rel+acq
-;;           (term (ret ((0 0) (0 0))))
-;;           (term (ret ((0 0) (0 1))))
-;;           (term (ret ((0 0) (1 1))))
-;;           (term (ret ((0 1) (0 0))))
-;;           (term (ret ((0 1) (0 1))))
-;;           (term (ret ((0 1) (0 1)))))
+;;           '((0 0) (0 0))
+;;           '((0 0) (0 1))
+;;           '((0 0) (1 1))
+;;           '((0 1) (0 0))
+;;           '((0 1) (0 1))
+;;           '((0 1) (0 1)))
 
 
 ;;;;;;;;;;;;;;;;;;
@@ -93,7 +93,7 @@ R1 = y_rlx || R2 = x_rlx
 Can lead to R1 = R2 = 0.
 |#
 (test-->>∃ rlxStep term_WrlxRrlx_WrlxRrlx 
-          (term (ret (0 0))))
+          '(0 0))
 
 #|
                      x_rlx = 0
@@ -113,8 +113,8 @@ I don't know how to say 'this can't be reduced to that' in tests, so this test s
 
 ;; (test-->> rlxStep testTerm6 
 ;;          )
-;;          (term (ret ((1 2) (2 1))))
-;;          (term (ret ((2 1) (1 2))))
+;;          '((1 2) (2 1))
+;;          '((2 1) (1 2))
 
 #|
 IRIW. Anti-TSO example.
@@ -129,7 +129,7 @@ than x86-TSO [Sewell-al:CACM10].
 |#
 
 (test-->>∃ rlxStep testTerm65
-          (term (ret ((1 0) (0 1)))))
+          '((1 0) (0 1)))
 
 
 #|
@@ -143,7 +143,7 @@ y_rlx = 1  || b = x_rlx
 In TSO a = 1 and b = 0 is forbidden outcome. But not in our semantics.
 |#
 (test-->>∃ rlxStep testTerm7
-           (term (ret (1 0))))
+           '(1 0))
 
 
 ;;;;;;;;;;;;;;;;;;
@@ -155,7 +155,7 @@ In TSO a = 1 and b = 0 is forbidden outcome. But not in our semantics.
 (define postStep      (union-reduction-relations postponedReadCoreStep rlxWriteRules postRules))
 
 (test-->>∃ postStep term_WrlxRrlx_WrlxRrlx
-          (term (ret (0 0))))
+          '(0 0))
 
 #|
 R1 = x_rlx || R2 = y_rlx
@@ -164,5 +164,5 @@ y_rlx  = 1 || x_rlx  = 1
 With postponed reads it should be able to lead to R1 = R2 = 1.
 |#
 (test-->>∃ postStep term_RrlxWrlx_RrlxWrlx
-          (term (ret (1 1))))
+          '(1 1))
 

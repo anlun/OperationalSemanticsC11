@@ -119,24 +119,13 @@
 
   [ifContext (vName ...)]
 
-  ;; A next postponed entry path/identifier
-  [pentryLbl None                   ;; For non speculative/postponed actions, except for reads
-             (read τ)               ;; For non postponed reads
-             
-             (read vName τ ifContext)    ;;  For speculative/postponed actions
-             (postpone ifContext)
-             (resolve vName ifContext)]
-  [pathτ  (path pentryLbl)]
-  
-  [pathsτ (pathτ ...)] ;; Maybe vName --- a name of thunk to resolve.
   [paths  (path  ...)]
-  
   [listι  (ι ...)]
 
   [Maybe (Just any)
          None]
 
-  ;; For postponed operations.
+  ;; Defintions related to postponed operations:
   [postponedEntry (read   vName ι-var RM σ-dd) ;; postponed read
                   (let-in vName μ)             ;; postponed let expression
                   (write  vName ι-var WM μ)    ;; postponed write
@@ -145,14 +134,13 @@
                   ;; vName --- an unique identifier;
                   ;; Expr  --- an `if' condition;
                   ;; α's   --- postponed operations of `then' and `else' branches;
-                  (if     vName Expr α α)
-                  ]
-  [φ α
-     (par φ φ)]
+                  (if     vName Expr α α)]
+  [α-tree α
+          (par α-tree α-tree)]
   [α (postponedEntry ...)]
   [γ ((ι τ vName) ...)]
 
-  ;; Speculative `if' context.
+  ;; Speculative `if' context
   [Eif Eif1
        (if vName Eif AST)
        (if vName AST Eif)]
@@ -161,8 +149,8 @@
         (Eif1 >>= K)]
 
   [Ep hole
-      (par Ep φ)
-      (par φ Ep)]
+      (par Ep α-tree)
+      (par α-tree Ep)]
   [Eifα hole
         (postponedEntry ... (if vName Expr Eifα α) postponedEntry ...)
         (postponedEntry ... (if vName Expr α Eifα) postponedEntry ...)]
@@ -173,6 +161,8 @@
   [observedWrites observedWriteList
                   (par observedWrites observedWrites)]
 
+
+  ;; Graph related defintions:
   [Relation rf
             sb
             sw
@@ -512,6 +502,9 @@
   ; AST -- current state of program tree.
   [auxξ (any ... η any ...)]
   [ξ (AST auxξ)
-     AST]
+
+     ; These ξ-variations exist only for convenience.
+     AST
+     μ-value]
   
   [listξ (ξ ...)])

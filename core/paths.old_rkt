@@ -1,3 +1,17 @@
+;; syntax.rkt
+
+  ;; A next postponed entry path/identifier
+  [pentryLbl None                   ;; For non speculative/postponed actions, except for reads
+             (read τ)               ;; For non postponed reads
+             
+             (read vName τ ifContext)    ;;  For speculative/postponed actions
+             (postpone ifContext)
+             (resolve vName ifContext)]
+  [pathτ  (path pentryLbl)]
+  
+  [pathsτ (pathτ ...)] ;; Maybe vName --- a name of thunk to resolve.
+
+
 ;; coreLang.rkt
 (define-metafunction coreLang
   isPossiblePath : path auxξ -> boolean
@@ -269,3 +283,40 @@
   [(ιModFromReadAction (cas    SM FM ι     )) (Just (ι SM))] ;; TODO: 
   [(ιModFromReadAction (casCon SM FM ι σ-dd)) (Just (ι SM))] ;; Maybe smth other then SM.
   [(ιModFromReadAction AST) None])
+
+;; pp.rkt
+(define-metafunction coreLang
+  ; ppPentryLbl : pentryLbl -> Doc
+  [(ppPentryLbl None) "None"]
+  [(ppPentryLbl (read τ)) ,(beside*/space "read" (term (ppExpr τ)))]
+  [(ppPentryLbl (read vName τ ifContext))
+   ,(beside*/space "read"
+                   (term (ppι-var vName)) (term (ppExpr τ))
+                   (term (ppIfContext ifContext)))]
+  [(ppPentryLbl (postpone ifContext))
+   ,(beside*/space "postpone"
+                   (term (ppIfContext ifContext)))]
+  [(ppPentryLbl (resolve vName ifContext))
+   ,(beside*/space "resolve"
+                   (term (ppι-var vName))
+                   (term (ppIfContext ifContext)))])
+
+(define-metafunction coreLang
+  ; ppPathsτ : pathsτ -> Doc
+  [(ppPathsτ pathsτ) ,(above**
+             (map (λ (h)
+                    (match h
+                      [(list path pentry)
+                       (beside*/space
+                        (term (ppPath      ,path))
+                        (term (ppPentryLbl ,pentry)))]))
+                  (term pathsτ)))])
+
+(define-metafunction coreLang
+  ; ppStatePathsτ : auxξ -> Doc
+  [(ppStatePathsτ (any_0 ... (Paths pathsτ) any_1 ...))
+   ,(above* "--- Paths" (term (ppPathsτ pathsτ)))]
+  [(ppStatePathsτ auxξ) ,(empty-doc)])
+
+  ;; ppState
+            (term (ppStatePathsτ  auxξ))

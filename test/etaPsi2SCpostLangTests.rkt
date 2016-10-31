@@ -13,7 +13,7 @@ If there is no Rel-Acq pair, then R1 = R2 = 1 should be possible.
 |#
 (define (test_R-W_R-W_11 curTerm)
   (test-->>∃ step curTerm
-          (term (ret (1 1)))))
+          '(1 1)))
 
 ;; These tests require to uncomment "join-postponed-operations-interleaving"
 ;; rule in "rules/postRules.rkt".
@@ -31,9 +31,9 @@ If there is no Rel-Acq pair, then R1 = R2 = 1 should be possible.
 
 (define (test_R-W_R-W_n11 curTerm)
   (test-->> step curTerm
-          (term (ret (0 0)))
-          (term (ret (1 0)))
-          (term (ret (0 1)))))
+          '(0 0)
+          '(1 0)
+          '(0 1)))
 (test_R-W_R-W_n11 term_Rrlx-Wrel_Racq-Wrel)
 
 #|
@@ -46,10 +46,10 @@ It's impossible to get r1 = 2; r2 = 0, due to synchronization through
 RMW (cas) operation.
 |#
 (test-->> step term_WrlxWrel_RMWrlxrlx_RacqRrlx
-          (term (ret (0 0)))
-          (term (ret (0 1)))
-          (term (ret (1 1)))
-          (term (ret (2 1))))
+          '(0 0)
+          '(0 1)
+          '(1 1)
+          '(2 1))
 
 #|
    x_rel = 0; y_rel = 1
@@ -59,7 +59,7 @@ r1 = y_mod1 || r2 = x_mod3
 |#
 (define (test_W1R_W2R curTerm)
   (test-->>∃ step curTerm
-           (term (ret (1 0)))))
+           '(1 0)))
 
 (test_W1R_W2R term_W1rlxRrlx_W2rlxRrlx)
 (test_W1R_W2R term_W1relRrlx_W2relRrlx)
