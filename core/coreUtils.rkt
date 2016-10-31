@@ -81,12 +81,6 @@
   [(getByPath (R path) (par any_0 any_1)) (getByPath path any_1)])
 
 (define-metafunction coreLang
-  setFront : path σ σ-tree -> σ-tree
-  [(setFront ()       σ_new σ)                       σ_new]
-  [(setFront (L path) σ_new (par σ-tree_0 σ-tree_1)) (par (setFront path σ_new σ-tree_0) σ-tree_1)]
-  [(setFront (R path) σ_new (par σ-tree_0 σ-tree_1)) (par σ-tree_0 (setFront path σ_new σ-tree_1))])
-
-(define-metafunction coreLang
   updateByFront : path σ σ-tree -> σ-tree
   [(updateByFront ()       σ_delta            σ)  (frontMerge σ_delta σ)]
   [(updateByFront (L path) σ_delta (par σ-tree_0 σ-tree_1)) (par (updateByFront path σ_delta σ-tree_0) σ-tree_1)]
@@ -930,7 +924,7 @@
   [(synchronizeCurAcqFronts path auxξ) (updateState (Read σ-tree) (Read σ-tree_new) auxξ)
    (where (any_0 ... (Read σ-tree) any_1 ... (AcqFront σ-tree_acq) any_2 ...) auxξ)
    (where σ          (getByPath path σ-tree_acq))
-   (where σ-tree_new (setFront path σ σ-tree))]
+   (where σ-tree_new (updateOnPath path σ σ-tree))]
   [(synchronizeCurAcqFronts path auxξ) auxξ])
 
 ;; (define (find-path red from to)
