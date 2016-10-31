@@ -205,11 +205,11 @@
            (beside right " }}}"))))
 
 (define-metafunction coreLang
-  ; ppφ : φ -> Doc
-  [(ppφ α) (ppα α)]
-  [(ppφ (par φ_0 φ_1))
-   ,(pp-par "par" (term (ppφ φ_0))
-                  (term (ppφ φ_1)))])
+  ; ppα-tree : α-tree -> Doc
+  [(ppα-tree α) (ppα α)]
+  [(ppα-tree (par α-tree_0 α-tree_1))
+   ,(pp-par "par" (term (ppα-tree α-tree_0))
+                  (term (ppα-tree α-tree_1)))])
 
 (define-metafunction coreLang
   ; ppγ : γ -> Doc
@@ -260,10 +260,10 @@
   [(ppStateσ auxξ) ,(empty-doc)])
 
 (define-metafunction coreLang
-  ; ppStateφ : auxξ -> Doc
-  [(ppStateφ (any_0 ... (P φ) any_1 ...))
-   ,(above* "--- P φ" (term (ppφ φ)))]
-  [(ppStateφ auxξ) ,(empty-doc)])
+  ; ppStateα-tree : auxξ -> Doc
+  [(ppStateα-tree (any_0 ... (P α-tree) any_1 ...))
+   ,(above* "--- P α-tree" (term (ppα-tree α-tree)))]
+  [(ppStateα-tree auxξ) ,(empty-doc)])
 
 (define-metafunction coreLang
   ; ppStateγ : auxξ -> Doc
@@ -298,7 +298,7 @@
             (term (ppStateσ-tree auxξ))
             (term (ppStateσ-treeWrite auxξ))
             (term (ppStateσ auxξ))
-            (term (ppStateφ auxξ))
+            (term (ppStateα-tree auxξ))
             (term (ppStateγ auxξ))
             (term (ppStateDealloc auxξ)))])
 

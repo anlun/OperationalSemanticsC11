@@ -19,10 +19,10 @@
    etaPsi2SCLang #:domain ξ))
 (define coreTest (define-coreTest coreStep defaultState))
 
-(define rlxRules    (define-rlxRules          etaPsi2SCLang))
-(define relAcqRules (define-relAcqRules       etaPsi2SCLang))
-(define naRules     (define-naRules           etaPsi2SCLang defaultState))
-(define scRules     (define-scRules           etaPsi2SCLang))
+(define rlxRules    (define-rlxRules    etaPsi2SCLang))
+(define relAcqRules (define-relAcqRules etaPsi2SCLang))
+(define naRules     (define-naRules     etaPsi2SCLang defaultState))
+(define scRules     (define-scRules     etaPsi2SCLang))
 
 (define step (union-reduction-relations
               coreStep rlxRules relAcqRules naRules scRules))

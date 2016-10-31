@@ -136,8 +136,8 @@
                   ;; α's   --- postponed operations of `then' and `else' branches;
                   (if     vName Expr α α)
                   ]
-  [φ α
-     (par φ φ)]
+  [α-tree α
+          (par α-tree α-tree)]
   [α (postponedEntry ...)]
   [γ ((ι τ vName) ...)]
 
@@ -150,8 +150,8 @@
         (Eif1 >>= K)]
 
   [Ep hole
-      (par Ep φ)
-      (par φ Ep)]
+      (par Ep α-tree)
+      (par α-tree Ep)]
   [Eifα hole
         (postponedEntry ... (if vName Expr Eifα α) postponedEntry ...)
         (postponedEntry ... (if vName Expr α Eifα) postponedEntry ...)]
