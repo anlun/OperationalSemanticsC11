@@ -297,27 +297,10 @@
   (reduction-relation
    lang #:domain ξ
    
-   (-->  ((in-hole E (in-hole Eif (read RM ι-var))) auxξ)
+   (-->  ((in-hole E (in-hole Eif (read RM ι-var σ-dd))) auxξ)
         (normalize
-         ((in-hole E (in-hole Eif (ret  a       ))) auxξ_new))
+         ((in-hole E (in-hole Eif (ret  a            ))) auxξ_new))
         "read-postponed"
-        (fresh a)
-        (where path     (pathE E))
-        (where α-tree   (getα-tree auxξ))
-        (where α        (getByPath path α-tree))
-        
-        (side-condition (term (isCorrectEif Eif α)))
-
-        (where α_new      (appendToα Eif (read a ι-var RM ()) α))
-        (where α-tree_new (updateOnPath path α_new α-tree))
-        (where auxξ_new   (updateState (P α-tree) (P α-tree_new) auxξ))
-
-        (side-condition (not (equal? (term sc) (term RM)))))
-
-   (-->  ((in-hole E (in-hole Eif (readCon RM ι-var σ-dd))) auxξ)
-        (normalize
-         ((in-hole E (in-hole Eif (ret          a       ))) auxξ_new))
-        "readCon-postponed"
         (fresh a)
         (where path     (pathE E))
         (where α-tree        (getα-tree auxξ))

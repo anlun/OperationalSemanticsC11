@@ -643,17 +643,11 @@
 (define-metafunction coreLang
   propagateDD_helpF : σ-dd vName AST -> AST
 
-  [(propagateDD_helpF σ-dd vName (read RM vName))
-   (readCon RM vName σ-dd)]
+  [(propagateDD_helpF σ-dd_0 vName (read RM vName σ-dd_1))
+   (read RM vName (frontMerge σ-dd_0 σ-dd_1))]
 
-  [(propagateDD_helpF σ-dd_0 vName (readCon RM vName σ-dd_1))
-   (readCon RM vName (frontMerge σ-dd_0 σ-dd_1))]
-
-  [(propagateDD_helpF σ-dd vName (cas SM FM vName μ_0 μ_1))
-   (casCon SM FM vName μ_0 μ_1 σ-dd)]
-
-  [(propagateDD_helpF σ-dd_0 vName (casCon SM FM vName μ_0 μ_1 σ-dd_1))
-   (casCon SM FM vName μ_0 μ_1 (frontMerge σ-dd_0 σ-dd_1))]
+  [(propagateDD_helpF σ-dd_0 vName (cas SM FM vName μ_0 μ_1 σ-dd_1))
+   (cas SM FM vName μ_0 μ_1 (frontMerge σ-dd_0 σ-dd_1))]
 
   [(propagateDD_helpF σ-dd vName (if Expr AST_0 AST_1))
    (if Expr
@@ -721,9 +715,9 @@
                                  ()
                                  ((par (ret 0)
                                        ((ret 0) >>=
-                                        (λ r1 (read na r1)))) >>=
+                                        (λ r1 (read na r1 ())))) >>=
                                   (λ r0 (ret r0)))))
-              '((par (ret 0) ((ret 0) >>= (λ r1 (readCon na r1 ()))))
+              '((par (ret 0) ((ret 0) >>= (λ r1 (read na r1 ()))))
                 >>=
                 (λ r0 (ret r0))) ))
 

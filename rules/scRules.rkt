@@ -54,7 +54,7 @@
         (side-condition (term (ι-not-in-α-tree ι path auxξ)))
         (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
       
-   (-->  ((in-hole E (read   sc ι)) auxξ)
+   (-->  ((in-hole E (read   sc ι σ-dd)) auxξ)
         (normalize
          ((in-hole E (ret μ-value)) auxξ_new))
         "read-sc"
@@ -62,8 +62,11 @@
         (where path (pathE E))
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
 
+        (where σ_read   (getReadσ path auxξ))
+        (where σ_sc     (getσSC auxξ))
+        (side-condition (term (correctτ τ ι (frontMerge (frontMerge σ-dd σ_read) σ_sc))))
+
         (where σ_delta         (frontMerge ((ι τ)) σ))
-        (where σ_read          (getReadσ path auxξ))
         (where σ-tree_read     (getReadσ-tree auxξ))
         (where σ-tree_read_new (updateByFront path σ_delta σ-tree_read))
         (where auxξ_upd_read   (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ))
@@ -72,14 +75,12 @@
         (where auxξ_upd_write (synchronizeWriteFront path auxξ_upd_acq))
         (where auxξ_new       auxξ_upd_write)
         
-        (where σ_sc     (getσSC auxξ))
-        (side-condition (term (correctτ τ ι (frontMerge σ_read σ_sc))))
         (side-condition (term (is-α-empty path auxξ)))
         (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
 
-   (-->  ((in-hole E (cas SM sc ι μ-value_expected μ-value_new)) auxξ)
+   (-->  ((in-hole E (cas SM sc ι μ-value_expected μ-value_new σ-dd)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value                             )) auxξ_new))
+         ((in-hole E (ret μ-value                                  )) auxξ_new))
         "cas-fail-sc"
         (where η (getη auxξ))
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
@@ -95,14 +96,15 @@
         (where auxξ_new       auxξ_upd_write)
         
         (where σ_sc     (getσSC auxξ))
+        ;; TODO: Why doesn't it read from the latest store to the location?
         (side-condition (term (correctτ τ ι (frontMerge σ_read σ_sc))))
         (side-condition (term (is-α-empty path auxξ)))
         (side-condition (not (term (hasιInObservedWrites path ι auxξ))))
         (side-condition (not (equal? (term μ-value) (term μ-value_expected)))))
 
-   (-->  ((in-hole E (cas sc FM ι μ-value_expected μ-value_new)) auxξ)
+   (-->  ((in-hole E (cas sc FM ι μ-value_expected μ-value_new σ-dd)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value_expected                    )) auxξ_new))
+         ((in-hole E (ret μ-value_expected                         )) auxξ_new))
         "cas-succ-sc"
         (where η          (getη     auxξ))
         (where σ-tree     (getReadσ-tree auxξ))

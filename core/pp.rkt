@@ -88,21 +88,18 @@
      "dealloc "
      (term (ppι-var ι-var)))]
  
-  [(pp (read RM ι-var))
-   ,(beside* (term (ppι-var ι-var)) "_"
-             (term (ppMod RM)))]
-  
-  [(pp (readCon RM ι-var σ-dd))
+  [(pp (read RM ι-var σ-dd))
    ,(beside* (term (ppι-var ι-var)) "_"
              (term (ppMod RM))
              (term (ppσ σ-dd)))]
 
-  [(pp (cas SM FM ι-var μ_0 μ_1))
+  [(pp (cas SM FM ι-var μ_0 μ_1 σ-dd))
    ,(beside*
      (beside* "cas_" (term (ppMod SM)) "_" (term (ppMod FM)) "(")
      (term (ppι-var ι-var)) ", "
      (term (ppμ μ_0)) ", "
-     (term (ppμ μ_1)) ")")]
+     (term (ppμ μ_1)) ")"
+     (term (ppσ σ-dd)))]
   
   [(pp (spw AST_0 AST_1))
    ,(pp-par "spw" (term (pp AST_0))
@@ -350,7 +347,7 @@
             "\\end{tabular}"
             "\\begin{lstlisting}[language=while]")]
 
-  [(ppTeX (cas SM FM ι-var μ_0 μ_1))
+  [(ppTeX (cas SM FM ι-var μ_0 μ_1 σ-dd))
    ,(beside*
      "cas|$_{" (term (ppMod SM))
      "," (term (ppMod FM)) "}$|("
@@ -381,7 +378,7 @@
      (term (ppTeX AST_1)))
    (side-condition (not (equal? 'r-1 (term vName))))]
  
-  [(ppTeX (read RM ι-var))
+  [(ppTeX (read RM ι-var σ-dd))
    ,(beside*
      "|$[$|" (term (ppι-var ι-var))
      "|$]_{" (term (ppMod RM))

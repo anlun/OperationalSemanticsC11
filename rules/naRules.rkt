@@ -12,12 +12,12 @@
   (reduction-relation
    lang #:domain ξ
 
-   (-->  ((in-hole E (read   na ι)) auxξ)
+   (-->  ((in-hole E (read na ι σ-dd)) auxξ)
         (normalize
          ((in-hole E (ret μ-value)) auxξ_new))
         "read-na"
         (where η       (getη     auxξ))
-        (where σ-tree       (getReadσ-tree auxξ))
+        (where σ-tree  (getReadσ-tree auxξ))
         (where σ_read  (getByPath (pathE E) σ-tree))
         (where τ       (getLastTimestamp ι η))
         (where μ-value (getValueByCorrectTimestamp ι τ η))
@@ -25,7 +25,7 @@
         (where path (pathE E))
         (where auxξ_new (addReadNode τ (read na ι μ-value) path auxξ))
         
-        (side-condition (term (seeLast ι η σ_read)))
+        (side-condition (term (seeLast ι η (frontMerge σ-dd σ_read))))
         (side-condition (term (nonNegativeτ τ)))))))
 
 (define-syntax-rule (define-naWriteStuckRules lang defaultState)
@@ -51,14 +51,14 @@
         (side-condition (term (dontSeeLast ι η σ_read)))
         |#
    
-   (--> ((in-hole E (read RM ι)) auxξ)
+   (--> ((in-hole E (read RM ι σ-dd)) auxξ)
         (stuck defaultState)
         "read-na-stuck"
-        (where path (pathE E))
+        (where path   (pathE E))
         (where σ_read (getReadσ path auxξ))
         (where σ_na   (getσNA auxξ))
 
-        (where τ_cur  (fromMaybe -1 (lookup ι σ_read)))
+        (where τ_cur  (fromMaybe -1 (lookup ι (frontMerge σ-dd σ_read))))
         (where τ_na   (fromMaybe -1 (lookup ι σ_na)))
         (side-condition (or (< (term τ_cur) (term τ_na))
                             (term (negativeτ τ_cur)))))

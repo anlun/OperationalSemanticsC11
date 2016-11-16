@@ -44,8 +44,8 @@
                                 (("y" ((3 2 ()) (1 1 ()) (0 2 ()))) ("x" ((3 3 ()) (2 2 ()) (1 1 ()))))))
               (term (("x" ((4 239 ()) (3 3 ()) (2 2 ()) (1 1 ()))) ("y" ((3 2 ()) (1 1 ()) (0 2 ()))))))
 
-  (test-equal (term (subst b x (read rlx b)))
-              (term (read rlx x)))
+  (test-equal (term (subst b x (read rlx b ())))
+              (term (read rlx x ())))
 
   (test-equal (term (substι b x b))
               (term x))
@@ -187,10 +187,10 @@
               '(write rel "x" 5))
 
   (test-equal @prog{x_acq}
-              '(read acq "x"))
+              '(read acq "x" ()))
 
   (test-equal @prog{cas_rel_rlx(x, 1, 2)}
-              '(cas rel rlx "x" 1 2))
+              '(cas rel rlx "x" 1 2 ()))
 
   (test-equal @prog{if r1
                     then ret 1
@@ -199,7 +199,7 @@
               '(if r1 (ret 1) (ret 2)))
 
   (test-equal @prog{repeat x_acq end}
-              '(repeat (read acq "x")))
+              '(repeat (read acq "x" ())))
 
   (test-equal @prog{r1 := ret 2;
                     ret 3}

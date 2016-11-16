@@ -117,40 +117,21 @@
         (nofuel defaultState)
         "repeatFuel-nofuel")
 
-   (--> ((in-hole E (cas SM FM ι-var μ-value_1 μ-value_2)) auxξ)
+   (--> ((in-hole E (cas SM FM ι-var μ-value_1 μ-value_2 σ-dd)) auxξ)
         (stuck defaultState)
         "cas-stuck-wrong-modificators"
         (side-condition (not (term (casMO=>? SM FM)))))
 
-   (--> ((in-hole E (cas SM FM ι-var μ-value_1 μ-value_2)) auxξ)
+   (--> ((in-hole E (cas SM FM ι-var μ-value_1 μ-value_2 σ-dd)) auxξ)
         (stuck defaultState)
         "cas-stuck-uninitialized"
-        (where path (pathE E))
-        (side-condition (or (term (isLocationUninitialized ι-var () path auxξ))
-                            (term (isLocationDeallocated ι-var auxξ)))))
-
-   (--> ((in-hole E (casCon SM FM ι-var μ-value_1 μ-value_2 σ-dd)) auxξ)
-        (stuck defaultState)
-        "casCon-stuck-wrong-modificators"
-        (side-condition (not (term (casMO=>? SM FM)))))
-
-   (--> ((in-hole E (casCon SM FM ι-var μ-value_1 μ-value_2 σ-dd)) auxξ)
-        (stuck defaultState)
-        "casCon-stuck-uninitialized"
         (where path (pathE E))
         (side-condition (or (term (isLocationUninitialized ι-var σ-dd path auxξ))
                             (term (isLocationDeallocated ι-var auxξ)))))
 
-   (--> ((in-hole E (read RM ι-var)) auxξ)
+   (--> ((in-hole E (read RM ι-var σ-dd)) auxξ)
         (stuck defaultState)
         "read-stuck"
-        (where path (pathE E))
-        (side-condition (or (term (isLocationUninitialized ι-var () path auxξ))
-                            (term (isLocationDeallocated   ι-var auxξ)))))
-
-   (--> ((in-hole E (readCon RM ι-var σ-dd)) auxξ)
-        (stuck defaultState)
-        "readCon-stuck"
         (where path (pathE E))
         (side-condition (or (term (isLocationUninitialized ι-var σ-dd path auxξ))
                             (term (isLocationDeallocated   ι-var auxξ)))))

@@ -12,7 +12,7 @@
   (reduction-relation
    lang #:domain ξ
 
-   (-->  ((in-hole E (read  acq ι)) auxξ)
+   (-->  ((in-hole E (read  acq ι σ-dd)) auxξ)
         (normalize
          ((in-hole E (ret μ-value)) auxξ_new))
         "read-acq"
@@ -28,7 +28,7 @@
         (where auxξ_new        (addReadNode τ (read acq ι μ-value) path auxξ_upd_acq))
 
         (where σ_read (getByPath path σ-tree))
-        (side-condition (term (correctτ τ ι σ_read)))))))
+        (side-condition (term (correctτ τ ι (frontMerge σ-dd σ_read))))))))
 
 (define-syntax-rule (define-relWriteRules lang) 
   (begin
@@ -69,9 +69,9 @@
    lang #:domain ξ
 
 
-   (-->  ((in-hole E (cas SM acq ι μ-value_expected μ-value_to_write)) auxξ)
+   (-->  ((in-hole E (cas SM acq ι μ-value_expected μ-value_to_write σ-dd)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value                                   )) auxξ_new))
+         ((in-hole E (ret μ-value                                        )) auxξ_new))
         "cas-fail-acq"
         (where η                          (getη auxξ))
         (where σ-tree                     (getReadσ-tree auxξ))
@@ -85,7 +85,7 @@
         (where auxξ_new        (addReadNode τ (read acq ι μ-value) path auxξ_upd_acq))
 
         (side-condition (equal? (term τ) (term (getLastTimestamp ι η))))
-        ;(side-condition (term (correctτ τ ι σ_read))) ; <- Previous condition implies it.
+        ;(side-condition (term (correctτ τ ι (frontMerge σ-dd σ_read)))) ; <- Previous condition implies it.
         (side-condition (not (equal? (term μ-value)
                                      (term μ-value_expected))))
 
@@ -93,9 +93,9 @@
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ acq auxξ))))
         (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
         
-   (-->  ((in-hole E (cas rel FM ι μ-value_expected μ-value_new)) auxξ)
+   (-->  ((in-hole E (cas rel FM ι μ-value_expected μ-value_new σ-dd)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value_expected                     )) auxξ_new))
+         ((in-hole E (ret μ-value_expected                      σ-dd)) auxξ_new))
         "cas-succ-rel"
         (where η               (getη     auxξ))
         (where σ-tree_read     (getReadσ-tree auxξ))
@@ -110,9 +110,9 @@
         (where auxξ_upd_write  (synchronizeWriteFront path auxξ_upd_acq))
 
         (where σ_new          (getByPath path σ-tree_read_new))
-        (where η_new          (updateCell  ι μ-value_new
-                                           (acqSuccCASσReadNew ι η σ_new)
-                                           η))
+        (where η_new          (updateCell ι μ-value_new
+                                          (acqSuccCASσReadNew ι η σ_new)
+                                          η))
 
         (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
         (where auxξ_upd_γ     (addObservedWritesToγ path ι τ rel auxξ_upd_η))
@@ -129,9 +129,9 @@
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
         (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
    
-   (-->  ((in-hole E (cas acq FM ι μ-value_expected μ-value_new)) auxξ)
+   (-->  ((in-hole E (cas acq FM ι μ-value_expected μ-value_new σ-dd)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value_expected                     )) auxξ_new))
+         ((in-hole E (ret μ-value_expected                      σ-dd)) auxξ_new))
         "cas-succ-acq"
         (where η            (getη     auxξ))
         (where σ-tree_read  (getReadσ-tree auxξ))
@@ -158,9 +158,9 @@
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
         (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
 
-   (-->  ((in-hole E (cas relAcq FM ι μ-value_expected μ-value_new)) auxξ)
+   (-->  ((in-hole E (cas relAcq FM ι μ-value_expected μ-value_new σ-dd)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value_expected                        )) auxξ_new))
+         ((in-hole E (ret μ-value_expected                         σ-dd)) auxξ_new))
         "cas-succ-relAcq"
         (where η               (getη     auxξ))
         (where σ-tree          (getReadσ-tree auxξ))

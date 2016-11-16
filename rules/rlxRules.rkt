@@ -11,7 +11,7 @@
   (reduction-relation
    lang #:domain ξ
    
-   (-->  ((in-hole E (read  rlx ι)) auxξ)
+   (-->  ((in-hole E (read  rlx ι σ-dd)) auxξ)
         (normalize
          ((in-hole E (ret μ-value)) auxξ_new))
         "read-rlx"
@@ -25,7 +25,7 @@
         (where auxξ_new        (updateAcqFront path σ auxξ_σ-tree_new))
 
         (where σ_read   (getByPath path σ-tree))
-        (side-condition (term (correctτ τ ι σ_read)))))))
+        (side-condition (term (correctτ τ ι (frontMerge σ-dd σ_read))))))))
 
 (define-metafunction coreLang
   getσ_relFront : ι path auxξ -> σ
@@ -87,14 +87,16 @@
   (reduction-relation
    lang #:domain ξ
 
-   (-->  ((in-hole E (cas SM rlx ι μ-value_expected μ-value_new)) auxξ)
+   (-->  ((in-hole E (cas SM rlx ι μ-value_expected μ-value_new σ-dd)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value                              )) auxξ_new))
+         ((in-hole E (ret μ-value                                   )) auxξ_new))
         "cas-fail-rlx"
         (where η                          (getη     auxξ))
         (where σ-tree                     (getReadσ-tree auxξ))
         (where path                       (pathE E))
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
+        (side-condition (equal? (term τ) (term (getLastTimestamp ι η))))
+        ;(side-condition (term (correctτ τ ι (frontMerge σ-dd σ_read)))) ; <- Previous condition implies it.
 
         (where auxξ_upd_acq  (updateAcqFront path σ auxξ))
         
@@ -102,8 +104,6 @@
         (where auxξ_new   (updateState (Read σ-tree) (Read σ-tree_new) auxξ_upd_acq))
 
         (where σ_read   (getReadσ path auxξ))
-        (side-condition (equal? (term τ) (term (getLastTimestamp ι η))))
-        ;(side-condition (term (correctτ τ ι σ_read))) ; <- Previous condition implies it.
         (side-condition (not (equal? (term μ-value)
                                      (term μ-value_expected))))
         (side-condition (term (is-α-empty path auxξ)))
@@ -111,16 +111,21 @@
         (side-condition (not (term (isRestrictedByγ_auxξ ι τ acq auxξ))))
         (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
    
-   (-->  ((in-hole E (cas rlx FM ι μ-value_expected μ-value_new)) auxξ)
+   (-->  ((in-hole E (cas rlx FM ι μ-value_expected μ-value_new σ-dd)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value_expected                     )) auxξ_new))
+         ((in-hole E (ret μ-value_expected                          )) auxξ_new))
         "cas-succ-rlx"
+        (where path     (pathE E))
+        (side-condition (term (ι-not-in-α-tree ι path auxξ)))
+
         (where η        (getη auxξ))
         (where σ-tree   (getReadσ-tree auxξ))
-        (where path     (pathE E))
 
         (where τ_last        (getLastTimestamp ι η))
         (where τ             (getNextTimestamp ι η))
+        (side-condition (not (term (isRestrictedByγ_auxξ ι τ      rlx auxξ))))
+        (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
+
         (where σ             (getLastFront ι η))
         
         ; update read front
@@ -142,9 +147,6 @@
 
         (side-condition
             (term (succCAScondition ι η μ-value_expected rlx FM)))
-        (side-condition (term (ι-not-in-α-tree ι path auxξ)))
-        (side-condition (not (term (isRestrictedByγ_auxξ ι τ rlx auxξ))))
-        (side-condition (not (term (isRestrictedByγ_auxξ ι τ_last acq auxξ))))
         (side-condition (not (term (hasιInObservedWrites path ι auxξ)))))
 )))
 

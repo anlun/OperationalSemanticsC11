@@ -5,9 +5,11 @@
 (define-language syntax
   [AST (ret μ)
        (AST >>= K)       ; `let-in` construction can be emulated by (ret Expr) >>= (λ x AST). 
-       (read   RM ι-var    )
-       (write  WM ι-var μ  )
-       (cas SM FM ι-var μ μ)
+       (write  WM ι-var μ       )
+       
+       ; `σ-dd` is an additional synchronization front for modeling consume accesses
+       (read   RM ι-var     σ-dd)
+       (cas SM FM ι-var μ μ σ-dd)
        ; Atomic read-modify-write operations shall always read the last value (in the modification order) written
        ; before the write associated with the read-modify-write operation.
        ; C++ Standard, 29.4-12, p.1101
@@ -24,11 +26,7 @@
        
        (repeatFuel number AST) ; repeat with fuel
        nofuel
-       stuck
-
-       ; for consume
-       (readCon RM    ι-var         σ-dd)
-       (casCon  SM FM ι-var μ_0 μ_1 σ-dd)]
+       stuck]
 
   [K  (λ vName AST)]
 
@@ -97,12 +95,9 @@
   [EU hole
       (ret EU)
       (write  WM ι-var EU)
-      (cas SM FM ι-var EU μ)
-      (cas SM FM ι-var μ EU)
-      (if EU AST AST)
-
-      (casCon SM FM ι-var EU μ σ-dd)
-      (casCon SM FM ι-var μ EU σ-dd)]
+      (cas SM FM ι-var EU μ σ-dd)
+      (cas SM FM ι-var μ EU σ-dd)
+      (if EU AST AST)]
 
   [EU2 hole
        (EU2 μ)
@@ -310,15 +305,15 @@
   [(subst vName μ_1 (dealloc ι-var))
    (dealloc (substι vName μ_1 ι-var))]
 
-  [(subst vName μ_1 (read RM ι-var))
-   (read RM (substι vName μ_1 ι-var))]
-  [(subst vName μ_1 (readCon RM ι-var σ-dd))
-   (readCon RM (substι vName μ_1 ι-var) σ-dd)]
+  [(subst vName μ_1 (read RM ι-var σ-dd))
+   (read RM (substι vName μ_1 ι-var σ-dd))]
 
   [(subst vName μ_1 (write WM ι-var μ_2))
    (write WM (substι vName μ_1 ι-var) (substExpr vName μ_1 μ_2))]
-  [(subst vName μ_1 (cas SM FM ι-var μ_2 μ_3))
-   (cas SM FM (substι vName μ_1 ι-var) (substExpr vName μ_1 μ_2) (substExpr vName μ_1 μ_3))]
+
+  [(subst vName μ_1 (cas SM FM ι-var μ_2 μ_3 σ-dd))
+   (cas SM FM (substι vName μ_1 ι-var) (substExpr vName μ_1 μ_2) (substExpr vName μ_1 μ_3) σ-dd)]
+
   [(subst vName μ (par AST_1 AST_2))
    (par (subst vName μ AST_1) (subst vName μ AST_2))]
   [(subst vName μ (spw AST_1 AST_2))

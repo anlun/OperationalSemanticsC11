@@ -121,13 +121,13 @@
           ((VAR ASSIGN stmt SEMICOLON stmt)  (list $3 '>>= (list 'λ $1 $5)))
           ((stmt SEMICOLON stmt)             (list $1 '>>= (list 'λ 'r-1 $3)))
           ((locvar UNDERSCORE MM ASSIGN exp) (list 'write $3 $1 $5))
-          ((locvar UNDERSCORE MM)            (list 'read  $3 $1))
+          ((locvar UNDERSCORE MM)            (list 'read  $3 $1 '()))
           ((FENCE MM)                        (list 'fence $2))
           ((CAS MM UNDERSCORE MM
                 POPEN
                 locvar COMMA exp COMMA exp
                 PCLOSE)
-           (list 'cas  $2 $4 $6 $8 $10))
+           (list 'cas  $2 $4 $6 $8 $10 '()))
           ((IF exp THEN stmt ELSE stmt FI)   (list 'if $2 $4 $6))
           ((REPEAT stmt END)                 (list 'repeat $2))
           ((REPEATFUEL NUM stmt END)         (list 'repeatFuel $2 $3))

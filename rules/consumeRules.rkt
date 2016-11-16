@@ -12,28 +12,11 @@
   (reduction-relation
    lang #:domain ξ
    
-   (-->  ((in-hole E (read con ι)) auxξ) 
-       (normalize
-        ((propagateDD path σ-dd
-          (in-hole E (ret μ-value))) auxξ_new))
-        "read-con"
-        (where η      (getη auxξ))
-        (where σ-tree      (getReadσ-tree auxξ))
-        (where path   (pathE E))
-
-        (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
-        (where σ-dd     (getDataDependencies ι σ η))
-        (where auxξ_upd_σ-tree (updateState (Read σ-tree) (Read (updateByFront path ((ι τ)) σ-tree)) auxξ))
-        (where auxξ_new   (addReadNode τ (read con ι μ-value) path auxξ_upd_σ-tree))
-
-        (where σ_read   (getByPath path σ-tree))
-        (side-condition (term (correctτ τ ι σ_read))))
-
-   (-->  ((in-hole E (readCon con ι σ-dd)) auxξ)
+   (-->  ((in-hole E (read con ι σ-dd)) auxξ)
        (normalize
         ((propagateDD path (frontMerge σ-dd σ-dd_new)
           (in-hole E (ret μ-value))) auxξ_new))
-        "readCon-con"
+        "read-con"
         (where η      (getη auxξ))
         (where σ-tree      (getReadσ-tree auxξ))
         (where path   (pathE E))
@@ -46,11 +29,11 @@
         (where σ_read   (getByPath path σ-tree))
         (side-condition (term (correctτ τ ι (frontMerge σ_read σ-dd)))))
 
-   (-->  ((in-hole E (readCon acq ι σ-dd)) auxξ)
+   (-->  ((in-hole E (read acq ι σ-dd)) auxξ)
         (normalize
          ((propagateDD path σ-dd
            (in-hole E (ret μ-value))) auxξ_new))
-        "readCon-acq"
+        "read-acq"
         (where η      (getη auxξ))
         (where σ-tree      (getReadσ-tree auxξ))
         (where path   (pathE E))
@@ -63,11 +46,11 @@
         (side-condition (term (correctτ τ ι
                                         (frontMerge σ_read σ-dd)))))
 
-   (-->  ((in-hole E (readCon rlx ι σ-dd)) auxξ)
+   (-->  ((in-hole E (read rlx ι σ-dd)) auxξ)
         (normalize
          ((propagateDD path σ-dd
            (in-hole E (ret μ-value))) auxξ_new))
-        "readCon-rlx"
+        "read-rlx"
         (where η      (getη auxξ))
         (where σ-tree      (getReadσ-tree auxξ))
         (where path   (pathE E))
@@ -80,11 +63,11 @@
         (side-condition (term (correctτ τ ι
                                         (frontMerge σ_read σ-dd)))))
 
-   (-->  ((in-hole E (readCon na ι σ-dd)) auxξ)
+   (-->  ((in-hole E (read na ι σ-dd)) auxξ)
         (normalize
          ((propagateDD path σ-dd
            (in-hole E (ret μ-value))) auxξ_new))
-        "readCon-na"
+        "read-na"
         (where η      (getη auxξ))
         (where σ-tree      (getReadσ-tree auxξ))
         (where path   (pathE E))
@@ -99,9 +82,9 @@
         (side-condition (term (seeLast ι η (frontMerge σ_read σ-dd))))
         (side-condition (term (nonNegativeτ τ))))
   
-   (--> ((in-hole E (readCon RM ι σ-dd)) auxξ)
+   (--> ((in-hole E (read RM ι σ-dd)) auxξ)
         (stuck defaultState)
-        "readCon-na-stuck"
+        "read-na-stuck"
         (where path (pathE E))
         (where σ_read (getReadσ path auxξ))
         (where σ_na   (getσNA auxξ))
@@ -118,11 +101,11 @@
   (reduction-relation
    lang #:domain ξ
  
-   (-->  ((in-hole E (readCon sc ι σ-dd)) auxξ)
+   (-->  ((in-hole E (read sc ι σ-dd)) auxξ)
         (normalize
          ((propagateDD path σ-dd
            (in-hole E (ret μ-value))) auxξ_new))
-        "readCon-sc"
+        "read-sc"
         (where η (getη auxξ))
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
 
