@@ -95,7 +95,7 @@
         
    (-->  ((in-hole E (cas rel FM ι μ-value_expected μ-value_new σ-dd)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value_expected                      σ-dd)) auxξ_new))
+         ((in-hole E (ret μ-value_expected                          )) auxξ_new))
         "cas-succ-rel"
         (where η               (getη     auxξ))
         (where σ-tree_read     (getReadσ-tree auxξ))
@@ -160,7 +160,7 @@
 
    (-->  ((in-hole E (cas relAcq FM ι μ-value_expected μ-value_new σ-dd)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value_expected                         σ-dd)) auxξ_new))
+         ((in-hole E (ret μ-value_expected                             )) auxξ_new))
         "cas-succ-relAcq"
         (where η               (getη     auxξ))
         (where σ-tree          (getReadσ-tree auxξ))
