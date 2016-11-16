@@ -306,7 +306,7 @@
    (dealloc (substι vName μ_1 ι-var))]
 
   [(subst vName μ_1 (read RM ι-var σ-dd))
-   (read RM (substι vName μ_1 ι-var σ-dd))]
+   (read RM (substι vName μ_1 ι-var) σ-dd)]
 
   [(subst vName μ_1 (write WM ι-var μ_2))
    (write WM (substι vName μ_1 ι-var) (substExpr vName μ_1 μ_2))]
