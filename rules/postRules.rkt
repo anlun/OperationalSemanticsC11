@@ -27,15 +27,15 @@
   isPostponedEntryIfIdentifier : any postponedEntry -> boolean
   [(isPostponedEntryIfIdentifier vName (if vName   any_1 ...)) #t]
   [(isPostponedEntryIfIdentifier vName (if vName_1 Expr α_0 α_1))
-   ,(or (term (isIfInα vName α_0))
-        (term (isIfInα vName α_1)))]
+   ,(or (term (is-if-in-α vName α_0))
+        (term (is-if-in-α vName α_1)))]
   [(isPostponedEntryIfIdentifier any_0 any_1               ) #f])
 
 (define-metafunction coreLang
   ;; Checks if there is a postponed operation with the `any' identifier
   ;; (the first argument).
-  isIfInα : any α -> boolean
-  [(isIfInα any α) ,(ormap (λ (x)
+  is-if-in-α : any α -> boolean
+  [(is-if-in-α any α) ,(ormap (λ (x)
                              (term (isPostponedEntryIfIdentifier any ,x)))
                            (term α))])
 
@@ -68,17 +68,17 @@
 )
 
 (define-metafunction coreLang
-  listToEdges : (any ...) -> ((any any) ...)
-  [(listToEdges ()   ) ()]
-  [(listToEdges (any)) ()]
-  [(listToEdges (any_0 any_1)) ((any_0 any_1))]
-  [(listToEdges (any_0 any_1 any_2 ...))
+  list-to-edges : (any ...) -> ((any any) ...)
+  [(list-to-edges ()   ) ()]
+  [(list-to-edges (any)) ()]
+  [(list-to-edges (any_0 any_1)) ((any_0 any_1))]
+  [(list-to-edges (any_0 any_1 any_2 ...))
    (consT (any_0 any_1)
-          (listToEdges (any_1 any_2 ...)))])
+          (list-to-edges (any_1 any_2 ...)))])
 
 (define-metafunction coreLang
-  observedWriteListToEdges_vName : vName ι observedWriteList -> ((vName vName) ...)
-  [(observedWriteListToEdges_vName vName ι observedWriteList)
+  observedWriteList-to-edges_vName : vName ι observedWriteList -> ((vName vName) ...)
+  [(observedWriteList-to-edges_vName vName ι observedWriteList)
    ,(map (λ (x) (match x [(list name loc) (list (term vName) name)]))
          (term observedWrites_ι))
    (where observedWrites_ι
@@ -88,32 +88,32 @@
                    (term (flat-ObservedWriteList observedWriteList))))])
 
 (define-metafunction coreLang
-  observedWriteListToEdges : ι observedWriteList -> ((vName vName) ...)
-  [(observedWriteListToEdges ι ()) ()]
+  observedWriteList-to-edges : ι observedWriteList -> ((vName vName) ...)
+  [(observedWriteList-to-edges ι ()) ()]
 
-  [(observedWriteListToEdges ι ((vName ι) any ...))
-   (appendT (observedWriteListToEdges ι (any ...))
-            (observedWriteListToEdges_vName vName ι (any ...)))]
+  [(observedWriteList-to-edges ι ((vName ι) any ...))
+   (appendT (observedWriteList-to-edges ι (any ...))
+            (observedWriteList-to-edges_vName vName ι (any ...)))]
 
-  [(observedWriteListToEdges ι ((vName ι_0) any ...))
-   (observedWriteListToEdges ι (any ...))]
+  [(observedWriteList-to-edges ι ((vName ι_0) any ...))
+   (observedWriteList-to-edges ι (any ...))]
 
-  [(observedWriteListToEdges ι ((par observedWrites_0 observedWrites_1) any ...))
-   ,(append (term (observedWriteListToEdges ι (any ...)))
-            (term (observedWritesToEdges ι observedWrites_0))
-            (term (observedWritesToEdges ι observedWrites_1))
+  [(observedWriteList-to-edges ι ((par observedWrites_0 observedWrites_1) any ...))
+   ,(append (term (observedWriteList-to-edges ι (any ...)))
+            (term (observedWrites-to-edges ι observedWrites_0))
+            (term (observedWrites-to-edges ι observedWrites_1))
             (apply append
-                   (map (λ (x) (term (observedWriteListToEdges_vName ,(car x) ι (any ...))))
+                   (map (λ (x) (term (observedWriteList-to-edges_vName ,(car x) ι (any ...))))
                         (term (flat-ObservedWrites-ι ι (par observedWrites_0 observedWrites_1))))))])
 
 (define-metafunction coreLang
-  observedWritesToEdges : ι observedWrites -> ((vName vName) ...)
-  [(observedWritesToEdges ι (par observedWrites_0 observedWrites_1))
-   (appendT (observedWritesToEdges ι observedWrites_0)
-            (observedWritesToEdges ι observedWrites_1))]
+  observedWrites-to-edges : ι observedWrites -> ((vName vName) ...)
+  [(observedWrites-to-edges ι (par observedWrites_0 observedWrites_1))
+   (appendT (observedWrites-to-edges ι observedWrites_0)
+            (observedWrites-to-edges ι observedWrites_1))]
 
-  [(observedWritesToEdges ι observedWriteList)
-   (observedWriteListToEdges ι observedWriteList)])
+  [(observedWrites-to-edges ι observedWriteList)
+   (observedWriteList-to-edges ι observedWriteList)])
 
 (define-metafunction coreLang
   isWriteTheOldest : vName ι auxξ -> boolean
@@ -121,7 +121,7 @@
    ,(not (ormap (λ (x) (match x [(list name0 name1)
                                  (and (equal? name1 (term vName))
                                       (not (equal? name0 name1)))]))
-                (term (observedWritesToEdges ι observedWrites))))
+                (term (observedWrites-to-edges ι observedWrites))))
    (where observedWrites (getObservedWrites auxξ))])
    
 (define-metafunction coreLang
@@ -141,20 +141,20 @@
                                      (term α)))])
 
 (define-metafunction coreLang
-  αToEdges : ι α -> ((vName vName) ...)
-  [(αToEdges ι α) (listToEdges (αToWriteVNames ι α))])
+  α-to-edges : ι α -> ((vName vName) ...)
+  [(α-to-edges ι α) (list-to-edges (αToWriteVNames ι α))])
 
 (define-metafunction coreLang
-  α-treeToEdges : ι α-tree -> ((vName vName) ...)
-  [(α-treeToEdges ι α) (αToEdges ι α)]
-  [(α-treeToEdges ι (par α-tree_0 α-tree_1)) (appendT (α-treeToEdges ι α-tree_0)
-                                       (α-treeToEdges ι α-tree_1))])
+  α-tree-to-edges : ι α-tree -> ((vName vName) ...)
+  [(α-tree-to-edges ι α) (α-to-edges ι α)]
+  [(α-tree-to-edges ι (par α-tree_0 α-tree_1)) (appendT (α-tree-to-edges ι α-tree_0)
+                                       (α-tree-to-edges ι α-tree_1))])
 
 (define-metafunction coreLang
   writesMOedges : ι α-tree observedWrites -> ((vName vName) ...)
   [(writesMOedges ι α-tree observedWrites)
-   (appendT (α-treeToEdges ι α-tree)
-            (observedWritesToEdges ι observedWrites))])
+   (appendT (α-tree-to-edges ι α-tree)
+            (observedWrites-to-edges ι observedWrites))])
 
 (define (hasLoop edges)
   (ormap (λ (x) (> (length x) 1))
@@ -303,14 +303,14 @@
         "read-postponed"
         (fresh a)
         (where path     (pathE E))
-        (where α-tree        (getα-tree auxξ))
+        (where α-tree   (getα-tree auxξ))
         (where α        (getByPath path α-tree))
         
         (side-condition (term (isCorrectEif Eif α)))
 
-        (where α_new    (appendToα Eif (read a ι-var RM ()) α))
-        (where α-tree_new    (updateOnPath path α_new α-tree))
-        (where auxξ_new (updateState (P α-tree) (P α-tree_new) auxξ))
+        (where α_new      (appendToα Eif (read a ι-var RM ()) α))
+        (where α-tree_new (updateOnPath path α_new α-tree))
+        (where auxξ_new   (updateState (P α-tree) (P α-tree_new) auxξ))
 
         (side-condition (not (equal? (term sc) (term RM)))))
 
@@ -618,7 +618,7 @@
         (where path     (pathE E))
         (where α-tree        (getα-tree auxξ))
         (where α        (getByPath path α-tree))
-        (side-condition (not (term (isIfInα Expr_simplified α))))
+        (side-condition (not (term (is-if-in-α Expr_simplified α))))
 
         (fresh a)
         (where α_new    (appendToα Eif (if a Expr_simplified () ()) α))
