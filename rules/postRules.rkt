@@ -588,7 +588,7 @@
         
         (where auxξ_upd_γ   (dupRelWriteRestrictions ι τ σ_write auxξ_part2_γ))
 
-        (where auxξ_upd_γ_2 (addPostReadsToγ_α (elFirstPart El) ι τ auxξ_upd_γ))
+        (where auxξ_upd_γ_2 (add-γ-entries_α (elFirstPart El) ι τ auxξ_upd_γ))
         (where auxξ_upd_γ_3 (addObservedWritesToγ path ι τ WM auxξ_upd_γ_2))
         
         (where auxξ_upd_observedWrites (resolveObservedWrite (vName ι τ) auxξ_upd_γ_3))

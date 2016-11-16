@@ -4,6 +4,18 @@
 (provide (all-defined-out))
 
 (define-metafunction coreLang
+  consT : any (any ...) -> (any ...)
+  [(consT any_0 any_1) ,(cons (term any_0) (term any_1))])
+
+(define-metafunction coreLang
+  appendT : (any ...) (any ...) -> (any ...)
+  [(appendT any_0 any_1) ,(append (term any_0) (term any_1))])
+
+(define-metafunction coreLang
+  appendT3 : (any ...) (any ...) (any ...) -> (any ...)
+  [(appendT3 any_0 any_1 any_2) ,(append (term any_0) (term any_1) (term any_2))])
+
+(define-metafunction coreLang
   getη : auxξ -> η
   [(getη (any_0 ... η any_1 ...)) η])
 
@@ -303,16 +315,6 @@
                          (where GF_new (updateOnPath path number_new GF))]
   [(joinST-gr path auxξ) auxξ])
 
-;; Postponed reads part
-
-(define-metafunction coreLang
-  getα-tree : auxξ -> α-tree
-  [(getα-tree (any_0 ... (P α-tree) any_1 ...)) α-tree])
-
-(define-metafunction coreLang
-  getγ : auxξ -> γ
-  [(getγ (any_0 ... (R γ) any_1 ...)) γ])
-
 (define-metafunction coreLang
   pathEp : Ep -> path
   [(pathEp hole) ()]
@@ -333,41 +335,15 @@
   [(updateOnPath (R path) any_new (par any_0 any_1))
    (par any_0 (updateOnPath path any_new any_1))])
 
-(define (getLastNodeNumber nodes)
-      (apply max
-             (map (lambda (x)
-                    (match x [(list fst snd) fst]))
-             nodes)))
-
-(define (getLastNodeNumber_gr graph)
-  (match graph [(list nodes edges)
-      (getLastNodeNumber nodes)]))
-
-(define (getNextNodeNumber nodes)
-  (+ 1 (getLastNodeNumber nodes)))
-
-(define (getNextNodeNumber_gr graph)
-  (+ 1 (getLastNodeNumber_gr graph)))
+;; Postponed operations part
 
 (define-metafunction coreLang
-  addWriteNode : Action path auxξ -> auxξ
-  [(addWriteNode (write WM ι μ-value τ) path auxξ)
-                 (updateState (Graph G) (Graph G_new)
-                     (updateState (GFront GF) (GFront GF_new) auxξ))
-                     (where (any_0 ... (Graph G) any_1 ... (GFront GF) any_2 ...) auxξ)
-                     (where (Nodes Edges) G)
-                     (where number_new ,(getNextNodeNumber (term Nodes)))                   
-                     (where Node_write
-                            (number_new (write WM ι μ-value τ)))
-  
-                     (where GF (getGF auxξ))
-                     (where number_old (getByPath path GF))
-                     (where Nodes_new ,(cons (term Node_write) (term Nodes)))
-                     (where Edges_new ,(cons (term (number_old number_new sb))
-                                             (term Edges)))                                         
-                     (where G_new  (Nodes_new Edges_new))
-                     (where GF_new (updateOnPath path number_new GF))]
-  [(addWriteNode Action path auxξ) auxξ])
+  getα-tree : auxξ -> α-tree
+  [(getα-tree (any_0 ... (P α-tree) any_1 ...)) α-tree])
+
+(define-metafunction coreLang
+  getγ : auxξ -> γ
+  [(getγ (any_0 ... (R γ) any_1 ...)) γ])
 
 (define-metafunction coreLang
   is-α-== : α-tree path auxξ -> boolean
@@ -381,43 +357,48 @@
   [(is-α-empty path auxξ) (is-α-== () path auxξ)])
 
 (define-metafunction coreLang
-  isPostRlx : postponedEntry -> boolean
-  [(isPostRlx (read   vName ι-var rlx σ-dd)) #t]
-  [(isPostRlx (read   vName ι-var con σ-dd)) #t]
-  [(isPostRlx (let-in vName μ))              #t]
-  [(isPostRlx (write  vName ι-var rlx μ   )) #t]
-  [(isPostRlx (if vName μ α_0 α_1))
-   ,(and (term (are∀PostRlxInα α_0))
-         (term (are∀PostRlxInα α_1)))]
-  [(isPostRlx any)                           #f])
+  is-post-inst-rlx : postponedEntry -> boolean
+  [(is-post-inst-rlx (read   vName ι-var rlx σ-dd)) #t]
+  [(is-post-inst-rlx (read   vName ι-var con σ-dd)) #t]
+  [(is-post-inst-rlx (let-in vName μ))              #t]
+  [(is-post-inst-rlx (write  vName ι-var rlx μ   )) #t]
+
+  [(is-post-inst-rlx (fence  FenceM))               #f]
+
+  [(is-post-inst-rlx (if vName μ α_0 α_1))
+   ,(and (term (are-α-insts-rlx α_0))
+         (term (are-α-insts-rlx α_1)))]
+  [(is-post-inst-rlx any)                           #f])
 
 (define-metafunction coreLang
-  are∀PostRlxInα : α -> boolean
-  [(are∀PostRlxInα α) ,(andmap (λ (x) (term (isPostRlx ,x))) (term α))])
-
-;; TODO: rename appropriately
-(define-metafunction coreLang
-  are∀PostReadsRlx : path auxξ -> boolean
-  [(are∀PostReadsRlx path (any_0 ... (P α-tree_all) any_1 ...)) (are∀PostRlxInα α)
-                                                       (where α (getByPath path α-tree_all))]
-  [(are∀PostReadsRlx path auxξ) #t])
+  are-α-insts-rlx : α -> boolean
+  [(are-α-insts-rlx α) ,(andmap (λ (x) (term (is-post-inst-rlx ,x))) (term α))])
 
 (define-metafunction coreLang
-  ιNotInPostponedEntry : ι postponedEntry -> boolean
-  [(ιNotInPostponedEntry ι (read  vName         ι RM σ-dd)) #f]
-  [(ιNotInPostponedEntry ι (read  vName_0 vName_1 RM σ-dd)) #f]
-  [(ιNotInPostponedEntry ι (write vName   ι       WM μ   )) #f]
-  [(ιNotInPostponedEntry ι (write vName_0 vName_1 WM μ   )) #f]
+  are-thread-post-insts-rlx : path auxξ -> boolean
+  [(are-thread-post-insts-rlx path (any_0 ... (P α-tree) any_1 ...))
+   (are-α-insts-rlx α)
+   (where α (getByPath path α-tree))]
+  [(are-thread-post-insts-rlx path auxξ) #t])
 
-  [(ιNotInPostponedEntry ι (if vName μ α_0 α_1))
+(define-metafunction coreLang
+  postponed-entry-doesnt-affect-ι : ι postponedEntry -> boolean
+  [(postponed-entry-doesnt-affect-ι ι (read  vName         ι RM σ-dd)) #f]
+  [(postponed-entry-doesnt-affect-ι ι (read  vName_0 vName_1 RM σ-dd)) #f]
+  [(postponed-entry-doesnt-affect-ι ι (write vName   ι       WM μ   )) #f]
+  [(postponed-entry-doesnt-affect-ι ι (write vName_0 vName_1 WM μ   )) #f]
+
+  [(postponed-entry-doesnt-affect-ι ι (fence FenceM                 )) #f]
+
+  [(postponed-entry-doesnt-affect-ι ι (if vName μ α_0 α_1))
    ,(and (term (ι-not-in-α ι α_0))
          (term (ι-not-in-α ι α_1)))]
 
-  [(ιNotInPostponedEntry ι postponedEntry)                  #t])
+  [(postponed-entry-doesnt-affect-ι ι postponedEntry)                  #t])
 
 (define-metafunction coreLang
   ι-not-in-α : ι α -> boolean
-  [(ι-not-in-α ι α) ,(andmap (λ (x) (term (ιNotInPostponedEntry ι ,x))) (term α))])
+  [(ι-not-in-α ι α) ,(andmap (λ (x) (term (postponed-entry-doesnt-affect-ι ι ,x))) (term α))])
    
 (define-metafunction coreLang
   ι-not-in-α-tree : ι path auxξ -> boolean
@@ -427,8 +408,8 @@
   [(ι-not-in-α-tree ι path auxξ) #t])
 
 (define-metafunction coreLang
-  αToγRecords : ι τ α -> γ
-  [(αToγRecords ι τ α) ,(apply
+  α-to-γ-entries : ι τ α -> γ
+  [(α-to-γ-entries ι τ α) ,(apply
                          append (map
                                  (λ (x) (match x [(list 'read vName locvar mod ddFront)
                                                   (list (list (term ι) (term τ) vName))]
@@ -477,33 +458,20 @@
 
   [(addObservedWritesToγ path ι τ WM auxξ) auxξ])
 
-;; TODO: rename appropriately
 (define-metafunction coreLang
-  addPostReadsToγ : path ι τ auxξ -> auxξ
-  [(addPostReadsToγ path ι τ (any_0 ... (P α-tree) any_1 ... (R γ) any_2 ...))
+  add-γ-entries : path ι τ auxξ -> auxξ
+  [(add-γ-entries path ι τ (any_0 ... (P α-tree) any_1 ... (R γ) any_2 ...))
    (any_0 ... (P α-tree) any_1 ... (R γ_new) any_2 ...)
    (where α (getByPath path α-tree))
-   (where γ_new ,(append (term (αToγRecords ι τ α)) (term γ)))]
-  [(addPostReadsToγ path ι τ auxξ) auxξ])
+   (where γ_new ,(append (term (α-to-γ-entries ι τ α)) (term γ)))]
+  [(add-γ-entries path ι τ auxξ) auxξ])
 
 (define-metafunction coreLang
-  addPostReadsToγ_α : α ι τ auxξ -> auxξ
-  [(addPostReadsToγ_α α ι τ (any_0 ... (P α-tree) any_1 ... (R γ) any_2 ...))
+  add-γ-entries_α : α ι τ auxξ -> auxξ
+  [(add-γ-entries_α α ι τ (any_0 ... (P α-tree) any_1 ... (R γ) any_2 ...))
    (any_0 ... (P α-tree) any_1 ... (R γ_new) any_2 ...)
-   (where γ_new ,(append (term (αToγRecords ι τ α)) (term γ)))]
-  [(addPostReadsToγ_α α ι τ auxξ) auxξ])
-
-(define-metafunction coreLang
-  consT : any (any ...) -> (any ...)
-  [(consT any_0 any_1) ,(cons (term any_0) (term any_1))])
-
-(define-metafunction coreLang
-  appendT : (any ...) (any ...) -> (any ...)
-  [(appendT any_0 any_1) ,(append (term any_0) (term any_1))])
-
-(define-metafunction coreLang
-  appendT3 : (any ...) (any ...) (any ...) -> (any ...)
-  [(appendT3 any_0 any_1 any_2) ,(append (term any_0) (term any_1) (term any_2))])
+   (where γ_new ,(append (term (α-to-γ-entries ι τ α)) (term γ)))]
+  [(add-γ-entries_α α ι τ auxξ) auxξ])
 
 (define-metafunction coreLang
   substμPostponedEntry : vName μ σ-dd postponedEntry -> postponedEntry
@@ -971,3 +939,41 @@
 ;;             (let/ec k
 ;;               (list (list #f (hash-ref children t (λ () (k '())))))))
 ;;           #:pp pp))
+
+
+;; Graph part
+(define (getLastNodeNumber nodes)
+      (apply max
+             (map (lambda (x)
+                    (match x [(list fst snd) fst]))
+             nodes)))
+
+(define (getLastNodeNumber_gr graph)
+  (match graph [(list nodes edges)
+      (getLastNodeNumber nodes)]))
+
+(define (getNextNodeNumber nodes)
+  (+ 1 (getLastNodeNumber nodes)))
+
+(define (getNextNodeNumber_gr graph)
+  (+ 1 (getLastNodeNumber_gr graph)))
+
+(define-metafunction coreLang
+  addWriteNode : Action path auxξ -> auxξ
+  [(addWriteNode (write WM ι μ-value τ) path auxξ)
+                 (updateState (Graph G) (Graph G_new)
+                     (updateState (GFront GF) (GFront GF_new) auxξ))
+                     (where (any_0 ... (Graph G) any_1 ... (GFront GF) any_2 ...) auxξ)
+                     (where (Nodes Edges) G)
+                     (where number_new ,(getNextNodeNumber (term Nodes)))                   
+                     (where Node_write
+                            (number_new (write WM ι μ-value τ)))
+  
+                     (where GF (getGF auxξ))
+                     (where number_old (getByPath path GF))
+                     (where Nodes_new ,(cons (term Node_write) (term Nodes)))
+                     (where Edges_new ,(cons (term (number_old number_new sb))
+                                             (term Edges)))                                         
+                     (where G_new  (Nodes_new Edges_new))
+                     (where GF_new (updateOnPath path number_new GF))]
+  [(addWriteNode Action path auxξ) auxξ])

@@ -79,7 +79,7 @@
   [σ-tree σ
           (par σ-tree σ-tree)]
   
-  ; A function from ι to σ to represent a thread release fronts.
+  ; A function from ι to σ, which represents per-location release fronts.
   [χ ((ι σ) ...)]
   ; A per-thread χ function.
   [χ-tree χ
@@ -129,6 +129,7 @@
   [postponedEntry (read   vName ι-var RM σ-dd) ;; postponed read
                   (let-in vName μ)             ;; postponed let expression
                   (write  vName ι-var WM μ)    ;; postponed write
+                  (fence  FenceM)
                   
                   ;; Speculative `if'.
                   ;; vName --- an unique identifier;

@@ -110,15 +110,15 @@
    (term (() (Graph (((1 skip) (0 skip)) ((0 1 sb)))) (GFront (par 1 1)))))
 
   (test-equal
-   (term (are∀PostReadsRlx () (() (P ((read x "x" rlx ()))))))
+   (term (are-thread-post-insts-rlx () (() (P ((read x "x" rlx ()))))))
    #t)
 
   (test-equal
-   (term (are∀PostReadsRlx () (() (P ((read x "x" acq ()) (read y "y" rlx ()))))))
+   (term (are-thread-post-insts-rlx () (() (P ((read x "x" acq ()) (read y "y" rlx ()))))))
    #f)
 
   (test-equal
-   (term (are∀PostReadsRlx () (())))
+   (term (are-thread-post-insts-rlx () (())))
   #t))
 (coreUtils-tests)
 

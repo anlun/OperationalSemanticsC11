@@ -54,12 +54,12 @@
         (where auxξ_upd_write (synchronizeWriteFront path auxξ_upd_acq))
         (where η_new          (updateCell  ι μ-value σ_new η))
         (where auxξ_upd_η     (updateState η η_new auxξ_upd_write))
-        (where auxξ_upd_γ     (addPostReadsToγ path ι τ auxξ_upd_η))
+        (where auxξ_upd_γ     (add-γ-entries path ι τ auxξ_upd_η))
         (where auxξ_upd_γ_2   (addObservedWritesToγ path ι τ rel auxξ_upd_γ))
         (where auxξ_upd_χ     (updateRelFront path ι σ_new auxξ_upd_γ_2))
         (where auxξ_new       (addWriteNode (write rel ι μ-value τ) path auxξ_upd_χ))
 
-        (side-condition (term (are∀PostReadsRlx  path auxξ)))
+        (side-condition (term (are-thread-post-insts-rlx  path auxξ)))
         (side-condition (term (ι-not-in-α-tree ι path auxξ)))))))
 
 (define-syntax-rule (define-relAcqCasRules lang) 

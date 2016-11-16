@@ -77,7 +77,7 @@
         (where auxξ_upd_γ (dupRelWriteRestrictions ι τ σ_write auxξ_upd_η))
         (where auxξ_new   auxξ_upd_γ)
 
-        (side-condition (term (are∀PostReadsRlx  path auxξ)))
+        (side-condition (term (are-thread-post-insts-rlx  path auxξ)))
         (side-condition (term (ι-not-in-α-tree ι path auxξ))))
 )))
 
