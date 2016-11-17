@@ -24,19 +24,19 @@
   [(snocOnPath (R path) any_0 (par any_1 any_2)) (par any_1 (snocOnPath path any_0 any_2))])
 
 (define-metafunction coreLang
-  isPostponedEntryIfIdentifier : any postponedEntry -> boolean
-  [(isPostponedEntryIfIdentifier vName (if vName   any_1 ...)) #t]
-  [(isPostponedEntryIfIdentifier vName (if vName_1 Expr α_0 α_1))
+  is-pentry-if-id : any postponedEntry -> boolean
+  [(is-pentry-if-id vName (if vName   any_1 ...)) #t]
+  [(is-pentry-if-id vName (if vName_1 Expr α_0 α_1))
    ,(or (term (is-if-in-α vName α_0))
         (term (is-if-in-α vName α_1)))]
-  [(isPostponedEntryIfIdentifier any_0 any_1               ) #f])
+  [(is-pentry-if-id any_0 any_1               ) #f])
 
 (define-metafunction coreLang
   ;; Checks if there is a postponed operation with the `any' identifier
   ;; (the first argument).
   is-if-in-α : any α -> boolean
   [(is-if-in-α any α) ,(ormap (λ (x)
-                             (term (isPostponedEntryIfIdentifier any ,x)))
+                             (term (is-pentry-if-id any ,x)))
                            (term α))])
 
 (define-metafunction coreLang
@@ -66,15 +66,6 @@
         (term Maybe))
    (where Maybe (getWriteToPropagate ι Eifα))]
 )
-
-(define-metafunction coreLang
-  list-to-edges : (any ...) -> ((any any) ...)
-  [(list-to-edges ()   ) ()]
-  [(list-to-edges (any)) ()]
-  [(list-to-edges (any_0 any_1)) ((any_0 any_1))]
-  [(list-to-edges (any_0 any_1 any_2 ...))
-   (consT (any_0 any_1)
-          (list-to-edges (any_1 any_2 ...)))])
 
 (define-metafunction coreLang
   observedWriteList-to-edges_vName : vName ι observedWriteList -> ((vName vName) ...)
@@ -125,20 +116,30 @@
    (where observedWrites (getObservedWrites auxξ))])
    
 (define-metafunction coreLang
-  postponedEntryToWriteVNames : ι postponedEntry -> (vName ...)
-  [(postponedEntryToWriteVNames ι (read   any ...)) ()]
-  [(postponedEntryToWriteVNames ι (let-in any ...)) ()]
-  [(postponedEntryToWriteVNames ι (write  vName ι   any ...)) (vName)]
-  [(postponedEntryToWriteVNames ι (write  vName ι_0 any ...)) ()]
-  [(postponedEntryToWriteVNames ι (if     vName Expr α_0 α_1))
+  pentry-to-write-vname : ι postponedEntry -> (vName ...)
+  [(pentry-to-write-vname ι (read   any ...)) ()]
+  [(pentry-to-write-vname ι (fence  any ...)) ()]
+  [(pentry-to-write-vname ι (let-in any ...)) ()]
+  [(pentry-to-write-vname ι (write  vName ι   any ...)) (vName)]
+  [(pentry-to-write-vname ι (write  vName ι_0 any ...)) ()]
+  [(pentry-to-write-vname ι (if     vName Expr α_0 α_1))
    (appendT (αToWriteVNames ι α_0)
             (αToWriteVNames ι α_1))])
 
 (define-metafunction coreLang
   αToWriteVNames : ι α -> (vName ...)
   [(αToWriteVNames ι α) ,(apply append
-                                (map (λ (x) (term (postponedEntryToWriteVNames ι ,x)))
+                                (map (λ (x) (term (pentry-to-write-vname ι ,x)))
                                      (term α)))])
+
+(define-metafunction coreLang
+  list-to-edges : (any ...) -> ((any any) ...)
+  [(list-to-edges ()   ) ()]
+  [(list-to-edges (any)) ()]
+  [(list-to-edges (any_0 any_1)) ((any_0 any_1))]
+  [(list-to-edges (any_0 any_1 any_2 ...))
+   (consT (any_0 any_1)
+          (list-to-edges (any_1 any_2 ...)))])
 
 (define-metafunction coreLang
   α-to-edges : ι α -> ((vName vName) ...)
@@ -254,6 +255,7 @@
   [(isSyncAction (if vName Expr α_0 α_1))
    ,(or (term (existSyncAction α_0))
         (term (existSyncAction α_1)))]
+  [(isSyncAction (fence any)   ) #t]
   [(isSyncAction postponedEntry) #f])
 
 (define-metafunction coreLang
@@ -303,7 +305,7 @@
         "read-postponed"
         (fresh a)
         (where path     (pathE E))
-        (where α-tree        (getα-tree auxξ))
+        (where α-tree   (getα-tree auxξ))
         (where α        (getByPath path α-tree))
 
         (side-condition (term (isCorrectEif Eif α)))

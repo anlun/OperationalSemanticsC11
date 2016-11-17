@@ -124,7 +124,7 @@
   [postponedEntry (read   vName ι-var RM σ-dd) ;; postponed read
                   (let-in vName μ)             ;; postponed let expression
                   (write  vName ι-var WM μ)    ;; postponed write
-                  (fence  FenceM)
+                  (fence  vName FenceM)
                   
                   ;; Speculative `if'.
                   ;; vName --- an unique identifier;

@@ -363,7 +363,7 @@
   [(is-post-inst-rlx (let-in vName μ))              #t]
   [(is-post-inst-rlx (write  vName ι-var rlx μ   )) #t]
 
-  [(is-post-inst-rlx (fence  FenceM))               #f]
+  [(is-post-inst-rlx (fence  vName FenceM))         #f]
 
   [(is-post-inst-rlx (if vName μ α_0 α_1))
    ,(and (term (are-α-insts-rlx α_0))
@@ -388,7 +388,7 @@
   [(postponed-entry-doesnt-affect-ι ι (write vName   ι       WM μ   )) #f]
   [(postponed-entry-doesnt-affect-ι ι (write vName_0 vName_1 WM μ   )) #f]
 
-  [(postponed-entry-doesnt-affect-ι ι (fence FenceM                 )) #f]
+  [(postponed-entry-doesnt-affect-ι ι (fence vName   FenceM         )) #f]
 
   [(postponed-entry-doesnt-affect-ι ι (if vName μ α_0 α_1))
    ,(and (term (ι-not-in-α ι α_0))
