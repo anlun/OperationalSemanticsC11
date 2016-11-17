@@ -298,6 +298,23 @@
 
   (reduction-relation
    lang #:domain ξ
+   (-->  ((in-hole E (in-hole Eif (fence FenceM))) auxξ)
+        (normalize
+         ((in-hole E (in-hole Eif (ret  a      ))) auxξ_new))
+        "fence-postponed"
+        (fresh a)
+        (where path     (pathE E))
+        (where α-tree   (getα-tree auxξ))
+        (where α        (getByPath path α-tree))
+
+        (side-condition (term (isCorrectEif Eif α)))
+
+        (where α_new      (appendToα Eif (fence a FenceM) α))
+        (where α-tree_new (updateOnPath path α_new α-tree))
+        (where auxξ_new   (updateState (P α-tree) (P α-tree_new) auxξ))
+
+        (side-condition (not (equal? (term sc) (term FenceM)))))
+ 
    
    (-->  ((in-hole E (in-hole Eif (read RM ι-var σ-dd))) auxξ)
         (normalize
@@ -554,6 +571,56 @@
 
         (where τ               (getNextTimestamp ι η))
         (where σ-tree_read_new      (updateByFront path ((ι τ)) σ-tree_read))
+        (where auxξ_read_front (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ_upd_α-tree))
+        (where auxξ_upd_front  ,(if (equal? (term WM) 'rel)
+                                    (term (synchronizeWriteFront path auxξ_read_front))
+                                    (term auxξ_read_front)))
+
+        (where σ_write    (getWriteσ path auxξ_upd_front))
+        (where σ_ToWrite  ,(if (equal? (term WM) 'rel)
+                               (term (getReadσ path auxξ_upd_front))
+                               (term (updateFront ι τ (getσToWrite σ_write ι η)))))
+        (where η_new      (updateCell  ι μ-value σ_ToWrite η))
+        (where auxξ_upd_η (updateState η η_new auxξ_upd_front))
+        
+        (where auxξ_part1_γ (resolveWriteγ path vName ((ι τ)) auxξ_upd_η))
+        (where γ_part1      (getγ auxξ_part1_γ))
+        (where γ_part2      (removeγRestrictionsByVName vName γ_part1))
+        (where auxξ_part2_γ (updateState (R γ_part1) (R γ_part2) auxξ_part1_γ))
+        
+        (where auxξ_upd_γ   (dupRelWriteRestrictions ι τ σ_write auxξ_part2_γ))
+
+        (where auxξ_upd_γ_2 (add-γ-entries_α (elFirstPart El) ι τ auxξ_upd_γ))
+        (where auxξ_upd_γ_3 (addObservedWritesToγ path ι τ WM auxξ_upd_γ_2))
+        
+        (where auxξ_upd_observedWrites (resolveObservedWrite (vName ι τ) auxξ_upd_γ_3))
+        (where auxξ_new   auxξ_upd_observedWrites))
+
+   ; TODO
+   (-->  (AST  auxξ)
+        (normalize 
+         ((subst vName 0 AST) auxξ_new))
+        "fence-resolve"
+
+        (where (in-hole Ep α_thread) (getα-tree auxξ))
+        (where (in-hole Eifα α) α_thread)
+        (side-condition (not (empty? (term α))))
+
+        (side-condition (equal? (term Eifα) (term hole)))
+
+        (where (in-hole El (fence vName FenceM)) α)
+        (where path (pathEp Ep))
+
+        (where α_new           (substμα vName 0 () (elToList El)))
+        (where α-tree          (getα-tree auxξ))
+        (where α-tree_new      (updateOnPath path (in-hole Eifα α_new) α-tree))
+        (where auxξ_upd_α-tree (updateState (P α-tree) (P α-tree_new) auxξ))
+
+        (where η            (getη auxξ))
+        (where σ-tree_read  (getReadσ-tree auxξ))
+
+        (where τ               (getNextTimestamp ι η))
+        (where σ-tree_read_new (updateByFront path ((ι τ)) σ-tree_read))
         (where auxξ_read_front (updateState (Read σ-tree_read) (Read σ-tree_read_new) auxξ_upd_α-tree))
         (where auxξ_upd_front  ,(if (equal? (term WM) 'rel)
                                     (term (synchronizeWriteFront path auxξ_read_front))
