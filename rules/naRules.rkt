@@ -14,19 +14,23 @@
 
    (-->  ((in-hole E (read na ι σ-dd)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value)) auxξ_new))
+         ((propagateDD path σ-dd
+           (in-hole E (ret μ-value))) auxξ_new))
         "read-na"
         (where η       (getη     auxξ))
         (where σ-tree  (getReadσ-tree auxξ))
         (where σ_read  (getByPath (pathE E) σ-tree))
         (where τ       (getLastTimestamp ι η))
+
+        (side-condition (term (seeLast ι η (frontMerge σ-dd σ_read))))
+        (side-condition (term (nonNegativeτ τ)))
+
         (where μ-value (getValueByCorrectTimestamp ι τ η))
 
         (where path (pathE E))
         (where auxξ_new (addReadNode τ (read na ι μ-value) path auxξ))
         
-        (side-condition (term (seeLast ι η (frontMerge σ-dd σ_read))))
-        (side-condition (term (nonNegativeτ τ)))))))
+))))
 
 (define-syntax-rule (define-naWriteStuckRules lang defaultState)
   (begin

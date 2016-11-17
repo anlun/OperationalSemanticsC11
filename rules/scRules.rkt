@@ -56,7 +56,8 @@
       
    (-->  ((in-hole E (read   sc ι σ-dd)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value)) auxξ_new))
+         ((propagateDD path σ-dd
+           (in-hole E (ret μ-value))) auxξ_new))
         "read-sc"
         (where η    (getη auxξ))
         (where path (pathE E))
@@ -80,7 +81,8 @@
 
    (-->  ((in-hole E (cas SM sc ι μ-value_expected μ-value_new σ-dd)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value                                  )) auxξ_new))
+         ((propagateDD path σ-dd
+           (in-hole E (ret μ-value))) auxξ_new))
         "cas-fail-sc"
         (where η (getη auxξ))
         (where (in-hole El (τ μ-value σ)) (getCellHistory ι η))
@@ -104,7 +106,8 @@
 
    (-->  ((in-hole E (cas sc FM ι μ-value_expected μ-value_new σ-dd)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value_expected                         )) auxξ_new))
+         ((propagateDD path σ-dd
+           (in-hole E (ret μ-value_expected))) auxξ_new))
         "cas-succ-sc"
         (where η          (getη     auxξ))
         (where σ-tree     (getReadσ-tree auxξ))

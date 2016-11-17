@@ -13,7 +13,8 @@
    
    (-->  ((in-hole E (read  rlx ι σ-dd)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value)) auxξ_new))
+         ((propagateDD path σ-dd
+           (in-hole E (ret μ-value))) auxξ_new))
         "read-rlx"
         (where η         (getη     auxξ))
         (where σ-tree    (getReadσ-tree auxξ))
@@ -89,7 +90,8 @@
 
    (-->  ((in-hole E (cas SM rlx ι μ-value_expected μ-value_new σ-dd)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value                                   )) auxξ_new))
+         ((propagateDD path σ-dd
+           (in-hole E (ret μ-value))) auxξ_new))
         "cas-fail-rlx"
         (where η                          (getη     auxξ))
         (where σ-tree                     (getReadσ-tree auxξ))
@@ -113,7 +115,8 @@
    
    (-->  ((in-hole E (cas rlx FM ι μ-value_expected μ-value_new σ-dd)) auxξ)
         (normalize
-         ((in-hole E (ret μ-value_expected                          )) auxξ_new))
+         ((propagateDD path σ-dd
+           (in-hole E (ret μ-value_expected))) auxξ_new))
         "cas-succ-rlx"
         (where path     (pathE E))
         (side-condition (term (ι-not-in-α-tree ι path auxξ)))
