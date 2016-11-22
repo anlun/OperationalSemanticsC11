@@ -301,7 +301,7 @@
    (-->  ((in-hole E (in-hole Eif (fence FenceM))) auxξ)
         (normalize
          ((in-hole E (in-hole Eif (ret  a      ))) auxξ_new))
-        "fence-postponed"
+        "fence-postpone"
         (fresh a)
         (where path     (pathE E))
         (where α-tree   (getα-tree auxξ))
@@ -319,7 +319,7 @@
    (-->  ((in-hole E (in-hole Eif (read RM ι-var σ-dd))) auxξ)
         (normalize
          ((in-hole E (in-hole Eif (ret  a            ))) auxξ_new))
-        "read-postponed"
+        "read-postpone"
         (fresh a)
         (where path     (pathE E))
         (where α-tree   (getα-tree auxξ))
@@ -663,7 +663,7 @@
         (normalize
          ((in-hole E (in-hole Eif (if a    AST_0 AST_1))) auxξ_new))
         "if-speculation-init"
-        
+
         (where Expr_simplified (calc Expr))
         (side-condition (not (redex-match coreLang number (term Expr_simplified))))
 
