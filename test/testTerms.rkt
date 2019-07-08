@@ -364,6 +364,38 @@ It uses rlx writes and reads instead of rel/acq, and it leads to `stuck`.
 
 #|
        c_rlx = 0
+r1 = a_na || repeat (c_rlx) end
+c_rlx = 1 || a_na = 5 
+       ret a_na
+|#
+(define testMP+read+rlx
+  @prog{c_rlx := 0;
+        a_na := 0;
+        spw
+        {{{ r2 := a_na;
+            c_rlx := 1
+        ||| repeat c_rlx end;
+            a_na := 5 }}};
+        ret 0 })
+
+#|
+       c_rlx = 0
+r1 = a_na || repeat (c_rlx) end
+c_rel = 1 || a_na = 5 
+       ret a_na
+|#
+(define testMP+read+rel
+  @prog{c_rlx := 0;
+        a_na := 0;
+        spw
+        {{{ r2 := a_na;
+            c_rel := 1
+        ||| repeat c_rlx end;
+            a_na := 5 }}};
+        ret 0 })
+
+#|
+       c_rlx = 0
 a_rlx = 7 || if (c_acq)
 c_rel = 1 ||   a_rlx = a_rlx + 1
        ret a_rlx
